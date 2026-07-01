@@ -23,6 +23,14 @@
         "test": "vitest run",
         "test:watch": "vitest"
     },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/result.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sandlada/result/issues"
+    },
+    "homepage": "https://github.com/sandlada/result#readme",
     "keywords": [
         "result",
         "either",
