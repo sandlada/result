@@ -1,17 +1,7 @@
-/**
- * SPEC § Custom Error Types — 自訂錯誤類型測試
- *
- * 涵蓋三種錯誤模式：
- * 1. Discriminated Union   （標記聯合型別 — 推薦）
- * 2. Class-Based Errors     （類別型錯誤）
- * 3. Plain Objects          （普通物件 — 快速）
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
 import type { IResult } from '../src/IResult.js';
-import type { IResult as IResultOfT } from '../src/IResultOfT.js';
-
-// ─── Helper Types ───────────────────────────────────────────────
+import type { IResultOfT } from '../src/IResultOfT.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
@@ -27,8 +17,6 @@ class DomainError extends Error {
         this.name = 'DomainError';
     }
 }
-
-// ─── 1. Discriminated Union ─────────────────────────────────────
 
 describe('Discriminated union error', () => {
     describe('Validation error', () => {
@@ -102,8 +90,6 @@ describe('Discriminated union error', () => {
     });
 });
 
-// ─── 2. Class-Based Errors ──────────────────────────────────────
-
 describe('Class-based error', () => {
     it('creates failure with DomainError', () => {
         const err = Result.Failure<string, DomainError>(
@@ -139,8 +125,6 @@ describe('Class-based error', () => {
         expect(r2.error.code).toBe('E2');
     });
 });
-
-// ─── 3. Plain Objects ───────────────────────────────────────────
 
 describe('Plain object error', () => {
     it('passes any object as error', () => {

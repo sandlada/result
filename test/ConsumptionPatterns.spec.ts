@@ -1,17 +1,6 @@
-/**
- * SPEC § Consumption Patterns — 消費模式測試
- *
- * 涵蓋：
- * 1. Branching            if/else 分支
- * 2. Early Return         提早返回 / 錯誤傳播
- * 3. Type Narrowing       isSuccess 後型別縮窄
- * 4. Edge Cases           邊界情況
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-import type { IResult } from '../src/IResultOfT.js';
-
-// ─── Test Types ─────────────────────────────────────────────────
+import type { IResult } from '../src/IResult.js';
 
 type AppError =
     | { kind: 'NotFound'; id: string }
@@ -23,10 +12,9 @@ describe('Branching (if/else)', () => {
     it('success branch: value accessible', () => {
         const result = Result.Success(42);
         if (result.isSuccess) {
-            const doubled = result.value * 2; // value is number
+            const doubled = result.value * 2;
             expect(doubled).toBe(84);
         } else {
-            // should not reach here
             expect.fail('should be success');
         }
     });
@@ -54,8 +42,6 @@ describe('Branching (if/else)', () => {
         expect(handle(Result.Failure<string, AppError>({ kind: 'NotFound', id: 'x' }))).toBe('Not found: x');
     });
 });
-
-// ─── 2. Early Return / Error Propagation ────────────────────────
 
 describe('Early return / error propagation', () => {
     it('propagates failure without unwrapping', () => {
@@ -143,17 +129,13 @@ describe('Early return / error propagation', () => {
     });
 });
 
-// ─── 3. Type Narrowing ──────────────────────────────────────────
-
 describe('Type narrowing', () => {
     it('value is narrowed after isSuccess check', () => {
         function handle(result: IResult<string, AppError>) {
             if (result.isSuccess) {
-                // result.value should be narrowed to string
                 const upper: string = result.value.toUpperCase();
                 return upper;
             }
-            // result.error should be narrowed to AppError
             return `Error: ${result.error.kind}`;
         }
 
@@ -185,8 +167,6 @@ describe('Type narrowing', () => {
     });
 });
 
-// ─── 4. Edge Cases ──────────────────────────────────────────────
-
 describe('Edge cases', () => {
     it('result with void value is just a status signal', () => {
         function maybeDo(): IResult<void, AppError> {
@@ -210,7 +190,7 @@ describe('Edge cases', () => {
     it('void success as completion signal', () => {
         let sideEffect = false;
         function performAction(): IResult<void, AppError> {
-            if (/* some condition */ true) {
+            if (true) {
                 sideEffect = true;
                 return Result.Success(undefined);
             }

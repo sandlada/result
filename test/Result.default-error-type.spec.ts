@@ -1,16 +1,5 @@
-/**
- * SPEC § Default Error Type — TError = Error 預設行為測試
- *
- * 涵蓋：
- * - 省略 TError 時預設為 Error
- * - Result.Failure(new Error(...)) 返回 IResult<Error>
- * - Result.Success<T>(value) 返回 IResult<T, Error>
- * - 省略 TError + 自訂物件仍可用（結構型別）
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-
-// ─── Default TError = Error ─────────────────────────────────────
 
 describe('Default TError = Error', () => {
     it('omitting TError creates IResult<Error> on failure', () => {
@@ -21,7 +10,6 @@ describe('Default TError = Error', () => {
     it('omitting TError on success creates IResult<T, Error>', () => {
         const ok = Result.Success('hello');
         expect(ok.value).toBe('hello');
-        // TError 預設為 Error
     });
 
     it('Error properties accessible without explicit TError', () => {
@@ -46,11 +34,8 @@ describe('Default TError = Error', () => {
     });
 });
 
-// ─── Structural Typing With Default ─────────────────────────────
-
 describe('Structural typing with default Error', () => {
     it('plain object works as error (structural match)', () => {
-        // 結構型別下，{ message: string } 與 Error 足夠相容
         const err = Result.Failure({ message: 'plain error' });
         expect(err.error.message).toBe('plain error');
     });

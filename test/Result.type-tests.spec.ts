@@ -1,20 +1,7 @@
-/**
- * SPEC § Type-Level Tests — 編譯期型別測試
- *
- * 涵蓋：
- * - 工廠方法的返回型別正確性
- * - 泛型參數推斷
- * - IResult<T, E> extends IResult<E> 結構相容性
- * - 預設 TError = Error
- *
- * 使用 vitest 的 expectTypeOf 進行編譯期斷言
- */
 import { describe, it, expectTypeOf } from 'vitest';
 import { Result } from '../src/Result.js';
 import type { IResult } from '../src/IResult.js';
-import type { IResult as IResultOfT } from '../src/IResultOfT.js';
-
-// ─── Return Types of Static Factories ───────────────────────────
+import type { IResultOfT } from '../src/IResultOfT.js';
 
 describe('Return types of static factories', () => {
     it('Result.Success() returns IResult', () => {
@@ -30,7 +17,6 @@ describe('Return types of static factories', () => {
     it('Result.Success<T>(value) infers T from argument', () => {
         const r = Result.Success('hello');
         expectTypeOf(r).toMatchTypeOf<IResultOfT<string>>();
-        // 'hello' is string, not string literal
     });
 
     it('Result.Failure(error) returns IResult', () => {
@@ -43,8 +29,6 @@ describe('Return types of static factories', () => {
         expectTypeOf(r).toMatchTypeOf<IResultOfT<string, Error>>();
     });
 });
-
-// ─── Generic Parameter Inference ────────────────────────────────
 
 describe('Generic parameter inference', () => {
     it('TValue is inferred from Success argument', () => {
@@ -59,12 +43,9 @@ describe('Generic parameter inference', () => {
     });
 });
 
-// ─── Interface Hierarchy ────────────────────────────────────────
-
 describe('Interface hierarchy', () => {
     it('IResultOfT<T, E> extends IResult<E>', () => {
         type R = IResultOfT<string, Error>;
-        // 編譯期檢查：IResultOfT 應為 IResult 的子型別
         expectTypeOf<R>().toMatchTypeOf<IResult>();
     });
 
@@ -79,13 +60,10 @@ describe('Interface hierarchy', () => {
     });
 });
 
-// ─── Structural Compatibility ───────────────────────────────────
-
 describe('Structural compatibility', () => {
     it('custom error union is assignable to IResult<T, E>', () => {
         type AppError = { kind: 'NotFound'; id: string };
         type R = IResultOfT<string, AppError>;
-        // TypeScript 應接受自訂錯誤型別
         const r: R = Result.Success('hello');
         expectTypeOf(r).toMatchTypeOf<IResultOfT<string, AppError>>();
     });
@@ -105,8 +83,6 @@ describe('Structural compatibility', () => {
         expectTypeOf(ok).toMatchTypeOf<IResultOfT<boolean, E>>();
     });
 });
-
-// ─── Property Types ─────────────────────────────────────────────
 
 describe('Property types', () => {
     it('isSuccess is boolean', () => {

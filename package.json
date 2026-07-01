@@ -1,16 +1,40 @@
 {
     "name": "@sandlada/result",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "version": "0.0.1-20260701.b",
+    "description": "Type-safe Result pattern for TypeScript — explicit error handling without exceptions",
+    "type": "module",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./build/index.d.ts",
+            "default": "./build/index.js"
+        }
+    },
+    "files": [
+        "build/",
+        "README.md",
+        "LICENSE",
+        "CODE_OF_CONDUCT.md",
+        "SECURITY.md"
+    ],
     "scripts": {
+        "build": "tsgo --project tsconfig.json",
         "test": "vitest run",
         "test:watch": "vitest"
     },
-    "keywords": [],
+    "keywords": [
+        "result",
+        "either",
+        "error-handling",
+        "functional",
+        "typescript"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
     "author": "Kai-Orion & Sandlada",
     "license": "MIT",
-    "type": "module",
     "devDependencies": {
         "@typescript/native-preview": "^7.0.0-dev.20260630.1",
         "vitest": "^4.1.9"

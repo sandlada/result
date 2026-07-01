@@ -1,16 +1,5 @@
-/**
- * SPEC § Sentinel Pattern — 哨兵模式測試
- *
- * 涵蓋：
- * - error 屬性總是可訪問（從不拋出）
- * - 成功結果的 error 是內部哨兵值
- * - 失敗結果的 error 是實際錯誤物件
- * - 使用者應先檢查 isSuccess 再使用 error
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-
-// ─── Error Always Accessible ────────────────────────────────────
 
 describe('Error always accessible', () => {
     it('success result error does not throw', () => {
@@ -29,13 +18,10 @@ describe('Error always accessible', () => {
     });
 });
 
-// ─── Sentinel vs Real Error ─────────────────────────────────────
-
 describe('Sentinel vs real error', () => {
     it('success result error is the sentinel value', () => {
         const ok = Result.Success();
         expect(ok.error).not.toBeInstanceOf(Error);
-        // 哨兵不應該是真正的錯誤
     });
 
     it('failure result error is the actual error', () => {
@@ -50,8 +36,6 @@ describe('Sentinel vs real error', () => {
         expect(err.error.reason).toBe('Internal');
     });
 });
-
-// ─── Usage Pattern: Check isSuccess First ───────────────────────
 
 describe('Check isSuccess before interpreting error', () => {
     it('consumer pattern: only read error when isFailure', () => {

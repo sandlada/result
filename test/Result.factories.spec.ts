@@ -1,17 +1,6 @@
-/**
- * SPEC § Factory Methods — Result 靜態工廠方法測試
- *
- * 涵蓋：
- * - Result.Success()         void success
- * - Result.Failure(error)    void failure
- * - Result.Success<T>(value) typed success
- * - Result.Failure<T, E>(error) typed failure
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
 import type { IResult } from '../src/IResult.js';
-
-// ─── Result.Success() ───────────────────────────────────────────
 
 describe('Result.Success()', () => {
     it('returns a success result', () => {
@@ -29,8 +18,6 @@ describe('Result.Success()', () => {
         expect(ok).toBeDefined();
     });
 });
-
-// ─── Result.Failure(error) ──────────────────────────────────────
 
 describe('Result.Failure(error)', () => {
     it('returns a failure result', () => {
@@ -54,8 +41,6 @@ describe('Result.Failure(error)', () => {
         expect(err.error).toBe('validation failed');
     });
 });
-
-// ─── Result.Success<T>(value) ───────────────────────────────────
 
 describe('Result.Success<T>(value)', () => {
     it('returns a success result carrying a value', () => {
@@ -83,8 +68,6 @@ describe('Result.Success<T>(value)', () => {
     });
 });
 
-// ─── Result.Failure<T, E>(error) ────────────────────────────────
-
 describe('Result.Failure<T, E>(error)', () => {
     it('returns a failure result with typed error', () => {
         type ApiError = { status: number; message: string };
@@ -109,8 +92,6 @@ describe('Result.Failure<T, E>(error)', () => {
         expect(err.error.field).toBe('email');
     });
 });
-
-// ─── Cross-factory consistency ──────────────────────────────────
 
 describe('Factory consistency', () => {
     it('Success() and Failure() produce mutually exclusive states', () => {

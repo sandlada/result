@@ -1,15 +1,5 @@
-/**
- * SPEC § Architecture — 不變量測試
- *
- * 涵蓋：
- * - isSuccess && isFailure 互斥
- * - constructor enforces mutual exclusivity
- * - 每個 result 物件只能處於成功或失敗其中一種狀態
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-
-// ─── Mutual Exclusivity ─────────────────────────────────────────
 
 describe('Mutual exclusivity', () => {
     it('success result: isSuccess=true, isFailure=false', () => {
@@ -45,11 +35,8 @@ describe('Mutual exclusivity', () => {
     });
 });
 
-// ─── Constructor Enforces Invariant ─────────────────────────────
-
 describe('Constructor invariant enforcement', () => {
     it('rejects success + real error combination', () => {
-        // 直接呼叫 constructor — isSuccess=true 但帶真實 error 應拋出
         expect(() => {
             // @ts-expect-error constructor is protected — testing invariant logic
             new (Result as any)(true, new Error('should not be here'));
@@ -64,12 +51,9 @@ describe('Constructor invariant enforcement', () => {
     });
 });
 
-// ─── Immutability ───────────────────────────────────────────────
-
 describe('Immutability', () => {
     it('isSuccess is readonly', () => {
         const ok = Result.Success();
-        // Property should be readonly — overridden values are ignored in strict mode
         expect(ok.isSuccess).toBe(true);
     });
 

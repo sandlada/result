@@ -1,183 +1,120 @@
-# @sandlada/jss
+# @sandlada/result
 
-一個簡單的 CSS-in-JS 函式庫，提供兩類工具來管理 CSS 自訂屬性（變數）：
+![NPM Downloads](https://img.shields.io/npm/d18m/@sandlada/result?label=NPM%20Downloads&labelColor=%2300531f&color=%23a3f5aa)
+![NPM Version](https://img.shields.io/npm/v/%40sandlada%2Fresult?label=NPM%20Version&labelColor=%2300531f&color=%23a3f5aa)
+![GitHub License](https://img.shields.io/github/license/sandlada/result?label=License&labelColor=%2300531f&color=%23a3f5aa)
 
-- **define 系列** — 產生 CSS 宣告（`--name: value`），用於輸出到樣式表
-- **use 系列** — 產生 `var()` 引用（`var(--name, fallback)`），用於組合進其他宣告中
+`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a type-safe, exception-free approach to error handling. It makes error flows explicit in the type system so you never wonder whether a function can fail.
 
-完整文件請參閱 [docs/README.md](./docs/README.md)。
+Unlike traditional Result libraries that hardcode a single error type, `@sandlada/result` is **fully generic**: you bring your own error shapes (discriminated unions, classes, or plain objects).
 
-## 安裝
+## :zap: Highlights
+
+- Fully generic `TError` — define your own error types
+- Zero dependencies
+- ESM-only, strict TypeScript
+- Inspired by the C# Result pattern
+
+## :eyes: Installation
 
 ```bash
-npm install @sandlada/jss
+npm i @sandlada/result
 ```
 
-專案使用 TypeScript 6 + ESM，匯入即可獲得完整的型別推斷。
+> **ESM only.** This package cannot be used with `require()`. Your project must use ESM (`import`) or dynamic `import()`.
 
----
-
-## define 系列 — 產生 CSS 宣告
-
-| 函式                                                   | 說明                                                                                                           | 文件                                                                                                   |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `defineVars(name, value)`                              | 基本變數定義，回傳字串陣列                                                                                     | [docs/define-vars.md](./docs/define-vars.md)                                                           |
-| `defineLogicalBorderRadiusVars(base, value, options?)` | 展開為四個邏輯角（`start-start` / `start-end` / `end-start` / `end-end`），回傳陣列，支援 `{ semi?, prefix? }` | [docs/define-logical-border-radius-vars.md](./docs/define-logical-border-radius-vars.md)               |
-| `defineLogicalBorderRadiusVarsRecord(base, value)`     | 同上，但回傳 Record 物件                                                                                       | [docs/define-logical-border-radius-vars-record.md](./docs/define-logical-border-radius-vars-record.md) |
-| `defineTokenRefsRecord(tokens, options?)`              | 將設計 Token 綁定為內部變數（`--_key: var(--key, value)`），支援形狀屬性展開與 `{ prefix? }`                   | [docs/define-token-refs-record.md](./docs/define-token-refs-record.md)                                 |
-| `defineOverrides(source, overrides)(prefix?)`          | 型別安全的樣式覆蓋輔助，Curried API，可傳入 `null` 跳過型別約束                                                | [docs/define-overrides.md](./docs/define-overrides.md)                                                 |
+## :ship: Quick Start
 
 ```ts
-import { defineVars } from '@sandlada/jss'
+import { Result, type IResultOfT } from '@sandlada/result';
 
-// ['--color: red']
-defineVars('color', 'red')
+// Define your error type (discriminated union recommended)
+type AppError =
+  | { kind: 'NotFound'; id: string }
+  | { kind: 'Validation'; fields: Record<string, string> };
 
-// ['--color: red', '--bg-color: blue']
-defineVars({ color: 'red', 'bg-color': 'blue' })
+function getUser(id: string): IResultOfT<User, AppError> {
+  if (!id) {
+    return Result.Failure<User, AppError>({
+      kind: 'Validation',
+      fields: { id: 'Required' },
+    });
+  }
+  const user = db.find(id);
+  if (!user) {
+    return Result.Failure<User, AppError>({
+      kind: 'NotFound',
+      id,
+    });
+  }
+  return Result.Success(user);
+}
 
-// 第三個參數 true 加上分號尾綴
-defineVars('color', 'red', true) // ['--color: red;']
-```
-
-```ts
-import { defineTokenRefsRecord } from '@sandlada/jss'
-
-const AppTokens = {
-  'button-text-color': 'red',
-  'button-bg-color': 'white',
-  'button-shape': 'var(--md-sys-shape-corner-full, 9999px)',
-} as const
-
-// 將設計 Token 綁定為內部變數：
-// { '--_button-text-color': 'var(--button-text-color, red)', ... }
-defineTokenRefsRecord(AppTokens)
-
-// 使用 prefix 為所有 token 加上前綴：
-defineTokenRefsRecord(AppTokens, { prefix: '--md-badge' })
-// { '--_button-text-color': 'var(--md-badge-button-text-color, red)', ... }
-
-// 展開形狀屬性為四個邏輯角：
-defineTokenRefsRecord(AppTokens, { expandShapes: ['button-shape'] })
-// {
-//   '--_button-text-color': 'var(--button-text-color, red)',
-//   '--_button-shape-start-start': 'var(--button-shape-start-start, var(--md-sys-shape-corner-full, 9999px))',
-//   '--_button-shape-start-end': 'var(--button-shape-start-end, ...)',
-//   '--_button-shape-end-start': 'var(--button-shape-end-start, ...)',
-//   '--_button-shape-end-end': 'var(--button-shape-end-end, ...)',
-// }
-
-// 加入基底變數作為中繼備援（兩層 var() 遞迴）：
-defineTokenRefsRecord(AppTokens, { expandShapes: ['button-shape'], useBaseFallback: true })
-// {
-//   '--_button-shape-start-start': 'var(--button-shape-start-start, var(--button-shape, var(--md-sys-shape-corner-full, 9999px)))',
-//   ...
-// }
-```
-
----
-
-## defineOverrides — 型別安全的樣式覆蓋
-
-```ts
-import { defineOverrides } from '@sandlada/jss'
-
-const FocusRing = {
-  'outline-color': 'red',
-  'outline-width': '2px',
-} as const
-
-// 型別安全模式：從 source 推導鍵值約束，所有鍵皆為可選
-// { 'outline-color': 'blue' }
-defineOverrides(FocusRing, { 'outline-color': 'blue' })()
-
-// 套用 CSS 變數前綴
-// { '--my-comp-outline-color': 'blue' }
-defineOverrides(FocusRing, { 'outline-color': 'blue' })('--my-comp')
-
-// 部分覆蓋或空物件皆可
-defineOverrides(FocusRing, {})()
-
-// 無型別約束模式：source 傳入 null
-defineOverrides(null, { 'outline-color': 'blue' })()
-
-// 實際使用：覆蓋共享元件樣式
-const CompB = {
-  'bg-color': 'blue',
-  ...defineOverrides(FocusRing, { 'outline-color': 'blue' })('--my-comp'),
-} as const
-// { 'bg-color': 'blue', '--my-comp-outline-color': 'blue' }
-```
-
----
-
-## 通用選項
-
-部分函式支援第二個（或第三個）參數傳入 `JSSOptions` 物件來控制行為：
-
-```ts
-interface JSSOptions {
-  semi?: boolean   // 是否在結尾加上分號（;）
-  prefix?: string  // CSS 變數名稱前綴（例如 '--md-badge'）
+// Consume with type narrowing
+const result = getUser('42');
+if (result.isSuccess) {
+  console.log(result.value.name); // ✅ User
+} else {
+  switch (result.error.kind) {
+    case 'NotFound': /* ... */ break;
+    case 'Validation': /* ... */ break;
+  }
 }
 ```
 
-**`semi`** — 加上分號尾綴，適用於需要 inline style 語句的場景。
+## :ledger: Core Types
 
-**`prefix`** — 為產生的 CSS 變數名稱加上自訂前綴。例如使用 `{ prefix: '--md-badge' }` 時，
-`useVars('color-primary', 'blue', { prefix: '--md-badge' })` 會輸出 `var(--md-badge-color-primary, blue)`，
-取代預設的 `var(--color-primary, blue)`。
+| Export       | Kind      | Signature                            | Description                      |
+| ------------ | --------- | ------------------------------------ | -------------------------------- |
+| `IResult`    | interface | `IResult<TError = Error>`            | Base result contract (no value)  |
+| `IResultOfT` | interface | `IResultOfT<TValue, TError = Error>` | Result carrying a success value  |
+| `Result`     | class     | `Result<TError = Error>`             | Base class with static factories |
+| `ResultOfT`  | class     | `ResultOfT<TValue, TError = Error>`  | Generic result class with value  |
 
-> **注意：** `prefix` 僅影響 CSS 變數的**名稱部分**，不影響 Record 的 JavaScript 鍵名。
-> 支援 prefix 的函式：`useVars`、`useVarsRecord`、`useInternalVarsRecord`、`useLogicalBorderRadiusVars`、
-> `useLogicalBorderRadiusVarsRecord`、`defineLogicalBorderRadiusVars`、`defineTokenRefsRecord`。
+### Factory Methods
 
----
+All factories live on `Result`:
 
-## use 系列 — 產生 `var()` 引用
+| Method                        | Returns                                                     |
+| ----------------------------- | ----------------------------------------------------------- |
+| `Result.Success()`            | `IResult` — void success                                    |
+| `Result.Success(value)`       | `IResultOfT<TValue>` — success with value (T inferred)      |
+| `Result.Failure(error)`       | `IResult` — void failure (Error only)                       |
+| `Result.Failure<T, E>(error)` | `IResultOfT<T, E>` — typed failure (T explicit, E inferred) |
 
-| 函式                                                           | 說明                                                                 | 文件                                                                                             |
-| -------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `useVars(name, fallback, options?)`                            | 基本變數引用，回傳陣列，支援 `{ semi?, prefix? }`                    | [docs/use-vars.md](./docs/use-vars.md)                                                           |
-| `useVarsRecord(name, fallback, options?)`                      | 基本變數引用，回傳 Record，支援 `{ semi?, prefix? }`                 | [docs/use-vars-record.md](./docs/use-vars-record.md)                                             |
-| `useInternalVars(name, fallback)`                              | 內部變數（`--_` 前綴）引用，回傳陣列                                 | [docs/use-internal-vars.md](./docs/use-internal-vars.md)                                         |
-| `useInternalVarsRecord(name, fallback, options?)`              | 內部變數引用，回傳 Record，支援 `{ semi?, prefix? }`                 | [docs/use-internal-vars-record.md](./docs/use-internal-vars-record.md)                           |
-| `useLogicalBorderRadiusVars(corner, fallback, options?)`       | 邏輯角變數（兩層 `var()` 遞迴），回傳陣列，支援 `{ semi?, prefix? }` | [docs/use-logical-border-radius-vars.md](./docs/use-logical-border-radius-vars.md)               |
-| `useLogicalBorderRadiusVarsRecord(corner, fallback, options?)` | 邏輯角變數，回傳 Record，支援 `{ semi?, prefix? }`                   | [docs/use-logical-border-radius-vars-record.md](./docs/use-logical-border-radius-vars-record.md) |
+## :package: Integration Pattern
+
+Bind your error type once and eliminate generic boilerplate:
 
 ```ts
-import { useVars } from '@sandlada/jss'
+// app-result.ts
+import { Result } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
+import type { AppError } from './errors.js';
 
-// ['var(--color-primary, blue)']
-useVars('color-primary', 'blue')
+export type AppResult<T = void> = IResultOfT<T, AppError>;
 
-// 支援 `var()` 遞迴鏈：
-// ['var(--a, var(--b, var(--c, default-value)))']
-useVars(['a', 'b', 'c'], 'default-value')
-
-// Record 模式自動剝除 -- 前綴作為鍵名：
-// { 'color-primary': 'var(--color-primary, blue)' }
-useVarsRecord('--color-primary', 'blue')
-
-// 使用 prefix 選項為所有變數名稱加上前綴：
-// ['var(--md-badge-color-primary, blue)']
-useVars('color-primary', 'blue', { prefix: '--md-badge' })
-
-// ['var(--md-badge-a, var(--md-badge-b, var(--md-badge-c, default-value)))']
-useVars(['a', 'b', 'c'], 'default-value', { prefix: '--md-badge' })
+export const AppResult = {
+  Success(): AppResult<void> { return Result.Success() as AppResult<void>; },
+  Success<T>(value: T): AppResult<T> { return Result.Success(value) as AppResult<T>; },
+  Failure(error: AppError): AppResult<never> { return Result.Failure<never, AppError>(error); },
+} as const;
 ```
 
----
+```ts
+// usage — no TError generic anywhere
+import { AppResult } from './app-result.js';
 
-## 開發
-
-```bash
-# 安裝依賴
-npm install
-
-# 執行測試
-npx vitest
-
-# 型別檢查
-npx tsc --noEmit
+function getUser(id: string): AppResult<User> {
+  if (!id) return AppResult.Failure({ kind: 'Validation', fields: { id: 'Required' } });
+  return AppResult.Success({ id, name: 'Alice' });
+}
 ```
+
+## :ledger: Further Reading
+
+For detailed documentation — railway-oriented programming, multi-layer error mapping, result aggregation, and C# comparison — see [SPEC.md](./SPEC.md).
+
+## License
+
+MIT

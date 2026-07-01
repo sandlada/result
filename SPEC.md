@@ -10,6 +10,8 @@
 npm install @sandlada/result
 ```
 
+> **Module system:** This package is **ESM-only** (`"type": "module"`). It cannot be used with `require()`. Your project must use ESM (`import`) or enable dynamic `import()` in CJS contexts.
+
 ## Core Types
 
 ### `IResult<TError = Error>`
@@ -28,12 +30,12 @@ interface IResult<TError = Error> {
 - `isSuccess` — `true` if the operation succeeded.
 - `isFailure` — `true` if the operation failed (computed as `!isSuccess`).
 
-### `IResult<TValue, TError = Error>`
+### `IResultOfT<TValue, TError = Error>`
 
 A result that carries a **success value**.
 
 ```ts
-interface IResult<TValue, TError = Error> extends IResult<TError> {
+interface IResultOfT<TValue, TError = Error> extends IResult<TError> {
     readonly value: TValue;
 }
 ```
@@ -46,8 +48,55 @@ When `TError` is omitted, it defaults to `Error`:
 
 ```ts
 const result: IResult = Result.Failure(new Error('fail'));       // IResult<Error>
-const result: IResult<string> = Result.Success('hello');         // IResult<string, Error>
+const result: IResultOfT<string> = Result.Success('hello');         // IResultOfT<string, Error>
 ```
+
+## API Reference
+
+The package exports exactly **4 symbols** from its public barrel (`@sandlada/result`):
+
+| Export       | Kind      | Signature                                                      | Description                            |
+| ------------ | --------- | -------------------------------------------------------------- | -------------------------------------- |
+| `IResult`    | interface | `IResult<TError = Error>`                                      | Base result contract (no value)        |
+| `IResultOfT` | interface | `IResultOfT<TValue, TError = Error>` extends `IResult<TError>` | Value-bearing result contract          |
+| `Result`     | class     | `Result<TError = Error>` implements `IResult<TError>`          | Base class with static factory methods |
+| `ResultOfT`  | class     | `ResultOfT<TValue, TError = Error>` extends `Result<TError>`   | Generic result class carrying a value  |
+
+### `Result<TError = Error>`
+
+```ts
+class Result<TError = Error> implements IResult<TError> {
+    readonly isSuccess: boolean;
+    readonly error: TError;
+    protected constructor(isSuccess: boolean, error?: TError);
+
+    get isFailure(): boolean;  // !isSuccess
+
+    static Success(): IResult;
+    static Success<TValue>(value: TValue): IResultOfT<TValue>;
+    static Failure(error: Error): IResult;
+    static Failure<TValue, TError>(error: TError): IResultOfT<TValue, TError>;
+}
+```
+
+- **Constructor is `protected`** — always use static factories, never `new Result(...)`.
+- **`Result.Failure()` with no argument** throws `TypeError`.
+- **Invariant violation** (success with real error, or failure with sentinel) throws `TypeError`.
+
+### `ResultOfT<TValue, TError = Error>`
+
+```ts
+class ResultOfT<TValue, TError = Error>
+    extends Result<TError>
+    implements IResultOfT<TValue, TError>
+{
+    constructor(value?: TValue, isSuccess?: boolean, error?: TError);
+
+    get value(): TValue;  // throws TypeError if isFailure
+}
+```
+
+- **`value` getter** throws `TypeError` with message `"Cannot access value on a failure result. Check isSuccess before accessing value."` when accessed on a failure.
 
 ## Factory Methods
 
@@ -65,7 +114,9 @@ ok.isFailure; // false
 
 ### `Result.Failure(error)`
 
-Creates a failure result.
+Creates a failure result. **The non-generic overload only accepts `Error` instances.** For custom error types (plain objects, discriminated unions, etc.), use the two-parameter generic `Result.Failure<TValue, TError>(error)` overload instead.
+
+> **Note:** TypeScript uses structural typing, so objects with `message: string` / `name: string` are assignable to `Error` at the type level. The non-generic overload is intended for actual `Error` instances; the library does not perform runtime `instanceof` checks.
 
 ```ts
 const err = Result.Failure(new Error('Something went wrong'));
@@ -79,7 +130,7 @@ Creates a success result carrying a value. The type is inferred from the argumen
 
 ```ts
 const ok = Result.Success({ id: 1, name: 'Alice' });
-// IResult<{ id: number; name: string }>
+// IResultOfT<{ id: number; name: string }>
 ok.value.name; // 'Alice'
 ```
 
@@ -94,7 +145,7 @@ const err = Result.Failure<string, ApiError>({
     status: 404,
     message: 'User not found',
 });
-// IResult<string, ApiError>
+// IResultOfT<string, ApiError>
 ```
 
 ## Custom Error Types
@@ -111,7 +162,7 @@ type AppError =
     | { kind: 'Validation'; fields: Record<string, string> }
     | { kind: 'Unauthorized'; reason: string };
 
-function getUser(id: string): IResult<User, AppError> {
+function getUser(id: string): IResultOfT<User, AppError> {
     if (!id) {
         return Result.Failure<User, AppError>({
             kind: 'Validation',
@@ -164,7 +215,7 @@ class DomainError extends Error {
     }
 }
 
-function validateEmail(email: string): IResult<string, DomainError> {
+function validateEmail(email: string): IResultOfT<string, DomainError> {
     if (!email.includes('@')) {
         return Result.Failure<string, DomainError>(
             new DomainError('Invalid email format', 'INVALID_EMAIL'),
@@ -186,7 +237,7 @@ const result = Result.Failure<number>({ reason: 'timeout', retryAfter: 5000 });
 
 ## Result 集成 — 預先綁定錯誤類型
 
-當一個項目或第三方套件使用固定的錯誤類型時，每次都寫 `IResult<T, MyError>` 和 `Result.Failure<T, MyError>(...)` 會很繁瑣。`@sandlada/result` 的泛型設計天然支援**兩層封裝**來消除重複。
+當一個項目或第三方套件使用固定的錯誤類型時，每次都寫 `IResultOfT<T, MyError>` 和 `Result.Failure<T, MyError>(...)` 會很繁瑣。`@sandlada/result` 的泛型設計天然支援**兩層封裝**來消除重複。
 
 ### 方案一：型別別名（Type Alias）
 
@@ -194,10 +245,10 @@ const result = Result.Failure<number>({ reason: 'timeout', retryAfter: 5000 });
 
 ```ts
 // app-result.ts
-import type { IResult } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
 import type { AppError } from './errors';
 
-export type AppResult<T = void> = IResult<T, AppError>;
+export type AppResult<T = void> = IResultOfT<T, AppError>;
 ```
 
 使用時無需指定 `TError`：
@@ -206,7 +257,7 @@ export type AppResult<T = void> = IResult<T, AppError>;
 import type { AppResult } from './app-result';
 
 function createUser(data: UserInput): AppResult<User> {
-    // AppResult<User> 等價於 IResult<User, AppError>
+    // AppResult<User> 等價於 IResultOfT<User, AppError>
 }
 ```
 
@@ -219,10 +270,10 @@ function createUser(data: UserInput): AppResult<User> {
 ```ts
 // app-result.ts
 import { Result } from '@sandlada/result';
-import type { IResult } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
 import type { AppError } from './errors';
 
-export type AppResult<T = void> = IResult<T, AppError>;
+export type AppResult<T = void> = IResultOfT<T, AppError>;
 
 export const AppResult = {
     /** 建立不帶值的成功結果 */
@@ -235,7 +286,7 @@ export const AppResult = {
     },
     /** 建立失敗結果 (never 表示無值) */
     Failure(error: AppError): AppResult<never> {
-        return Result.Failure(error) as AppResult<never>;
+        return Result.Failure<never, AppError>(error) as AppResult<never>;
     },
 } as const;
 ```
@@ -283,10 +334,10 @@ function tryParse(input: string): AppResult<number> {
 當使用不同錯誤型別的子系統互相調用時，在方案二的基礎上添加錯誤對映：
 
 ```ts
-import type { IResult } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
 
 /** 將子系統的錯誤轉換為當前系統的錯誤 */
-function mapError<T>(result: IResult<T, SubError>): AppResult<T> {
+function mapError<T>(result: IResultOfT<T, SubError>): AppResult<T> {
     if (result.isSuccess) return AppResult.Success(result.value);
     return AppResult.Failure(convertToAppError(result.error));
 }
@@ -325,7 +376,7 @@ if (result.isSuccess) {
 ### Early Return / Error Propagation
 
 ```ts
-function process(): IResult<Output, AppError> {
+function process(): IResultOfT<Output, AppError> {
     const userResult = fetchUser(id);
     if (userResult.isFailure) return userResult;
 
@@ -341,13 +392,146 @@ function process(): IResult<Output, AppError> {
 After checking `isSuccess`, TypeScript automatically narrows the type:
 
 ```ts
-function handle(result: IResult<string, AppError>) {
+function handle(result: IResultOfT<string, AppError>) {
     if (result.isSuccess) {
         result.value.toUpperCase(); // ✅ string
     } else {
         // result.error is AppError — use discriminated union switch
     }
 }
+```
+
+### Railway-Oriented Programming
+
+> **Note:** `map`, `flatMap`, and `tap` are **not built into the library**. The code below shows a recommended pattern that you implement in your own codebase. Copy these helpers into your project as needed.
+
+Compose operations using `map`, `flatMap`, and `tap` for functional pipelines that short-circuit on the first failure:
+
+```ts
+/** Transform the success value without touching the error channel. */
+function map<T, U, E>(result: IResultOfT<T, E>, fn: (value: T) => U): IResultOfT<U, E> {
+    if (!result.isSuccess) return result as unknown as IResultOfT<U, E>;
+    return Result.Success(fn(result.value)) as IResultOfT<U, E>;
+}
+
+/** Chain an operation that may itself fail. Short-circuits on first failure. */
+function flatMap<T, U, E>(
+    result: IResultOfT<T, E>,
+    fn: (value: T) => IResultOfT<U, E>,
+): IResultOfT<U, E> {
+    if (!result.isSuccess) return result as unknown as IResultOfT<U, E>;
+    return fn(result.value);
+}
+
+/** Execute a side effect on success without changing the value. */
+function tap<T, E>(result: IResultOfT<T, E>, fn: (value: T) => void): IResultOfT<T, E> {
+    if (result.isSuccess) fn(result.value);
+    return result;
+}
+```
+
+Usage — each step only executes if the previous succeeded:
+
+```ts
+type AppError =
+    | { kind: 'ParseError'; raw: string }
+    | { kind: 'InvalidRange'; min: number; max: number; actual: number };
+
+function parse(input: string): IResultOfT<number, AppError> { /* ... */ }
+function validateRange(min: number, max: number): (n: number) => IResultOfT<number, AppError> { /* ... */ }
+function double(n: number): number { return n * 2; }
+
+// parse → double → validate → save, stopping at the first failure
+const result = flatMap(
+    flatMap(
+        map(parse('21'), double),
+        validateRange(1, 100),
+    ),
+    save('record-1'),
+);
+```
+
+### Multi-Layer Error Mapping
+
+> **Note:** The `AppResult` / `DomainResult` / `InfraResult` factories shown below are **user-defined** convenience wrappers — not built into the library. See [方案二：便利工廠](#方案二便利工廠convenience-factory) for how to create them.
+
+In layered architectures, each layer uses its own error type. Use error-mapping adapters to translate between layers:
+
+```ts
+// Layer 1: Domain
+type DomainError =
+    | { kind: 'NotFound'; entity: string; id: string }
+    | { kind: 'Validation'; fields: Record<string, string> };
+
+type DomainResult<T = void> = IResultOfT<T, DomainError>;
+
+// Layer 2: Infrastructure
+type InfraError =
+    | { kind: 'DbTimeout'; duration: number }
+    | { kind: 'ConnectionLost'; host: string };
+
+type InfraResult<T = void> = IResultOfT<T, InfraError>;
+
+// Layer 3: Application (wraps domain + infra)
+type AppError =
+    | { kind: 'Domain'; inner: DomainError }
+    | { kind: 'Infrastructure'; inner: InfraError };
+
+type AppResult<T = void> = IResultOfT<T, AppError>;
+
+// Adapters: translate errors upward
+function domainToApp<T>(r: DomainResult<T>): AppResult<T> {
+    if (r.isSuccess) return AppResult.Success(r.value);
+    return AppResult.Failure({ kind: 'Domain', inner: r.error });
+}
+
+function infraToApp<T>(r: InfraResult<T>): AppResult<T> {
+    if (r.isSuccess) return AppResult.Success(r.value);
+    return AppResult.Failure({ kind: 'Infrastructure', inner: r.error });
+}
+
+// Controller: chains domain → app → HTTP response
+function getUserController(id: string): AppResult<HttpResponse> {
+    const domainResult = userService.getUser(id);
+    const appResult = domainToApp(domainResult);
+    if (!appResult.isSuccess) return mapAppErrorToHttp(appResult.error);
+    return AppResult.Success({ status: 200, data: appResult.value });
+}
+```
+
+### Result Combining / Aggregation
+
+> **Note:** `combineValidations` and the `CombinedResult` factory are **user-defined** — not built into the library. This pattern demonstrates how to aggregate multiple results with the library's primitives.
+
+Collect multiple validation results into a single combined result, useful for form validation where you want **all** errors, not just the first:
+
+```ts
+type ValidationError = { field: string; message: string };
+
+function combineValidations<T extends unknown[]>(
+    results: { [K in keyof T]: IResultOfT<T[K], ValidationError[]> },
+): IResultOfT<T, ValidationError[]> {
+    const allErrors: ValidationError[] = [];
+
+    for (const r of results) {
+        if (!r.isSuccess) allErrors.push(...r.error);
+    }
+
+    if (allErrors.length > 0) {
+        return Result.Failure<T, ValidationError[]>(allErrors);
+    }
+
+    const values = results.map((r) => r.value) as T;
+    return Result.Success(values) as IResultOfT<T, ValidationError[]>;
+}
+
+// Usage:
+const r = combineValidations([
+    validateName('Alice'),    // success
+    validateEmail('bad'),     // failure → collects error
+    validateAge(-5),          // failure → collects error
+]);
+// r.isFailure === true, r.error.length === 2
 ```
 
 ## C# Reference Comparison
@@ -357,9 +541,9 @@ This library is inspired by the C# Result pattern. Key differences:
 | Concept           | C#                                                               | This Library                              |
 | ----------------- | ---------------------------------------------------------------- | ----------------------------------------- |
 | Base interface    | `IResult { DomainError Error; bool IsSuccess; bool IsFailure; }` | `IResult<TError = Error>`                 |
-| Value interface   | `IResult<out T> : IResult { T Value; }`                          | `IResult<TValue, TError = Error>`         |
+| Value interface   | `IResult<out T> : IResult { T Value; }`                          | `IResultOfT<TValue, TError = Error>`      |
 | Error type        | `DomainError` (hardcoded enum)                                   | `TError` (generic, user-defined)          |
-| No-error sentinel | `DomainError.General.None`                                       | Internal `Symbol('result:none')`          |
+| No-error sentinel | `DomainError.General.None`                                       | `Symbol.for('result:none')` (internal)    |
 | Void success      | `Result.Success()`                                               | `Result.Success()`                        |
 | Void failure      | `Result.Failure(DomainError)`                                    | `Result.Failure(error)`                   |
 | Value success     | `Result.Success<T>(T)`                                           | `Result.Success<T>(value)`                |
@@ -426,7 +610,12 @@ public class Result<TValue> : Result, IResult<TValue> {
 ## TypeScript Design Decisions
 
 - **Default `TError = Error`** — zero-config for simple use cases; override with custom types for domain-specific error handling.
-- **Sentinel pattern** — `error` is always accessible (never throws), matching C# semantics where `Error` returns `DomainError.General.None` on success.
-- **`value` throws on failure** — guards against accidental access; forces explicit `isSuccess` checks.
+- **Sentinel pattern** — `error` is always accessible (never throws), matching C# semantics where `Error` returns `DomainError.General.None` on success. The sentinel key is `Symbol.for('result:none')` (registered globally to survive module reloads).
+- **`value` throws on failure** — guards against accidental access; forces explicit `isSuccess` checks. Throws `TypeError` with a descriptive message.
+- **`Result` constructor is `protected`** — users cannot instantiate `Result` directly. The `ResultOfT` constructor is `public` (internal-use only, since `Result`'s static factories must call `new ResultOfT(...)`). Always use `Result.Success` / `Result.Failure`. The constructor enforces the mutual-exclusivity invariant, throwing `TypeError` on violation.
+- **`Result.Failure()` requires an argument** — calling `Result.Failure()` with no arguments throws `TypeError`. Always provide an error object.
+- **`null` and `undefined` are valid success values** — `Result.Success<number | null>(null)` and `Result.Success<number | undefined>(undefined)` are supported. The factory overload uses `arguments.length` to distinguish void-success (`Result.Success()`) from explicit-undefined-success (`Result.Success(undefined)`).
 - **PascalCase static, camelCase instance** — static factory methods use PascalCase (`Result.Success`, `Result.Failure`) matching C# convention, while instance properties use camelCase (`isSuccess`, `isFailure`) following TypeScript convention.
+- **`Result` base class is generic** — `Result<TError = Error>`, not non-generic. This ensures `error` is typed without casting in the base class.
+- **`isFailure` is a getter** — implemented as `get isFailure(): boolean { return !this.isSuccess; }`, not a stored property. Ensures `isFailure` is always the logical negation of `isSuccess`.
 

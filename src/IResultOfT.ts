@@ -1,7 +1,7 @@
 import type { IResult } from './IResult.js';
 
 /**
- * IResult<TValue, TError> — a result that carries a success value.
+ * IResultOfT<TValue, TError> — a result that carries a success value.
  *
  * Extends the base {@link IResult} contract with a `value` property.
  * Accessing `value` on a failure result throws a TypeError.

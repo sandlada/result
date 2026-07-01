@@ -1,16 +1,5 @@
-/**
- * SPEC § Value Access — value 屬性行為測試
- *
- * 涵蓋：
- * - Success<T>(value).value 返回正確值
- * - Failure 上存取 value 拋出 TypeError
- * - TypeScript narrowing: isSuccess 後 value 可安全存取
- * - void success 沒有 value（屬於 IResult，非 IResult<T>）
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-
-// ─── Value on Success ───────────────────────────────────────────
 
 describe('Value on success', () => {
     it('returns the provided value', () => {
@@ -42,8 +31,6 @@ describe('Value on success', () => {
     });
 });
 
-// ─── Value on Failure ───────────────────────────────────────────
-
 describe('Value on failure', () => {
     it('throws TypeError when accessing value', () => {
         const err = Result.Failure<string, Error>(new Error('nope'));
@@ -62,13 +49,10 @@ describe('Value on failure', () => {
     });
 });
 
-// ─── Type Narrowing ─────────────────────────────────────────────
-
 describe('Type narrowing after isSuccess check', () => {
     it('value is safely accessible in success branch', () => {
         const result = Result.Success('hello');
         if (result.isSuccess) {
-            // 型別應縮窄：result.value 是 string
             const val: string = result.value;
             expect(val).toBe('hello');
         }
@@ -77,7 +61,6 @@ describe('Type narrowing after isSuccess check', () => {
     it('value is safely avoided in failure branch', () => {
         const result = Result.Failure<string, Error>(new Error('fail'));
         if (result.isFailure) {
-            // error 應可安全存取
             expect(result.error).toBeInstanceOf(Error);
         }
     });
@@ -92,12 +75,9 @@ describe('Type narrowing after isSuccess check', () => {
     });
 });
 
-// ─── Void Success ───────────────────────────────────────────────
-
 describe('Void success (no value)', () => {
     it('Result.Success() returns IResult (not IResult<T>)', () => {
         const ok = Result.Success();
-        // 無值結果 — 取決於實作，但至少 isSuccess=true
         expect(ok.isSuccess).toBe(true);
     });
 });

@@ -1,16 +1,6 @@
-/**
- * SPEC § Result 集成 — 預先綁定錯誤類型測試
- *
- * 涵蓋兩種方案：
- * 1. Type Alias             型別別名
- * 2. Convenience Factory    便利工廠
- * 以及進階場景：泛型推斷、never assignability、mapError()
- */
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-import type { IResult } from '../src/IResultOfT.js';
-
-// ─── Shared test types ──────────────────────────────────────────
+import type { IResult } from '../src/IResult.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
@@ -22,14 +12,10 @@ function convertToAppError(e: SubError): AppError {
     return { kind: 'Validation', fields: { [e.code]: e.detail } };
 }
 
-// ─── 1. Type Alias ──────────────────────────────────────────────
-
 describe('Integration: Type Alias', () => {
-    // 方案一：型別別名
     type AppResult<T = void> = IResult<T, AppError>;
 
     it('type alias resolves correctly', () => {
-        // 編譯期檢查：AppResult<User> ≡ IResult<User, AppError>
         function createUser(): AppResult<{ id: number }> {
             return Result.Success({ id: 1 });
         }
@@ -41,7 +27,6 @@ describe('Integration: Type Alias', () => {
     it('type alias works with failure', () => {
         function findUser(id: string): AppResult<{ id: number; name: string }> {
             if (!id) {
-                // 仍需顯式標註（方案一的限制）
                 return Result.Failure<{ id: number; name: string }, AppError>({
                     kind: 'Validation',
                     fields: { id: 'Required' },
@@ -58,10 +43,7 @@ describe('Integration: Type Alias', () => {
     });
 });
 
-// ─── 2. Convenience Factory ─────────────────────────────────────
-
 describe('Integration: Convenience Factory', () => {
-    // 方案二：同名工廠物件
     type AppResult<T = void> = IResult<T, AppError>;
 
     const AppResult = {
@@ -134,8 +116,6 @@ describe('Integration: Convenience Factory', () => {
     });
 });
 
-// ─── 3. never Assignability ─────────────────────────────────────
-
 describe('Integration: never assignability', () => {
     type AppResult<T = void> = IResult<T, AppError>;
 
@@ -177,8 +157,6 @@ describe('Integration: never assignability', () => {
     });
 });
 
-// ─── 4. mapError() — Error Conversion ───────────────────────────
-
 describe('Integration: mapError()', () => {
     type AppResult<T = void> = IResult<T, AppError>;
 
@@ -216,8 +194,6 @@ describe('Integration: mapError()', () => {
         }
     });
 });
-
-// ─── 5. Dual Approach Compatibility ─────────────────────────────
 
 describe('Integration: Type alias + Factory compose', () => {
     type AppResult<T = void> = IResult<T, AppError>;
