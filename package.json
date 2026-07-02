@@ -1,6 +1,6 @@
 {
     "name": "@sandlada/result",
-    "version": "0.0.1-20260701.b",
+    "version": "0.0.1-20260702.a",
     "description": "Type-safe Result pattern for TypeScript — explicit error handling without exceptions",
     "type": "module",
     "main": "./build/index.js",
@@ -9,6 +9,22 @@
         ".": {
             "types": "./build/index.d.ts",
             "default": "./build/index.js"
+        },
+        "./fp": {
+            "types": "./build/fp/index.d.ts",
+            "default": "./build/fp/index.js"
+        },
+        "./promise": {
+            "types": "./build/promise/index.d.ts",
+            "default": "./build/promise/index.js"
+        },
+        "./fp/promise": {
+            "types": "./build/fp/promise/index.d.ts",
+            "default": "./build/fp/promise/index.js"
+        },
+        "./*": {
+            "types": "./build/*.d.ts",
+            "default": "./build/*.js"
         }
     },
     "files": [
