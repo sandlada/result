@@ -9,7 +9,7 @@ import { AsyncResult } from '../../promise/AsyncResult.js';
  *          since a success result has no meaningful error.
  */
 export function asyncOk<T>(value: T): AsyncResult<T, never> {
-    return AsyncResult.success(value);
+    return AsyncResult.Success(value);
 }
 
 /**
@@ -21,5 +21,5 @@ export function asyncOk<T>(value: T): AsyncResult<T, never> {
  *          since a failure result has no meaningful value.
  */
 export function asyncErr<E>(error: E): AsyncResult<never, E> {
-    return AsyncResult.failure(error);
+    return AsyncResult.Failure(error);
 }

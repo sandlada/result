@@ -1,4 +1,5 @@
 import { NONE } from './internal/sentinel.js';
+import { assertResultInvariant } from './internal/invariant.js';
 import type { IResult, IResultBase } from './IResult.js';
 import type { IResultOfT, IResultOfTBase } from './IResultOfT.js';
 
@@ -23,17 +24,12 @@ export class Result<TError = Error> implements IResultBase<TError> {
      */
     protected constructor(isSuccess: boolean, error?: TError) {
         this.isSuccess = isSuccess;
-        if (isSuccess && error !== (NONE as unknown as TError)) {
-            throw new TypeError(
-                'Result invariant violated: success must not carry a real error.',
-            );
+        if (error === undefined) {
+            this.error = NONE as unknown as TError;
+        } else {
+            assertResultInvariant(isSuccess, error);
+            this.error = error;
         }
-        if (!isSuccess && error === (NONE as unknown as TError)) {
-            throw new TypeError(
-                'Result invariant violated: failure must carry a real error.',
-            );
-        }
-        this.error = error as TError;
     }
 
     get isFailure(): boolean {
@@ -222,18 +218,24 @@ export class Result<TError = Error> implements IResultBase<TError> {
  * Users do not instantiate this class directly.
  * Use {@link Result.Success} or {@link Result.Failure}.
  */
-export class ResultOfT<TValue, TError = Error> extends Result<TError> implements IResultOfTBase<TValue, TError> {
+export class ResultOfT<TValue, TError = Error> implements IResultOfTBase<TValue, TError> {
+    readonly isSuccess: boolean;
+    readonly isFailure: boolean;
+    readonly error: TError;
     readonly #value: TValue | undefined;
 
     /**
      * **Internal.** Constructed by {@link Result} factory methods.
      */
     constructor(value?: TValue, isSuccess?: boolean, error?: TError) {
-        const sentinelError = (NONE as unknown) as TError;
-        super(
-            isSuccess ?? true,
-            isSuccess === false ? error! : sentinelError,
-        );
+        const success = isSuccess ?? true;
+        this.isSuccess = success;
+        this.isFailure = !success;
+
+        const actualError = error !== undefined ? error : (NONE as unknown as TError);
+        assertResultInvariant(success, actualError);
+        this.error = actualError;
+
         this.#value = value;
     }
 
@@ -344,5 +346,17 @@ export class ResultOfT<TValue, TError = Error> extends Result<TError> implements
      */
     unwrapOr(defaultValue: TValue): TValue {
         return this.isSuccess ? (this.#value as TValue) : defaultValue;
+    }
+
+    /**
+     * Serializes to a plain object for `JSON.stringify`.
+     *
+     * Success serializes as `{ isSuccess: true, value }`.
+     * Failure serializes as `{ isSuccess: false, error }`.
+     */
+    toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError } {
+        return this.isSuccess
+            ? { isSuccess: true as const, value: this.#value as TValue }
+            : { isSuccess: false as const, error: this.error };
     }
 }

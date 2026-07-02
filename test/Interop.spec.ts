@@ -117,8 +117,8 @@ describe('sync OOP ↔ FP deep interop', () => {
 // ── Async OOP ↔ FP deep interop ───────────────────────────────────────
 
 describe('async OOP ↔ FP deep interop', () => {
-    it('AsyncResult.tryCatch → FP async map → bind → match', async () => {
-        const ar = AsyncResult.tryCatch(async () => 21);
+    it('AsyncResult.TryCatch → FP async map → bind → match', async () => {
+        const ar = AsyncResult.TryCatch(async () => 21);
 
         const result = await pipeAsync(
             ar,
@@ -145,9 +145,9 @@ describe('async OOP ↔ FP deep interop', () => {
         if (awaited.isSuccess) expect(awaited.value).toBe(20);
     });
 
-    it('AsyncResult.from() bridges sync OOP → async FP chain', async () => {
+    it('AsyncResult.From() bridges sync OOP → async FP chain', async () => {
         const syncResult = Result.Success(21);
-        const ar = AsyncResult.from(syncResult);
+        const ar = AsyncResult.From(syncResult);
 
         const result = await pipeAsync(
             ar,
@@ -160,7 +160,7 @@ describe('async OOP ↔ FP deep interop', () => {
     });
 
     it('AsyncResult.toPromise() → sync FP map', async () => {
-        const ar = AsyncResult.success(21).map(x => x * 2);
+        const ar = AsyncResult.Success(21).map(x => x * 2);
         const promise = ar.toPromise();
 
         const syncResult = await promise;
@@ -188,9 +188,9 @@ describe('async OOP ↔ FP deep interop', () => {
 // ── Sync / Async cross-boundary interop ────────────────────────────────
 
 describe('sync ↔ async cross-boundary', () => {
-    it('sync Result.tryCatch → AsyncResult.from → async chain', async () => {
+    it('sync Result.TryCatch → AsyncResult.From → async chain', async () => {
         const sync = Result.tryCatch(() => 21);
-        const ar = AsyncResult.from(sync);
+        const ar = AsyncResult.From(sync);
 
         const result = await ar.map(x => x * 2);
         const awaited = await result;
@@ -200,7 +200,7 @@ describe('sync ↔ async cross-boundary', () => {
     });
 
     it('async result awaited → sync .map().andThen()', async () => {
-        const ar = AsyncResult.success(10).map(x => x * 2);
+        const ar = AsyncResult.Success(10).map(x => x * 2);
         const syncResult = await ar.toPromise();
 
         const processed = syncResult
@@ -211,23 +211,23 @@ describe('sync ↔ async cross-boundary', () => {
         if (processed.isSuccess) expect(processed.value).toBe(42);
     });
 
-    it('AsyncResult.combine accepts mixed sync-origin results', async () => {
+    it('AsyncResult.Combine accepts mixed sync-origin results', async () => {
         const syncResults = [
-            AsyncResult.from(Result.Success(1) as IResultOfT<number, Error>),
-            AsyncResult.success(2),
-            AsyncResult.from(Result.Success(3) as IResultOfT<number, Error>),
+            AsyncResult.From(Result.Success(1) as IResultOfT<number, Error>),
+            AsyncResult.Success(2),
+            AsyncResult.From(Result.Success(3) as IResultOfT<number, Error>),
         ];
 
-        const combined = AsyncResult.combine(syncResults);
+        const combined = AsyncResult.Combine(syncResults);
         const awaited = await combined;
 
         expect(awaited.isSuccess).toBe(true);
         if (awaited.isSuccess) expect(awaited.value).toEqual([1, 2, 3]);
     });
 
-    it('Result.combine and AsyncResult.combine behave consistently on empty arrays', async () => {
+    it('Result.combine and AsyncResult.Combine behave consistently on empty arrays', async () => {
         const syncCombined = Result.combine([]);
-        const asyncCombined = await AsyncResult.combine([]);
+        const asyncCombined = await AsyncResult.Combine([]);
 
         expect(syncCombined.isSuccess).toBe(true);
         expect(asyncCombined.isSuccess).toBe(true);
@@ -235,13 +235,13 @@ describe('sync ↔ async cross-boundary', () => {
         if (asyncCombined.isSuccess) expect(asyncCombined.value).toEqual([]);
     });
 
-    it('sync FP pipe ending with AsyncResult.from enters async pipeline', async () => {
+    it('sync FP pipe ending with AsyncResult.From enters async pipeline', async () => {
         const syncResult = pipe(
             ok(10),
             map((x: number) => x * 2),
         );
 
-        const ar = AsyncResult.from(syncResult);
+        const ar = AsyncResult.From(syncResult);
         const result = await ar.map(x => x + 1);
         const awaited = await result;
 

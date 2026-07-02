@@ -22,6 +22,14 @@
             "types": "./build/fp/promise/index.d.ts",
             "default": "./build/fp/promise/index.js"
         },
+        "./option": {
+            "types": "./build/Option.d.ts",
+            "default": "./build/Option.js"
+        },
+        "./fp/option": {
+            "types": "./build/fp/option/index.d.ts",
+            "default": "./build/fp/option/index.js"
+        },
         "./*": {
             "types": "./build/*.d.ts",
             "default": "./build/*.js"

@@ -19,7 +19,7 @@ import { Result } from '../Result.js';
  * return Result.Success(r2.value);
  *
  * // ✅ With AsyncResult — flat, readable pipeline
- * const result = await AsyncResult.tryCatch(() => fetchUser(id))
+ * const result = await AsyncResult.TryCatch(() => fetchUser(id))
  *     .andThen(user => enrichProfile(user))
  *     .map(profile => profile.displayName);
  * ```
@@ -29,7 +29,7 @@ import { Result } from '../Result.js';
  * - Wraps a `Promise<IResultOfT<TValue, TError>>` internally
  * - Implements the **thenable protocol** (`then()`) — you can `await` it
  *   directly to get the underlying `IResultOfT`
- * - **Static factories use camelCase** (`AsyncResult.success`, etc.)
+ * - **Static factories use PascalCase** (`AsyncResult.Success`, etc.)
  * - Instance methods follow the same fluent pattern as `ResultOfT`
  * - `mapAsync` and `mapErrAsync` catch callback exceptions and convert to Failure
  * - `andThen` / `orElse` accept `AsyncResult`, `IResultOfT`, or
@@ -64,13 +64,13 @@ export class AsyncResult<TValue, TError = Error> {
         return this.#promise.then(onfulfilled, onrejected);
     }
 
-    // ── Static factories (camelCase, per convention for AsyncResult) ───
+    // ── Static factories (PascalCase, matching Result) ────────────────
 
     /** Creates a void success `AsyncResult`. */
-    static success(): AsyncResult<void, never>;
+    static Success(): AsyncResult<void, never>;
     /** Creates a success `AsyncResult` carrying a value. */
-    static success<T>(value: T): AsyncResult<T, never>;
-    static success<T>(value?: T): AsyncResult<T | void, never> {
+    static Success<T>(value: T): AsyncResult<T, never>;
+    static Success<T>(value?: T): AsyncResult<T | void, never> {
         if (arguments.length === 0) {
             return new AsyncResult(
                 Promise.resolve(Result.Success() as unknown as IResultOfT<void, never>),
@@ -82,7 +82,7 @@ export class AsyncResult<TValue, TError = Error> {
     }
 
     /** Creates a failure `AsyncResult`. */
-    static failure<E>(error: E): AsyncResult<never, E> {
+    static Failure<E>(error: E): AsyncResult<never, E> {
         return new AsyncResult(
             Promise.resolve(Result.Failure<never, E>(error)),
         );
@@ -93,7 +93,7 @@ export class AsyncResult<TValue, TError = Error> {
      *
      * Delegates to {@link Result.tryCatchAsync}.
      */
-    static tryCatch<T, E = Error>(
+    static TryCatch<T, E = Error>(
         fn: () => Promise<T>,
         errorFn?: (error: unknown) => E,
     ): AsyncResult<T, E> {
@@ -101,7 +101,7 @@ export class AsyncResult<TValue, TError = Error> {
     }
 
     /** Lifts an existing `IResultOfT` into an `AsyncResult`. */
-    static from<T, E = Error>(result: IResultOfT<T, E>): AsyncResult<T, E> {
+    static From<T, E = Error>(result: IResultOfT<T, E>): AsyncResult<T, E> {
         return new AsyncResult(Promise.resolve(result));
     }
 
@@ -110,7 +110,7 @@ export class AsyncResult<TValue, TError = Error> {
      *
      * Delegates to {@link Result.fromPromise}.
      */
-    static fromPromise<T, E = Error>(
+    static FromPromise<T, E = Error>(
         promise: Promise<T>,
         errorFn?: (error: unknown) => E,
     ): AsyncResult<T, E> {
@@ -314,7 +314,7 @@ export class AsyncResult<TValue, TError = Error> {
      *
      * Short-circuits on the first failure.
      */
-    static combine<T, E>(
+    static Combine<T, E>(
         results: readonly AsyncResult<T, E>[],
     ): AsyncResult<T[], E> {
         return new AsyncResult(
@@ -331,7 +331,7 @@ export class AsyncResult<TValue, TError = Error> {
      * Like `Promise.all` but for AsyncResult — each element's type is
      * preserved.
      */
-    static all<
+    static All<
         TResults extends readonly [
             AsyncResult<unknown, unknown>,
             ...AsyncResult<unknown, unknown>[],
@@ -369,10 +369,10 @@ export class AsyncResult<TValue, TError = Error> {
      * Combines `AsyncResult`s, accumulating **all** errors (validation
      * aggregation pattern).
      *
-     * Unlike {@link AsyncResult.combine} (which short-circuits on the first
+     * Unlike {@link AsyncResult.Combine} (which short-circuits on the first
      * failure), this collects every error from every failed result.
      */
-    static combineWithAllErrors<T, E>(
+    static CombineWithAllErrors<T, E>(
         results: readonly AsyncResult<T, E>[],
     ): AsyncResult<T[], E[]> {
         return new AsyncResult(

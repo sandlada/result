@@ -12,11 +12,13 @@ Unlike traditional Result libraries that hardcode a single error type, `@sandlad
 
 - Fully generic `TError` — define your own error types
 - **Dual paradigm** — OOP fluent API (`result.map().andThen()`) + FP curried operators (`pipe`, `map`, `bind`)
+- **Option type** — `Option<T>` (Some / None) with fluent + FP APIs
 - **Async-native** — `AsyncResult` class + `@sandlada/result/fp/promise` for Promise-based railways
 - **Railway Oriented Programming** built-in — `map`, `bind`, `orElse`, `match`, `tap`, `combine`
+- **JSON serializable** — `ResultOfT.toJSON()` and `Option.toJSON()` for safe `JSON.stringify`
 - Zero dependencies
 - ESM-only, strict TypeScript
-- Inspired by the C# Result pattern
+- Inspired by the C# Result pattern and Rust's `Option<T>`
 
 ## :eyes: Installation
 
@@ -67,23 +69,38 @@ const name2 = pipe(getUser('42'), map(u => u.name), unwrapOr('Unknown'));
 
 ### OOP (`@sandlada/result`)
 
-| Export       | Kind      | Signature                            | Description                      |
-| ------------ | --------- | ------------------------------------ | -------------------------------- |
-| `IResult`    | interface | `IResult<TError = Error>`            | Base result contract (no value)  |
-| `IResultOfT` | interface | `IResultOfT<TValue, TError = Error>` | Result carrying a success value  |
-| `Result`     | class     | `Result<TError = Error>`             | Base class with static factories |
-| `ResultOfT`  | class     | `ResultOfT<TValue, TError = Error>`  | Generic result class with value  |
+| Export       | Kind      | Signature                            | Description                          |
+| ------------ | --------- | ------------------------------------ | ------------------------------------ |
+| `IResult`    | interface | `IResult<TError = Error>`            | Base result contract (no value)      |
+| `IResultOfT` | interface | `IResultOfT<TValue, TError = Error>` | Result carrying a success value      |
+| `Result`     | class     | `Result<TError = Error>`             | Base class with static factories     |
+| `ResultOfT`  | class     | `ResultOfT<TValue, TError = Error>`  | Generic result class with value      |
+| `IOption`    | type      | `IOption<T> = Some<T> \| None`       | Optional value (discriminated union) |
+| `Option`     | class     | `Option<T>`                          | Optional value class + factories     |
 
 ### FP (`@sandlada/result/fp`)
 
-| Export | Kind     | Description                                                                                                                       |
-| ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `ok`   | function | Create success result                                                                                                             |
-| `err`  | function | Create failure result                                                                                                             |
-| `map`  | function | Transform success (data-last curried)                                                                                             |
-| `bind` | function | Monadic chain (data-last curried)                                                                                                 |
-| `pipe` | function | Left-to-right pipeline (1–6 overloads)                                                                                            |
-| …      |          | `mapErr`, `orElse`, `match`, `tap`, `tapErr`, `unwrapOr`, `composeK`, `combine`, `all`, `combineWithAllErrors`, `switchFn`, `tee` |
+| Export | Kind     | Description                                                                                                                             |
+| ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `ok`   | function | Create success result                                                                                                                   |
+| `err`  | function | Create failure result                                                                                                                   |
+| `map`  | function | Transform success (data-last curried)                                                                                                   |
+| `bind` | function | Monadic chain (data-last curried)                                                                                                       |
+| `pipe` | function | Left-to-right pipeline (1–10 overloads)                                                                                                 |
+| …      |          | `mapErr`, `orElse`, `match`, `tap`, `tapErr`, `unwrapOr`, `composeK` (2–6), `combine`, `all`, `combineWithAllErrors`, `switchFn`, `tee` |
+
+### FP Option (`@sandlada/result/fp/option`)
+
+| Export     | Description                                 |
+| ---------- | ------------------------------------------- |
+| `ofSome`   | Create Some (wraps a value)                 |
+| `ofNone`   | Create None (no value)                      |
+| `map`      | Transform value if Some (data-last curried) |
+| `andThen`  | Monadic chain (data-last curried)           |
+| `orElse`   | Fall back to alternative if None (curried)  |
+| `match`    | Terminal pattern-match (curried)            |
+| `tap`      | Side-effect on Some (curried)               |
+| `unwrapOr` | Safe extraction with default (curried)      |
 
 ### Factory Methods & Utilities
 
@@ -114,6 +131,45 @@ All on `Result`:
 | `result.tap(fn)`            | Side-effect on success (returns `this`)      |
 | `result.tapErr(fn)`         | Side-effect on failure (returns `this`)      |
 | `result.unwrapOr(default)`  | Safe extraction with fallback (never throws) |
+
+## :black_circle: Option — Optional Value (`@sandlada/result`)
+
+`Option<T>` represents an optional value — either `Some(value)` or `None`. Inspired by Rust's `Option<T>` and F#'s `'a option`, it ships alongside the Result types, sharing the same discriminated-union design, static factory convention, and dual OOP/FP APIs.
+
+```ts
+import { Option, type IOption } from '@sandlada/result';
+
+// Create
+const some = Option.Some(42);
+const none = Option.None();
+
+// Fluent API
+const label = Option.Some(5)
+    .map(x => x * 2)
+    .andThen(x => x > 5 ? Option.Some(x) : Option.None())
+    .match(v => `Got: ${v}`, () => 'Nothing');
+// "Got: 10"
+
+// FP API
+import { ofSome, map, unwrapOr } from '@sandlada/result/fp/option';
+const val = pipe(ofSome(7), map(x => x * 3), unwrapOr(0)); // 21
+
+// JSON-safe
+JSON.stringify(Option.Some('hello')); // '{"isSome":true,"value":"hello"}'
+JSON.stringify(Option.None());        // '{"isSome":false}'
+```
+
+### Option — Instance Methods
+
+| Method                      | Description                                  |
+| --------------------------- | -------------------------------------------- |
+| `opt.map(fn)`               | Transform value if Some, pass through None   |
+| `opt.andThen(fn)`           | Chain an Option-returning function (bind)    |
+| `opt.orElse(fn)`            | Fall back to alternative if None             |
+| `opt.match(onSome, onNone)` | Terminal — pattern-match both cases          |
+| `opt.tap(fn)`               | Side-effect on Some (returns `this`)         |
+| `opt.unwrapOr(default)`     | Safe extraction with fallback (never throws) |
+| `opt.toJSON()`              | Serialize for `JSON.stringify`               |
 
 ## :hourglass: AsyncResult (`@sandlada/result/promise`)
 
@@ -189,24 +245,24 @@ const process = pipeAsync(
 // process: Promise<IResultOfT<string, never>>
 ```
 
-| Export          | Description                              |
-| --------------- | ---------------------------------------- |
-| `asyncOk(v)`    | Create async success                     |
-| `asyncErr(e)`   | Create async failure                     |
-| `map`           | Transform success (curried, data-last)   |
-| `mapAsync`      | Async transform success                  |
-| `mapErr`        | Transform error (curried)                |
-| `mapErrAsync`   | Async transform error                    |
-| `bind`          | Monadic chain (curried)                  |
-| `orElse`        | Error recovery (curried)                 |
-| `match`         | Terminal pattern-match (curried)         |
-| `tap`           | Side-effect on success (curried)         |
-| `tapErr`        | Side-effect on failure (curried)         |
-| `unwrapOr`      | Safe extraction (curried)                |
-| `pipeAsync`     | Async pipeline (1–6 overloads)           |
-| `composeKAsync` | Kleisli composition for async switch fns |
-| `switchFnAsync` | 1-track → 2-track async adapter          |
-| `teeAsync`      | dead-end → 1-track async adapter         |
+| Export          | Description                            |
+| --------------- | -------------------------------------- |
+| `asyncOk(v)`    | Create async success                   |
+| `asyncErr(e)`   | Create async failure                   |
+| `map`           | Transform success (curried, data-last) |
+| `mapAsync`      | Async transform success                |
+| `mapErr`        | Transform error (curried)              |
+| `mapErrAsync`   | Async transform error                  |
+| `bind`          | Monadic chain (curried)                |
+| `orElse`        | Error recovery (curried)               |
+| `match`         | Terminal pattern-match (curried)       |
+| `tap`           | Side-effect on success (curried)       |
+| `tapErr`        | Side-effect on failure (curried)       |
+| `unwrapOr`      | Safe extraction (curried)              |
+| `pipeAsync`     | Async pipeline (1–10 overloads)        |
+| `composeKAsync` | Kleisli composition (2–6 overloads)    |
+| `switchFnAsync` | 1-track → 2-track async adapter        |
+| `teeAsync`      | dead-end → 1-track async adapter       |
 
 ## :twisted_rightwards_arrows: Two Styles, One Library
 
@@ -261,12 +317,14 @@ function getUser(id: string): AppResult<User> {
 
 ## :package: Package Exports
 
-| Import path                   | Contents                              |
-| ----------------------------- | ------------------------------------- |
-| `@sandlada/result`            | Core types, `Result` class, factories |
-| `@sandlada/result/fp`         | FP curried operators & combinators    |
-| `@sandlada/result/promise`    | `AsyncResult` class (OOP async)       |
-| `@sandlada/result/fp/promise` | FP async curried operators            |
+| Import path                   | Contents                           |
+| ----------------------------- | ---------------------------------- |
+| `@sandlada/result`            | Core types, `Result`, `Option`     |
+| `@sandlada/result/option`     | `Option` type (direct import)      |
+| `@sandlada/result/fp`         | FP curried operators & combinators |
+| `@sandlada/result/fp/option`  | FP option operators                |
+| `@sandlada/result/promise`    | `AsyncResult` class (OOP async)    |
+| `@sandlada/result/fp/promise` | FP async curried operators         |
 
 ## License
 

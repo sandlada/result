@@ -54,25 +54,31 @@
 src/
   IResult.ts          — IResultBase (internal), IResultSuccess, IResultFailure, IResult (union)
   IResultOfT.ts       — IResultOfTBase (internal), IResultOfTSuccess, IResultOfTFailure, IResultOfT (union)
-  Result.ts           — Result<TError> class + ResultOfT<TValue, TError> class
+  Result.ts           — Result<TError> class + ResultOfT<TValue, TError> class (independent classes)
   ResultOfT.ts        — Re-export barrel for ResultOfT
+  Option.ts           — Option<T> class + IOption<T> discriminated union
   index.ts            — Public barrel re-exports
   internal/
     sentinel.ts       — NONE sentinel symbol
+    invariant.ts      — AssertResultInvariant helper for constructor validation
   promise/
     AsyncResult.ts    — AsyncResult<TValue, TError> class
     index.ts          — Promise barrel re-exports
   fp/
     core.ts           — ok(), err() constructors
     operators.ts      — map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr
-    composition.ts    — composeK, pipe
+    composition.ts    — composeK (2–6 overloads), pipe (1–10 overloads)
     adapters.ts       — switchFn, liftMap, tee
     combine.ts        — combine, all, combineWithAllErrors
     index.ts          — FP barrel re-exports
+    option/
+      core.ts         — ofSome(), ofNone() constructors
+      operators.ts    — map, andThen, orElse, match, tap, unwrapOr (option-specific)
+      index.ts        — FP option barrel re-exports
     promise/
       core.ts         — asyncOk(), asyncErr() constructors
       operators.ts    — map, mapAsync, mapErr, mapErrAsync, bind, orElse, match, tap, tapErr, unwrapOr
-      composition.ts  — composeKAsync, pipeAsync
+      composition.ts  — composeKAsync (2–6 overloads), pipeAsync (1–10 overloads)
       adapters.ts     — switchFnAsync, teeAsync
       index.ts        — FP async barrel re-exports
 
@@ -85,6 +91,7 @@ test/
   ComplexIntegration.spec.ts          — Multi-layer, railway, aggregation, async patterns
   ConsumptionPatterns.spec.ts         — Real-world branching, early return, type narrowing
   IntegrationPattern.spec.ts          — Type alias & convenience factory
+  Option.spec.ts                      — Option<T>: factories, methods, toJSON, FP operators, narrowing
   Interop.spec.ts                     — Cross-paradigm: OOP↔FP sync, OOP↔FP async, sync↔async
   Result.custom-error-types.spec.ts   — Discriminated unions, classes, plain objects
   Result.default-error-type.spec.ts   — Default Error behavior
@@ -157,18 +164,57 @@ IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
 ── Concrete classes (implement the internal flat bases) ──
 
 Result<TError = Error>                   (class, implements IResultBase<TError>)
-  ├── protected constructor(isSuccess, error?)  Validates invariant
+  ├── protected constructor(isSuccess, error?)  Validates invariant via assertResultInvariant
   ├── get isFailure(): boolean
   ├── static Success(): IResult
   ├── static Success<TValue>(value): IResultOfT<TValue>
   ├── static Failure(error: Error): IResult
   └── static Failure<TValue, TError>(error): IResultOfT<TValue, TError>
 
-ResultOfT<TValue, TError = Error>        (class, extends Result<TError>,
-  │                                        implements IResultOfTBase<TValue, TError>)
+ResultOfT<TValue, TError = Error>        (class, implements IResultOfTBase<TValue, TError>)
+  ├── **Does NOT extend Result** (flat hierarchy — Phase 4a simplification)
   ├── readonly #value: TValue | undefined   Private field
-  ├── constructor(value?, isSuccess?, error?)
-  └── get value(): TValue
+  ├── constructor(value?, isSuccess?, error?)   Validates invariant via assertResultInvariant
+  ├── get value(): TValue
+  └── toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError }
+```
+
+### Option Class Hierarchy (added Phase 2)
+
+```
+── Internal flat base (for class implementation) ──
+
+IOptionBase<T>                       (internal interface)
+  ├── readonly isSome: boolean
+  ├── readonly isNone: boolean
+  ├── readonly value: T              Throws TypeError if isNone
+  ├── map, andThen, orElse, match, tap, unwrapOr, toJSON  (7 methods)
+
+── Exported variant interfaces (discriminated union members) ──
+
+IOptionSome<T>                       (extends Omit<IOptionBase<T>, 'isSome' | 'isNone'>)
+  ├── readonly isSome: true          Literal discriminant
+  ├── readonly isNone: false
+  └── readonly value: T
+
+IOptionNone                          (extends Omit<IOptionBase<never>, 'value' | 'isSome' | 'isNone'>)
+  ├── readonly isSome: false         Literal discriminant
+  └── readonly isNone: true
+
+── Exported union type alias ──
+
+IOption<T> = IOptionSome<T> | IOptionNone
+
+── Concrete class ──
+
+Option<T>                            (class, implements IOptionBase<T>)
+  ├── private constructor(isSome, value?)
+  ├── get isSome(): boolean
+  ├── get isNone(): boolean
+  ├── get value(): T                 Throws TypeError if None
+  ├── static Some<T>(value): IOption<T>
+  ├── static None(): IOption<never>
+  └── Instance methods: map, andThen, orElse, match, tap, unwrapOr, toJSON
 ```
 
 **Why internal flat bases?** A TypeScript class cannot `implements` a union
@@ -276,7 +322,15 @@ export type IResultOfT<TValue, TError = Error> =
 
 ### `src/Result.ts` — Base Class + Generic Subclass
 
-Contains **both** `Result<TError>` and `ResultOfT<TValue, TError>` in a single file to avoid circular dependencies.
+Contains **both** `Result<TError>` and `ResultOfT<TValue, TError>` in a single file. As of Phase 4a, `ResultOfT` **no longer extends `Result`** — it independently implements `IResultOfTBase`. Both classes use the extracted `assertResultInvariant` from `src/internal/invariant.ts`.
+
+#### `src/internal/invariant.ts` — Invariant Helper
+
+```ts
+export function assertResultInvariant<TError>(isSuccess: boolean, error: TError): void;
+```
+
+Validates the mutual exclusivity contract: success must not carry a real error, failure must carry a real error. Used by both `Result` and `ResultOfT` constructors.
 
 #### Sentinel (`NONE`)
 
@@ -372,6 +426,8 @@ export type {
 } from './IResultOfT.js';
 export { Result } from './Result.js';
 export { ResultOfT } from './ResultOfT.js';
+export type { IOption, IOptionSome, IOptionNone } from './Option.js';
+export { Option } from './Option.js';
 ```
 
 - Uses `export type` for interfaces/type aliases (required by `verbatimModuleSyntax`)
@@ -379,8 +435,63 @@ export { ResultOfT } from './ResultOfT.js';
 - Variant interfaces (`IResultSuccess`, `IResultFailure`, `IResultOfTSuccess`,
   `IResultOfTFailure`) are exported for consumers who need to narrow or
   construct results with explicit variant types
-- Internal flat bases (`IResultBase`, `IResultOfTBase`) are **not** re-exported
-  from the public barrel — they are implementation details for the class
+- Internal flat bases (`IResultBase`, `IResultOfTBase`, `IOptionBase`) are **not** re-exported
+  from the public barrel — they are implementation details for the classes
+
+---
+
+## Option Module Architecture (`@sandlada/result`)
+
+The **Option type** (added Phase 2) represents an optional value — either
+`Some(value)` or `None`. It is inspired by Rust's `Option<T>` and F#'s
+`'a option`.
+
+### Package.json Exports
+
+```json
+"exports": {
+    ...
+    "./option": { "types": "./build/Option.d.ts", "default": "./build/Option.js" },
+    "./fp/option": { "types": "./build/fp/option/index.d.ts", "default": "./build/fp/option/index.js" }
+}
+```
+
+### `src/Option.ts` — Option Type
+
+```ts
+export interface IOptionBase<T> { ... }      // @internal — class implements this
+export interface IOptionSome<T> extends Omit<IOptionBase<T>, ...> { ... }
+export interface IOptionNone extends Omit<IOptionBase<never>, ...> { ... }
+export type IOption<T> = IOptionSome<T> | IOptionNone;
+export class Option<T> implements IOptionBase<T> { ... }
+```
+
+Uses the same **discriminated union + Omit pattern** as the Result types.
+`isSome` is the discriminant (literal `true` on Some, `false` on None).
+The `value` getter throws `TypeError` when accessed on None.
+
+Static factories (`Option.Some(value)`, `Option.None()`) return `IOption<T>`
+(the interface, not the concrete class), matching the Result convention.
+
+### `src/fp/option/core.ts` — FP Option Constructors
+
+```ts
+ofSome<T>(value: T): IOption<T>     // wraps Option.Some
+ofNone(): IOption<never>            // wraps Option.None
+```
+
+### `src/fp/option/operators.ts` — FP Option Operators
+
+All data-last curried, working with `IOption<T>` directly via `isSome` checks:
+
+| Operator   | Signature                                                       | Description                      |
+| ---------- | --------------------------------------------------------------- | -------------------------------- |
+| `map`      | `<T,U>(fn: (v: T) => U) => (IOption<T>) => IOption<U>`          | Transform value if Some          |
+| `andThen`  | `<T,U>(fn: (v: T) => IOption<U>) => (IOption<T>) => IOption<U>` | Monadic bind (chain)             |
+| `orElse`   | `<T>(fn: () => IOption<T>) => (IOption<T>) => IOption<T>`       | Fall back to alternative if None |
+| `match`    | `<T,U>(onSome, onNone) => (IOption<T>) => U`                    | Terminal pattern-match           |
+| `tap`      | `<T>(fn: (v: T) => void) => (IOption<T>) => IOption<T>`         | Side-effect on Some              |
+| `unwrapOr` | `<T>(defaultValue: T) => (IOption<T>) => T`                     | Safe extraction with default     |
 
 ---
 
@@ -453,10 +564,8 @@ map(x => x * 2, ok(21));  // Ok(42)
 **`composeK`** (Kleisli fish `>=>`):
 
 ```ts
-composeK<A, B, C, E>(
-  f1: (a: A) => IResultOfT<B, E>,
-  f2: (b: B) => IResultOfT<C, E>,
-): (a: A) => IResultOfT<C, E>
+composeK<A, B, C, E>(f1, f2): (a: A) => IResultOfT<C, E>;
+// 2–6 typed overloads + variadic implementation
 ```
 
 **`pipe`** (F# `|>`):
@@ -465,7 +574,7 @@ composeK<A, B, C, E>(
 pipe(value, fn1, fn2, fn3, ...)
 ```
 
-Has 1–6 typed overloads for type safety.
+Has 1–10 typed overloads for type safety.
 
 ### `src/fp/adapters.ts` — Wlaschin Three-Shape System
 
@@ -572,8 +681,8 @@ All operators are data-last curried, taking `AsyncResult` as the data argument:
 
 ### `src/fp/promise/composition.ts` — Async Pipelines
 
-- `composeKAsync(f1, f2)` — Kleisli composition for async switch functions
-- `pipeAsync(value, ...fns)` — pipe through async operators (1–6 typed overloads)
+- `composeKAsync(f1, f2, ...)` — Kleisli composition for async switch functions (2–6 overloads)
+- `pipeAsync(value, ...fns)` — pipe through async operators (1–10 typed overloads)
 
 ### `src/fp/promise/adapters.ts` — Async Adapters
 
@@ -709,23 +818,24 @@ pipe(r, map(x => x * 2), bind(x => Result.Success(x + 1)));
 
 ## Testing Architecture
 
-**18 test files** with **391 test cases**, all using Vitest. Tests cover every public API surface: OOP factories, OOP instance methods, FP sync operators, FP async operators, composition, adapters, combine utilities, and cross-paradigm interop.
+**19 test files** with **441 test cases**, all using Vitest. Tests cover every public API surface: OOP factories, OOP instance methods, FP sync operators, FP async operators, composition, adapters, combine utilities, Option type, and cross-paradigm interop.
 
 ### OOP Core Tests
 
-| Test File                           | Focus                                                                                                            | Cases |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----- |
-| `Result.factories.spec.ts`          | All 4 factory overloads, type inference, edge cases                                                              | 16    |
-| `Result.static-utilities.spec.ts`   | `Result.tryCatch` (sync), `Result.combine`, `Result.all`, `Result.combineWithAllErrors`, FP interop              | 25    |
-| `Result.fluent-methods.spec.ts`     | `ResultOfT` instance methods: `.map`, `.mapErr`, `.andThen`, `.orElse`, `.match`, `.tap`, `.tapErr`, `.unwrapOr` | 33    |
-| `Result.invariant.spec.ts`          | Mutual exclusivity, constructor throws, immutability                                                             | 10    |
-| `Result.sentinel.spec.ts`           | Error always accessible, sentinel vs real error                                                                  | 8     |
-| `Result.value.spec.ts`              | Value access on success/failure, type narrowing, void success                                                    | 12    |
-| `Result.default-error-type.spec.ts` | Default `TError = Error` behavior                                                                                | 7     |
-| `Result.custom-error-types.spec.ts` | Discriminated unions, classes, plain objects                                                                     | 12    |
-| `Result.type-tests.spec.ts`         | Compile-time type assertions (`expectTypeOf`)                                                                    | 16    |
-| `ConsumptionPatterns.spec.ts`       | Real-world branching, early return, type narrowing                                                               | 12    |
-| `IntegrationPattern.spec.ts`        | Type alias, convenience factory, `mapError()`, `never`                                                           | 14    |
+| Test File                           | Focus                                                                                                                                                           | Cases |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `Result.factories.spec.ts`          | All 4 factory overloads, type inference, edge cases                                                                                                             | 16    |
+| `Result.static-utilities.spec.ts`   | `Result.tryCatch` (sync), `Result.combine`, `Result.all`, `Result.combineWithAllErrors`, FP interop                                                             | 25    |
+| `Result.fluent-methods.spec.ts`     | `ResultOfT` instance methods: `.map`, `.mapErr`, `.andThen`, `.orElse`, `.match`, `.tap`, `.tapErr`, `.unwrapOr`                                                | 33    |
+| `Result.invariant.spec.ts`          | Mutual exclusivity, constructor throws, immutability                                                                                                            | 10    |
+| `Result.sentinel.spec.ts`           | Error always accessible, sentinel vs real error                                                                                                                 | 8     |
+| `Result.value.spec.ts`              | Value access on success/failure, type narrowing, void success                                                                                                   | 12    |
+| `Result.default-error-type.spec.ts` | Default `TError = Error` behavior                                                                                                                               | 7     |
+| `Result.custom-error-types.spec.ts` | Discriminated unions, classes, plain objects                                                                                                                    | 12    |
+| `Result.type-tests.spec.ts`         | Compile-time type assertions (`expectTypeOf`)                                                                                                                   | 16    |
+| `ConsumptionPatterns.spec.ts`       | Real-world branching, early return, type narrowing                                                                                                              | 12    |
+| `IntegrationPattern.spec.ts`        | Type alias, convenience factory, `mapError()`, `never`                                                                                                          | 14    |
+| `Option.spec.ts`                    | `Option.Some`/`None`, `isSome`/`isNone`, `value`, `map`, `andThen`, `orElse`, `match`, `tap`, `unwrapOr`, `toJSON`, discriminated union narrowing, FP operators | 50    |
 
 ### FP Sync Tests
 

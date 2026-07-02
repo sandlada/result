@@ -118,23 +118,47 @@ IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
 ── Concrete classes ──
 
 Result                             (class, implements IResultBase)
-├── protected constructor(isSuccess, error)  — validates invariant
+├── protected constructor(isSuccess, error)  — validates invariant via assertResultInvariant
 ├── static Success(): IResult
 ├── static Failure(error): IResult
 ├── static Success<T>(value): IResultOfT<T>
 └── static Failure<T, E>(error): IResultOfT<T, E>
 
-ResultOfT<TValue, TError>          (class extends Result, implements IResultOfTBase)
-└── protected internal constructor(value?, isSuccess, error)
+ResultOfT<TValue, TError>          (class, implements IResultOfTBase)
+├── **Does NOT extend Result** (flat hierarchy — Phase 4a simplification)
+├── protected internal constructor(value?, isSuccess, error)  — validates invariant
+├── Instance methods: map, mapErr, andThen, orElse, match, tap, tapErr, unwrapOr
+└── toJSON(): { isSuccess: true; value } | { isSuccess: false; error }
+
+── Option type (Phase 2) ──
+
+IOptionBase<T>                     (internal interface)
+├── readonly isSome: boolean
+├── readonly isNone: boolean
+├── readonly value: T
+└── map/andThen/orElse/match/tap/unwrapOr/toJSON (7 methods)
+
+IOptionSome<T>                     (Omit error, isSome: true, has value + methods)
+IOptionNone                        (Omit value, isSome: false, no value)
+
+IOption<T> = IOptionSome<T> | IOptionNone
+
+Option<T>                          (class, implements IOptionBase)
+├── Private constructor(isSome, value?)
+├── static Some<T>(value): IOption<T>
+├── static None(): IOption<never>
+└── Instance methods: map, andThen, orElse, match, tap, unwrapOr, toJSON
 ```
 
 **Why internal flat bases?** A class cannot `implements` a union type. The
-`IResultBase`/`IResultOfTBase` flat interfaces provide the full shape for the
+`IResultBase`/`IResultOfTBase`/`IOptionBase` flat interfaces provide the full shape for the
 class. Factory methods cast to the exported union type (`as unknown as`).
 
 ### Invariant: Mutual Exclusivity
 
-A result is **always exactly one** of success or failure. The constructor enforces:
+A result is **always exactly one** of success or failure. The invariant is
+validated in `src/internal/invariant.ts` (`assertResultInvariant`), used by
+both `Result` and `ResultOfT` constructors:
 
 - `isSuccess && error !== NONE` → **throw** (success must not carry a real error)
 - `!isSuccess && error === NONE` → **throw** (failure must carry a real error)
@@ -174,9 +198,20 @@ if (result.isSuccess) {
 src/
   IResult.ts          — IResultBase (internal), IResultSuccess, IResultFailure, IResult (union)
   IResultOfT.ts       — IResultOfTBase (internal), IResultOfTSuccess, IResultOfTFailure, IResultOfT (union)
-  Result.ts           — Result class (base, non-generic) + ResultOfT class
+  Result.ts           — Result class + ResultOfT class (independent, flat hierarchy)
   ResultOfT.ts        — Re-export barrel for ResultOfT
+  Option.ts           — Option<T> class + IOption<T> discriminated union
   index.ts            — public barrel re-exports
+  internal/
+    sentinel.ts       — NONE sentinel (Symbol.for('result:none'))
+    invariant.ts      — assertResultInvariant helper
+  fp/
+    ...
+    option/
+      core.ts         — ofSome(), ofNone() constructors
+      operators.ts    — map, andThen, orElse, match, tap, unwrapOr
+      index.ts        — FP option barrel
+    ...
 ```
 
 ## C# / TypeScript Mapping

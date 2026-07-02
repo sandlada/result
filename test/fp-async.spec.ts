@@ -317,7 +317,7 @@ describe('FP async ←→ OOP integration', () => {
 
     it('chains FP async operators from sync Results', async () => {
         const sync = Result.Success(5);
-        const ar = AsyncResult.from(sync);
+        const ar = AsyncResult.From(sync);
         const r = await map((x: number) => x * 10, ar);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(50);
