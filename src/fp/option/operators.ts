@@ -76,3 +76,12 @@ export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> 
 export function unwrapOr<T>(defaultValue: T): (opt: IOption<T>) => T {
     return opt => (opt.isSome ? opt.value : defaultValue);
 }
+
+/**
+ * Flattens a nested Option.
+ *
+ * F# equivalent: `Option.flatten`.
+ */
+export function flatten<T>(opt: IOption<IOption<T>>): IOption<T> {
+    return opt.flatten();
+}

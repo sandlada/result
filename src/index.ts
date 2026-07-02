@@ -12,3 +12,5 @@ export { Result } from './Result.js';
 export { ResultOfT } from './ResultOfT.js';
 export type { IOption, IOptionSome, IOptionNone } from './Option.js';
 export { Option } from './Option.js';
+export { AsyncResult } from './promise/AsyncResult.js';
+export { AsyncOption } from './promise/AsyncOption.js';

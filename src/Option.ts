@@ -35,6 +35,13 @@ export interface IOptionBase<T> {
     /** Extracts the value on Some, or returns a default on None. */
     unwrapOr(defaultValue: T): T;
 
+    /**
+     * Flattens a nested Option.
+     *
+     * F# equivalent: `Option.flatten`.
+     */
+    flatten(): T extends IOption<infer U> ? IOption<U> : never;
+
     /** Serializes to a plain object for JSON.stringify. */
     toJSON(): { isSome: true; value: T } | { isSome: false };
 }
@@ -191,6 +198,16 @@ export class Option<T> implements IOptionBase<T> {
     /** Extracts the value on Some, or returns a default on None. */
     unwrapOr(defaultValue: T): T {
         return this.#isSome ? (this.#value as T) : defaultValue;
+    }
+
+    /**
+     * Flattens a nested Option.
+     *
+     * F# equivalent: `Option.flatten`.
+     */
+    flatten(): T extends IOption<infer U> ? IOption<U> : never {
+        if (!this.#isSome) return this as any;
+        return this.#value as any;
     }
 
     /** Serializes to a plain object for JSON.stringify. */

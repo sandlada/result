@@ -123,14 +123,18 @@ export class AsyncResult<TValue, TError = Error> {
      * Transforms the success value synchronously.
      *
      * On failure, passes through unchanged.
+     * If `fn` throws, the exception is caught and converted to a Failure.
      */
     map<U>(fn: (value: TValue) => U): AsyncResult<U, TError> {
         return new AsyncResult(
-            this.#promise.then(r =>
-                r.isSuccess
-                    ? (Result.Success(fn(r.value)) as unknown as IResultOfT<U, TError>)
-                    : (r as unknown as IResultOfT<U, TError>),
-            ),
+            this.#promise.then(r => {
+                if (!r.isSuccess) return r as unknown as IResultOfT<U, TError>;
+                try {
+                    return Result.Success(fn(r.value)) as unknown as IResultOfT<U, TError>;
+                } catch (e: unknown) {
+                    return Result.Failure<U, TError>(e as TError);
+                }
+            }),
         );
     }
 
@@ -138,9 +142,12 @@ export class AsyncResult<TValue, TError = Error> {
      * Transforms the success value asynchronously.
      *
      * If `fn` throws or rejects, the exception is caught and converted
-     * to a Failure (cast to `TError`).
+     * to a Failure. An optional `errorFn` can be provided to map the exception.
      */
-    mapAsync<U>(fn: (value: TValue) => Promise<U>): AsyncResult<U, TError> {
+    mapAsync<U>(
+        fn: (value: TValue) => Promise<U>,
+        errorFn?: (error: unknown) => TError,
+    ): AsyncResult<U, TError> {
         return new AsyncResult(
             this.#promise.then(async r => {
                 if (!r.isSuccess) return r as unknown as IResultOfT<U, TError>;
@@ -148,7 +155,8 @@ export class AsyncResult<TValue, TError = Error> {
                     const value = await fn(r.value);
                     return Result.Success(value) as unknown as IResultOfT<U, TError>;
                 } catch (e: unknown) {
-                    return Result.Failure<U, TError>(e as TError);
+                    const error = errorFn ? errorFn(e) : (e as TError);
+                    return Result.Failure<U, TError>(error);
                 }
             }),
         );
@@ -158,14 +166,18 @@ export class AsyncResult<TValue, TError = Error> {
      * Transforms the error synchronously.
      *
      * On success, passes through unchanged.
+     * If `fn` throws, the exception is caught and converted to a Failure.
      */
     mapErr<F>(fn: (error: TError) => F): AsyncResult<TValue, F> {
         return new AsyncResult(
-            this.#promise.then(r =>
-                r.isSuccess
-                    ? (r as unknown as IResultOfT<TValue, F>)
-                    : Result.Failure<TValue, F>(fn(r.error)),
-            ),
+            this.#promise.then(r => {
+                if (r.isSuccess) return r as unknown as IResultOfT<TValue, F>;
+                try {
+                    return Result.Failure<TValue, F>(fn(r.error));
+                } catch (e: unknown) {
+                    return Result.Failure<TValue, F>(e as F);
+                }
+            }),
         );
     }
 
@@ -173,9 +185,12 @@ export class AsyncResult<TValue, TError = Error> {
      * Transforms the error asynchronously.
      *
      * If `fn` throws or rejects, the exception is caught and converted
-     * to a Failure (cast to `F`).
+     * to a Failure. An optional `errorFn` can be provided to map the exception.
      */
-    mapErrAsync<F>(fn: (error: TError) => Promise<F>): AsyncResult<TValue, F> {
+    mapErrAsync<F>(
+        fn: (error: TError) => Promise<F>,
+        errorFn?: (error: unknown) => F,
+    ): AsyncResult<TValue, F> {
         return new AsyncResult(
             this.#promise.then(async r => {
                 if (r.isSuccess) return r as unknown as IResultOfT<TValue, F>;
@@ -183,7 +198,8 @@ export class AsyncResult<TValue, TError = Error> {
                     const err = await fn(r.error);
                     return Result.Failure<TValue, F>(err);
                 } catch (e: unknown) {
-                    return Result.Failure<TValue, F>(e as F);
+                    const error = errorFn ? errorFn(e) : (e as F);
+                    return Result.Failure<TValue, F>(error);
                 }
             }),
         );
@@ -192,28 +208,38 @@ export class AsyncResult<TValue, TError = Error> {
     // ── Instance methods: chain (return AsyncResult with widened error) ─
 
     /**
-     * Chains an async result-returning function (monadic bind).
+     * Chains a result-returning function (monadic bind).
      *
      * On success, calls `fn` and returns its result.
      * On failure, short-circuits (passes through).
      *
+     * If `fn` throws synchronously, it is caught and converted to a Failure.
+     *
      * `fn` can return:
      * - `AsyncResult<U, F>` — the fluent case
      * - `IResultOfT<U, F>` — lifted automatically
+     * - `Promise<IResultOfT<U, F>>` — handles standard async results
      *
      * The error type widens to `TError | F`.
      */
     andThen<U, F>(
-        fn: (value: TValue) => AsyncResult<U, F> | IResultOfT<U, F>,
+        fn: (value: TValue) => AsyncResult<U, F> | IResultOfT<U, F> | Promise<IResultOfT<U, F>>,
     ): AsyncResult<U, TError | F> {
         return new AsyncResult(
             this.#promise.then(async r => {
                 if (!r.isSuccess) return r as unknown as IResultOfT<U, TError | F>;
-                const result = fn(r.value);
-                if (result instanceof AsyncResult) {
-                    return result.toPromise() as Promise<IResultOfT<U, TError | F>>;
+                try {
+                    const result = fn(r.value);
+                    if (result instanceof AsyncResult) {
+                        return result.toPromise() as Promise<IResultOfT<U, TError | F>>;
+                    }
+                    if (result instanceof Promise) {
+                        return result as Promise<IResultOfT<U, TError | F>>;
+                    }
+                    return result as unknown as IResultOfT<U, TError | F>;
+                } catch (e: unknown) {
+                    return Result.Failure<U, TError | F>(e as TError | F);
                 }
-                return result as unknown as IResultOfT<U, TError | F>;
             }),
         );
     }
@@ -224,21 +250,31 @@ export class AsyncResult<TValue, TError = Error> {
      * On failure, calls `fn` with the error; its result replaces this one.
      * On success, passes through unchanged.
      *
+     * If `fn` throws synchronously, it is caught and converted to a Failure.
+     *
      * `fn` can return:
      * - `AsyncResult<U, F>` — the fluent case
      * - `IResultOfT<U, F>` — lifted automatically
+     * - `Promise<IResultOfT<U, F>>` — handles standard async results
      */
     orElse<U, F>(
-        fn: (error: TError) => AsyncResult<U, F> | IResultOfT<U, F>,
+        fn: (error: TError) => AsyncResult<U, F> | IResultOfT<U, F> | Promise<IResultOfT<U, F>>,
     ): AsyncResult<TValue | U, F> {
         return new AsyncResult(
             this.#promise.then(async r => {
                 if (r.isSuccess) return r as unknown as IResultOfT<TValue | U, F>;
-                const result = fn(r.error);
-                if (result instanceof AsyncResult) {
-                    return result.toPromise() as Promise<IResultOfT<TValue | U, F>>;
+                try {
+                    const result = fn(r.error);
+                    if (result instanceof AsyncResult) {
+                        return result.toPromise() as Promise<IResultOfT<TValue | U, F>>;
+                    }
+                    if (result instanceof Promise) {
+                        return result as Promise<IResultOfT<TValue | U, F>>;
+                    }
+                    return result as unknown as IResultOfT<TValue | U, F>;
+                } catch (e: unknown) {
+                    return Result.Failure<TValue | U, F>(e as F);
                 }
-                return result as unknown as IResultOfT<TValue | U, F>;
             }),
         );
     }
@@ -248,11 +284,19 @@ export class AsyncResult<TValue, TError = Error> {
     /**
      * Side-effect on the success track. Returns `this` (via new wrapper)
      * for chaining. The side-effect runs when the promise settles.
+     *
+     * If `fn` throws, it is caught and the result converts to a Failure.
      */
     tap(fn: (value: TValue) => void): AsyncResult<TValue, TError> {
         return new AsyncResult(
             this.#promise.then(r => {
-                if (r.isSuccess) fn(r.value);
+                if (r.isSuccess) {
+                    try {
+                        fn(r.value);
+                    } catch (e: unknown) {
+                        return Result.Failure<TValue, TError>(e as TError);
+                    }
+                }
                 return r;
             }),
         );
@@ -261,11 +305,19 @@ export class AsyncResult<TValue, TError = Error> {
     /**
      * Side-effect on the failure track. Returns `this` (via new wrapper)
      * for chaining. The side-effect runs when the promise settles.
+     *
+     * If `fn` throws, it is caught and the result converts to a Failure.
      */
     tapErr(fn: (error: TError) => void): AsyncResult<TValue, TError> {
         return new AsyncResult(
             this.#promise.then(r => {
-                if (!r.isSuccess) fn(r.error);
+                if (!r.isSuccess) {
+                    try {
+                        fn(r.error);
+                    } catch (e: unknown) {
+                        return Result.Failure<TValue, TError>(e as TError);
+                    }
+                }
                 return r;
             }),
         );
@@ -294,6 +346,31 @@ export class AsyncResult<TValue, TError = Error> {
      */
     unwrapOr(defaultValue: TValue): Promise<TValue> {
         return this.#promise.then(r => (r.isSuccess ? r.value : defaultValue));
+    }
+
+    /**
+     * Flattens a nested `AsyncResult` or `IResultOfT`.
+     *
+     * On success, returns the inner result.
+     * On failure, passes through the error.
+     */
+    flatten(): TValue extends AsyncResult<infer U, infer F>
+        ? AsyncResult<U, TError | F>
+        : TValue extends IResultOfT<infer U, infer F>
+        ? AsyncResult<U, TError | F>
+        : never {
+        return new AsyncResult(
+            this.#promise.then(async r => {
+                if (!r.isSuccess) {
+                    return r as unknown as IResultOfT<any, any>;
+                }
+                const inner = r.value;
+                if (inner instanceof AsyncResult) {
+                    return inner.toPromise();
+                }
+                return inner as unknown as IResultOfT<any, any>;
+            }),
+        ) as any;
     }
 
     /**

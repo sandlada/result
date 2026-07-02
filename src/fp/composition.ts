@@ -63,7 +63,8 @@ export function composeK(
     return (a: any) => {
         let result: IResultOfT<any, any> = fns[0]!(a);
         for (let i = 1; i < fns.length; i++) {
-            result = (bind(fns[i]!) as (r: IResultOfT<any, any>) => IResultOfT<any, any>)(result);
+            const nextFn = fns[i]!;
+            result = bind(nextFn)(result);
         }
         return result;
     };

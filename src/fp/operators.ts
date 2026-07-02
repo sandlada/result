@@ -209,3 +209,16 @@ export function unwrapOr<A, E>(defaultValue: A, r?: IResultOfT<A, E>): A | (<E>(
     }
     return r.isSuccess ? r.value : defaultValue;
 }
+
+// ─── flatten ────────────────────────────────────────────────────────────────
+
+/**
+ * Flattens a nested result.
+ *
+ * F# equivalent: `Result.flatten`.
+ *
+ * @category Monadic
+ */
+export function flatten<A, E, F>(r: IResultOfT<IResultOfT<A, F>, E>): IResultOfT<A, E | F> {
+    return r.flatten();
+}

@@ -349,6 +349,25 @@ export class ResultOfT<TValue, TError = Error> implements IResultOfTBase<TValue,
     }
 
     /**
+     * Flattens a nested result.
+     *
+     * On success, returns the inner result.
+     * On failure, passes through the error.
+     *
+     * F# equivalent: `Result.flatten`.
+     */
+    flatten(): TValue extends IResultOfT<infer U, infer F> ? IResultOfT<U, TError | F> : never {
+        if (!this.isSuccess) {
+            return this as unknown as TValue extends IResultOfT<infer U, infer F>
+                ? IResultOfT<U, TError | F>
+                : never;
+        }
+        return this.#value as unknown as TValue extends IResultOfT<infer U, infer F>
+            ? IResultOfT<U, TError | F>
+            : never;
+    }
+
+    /**
      * Serializes to a plain object for `JSON.stringify`.
      *
      * Success serializes as `{ isSuccess: true, value }`.

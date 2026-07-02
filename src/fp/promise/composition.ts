@@ -1,5 +1,5 @@
 import type { IResultOfT } from '../../IResultOfT.js';
-import type { AsyncResult } from '../../promise/AsyncResult.js';
+import { AsyncResult } from '../../promise/AsyncResult.js';
 import { bind } from './operators.js';
 
 // ─── composeKAsync ──────────────────────────────────────────────────────────
@@ -18,54 +18,56 @@ import { bind } from './operators.js';
 
 // 2 functions
 export function composeKAsync<A, B, C, E>(
-    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E>,
-    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E>,
+    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E> | Promise<IResultOfT<C, E>>,
 ): (a: A) => AsyncResult<C, E>;
 
 // 3 functions
 export function composeKAsync<A, B, C, D, E>(
-    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E>,
-    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E>,
-    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E>,
+    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E> | Promise<IResultOfT<C, E>>,
+    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E> | Promise<IResultOfT<D, E>>,
 ): (a: A) => AsyncResult<D, E>;
 
 // 4 functions
 export function composeKAsync<A, B, C, D, F, E>(
-    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E>,
-    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E>,
-    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E>,
-    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E>,
+    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E> | Promise<IResultOfT<C, E>>,
+    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E> | Promise<IResultOfT<D, E>>,
+    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E> | Promise<IResultOfT<F, E>>,
 ): (a: A) => AsyncResult<F, E>;
 
 // 5 functions
 export function composeKAsync<A, B, C, D, F, G, E>(
-    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E>,
-    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E>,
-    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E>,
-    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E>,
-    f5: (f: F) => AsyncResult<G, E> | IResultOfT<G, E>,
+    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E> | Promise<IResultOfT<C, E>>,
+    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E> | Promise<IResultOfT<D, E>>,
+    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E> | Promise<IResultOfT<F, E>>,
+    f5: (f: F) => AsyncResult<G, E> | IResultOfT<G, E> | Promise<IResultOfT<G, E>>,
 ): (a: A) => AsyncResult<G, E>;
 
 // 6 functions
 export function composeKAsync<A, B, C, D, F, G, H, E>(
-    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E>,
-    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E>,
-    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E>,
-    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E>,
-    f5: (f: F) => AsyncResult<G, E> | IResultOfT<G, E>,
-    f6: (g: G) => AsyncResult<H, E> | IResultOfT<H, E>,
+    f1: (a: A) => AsyncResult<B, E> | IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+    f2: (b: B) => AsyncResult<C, E> | IResultOfT<C, E> | Promise<IResultOfT<C, E>>,
+    f3: (c: C) => AsyncResult<D, E> | IResultOfT<D, E> | Promise<IResultOfT<D, E>>,
+    f4: (d: D) => AsyncResult<F, E> | IResultOfT<F, E> | Promise<IResultOfT<F, E>>,
+    f5: (f: F) => AsyncResult<G, E> | IResultOfT<G, E> | Promise<IResultOfT<G, E>>,
+    f6: (g: G) => AsyncResult<H, E> | IResultOfT<H, E> | Promise<IResultOfT<H, E>>,
 ): (a: A) => AsyncResult<H, E>;
 
 // Implementation — chains via reduce using curried async bind
 export function composeKAsync(
-    ...fns: Array<(arg: any) => AsyncResult<any, any> | IResultOfT<any, any>>
+    ...fns: Array<(arg: any) => AsyncResult<any, any> | IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
 ): (a: any) => AsyncResult<any, any> {
     return (a: any) => {
-        let result: AsyncResult<any, any> | IResultOfT<any, any> = fns[0]!(a);
+        let first = fns[0]!(a);
+        let result: AsyncResult<any, any> = first instanceof AsyncResult ? first : (first instanceof Promise ? AsyncResult.FromPromise(first) : AsyncResult.From(first));
         for (let i = 1; i < fns.length; i++) {
-            result = (bind(fns[i]!) as (r: AsyncResult<any, any> | IResultOfT<any, any>) => AsyncResult<any, any>)(result);
+            const nextFn = fns[i]!;
+            result = bind(nextFn)(result);
         }
-        return result as AsyncResult<any, any>;
+        return result;
     };
 }
 

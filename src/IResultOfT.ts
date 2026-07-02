@@ -45,6 +45,14 @@ export interface IResultOfTBase<TValue, TError = Error> extends IResultBase<TErr
 
     /** Extracts the value on success, or returns a default on failure. */
     unwrapOr(defaultValue: TValue): TValue;
+
+    /**
+     * Flattens a nested result.
+     *
+     * F# equivalent: `Result.flatten`.
+     * Only available when `TValue` is itself an `IResultOfT`.
+     */
+    flatten(): TValue extends IResultOfT<infer U, infer F> ? IResultOfT<U, TError | F> : never;
 }
 
 /**
