@@ -155,3 +155,9 @@ src/
 - `value` getter throws `TypeError` with a clear message when accessed on a failure.
 - Factory methods on `Result` return the narrowest possible type (`IResult<T>` / `IResult<T, E>`) rather than the concrete class, to avoid coupling consumers to the implementation.
 - The `failure<T, E>()` overload requires `T` to be specified (no value to infer it from), but `E` can be inferred from the error argument.
+
+## Development Workflow
+
+1. **ARCH.md holds the current architecture design.** `ARCH.md` is the authoritative record of the project's architecture. It must always reflect the latest design decisions, class hierarchy, module relationships, and any architectural changes made during development.
+
+2. **Every code update must update ARCH.md.** Whenever you modify source code, add new files, change interfaces, or alter the module structure, you **must** update `ARCH.md` to keep it in sync with the codebase. This includes — but is not limited to — adding new classes or interfaces, modifying existing type signatures, restructuring modules, or changing architectural patterns.
