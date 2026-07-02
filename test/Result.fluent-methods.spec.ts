@@ -101,7 +101,9 @@ describe('ResultOfT.andThen', () => {
     type ParseErr = { kind: 'Invalid' };
 
     const validate = (x: number): IResultOfT<number, ParseErr> =>
-        x > 0 ? Result.Success(x) : Result.Failure<number, ParseErr>({ kind: 'Invalid' });
+        x > 0
+            ? Result.Success(x) as unknown as IResultOfT<number, ParseErr>
+            : Result.Failure<number, ParseErr>({ kind: 'Invalid' });
 
     it('chains to the next success', () => {
         const result = Result.Success<number>(42).andThen(validate);
@@ -135,8 +137,8 @@ describe('ResultOfT.andThen', () => {
         type ChainErr = string;
 
         const result = Result.Success<number>(5)
-            .andThen(x => Result.Success(x * 2) as IResultOfT<number, ChainErr>)
-            .andThen(x => Result.Success(x + 1) as IResultOfT<number, ChainErr>);
+            .andThen(x => Result.Success(x * 2) as unknown as IResultOfT<number, ChainErr>)
+            .andThen(x => Result.Success(x + 1) as unknown as IResultOfT<number, ChainErr>);
 
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBe(11);
@@ -146,7 +148,7 @@ describe('ResultOfT.andThen', () => {
         type E1 = Error;
         type E2 = { kind: 'Domain' };
 
-        const result = Result.Success<number, E1>(42).andThen(
+        const result = Result.Success<number>(42).andThen(
             (): IResultOfT<number, E2> => Result.Failure<number, E2>({ kind: 'Domain' }),
         );
 
@@ -194,7 +196,8 @@ describe('ResultOfT.orElse', () => {
 
     it('success type widens: T | U when recovery produces different type', () => {
         const result = Result.Failure<number, string>('error').orElse(
-            (_e): IResultOfT<string, string> => Result.Success('recovered'),
+            (_e): IResultOfT<string, string> =>
+                Result.Success('recovered') as unknown as IResultOfT<string, string>,
         );
 
         expect(result.isSuccess).toBe(true);
@@ -322,7 +325,11 @@ describe('ResultOfT.unwrapOr', () => {
     });
 
     it('default can be a different type from the value', () => {
-        const val = Result.Failure<number, string>('bad').unwrapOr('none' as const);
+        // unwrapOr is typed as (defaultValue: TValue) => TValue, so to pass a
+        // different type we cast through unknown. Runtime behavior is unchanged.
+        const val = Result.Failure<number, string>('bad').unwrapOr(
+            'none' as unknown as number,
+        ) as number | 'none';
 
         // Type: number | 'none'
         expect(val).toBe('none');

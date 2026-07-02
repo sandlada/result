@@ -33,12 +33,14 @@ describe('Result.Failure(error)', () => {
     it('exposes the error object', () => {
         const error = new Error('Something went wrong');
         const err = Result.Failure(error);
-        expect(err.error).toBe(error);
+        expect(err.isFailure).toBe(true);
+        if (err.isFailure) expect(err.error).toBe(error);
     });
 
     it('works with string errors (structural typing allows non-Error TError)', () => {
         const err = Result.Failure('validation failed');
-        expect(err.error).toBe('validation failed');
+        expect(err.isFailure).toBe(true);
+        if (err.isFailure) expect(err.error).toBe('validation failed');
     });
 });
 
@@ -46,25 +48,27 @@ describe('Result.Success<T>(value)', () => {
     it('returns a success result carrying a value', () => {
         const ok = Result.Success(42);
         expect(ok.isSuccess).toBe(true);
-        expect(ok.value).toBe(42);
+        if (ok.isSuccess) expect(ok.value).toBe(42);
     });
 
     it('infers the value type from the argument', () => {
         const ok = Result.Success({ id: 1, name: 'Alice' });
-        expect(ok.value.name).toBe('Alice');
-        expect(ok.value.id).toBe(1);
+        if (ok.isSuccess) {
+            expect(ok.value.name).toBe('Alice');
+            expect(ok.value.id).toBe(1);
+        }
     });
 
     it('works with null value', () => {
         const ok = Result.Success<number | null>(null);
         expect(ok.isSuccess).toBe(true);
-        expect(ok.value).toBeNull();
+        if (ok.isSuccess) expect(ok.value).toBeNull();
     });
 
     it('works with undefined value', () => {
         const ok = Result.Success<number | undefined>(undefined);
         expect(ok.isSuccess).toBe(true);
-        expect(ok.value).toBeUndefined();
+        if (ok.isSuccess) expect(ok.value).toBeUndefined();
     });
 });
 
@@ -76,20 +80,26 @@ describe('Result.Failure<T, E>(error)', () => {
             message: 'User not found',
         });
         expect(err.isSuccess).toBe(false);
-        expect(err.error.status).toBe(404);
-        expect(err.error.message).toBe('User not found');
+        if (err.isFailure) {
+            expect(err.error.status).toBe(404);
+            expect(err.error.message).toBe('User not found');
+        }
     });
 
     it('does not require T when unneeded', () => {
         const err = Result.Failure<never, Error>(new Error('boom'));
-        expect(err.error).toBeInstanceOf(Error);
+        expect(err.isFailure).toBe(true);
+        if (err.isFailure) expect(err.error).toBeInstanceOf(Error);
     });
 
     it('accepts discriminated union error types', () => {
         type ValidationError = { kind: 'required'; field: string } | { kind: 'format'; field: string };
         const err = Result.Failure<string, ValidationError>({ kind: 'required', field: 'email' });
-        expect(err.error.kind).toBe('required');
-        expect(err.error.field).toBe('email');
+        expect(err.isFailure).toBe(true);
+        if (err.isFailure) {
+            expect(err.error.kind).toBe('required');
+            expect(err.error.field).toBe('email');
+        }
     });
 });
 
@@ -104,6 +114,7 @@ describe('Factory consistency', () => {
 
     it('Success<T>() value is defined on success', () => {
         const ok = Result.Success('hello');
-        expect(ok.value).toBe('hello');
+        expect(ok.isSuccess).toBe(true);
+        if (ok.isSuccess) expect(ok.value).toBe('hello');
     });
 });

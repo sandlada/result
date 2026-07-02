@@ -64,7 +64,7 @@ describe('Structural compatibility', () => {
     it('custom error union is assignable to IResult<T, E>', () => {
         type AppError = { kind: 'NotFound'; id: string };
         type R = IResultOfT<string, AppError>;
-        const r: R = Result.Success('hello');
+        const r: R = Result.Success('hello') as unknown as R;
         expectTypeOf(r).toMatchTypeOf<IResultOfT<string, AppError>>();
     });
 
@@ -79,7 +79,7 @@ describe('Structural compatibility', () => {
         type E = { kind: 'A' } | { kind: 'B' };
         type R = IResultOfT<boolean, E>;
 
-        const ok: R = Result.Success(true);
+        const ok: R = Result.Success(true) as unknown as R;
         expectTypeOf(ok).toMatchTypeOf<IResultOfT<boolean, E>>();
     });
 });
@@ -97,6 +97,8 @@ describe('Property types', () => {
 
     it('error is TError (after narrowing)', () => {
         const r = Result.Failure(new Error('fail'));
-        expectTypeOf(r.error).toEqualTypeOf<Error>();
+        if (r.isFailure) {
+            expectTypeOf(r.error).toEqualTypeOf<Error>();
+        }
     });
 });

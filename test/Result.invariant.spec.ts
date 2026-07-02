@@ -38,13 +38,13 @@ describe('Mutual exclusivity', () => {
 describe('Constructor invariant enforcement', () => {
     it('rejects success + real error combination', () => {
         expect(() => {
-            // @ts-expect-error constructor is protected — testing invariant logic
+            // constructor is protected — testing invariant logic via any-cast
             new (Result as any)(true, new Error('should not be here'));
         }).toThrow();
     });
 
     it('rejects failure + no error (sentinel) combination', () => {
-        // @ts-expect-error constructor is protected — testing invariant logic
+        // constructor is protected — testing invariant logic via any-cast
         expect(() => {
             new (Result as any)(false, Symbol.for('result:none'));
         }).toThrow();
@@ -64,6 +64,7 @@ describe('Immutability', () => {
 
     it('error is readonly', () => {
         const err = Result.Failure(new Error('fail'));
-        expect(err.error).toBeDefined();
+        expect(err.isFailure).toBe(true);
+        if (err.isFailure) expect(err.error).toBeDefined();
     });
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Result } from '../src/Result.js';
-import type { IResult } from '../src/IResultOfT.js';
+import type { IResultOfT, IResultOfTSuccess } from '../src/IResultOfT.js';
 
 type DomainError =
     | { kind: 'NotFound'; entity: string; id: string }
@@ -23,37 +23,37 @@ type HttpResponse<T = void> =
     | { status: 409; message: string }
     | { status: 500; message: string };
 
-type DomainResult<T = void> = IResult<T, DomainError>;
-type InfraResult<T = void> = IResult<T, InfraError>;
-type AppResult<T = void> = IResult<T, AppError>;
+type DomainResult<T = void> = IResultOfT<T, DomainError>;
+type InfraResult<T = void> = IResultOfT<T, InfraError>;
+type AppResult<T = void> = IResultOfT<T, AppError>;
 
 const DomainResult = {
     Success<T = void>(value?: T): DomainResult<T> {
         if (arguments.length === 0) return Result.Success() as unknown as DomainResult<T>;
-        return Result.Success(value!) as DomainResult<T>;
+        return Result.Success(value!) as unknown as DomainResult<T>;
     },
     Failure(error: DomainError): DomainResult<never> {
-        return Result.Failure(error) as DomainResult<never>;
+        return Result.Failure(error) as unknown as DomainResult<never>;
     },
 } as const;
 
 const InfraResult = {
     Success<T = void>(value?: T): InfraResult<T> {
         if (arguments.length === 0) return Result.Success() as unknown as InfraResult<T>;
-        return Result.Success(value!) as InfraResult<T>;
+        return Result.Success(value!) as unknown as InfraResult<T>;
     },
     Failure(error: InfraError): InfraResult<never> {
-        return Result.Failure(error) as InfraResult<never>;
+        return Result.Failure(error) as unknown as InfraResult<never>;
     },
 } as const;
 
 const AppResult = {
     Success<T = void>(value?: T): AppResult<T> {
         if (arguments.length === 0) return Result.Success() as unknown as AppResult<T>;
-        return Result.Success(value!) as AppResult<T>;
+        return Result.Success(value!) as unknown as AppResult<T>;
     },
     Failure(error: AppError): AppResult<never> {
-        return Result.Failure(error) as AppResult<never>;
+        return Result.Failure(error) as unknown as AppResult<never>;
     },
 } as const;
 
@@ -82,7 +82,7 @@ describe('Multi-Layer Service Composition', () => {
             }
             const user = db[id];
             if (!user) {
-                return InfraResult.Success(user);
+                return InfraResult.Success(user!);
             }
             return InfraResult.Success(user);
         }
@@ -100,7 +100,7 @@ describe('Multi-Layer Service Composition', () => {
             }
 
             const repoResult = this.repo.findById(id);
-            if (!repoResult.isSuccess) return repoResult;
+            if (!repoResult.isSuccess) return repoResult as unknown as DomainResult<{ id: string; name: string; email: string; }>;
 
             const user = repoResult.value;
             if (!user) {
@@ -133,7 +133,7 @@ describe('Multi-Layer Service Composition', () => {
             const mapped = domainToApp(result);
 
             if (!mapped.isSuccess) {
-                return mapAppErrorToHttpResponse(mapped.error);
+                return mapAppErrorToHttpResponse(mapped.error) as unknown as AppResult<HttpResponse<{ name: string; email: string }>>;
             }
 
             return AppResult.Success({
@@ -146,7 +146,7 @@ describe('Multi-Layer Service Composition', () => {
         }
     }
 
-    function mapAppErrorToHttpResponse(e: AppError): AppResult<never> {
+    function mapAppErrorToHttpResponse(e: AppError): AppResult<HttpResponse> {
         if (e.kind === 'Domain') {
             switch (e.inner.kind) {
                 case 'NotFound':
@@ -174,9 +174,13 @@ describe('Multi-Layer Service Composition', () => {
         it('returns 200 with user data', () => {
             const r = controller.getUser('1');
             expect(r.isSuccess).toBe(true);
-            expect(r.value.status).toBe(200);
-            expect(r.value.data.name).toBe('Alice');
-            expect(r.value.data.email).toBe('alice@example.com');
+            if (r.isSuccess) {
+                expect(r.value.status).toBe(200);
+                if (r.value.status === 200) {
+                    expect(r.value.data.name).toBe('Alice');
+                    expect(r.value.data.email).toBe('alice@example.com');
+                }
+            }
         });
     });
 
@@ -186,7 +190,9 @@ describe('Multi-Layer Service Composition', () => {
             expect(r.isSuccess).toBe(true);
             if (r.isSuccess) {
                 expect(r.value.status).toBe(400);
-                expect(r.value.message).toContain('Validation');
+                if (r.value.status === 400) {
+                    expect(r.value.message).toContain('Validation');
+                }
             }
         });
     });
@@ -197,8 +203,10 @@ describe('Multi-Layer Service Composition', () => {
             expect(r.isSuccess).toBe(true);
             if (r.isSuccess) {
                 expect(r.value.status).toBe(404);
-                expect(r.value.message).toContain('User');
-                expect(r.value.message).toContain('999');
+                if (r.value.status === 404) {
+                    expect(r.value.message).toContain('User');
+                    expect(r.value.message).toContain('999');
+                }
             }
         });
     });
@@ -247,32 +255,32 @@ describe('Railway-Oriented Pipelining', () => {
         | { kind: 'InvalidRange'; min: number; max: number; actual: number }
         | { kind: 'SaveFailed'; id: string; reason: string };
 
-    type AppResult<T = void> = IResult<T, AppError>;
+    type AppResult<T = void> = IResultOfT<T, AppError>;
 
     const AppResult = {
         Success<T = void>(value?: T): AppResult<T> {
             if (arguments.length === 0) return Result.Success() as unknown as AppResult<T>;
-            return Result.Success(value!) as AppResult<T>;
+            return Result.Success(value!) as unknown as AppResult<T>;
         },
         Failure(error: AppError): AppResult<never> {
-            return Result.Failure(error) as AppResult<never>;
+            return Result.Failure(error) as unknown as AppResult<never>;
         },
     } as const;
 
-    function map<T, U, E>(result: IResult<T, E>, fn: (value: T) => U): IResult<U, E> {
-        if (!result.isSuccess) return result;
-        return Result.Success(fn(result.value)) as IResult<U, E>;
+    function map<T, U, E>(result: IResultOfT<T, E>, fn: (value: T) => U): IResultOfT<U, E> {
+        if (!result.isSuccess) return result as unknown as IResultOfT<U, E>;
+        return Result.Success(fn(result.value)) as unknown as IResultOfT<U, E>;
     }
 
     function flatMap<T, U, E>(
-        result: IResult<T, E>,
-        fn: (value: T) => IResult<U, E>,
-    ): IResult<U, E> {
-        if (!result.isSuccess) return result;
+        result: IResultOfT<T, E>,
+        fn: (value: T) => IResultOfT<U, E>,
+    ): IResultOfT<U, E> {
+        if (!result.isSuccess) return result as unknown as IResultOfT<U, E>;
         return fn(result.value);
     }
 
-    function tap<T, E>(result: IResult<T, E>, fn: (value: T) => void): IResult<T, E> {
+    function tap<T, E>(result: IResultOfT<T, E>, fn: (value: T) => void): IResultOfT<T, E> {
         if (result.isSuccess) fn(result.value);
         return result;
     }
@@ -447,15 +455,15 @@ describe('Railway-Oriented Pipelining', () => {
 
 describe('Result Combining / Aggregation', () => {
     type ValidationError = { field: string; message: string };
-    type CombinedResult<T = void> = IResult<T, ValidationError[]>;
+    type CombinedResult<T = void> = IResultOfT<T, ValidationError[]>;
 
     const CombinedResult = {
         Success<T = void>(value?: T): CombinedResult<T> {
             if (arguments.length === 0) return Result.Success() as unknown as CombinedResult<T>;
-            return Result.Success(value!) as CombinedResult<T>;
+            return Result.Success(value!) as unknown as CombinedResult<T>;
         },
         Failure(errors: ValidationError[]): CombinedResult<never> {
-            return Result.Failure(errors) as CombinedResult<never>;
+            return Result.Failure(errors) as unknown as CombinedResult<never>;
         },
     } as const;
 
@@ -510,9 +518,9 @@ describe('Result Combining / Aggregation', () => {
         if (allErrors.length > 0) return CombinedResult.Failure(allErrors);
 
         return CombinedResult.Success({
-            name: nameR.value,
-            email: emailR.value,
-            age: ageR.value,
+            name: (nameR as IResultOfTSuccess<string, ValidationError[]>).value,
+            email: (emailR as IResultOfTSuccess<string, ValidationError[]>).value,
+            age: (ageR as IResultOfTSuccess<number, ValidationError[]>).value,
         });
     }
 
@@ -546,7 +554,7 @@ describe('Result Combining / Aggregation', () => {
             expect(r.isFailure).toBe(true);
             if (r.isFailure) {
                 expect(r.error).toHaveLength(1);
-                expect(r.error[0].field).toBe('email');
+                expect(r.error[0]!.field).toBe('email');
             }
         });
     });
@@ -593,7 +601,7 @@ describe('Result Combining / Aggregation', () => {
             expect(r.isFailure).toBe(true);
             if (r.isFailure) {
                 expect(r.error).toHaveLength(1);
-                expect(r.error[0].message).toBe('Required');
+                expect(r.error[0]!.message).toBe('Required');
             }
         });
     });
@@ -613,15 +621,15 @@ describe('Transaction-Like Pattern', () => {
         | { kind: 'PaymentDeclined'; amount: number; reason: string }
         | { kind: 'OrderCreationFailed'; reason: string };
 
-    type TxResult<T = void> = IResult<T, TxError>;
+    type TxResult<T = void> = IResultOfT<T, TxError>;
 
     const TxResult = {
         Success<T = void>(value?: T): TxResult<T> {
             if (arguments.length === 0) return Result.Success() as unknown as TxResult<T>;
-            return Result.Success(value!) as TxResult<T>;
+            return Result.Success(value!) as unknown as TxResult<T>;
         },
         Failure(error: TxError): TxResult<never> {
-            return Result.Failure(error) as TxResult<never>;
+            return Result.Failure(error) as unknown as TxResult<never>;
         },
     } as const;
 
@@ -712,19 +720,19 @@ describe('Transaction-Like Pattern', () => {
             cardToken: string,
         ): TxResult<{ orderId: string; paymentTxId: string }> {
             const reserved = this.reserve(sku, qty);
-            if (!reserved.isSuccess) return reserved;
+            if (!reserved.isSuccess) return reserved as unknown as TxResult<{ orderId: string; paymentTxId: string }>;
 
             const charged = this.charge(amount, cardToken);
             if (!charged.isSuccess) {
                 this.release(sku, qty);
-                return charged;
+                return charged as unknown as TxResult<{ orderId: string; paymentTxId: string }>;
             }
 
             const order = this.createOrder(sku, qty, charged.value);
             if (!order.isSuccess) {
                 this.release(sku, qty);
                 this.refund(charged.value);
-                return order;
+                return order as unknown as TxResult<{ orderId: string; paymentTxId: string }>;
             }
 
             return TxResult.Success({
@@ -760,7 +768,9 @@ describe('Transaction-Like Pattern', () => {
             expect(r.isFailure).toBe(true);
             if (r.isFailure) {
                 expect(r.error.kind).toBe('InventoryShortage');
-                expect(r.error.sku).toBe('SKU-A');
+                if (r.error.kind === 'InventoryShortage') {
+                    expect(r.error.sku).toBe('SKU-A');
+                }
             }
 
             expect(svc.inventoryState['SKU-A']).toBe(10);
@@ -836,15 +846,15 @@ describe('Async Result Patterns', () => {
         | { kind: 'NotFound'; id: string }
         | { kind: 'NetworkError'; url: string; status: number };
 
-    type AsyncResult<T = void> = IResult<T, AsyncError>;
+    type AsyncResult<T = void> = IResultOfT<T, AsyncError>;
 
     const AsyncResult = {
         Success<T = void>(value?: T): AsyncResult<T> {
             if (arguments.length === 0) return Result.Success() as unknown as AsyncResult<T>;
-            return Result.Success(value!) as AsyncResult<T>;
+            return Result.Success(value!) as unknown as AsyncResult<T>;
         },
         Failure(error: AsyncError): AsyncResult<never> {
-            return Result.Failure(error) as AsyncResult<never>;
+            return Result.Failure(error) as unknown as AsyncResult<never>;
         },
     } as const;
 
@@ -916,13 +926,25 @@ describe('Async Result Patterns', () => {
             address: { city: string; country: string };
         }>> {
             const userR = await fetchUser(userId);
-            if (!userR.isSuccess) return userR;
+            if (!userR.isSuccess) return userR as unknown as AsyncResult<{
+                user: { id: string; name: string };
+                orders: Array<{ orderId: string; total: number }>;
+                address: { city: string; country: string };
+            }>;
 
             const ordersR = await fetchOrders(userId);
-            if (!ordersR.isSuccess) return ordersR;
+            if (!ordersR.isSuccess) return ordersR as unknown as AsyncResult<{
+                user: { id: string; name: string };
+                orders: Array<{ orderId: string; total: number }>;
+                address: { city: string; country: string };
+            }>;
 
             const addressR = await fetchAddress(userId);
-            if (!addressR.isSuccess) return addressR;
+            if (!addressR.isSuccess) return addressR as unknown as AsyncResult<{
+                user: { id: string; name: string };
+                orders: Array<{ orderId: string; total: number }>;
+                address: { city: string; country: string };
+            }>;
 
             return AsyncResult.Success({
                 user: userR.value,
@@ -1018,12 +1040,12 @@ describe('Async Result Patterns', () => {
         type SystemBError = { code: number; detail: string };
         type SystemAError = { kind: 'SubsystemFailed'; subsystem: string; message: string };
 
-        async function callSubsystemB(): Promise<IResult<string, SystemBError>> {
+        async function callSubsystemB(): Promise<IResultOfT<string, SystemBError>> {
             await delay(1);
             return Result.Failure<string, SystemBError>({ code: 503, detail: 'Service Unavailable' });
         }
 
-        async function systemAOperation(): Promise<IResult<string, SystemAError>> {
+        async function systemAOperation(): Promise<IResultOfT<string, SystemAError>> {
             const subR = await callSubsystemB();
             if (!subR.isSuccess) {
                 return Result.Failure<string, SystemAError>({
@@ -1032,7 +1054,7 @@ describe('Async Result Patterns', () => {
                     message: `Code ${subR.error.code}: ${subR.error.detail}`,
                 });
             }
-            return Result.Success(subR.value.toUpperCase());
+            return Result.Success(subR.value.toUpperCase()) as unknown as IResultOfT<string, SystemAError>;
         }
 
         it('converts error types across async boundaries', async () => {

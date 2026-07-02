@@ -111,7 +111,7 @@ describe('pipe', () => {
             err<string>('original error'),
             bind(trackingBind),
             match(
-                (v: number) => v,
+                (v: number) => String(v),
                 (e: string) => e,
             ),
         );
@@ -170,17 +170,17 @@ describe('switchFn', () => {
     });
 
     it('preserves falsy return values', () => {
-        const returnFalse = switchFn(() => false);
+        const returnFalse = switchFn((_x: unknown) => false);
 
-        const result = returnFalse();
+        const result = returnFalse(undefined);
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBe(false);
     });
 
     it('preserves null return values', () => {
-        const returnNull = switchFn(() => null);
+        const returnNull = switchFn((_x: unknown) => null);
 
-        const result = returnNull();
+        const result = returnNull(undefined);
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBeNull();
     });

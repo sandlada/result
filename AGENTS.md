@@ -35,7 +35,7 @@ type AppError =
   | { kind: 'NotFound'; id: string }
   | { kind: 'Validation'; fields: Record<string, string> };
 
-function findUser(id: string): IResult<User, AppError> { /* ... */ }
+function findUser(id: string): IResultOfT<User, AppError> { /* ... */ }
 ```
 
 The **default** `TError` is `Error` when not specified. Users are free to use discriminated unions, classes, or plain objects.
@@ -48,10 +48,10 @@ Third-party developers can **bake their error type** into a convenience wrapper 
 
 ```ts
 // trd-result.ts
-import type { IResult } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
 import type { TrdError } from './errors';
 
-export type TrdResult<T = void> = IResult<T, TrdError>;
+export type TrdResult<T = void> = IResultOfT<T, TrdError>;
 ```
 
 **2. Convenience factory** — re-exports `Result` factories with `TrdError` already wired:
@@ -59,10 +59,10 @@ export type TrdResult<T = void> = IResult<T, TrdError>;
 ```ts
 // trd-result.ts
 import { Result } from '@sandlada/result';
-import type { IResult } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
 import type { TrdError } from './errors';
 
-export type TrdResult<T = void> = IResult<T, TrdError>;
+export type TrdResult<T = void> = IResultOfT<T, TrdError>;
 
 export const TrdResult = {
     Success(): TrdResult<void>,
@@ -77,29 +77,60 @@ function getUser(id: string): TrdResult<User> {
 }
 ```
 
+> **Note:** Use `IResultOfT<T, E>` (not `IResult<T, E>`) for value-bearing
+> results. Factory casts from `Result.Success(...)` to a custom union type must
+> use `as unknown as TrdResult<T>` because the class implements the internal
+> flat base, not the union directly.
+
 Both approaches compose: the type alias keeps signatures clean, and the factory object eliminates `Result.Failure<T, E>(...)` boilerplate.
 
 ### Class Hierarchy
 
+The interfaces use a **discriminated union** pattern (true-myth Omit pattern).
+Each result type is split into success and failure variants, discriminated by
+the `isSuccess` literal. `value` and `error` are restricted to their respective
+variants — accessing them requires narrowing via `isSuccess`.
+
 ```
-IResult<TError = Error>           (interface)
+── Internal flat bases (for class implementation) ──
+
+IResultBase<TError = Error>              (internal interface)
 ├── readonly error: TError
 ├── readonly isSuccess: boolean
-└── readonly isFailure: boolean    (computed: !isSuccess)
+└── readonly isFailure: boolean
 
-IResult<TValue, TError = Error>   (interface, extends IResult<TError>)
-└── readonly value: TValue         (throws if accessed on failure)
+IResultOfTBase<TValue, TError = Error>   (internal interface, extends IResultBase)
+├── readonly value: TValue
+└── map/mapErr/andThen/orElse/match/tap/tapErr/unwrapOr  (8 method signatures)
 
-Result                             (class, implements IResult)
+── Exported variant interfaces (discriminated union members) ──
+
+IResultSuccess                           (isSuccess: true, isFailure: false — no error)
+IResultFailure<TError>                   (isSuccess: false, isFailure: true, error: TError)
+IResultOfTSuccess<TValue, TError>        (Omit error, isSuccess: true, has value + methods)
+IResultOfTFailure<TValue, TError>        (Omit value, isSuccess: false, has error + methods)
+
+── Exported union type aliases ──
+
+IResult<TError = Error>                  = IResultSuccess | IResultFailure<TError>
+IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
+
+── Concrete classes ──
+
+Result                             (class, implements IResultBase)
 ├── protected constructor(isSuccess, error)  — validates invariant
-├── static Success(): Result
-├── static Failure(error): Result
-├── static Success<T>(value): IResult<T>
-└── static Failure<T, E>(error): IResult<T, E>
+├── static Success(): IResult
+├── static Failure(error): IResult
+├── static Success<T>(value): IResultOfT<T>
+└── static Failure<T, E>(error): IResultOfT<T, E>
 
-Result<TValue, TError>            (class extends Result, implements IResult<TValue, TError>)
+ResultOfT<TValue, TError>          (class extends Result, implements IResultOfTBase)
 └── protected internal constructor(value?, isSuccess, error)
 ```
+
+**Why internal flat bases?** A class cannot `implements` a union type. The
+`IResultBase`/`IResultOfTBase` flat interfaces provide the full shape for the
+class. Factory methods cast to the exported union type (`as unknown as`).
 
 ### Invariant: Mutual Exclusivity
 
@@ -112,7 +143,21 @@ Where `NONE` is an internal sentinel (`Symbol('result:none')`) cast to `TError`.
 
 ### Sentinel Pattern
 
-The `error` property is **always accessible** (never throws), matching the C# behavior where `Error` returns `DomainError.General.None` on success. Internally, success results store the `NONE` sentinel as their error. Users check `isSuccess` before interpreting `error`.
+At runtime, the `error` property on a success result returns the `NONE` sentinel
+(`Symbol.for('result:none')`), matching the C# behavior where `Error` returns
+`DomainError.General.None` on success. However, with the discriminated union
+refactor, the `error` property is **not exposed on the success variant's type** —
+the type system enforces what was previously only a convention. Users must narrow
+via `isSuccess` before accessing `error`:
+
+```ts
+if (result.isSuccess) {
+    // result.error — type error: not on success variant
+    doSomething(result.value);  // ✓ safe
+} else {
+    handleError(result.error);   // ✓ safe
+}
+```
 
 ## Coding Conventions
 
@@ -127,34 +172,37 @@ The `error` property is **always accessible** (never throws), matching the C# be
 
 ```
 src/
-  IResult.ts          — IResult<TError> interface
-  IResultOfT.ts       — IResult<TValue, TError> interface
-  Result.ts           — Result class (base, non-generic)
-  ResultOfT.ts        — Result<TValue, TError> class
+  IResult.ts          — IResultBase (internal), IResultSuccess, IResultFailure, IResult (union)
+  IResultOfT.ts       — IResultOfTBase (internal), IResultOfTSuccess, IResultOfTFailure, IResultOfT (union)
+  Result.ts           — Result class (base, non-generic) + ResultOfT class
+  ResultOfT.ts        — Re-export barrel for ResultOfT
   index.ts            — public barrel re-exports
 ```
 
 ## C# / TypeScript Mapping
 
-| Concern                 | C#                               | TypeScript                                 |
-| ----------------------- | -------------------------------- | ------------------------------------------ |
-| Base interface          | `IResult`                        | `IResult<TError = Error>`                  |
-| Value-bearing interface | `IResult<out T>`                 | `IResult<TValue, TError = Error>`          |
-| Error type              | `DomainError` (hardcoded)        | `TError` generic (user-defined)            |
-| Sentinel "none"         | `DomainError.General.None`       | Internal `Symbol()` cast                   |
-| Success factory (void)  | `Result.Success()`               | `Result.Success()`                         |
-| Failure factory         | `Result.Failure(DomainError)`    | `Result.Failure(error: TError)`            |
-| Success factory (T)     | `Result.Success<T>(T)`           | `Result.Success<T>(value: T)`              |
-| Failure factory (T)     | `Result.Failure<T>(DomainError)` | `Result.Failure<T, E>(error: E)`           |
-| Naming                  | PascalCase                       | PascalCase (static) / camelCase (instance) |
-| Covariance              | `out T` (CLR)                    | Not needed (structural typing)             |
+| Concern                 | C#                               | TypeScript                                                 |
+| ----------------------- | -------------------------------- | ---------------------------------------------------------- |
+| Base interface          | `IResult`                        | `IResult<TError = Error>` (discriminated union)            |
+| Value-bearing interface | `IResult<out T>`                 | `IResultOfT<TValue, TError = Error>` (discriminated union) |
+| Error type              | `DomainError` (hardcoded)        | `TError` generic (user-defined)                            |
+| Sentinel "none"         | `DomainError.General.None`       | Internal `Symbol()` cast                                   |
+| Success factory (void)  | `Result.Success()`               | `Result.Success()`                                         |
+| Failure factory         | `Result.Failure(DomainError)`    | `Result.Failure(error: TError)`                            |
+| Success factory (T)     | `Result.Success<T>(T)`           | `Result.Success<T>(value: T)`                              |
+| Failure factory (T)     | `Result.Failure<T>(DomainError)` | `Result.Failure<T, E>(error: E)`                           |
+| Naming                  | PascalCase                       | PascalCase (static) / camelCase (instance)                 |
+| Covariance              | `out T` (CLR)                    | Not needed (structural typing)                             |
 
 ## Implementation Notes
 
 - The `NONE` sentinel should be a well-known `Symbol` (`Symbol.for('result:none')`) so it survives module reloads in dev.
 - `value` getter throws `TypeError` with a clear message when accessed on a failure.
-- Factory methods on `Result` return the narrowest possible type (`IResult<T>` / `IResult<T, E>`) rather than the concrete class, to avoid coupling consumers to the implementation.
-- The `failure<T, E>()` overload requires `T` to be specified (no value to infer it from), but `E` can be inferred from the error argument.
+- Factory methods on `Result` return the narrowest possible type (`IResultOfT<T>` / `IResultOfT<T, E>`) rather than the concrete class, to avoid coupling consumers to the implementation.
+- The `Failure<T, E>()` overload requires `T` to be specified (no value to infer it from), but `E` can be inferred from the error argument.
+- **Discriminated union:** `IResult` and `IResultOfT` are type alias unions, not flat interfaces. The class implements internal flat bases (`IResultBase`/`IResultOfTBase`) and factory methods cast via `as unknown as` to the union type.
+- **Omit pattern:** `IResultOfTSuccess`/`IResultOfTFailure` extend `Omit<IResultOfTBase, ...>` to inherit all instance methods while restricting `value`/`error` to their respective variants.
+- **Use `IResultOfT<T, E>`** (not `IResult<T, E>`) for value-bearing results. `IResult<E>` is the base union without `value`.
 
 ## Development Workflow
 

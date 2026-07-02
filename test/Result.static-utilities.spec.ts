@@ -10,7 +10,7 @@ describe('Result.tryCatch', () => {
         const result = Result.tryCatch(() => 42);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe(42);
+        if (result.isSuccess) expect(result.value).toBe(42);
     });
 
     it('returns failure when the function throws an Error', () => {
@@ -18,9 +18,11 @@ describe('Result.tryCatch', () => {
             throw new Error('boom');
         });
 
-        expect(result.isSuccess).toBe(false);
-        expect(result.error).toBeInstanceOf(Error);
-        expect(result.error.message).toBe('boom');
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect(result.error.message).toBe('boom');
+        }
     });
 
     it('returns failure when the function throws a non-Error (default cast)', () => {
@@ -28,8 +30,8 @@ describe('Result.tryCatch', () => {
             throw 'string error';
         });
 
-        expect(result.isSuccess).toBe(false);
-        expect(result.error).toBe('string error');
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('string error');
     });
 
     it('maps the caught error via errorFn to a discriminated union', () => {
@@ -53,8 +55,8 @@ describe('Result.tryCatch', () => {
             throw 404;
         });
 
-        expect(result.isSuccess).toBe(false);
-        expect(result.error).toBe(404);
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe(404);
     });
 
     it('preserves falsy return values (0, empty string, false, null)', () => {
@@ -63,10 +65,10 @@ describe('Result.tryCatch', () => {
         const boolFalse = Result.tryCatch(() => false);
         const nullVal = Result.tryCatch<string | null>(() => null);
 
-        expect(zero.value).toBe(0);
-        expect(emptyStr.value).toBe('');
-        expect(boolFalse.value).toBe(false);
-        expect(nullVal.value).toBeNull();
+        expect(zero.isSuccess).toBe(true); if (zero.isSuccess) expect(zero.value).toBe(0);
+        expect(emptyStr.isSuccess).toBe(true); if (emptyStr.isSuccess) expect(emptyStr.value).toBe('');
+        expect(boolFalse.isSuccess).toBe(true); if (boolFalse.isSuccess) expect(boolFalse.value).toBe(false);
+        expect(nullVal.isSuccess).toBe(true); if (nullVal.isSuccess) expect(nullVal.value).toBeNull();
     });
 
     it('preserves complex return objects', () => {
@@ -108,7 +110,7 @@ describe('Result.tryCatch', () => {
 
         // The outer tryCatch doesn't throw; inner failure is handled explicitly
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe('handled: inner failure');
+        if (result.isSuccess) expect(result.value).toBe('handled: inner failure');
     });
 });
 
@@ -254,14 +256,14 @@ describe('Result.combineWithAllErrors', () => {
     it('collects all errors when some results fail (no short-circuit)', () => {
         type VErr = { field: string; message: string };
 
-        const combined = Result.combineWithAllErrors([
-            Result.Success<string, VErr>('valid'),
+        const combined = Result.combineWithAllErrors<string, VErr>([
+            Result.Success<string>('valid') as unknown as IResultOfT<string, VErr>,
             Result.Failure<string, VErr>({ field: 'name', message: 'required' }),
             Result.Failure<string, VErr>({ field: 'email', message: 'invalid' }),
         ]);
 
-        expect(combined.isSuccess).toBe(false);
-        if (!combined.isSuccess) {
+        expect(combined.isFailure).toBe(true);
+        if (combined.isFailure) {
             expect(combined.error).toHaveLength(2);
             expect(combined.error[0]!.field).toBe('name');
             expect(combined.error[1]!.field).toBe('email');

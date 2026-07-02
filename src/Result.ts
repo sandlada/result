@@ -1,6 +1,6 @@
 import { NONE } from './internal/sentinel.js';
-import type { IResult } from './IResult.js';
-import type { IResultOfT } from './IResultOfT.js';
+import type { IResult, IResultBase } from './IResult.js';
+import type { IResultOfT, IResultOfTBase } from './IResultOfT.js';
 
 /**
  * Base class implementing the core result invariant.
@@ -12,7 +12,7 @@ import type { IResultOfT } from './IResultOfT.js';
  * Users do not instantiate this class directly.
  * Use the static factory methods: {@link Result.Success}, {@link Result.Failure}.
  */
-export class Result<TError = Error> implements IResult<TError> {
+export class Result<TError = Error> implements IResultBase<TError> {
     readonly isSuccess: boolean;
     readonly error: TError;
 
@@ -46,9 +46,9 @@ export class Result<TError = Error> implements IResult<TError> {
     static Success<TValue>(value: TValue): IResultOfT<TValue>;
     static Success<TValue>(value?: TValue): IResult | IResultOfT<TValue> {
         if (arguments.length === 0) {
-            return new Result<Error>(true, (NONE as unknown) as Error);
+            return new Result<Error>(true, (NONE as unknown) as Error) as unknown as IResult;
         }
-        return new ResultOfT<TValue, Error>(value!, true);
+        return new ResultOfT<TValue, Error>(value!, true) as unknown as IResultOfT<TValue>;
     }
 
     /** Creates a void failure result. */
@@ -59,7 +59,7 @@ export class Result<TError = Error> implements IResult<TError> {
         if (error === undefined) {
             throw new TypeError('Result.Failure requires an error argument.');
         }
-        return new ResultOfT<TValue, TError>(undefined, false, error);
+        return new ResultOfT<TValue, TError>(undefined, false, error) as unknown as IResultOfT<TValue, TError>;
     }
 
     // ── Static helpers ──────────────────────────────────────────────────
@@ -222,7 +222,7 @@ export class Result<TError = Error> implements IResult<TError> {
  * Users do not instantiate this class directly.
  * Use {@link Result.Success} or {@link Result.Failure}.
  */
-export class ResultOfT<TValue, TError = Error> extends Result<TError> implements IResultOfT<TValue, TError> {
+export class ResultOfT<TValue, TError = Error> extends Result<TError> implements IResultOfTBase<TValue, TError> {
     readonly #value: TValue | undefined;
 
     /**
@@ -322,7 +322,7 @@ export class ResultOfT<TValue, TError = Error> extends Result<TError> implements
      */
     tap(fn: (value: TValue) => void): IResultOfT<TValue, TError> {
         if (this.isSuccess) fn(this.#value as TValue);
-        return this;
+        return this as unknown as IResultOfT<TValue, TError>;
     }
 
     /**
@@ -332,7 +332,7 @@ export class ResultOfT<TValue, TError = Error> extends Result<TError> implements
      */
     tapErr(fn: (error: TError) => void): IResultOfT<TValue, TError> {
         if (!this.isSuccess) fn(this.error);
-        return this;
+        return this as unknown as IResultOfT<TValue, TError>;
     }
 
     /**

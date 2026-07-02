@@ -9,7 +9,7 @@ describe('Result.tryCatchAsync', () => {
         const result = await Result.tryCatchAsync(async () => 42);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe(42);
+        if (result.isSuccess) expect(result.value).toBe(42);
     });
 
     it('resolves to failure when the async function rejects', async () => {
@@ -18,8 +18,10 @@ describe('Result.tryCatchAsync', () => {
         });
 
         expect(result.isSuccess).toBe(false);
-        expect(result.error).toBeInstanceOf(Error);
-        expect(result.error.message).toBe('async boom');
+        if (result.isFailure) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect(result.error.message).toBe('async boom');
+        }
     });
 
     it('resolves to failure when the async function throws synchronously', async () => {
@@ -28,7 +30,7 @@ describe('Result.tryCatchAsync', () => {
         });
 
         expect(result.isSuccess).toBe(false);
-        expect(result.error.message).toBe('sync throw in async context');
+        if (result.isFailure) expect(result.error.message).toBe('sync throw in async context');
     });
 
     it('maps the error with errorFn on rejection', async () => {
@@ -57,7 +59,7 @@ describe('Result.tryCatchAsync', () => {
 
         expect(result.isSuccess).toBe(false);
         // With default Error type, the thrown string is cast — it's structural
-        expect(result.error).toBe('string error');
+        if (result.isFailure) expect(result.error).toBe('string error');
     });
 
     it('infers TError from errorFn return type', async () => {
@@ -94,7 +96,7 @@ describe('Result.tryCatchAsync', () => {
         );
 
         expect(result.isSuccess).toBe(false);
-        expect(result.error.message).toBe('rejected promise');
+        if (result.isFailure) expect(result.error.message).toBe('rejected promise');
     });
 });
 
@@ -106,7 +108,7 @@ describe('Result.fromPromise', () => {
         const result = await Result.fromPromise(promise);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe('hello');
+        if (result.isSuccess) expect(result.value).toBe('hello');
     });
 
     it('resolves to failure when the promise rejects', async () => {
@@ -114,7 +116,7 @@ describe('Result.fromPromise', () => {
         const result = await Result.fromPromise(promise);
 
         expect(result.isSuccess).toBe(false);
-        expect(result.error.message).toBe('rejected');
+        if (result.isFailure) expect(result.error.message).toBe('rejected');
     });
 
     it('maps the error with errorFn on rejection', async () => {
@@ -149,8 +151,8 @@ describe('Result.fromPromise', () => {
 
         expect(a.isSuccess).toBe(false);
         expect(b.isSuccess).toBe(false);
-        expect((a as IResultOfT<unknown, Error>).error.message).toBe(
-            (b as IResultOfT<unknown, Error>).error.message,
-        );
+        if (a.isFailure && b.isFailure) {
+            expect(a.error.message).toBe(b.error.message);
+        }
     });
 });

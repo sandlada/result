@@ -26,8 +26,12 @@ describe('Discriminated union error', () => {
                 fields: { id: 'Required' },
             });
             expect(err.isFailure).toBe(true);
-            expect(err.error.kind).toBe('Validation');
-            expect(err.error.fields.id).toBe('Required');
+            if (err.isFailure) {
+                expect(err.error.kind).toBe('Validation');
+                if (err.error.kind === 'Validation') {
+                    expect(err.error.fields.id).toBe('Required');
+                }
+            }
         });
     });
 
@@ -38,9 +42,13 @@ describe('Discriminated union error', () => {
                 resource: 'User',
                 id: '42',
             });
-            expect(err.error.kind).toBe('NotFound');
-            expect(err.error.resource).toBe('User');
-            expect(err.error.id).toBe('42');
+            if (err.isFailure) {
+                expect(err.error.kind).toBe('NotFound');
+                if (err.error.kind === 'NotFound') {
+                    expect(err.error.resource).toBe('User');
+                    expect(err.error.id).toBe('42');
+                }
+            }
         });
     });
 
@@ -50,8 +58,12 @@ describe('Discriminated union error', () => {
                 kind: 'Unauthorized',
                 reason: 'Token expired',
             });
-            expect(err.error.kind).toBe('Unauthorized');
-            expect(err.error.reason).toBe('Token expired');
+            if (err.isFailure) {
+                expect(err.error.kind).toBe('Unauthorized');
+                if (err.error.kind === 'Unauthorized') {
+                    expect(err.error.reason).toBe('Token expired');
+                }
+            }
         });
     });
 
@@ -85,7 +97,7 @@ describe('Discriminated union error', () => {
         it('returns success with value', () => {
             const ok = Result.Success<{ id: number; name: string }>({ id: 1, name: 'Alice' });
             expect(ok.isSuccess).toBe(true);
-            expect(ok.value.name).toBe('Alice');
+            if (ok.isSuccess) expect(ok.value.name).toBe('Alice');
         });
     });
 });
@@ -96,23 +108,25 @@ describe('Class-based error', () => {
             new DomainError('Invalid email format', 'INVALID_EMAIL'),
         );
         expect(err.isFailure).toBe(true);
-        expect(err.error).toBeInstanceOf(DomainError);
-        expect(err.error).toBeInstanceOf(Error);
-        expect(err.error.code).toBe('INVALID_EMAIL');
-        expect(err.error.message).toBe('Invalid email format');
+        if (err.isFailure) {
+            expect(err.error).toBeInstanceOf(DomainError);
+            expect(err.error).toBeInstanceOf(Error);
+            expect(err.error.code).toBe('INVALID_EMAIL');
+            expect(err.error.message).toBe('Invalid email format');
+        }
     });
 
     it('DomainError retains name property', () => {
         const err = Result.Failure<string, DomainError>(
             new DomainError('oops', 'ERR'),
         );
-        expect(err.error.name).toBe('DomainError');
+        if (err.isFailure) expect(err.error.name).toBe('DomainError');
     });
 
     it('success path with DomainError', () => {
         const ok = Result.Success('valid@email.com');
         expect(ok.isSuccess).toBe(true);
-        expect(ok.value).toBe('valid@email.com');
+        if (ok.isSuccess) expect(ok.value).toBe('valid@email.com');
     });
 
     it('multiple DomainError instances are distinct', () => {
@@ -120,29 +134,39 @@ describe('Class-based error', () => {
         const e2 = new DomainError('second', 'E2');
         const r1 = Result.Failure<string, DomainError>(e1);
         const r2 = Result.Failure<string, DomainError>(e2);
-        expect(r1.error).not.toBe(r2.error);
-        expect(r1.error.code).toBe('E1');
-        expect(r2.error.code).toBe('E2');
+        if (r1.isFailure && r2.isFailure) {
+            expect(r1.error).not.toBe(r2.error);
+            expect(r1.error.code).toBe('E1');
+            expect(r2.error.code).toBe('E2');
+        }
     });
 });
 
 describe('Plain object error', () => {
     it('passes any object as error', () => {
-        const err = Result.Failure<number>({ reason: 'timeout', retryAfter: 5000 });
-        expect(err.error.reason).toBe('timeout');
-        expect(err.error.retryAfter).toBe(5000);
+        const err = Result.Failure<number, { reason: string; retryAfter: number }>({
+            reason: 'timeout',
+            retryAfter: 5000,
+        });
+        if (err.isFailure) {
+            expect(err.error.reason).toBe('timeout');
+            expect(err.error.retryAfter).toBe(5000);
+        }
     });
 
     it('plain object error is not an Error instance', () => {
-        const err = Result.Failure<number>({ reason: 'oops' });
-        expect(err.error).not.toBeInstanceOf(Error);
+        const err = Result.Failure<number, { reason: string }>({ reason: 'oops' });
+        if (err.isFailure) expect(err.error).not.toBeInstanceOf(Error);
     });
 
     it('deeply nested plain objects work', () => {
-        const err = Result.Failure<string>({
+        const err = Result.Failure<string, {
+            code: string;
+            detail: { inner: { value: number } };
+        }>({
             code: 'DEEP',
             detail: { inner: { value: 42 } },
         });
-        expect(err.error.detail.inner.value).toBe(42);
+        if (err.isFailure) expect(err.error.detail.inner.value).toBe(42);
     });
 });

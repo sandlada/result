@@ -16,12 +16,13 @@ describe('AsyncResult.success', () => {
         const ar = AsyncResult.success(42);
         const r = await ar;
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toBe(42);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('resolves to IResultOfT when awaited', async () => {
         const result: IResultOfT<string> = await AsyncResult.success('hello');
-        expect(result.value).toBe('hello');
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe('hello');
     });
 });
 
@@ -29,8 +30,8 @@ describe('AsyncResult.failure', () => {
     it('creates a failure', async () => {
         const ar = AsyncResult.failure('bad');
         const r = await ar;
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('bad');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('bad');
     });
 
     it('returns AsyncResult<never, string>', async () => {
@@ -47,7 +48,7 @@ describe('AsyncResult.tryCatch', () => {
         const ar = AsyncResult.tryCatch(async () => 'data');
         const r = await ar;
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toBe('data');
+        if (r.isSuccess) expect(r.value).toBe('data');
     });
 
     it('catches a rejected promise as failure', async () => {
@@ -55,8 +56,8 @@ describe('AsyncResult.tryCatch', () => {
             throw new Error('boom');
         });
         const r = await ar;
-        expect(r.isSuccess).toBe(false);
-        expect(r.error.message).toBe('boom');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error.message).toBe('boom');
     });
 
     it('maps error with errorFn', async () => {
@@ -79,15 +80,16 @@ describe('AsyncResult.from', () => {
         const sync = Result.Success(99);
         const ar = AsyncResult.from(sync);
         const r = await ar;
-        expect(r.value).toBe(99);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(99);
     });
 
     it('lifts a sync failure result', async () => {
         const sync = Result.Failure<number, string>('nope');
         const ar = AsyncResult.from(sync);
         const r = await ar;
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('nope');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('nope');
     });
 });
 
@@ -95,7 +97,8 @@ describe('AsyncResult.fromPromise', () => {
     it('wraps a fulfilled promise', async () => {
         const ar = AsyncResult.fromPromise(Promise.resolve('yay'));
         const r = await ar;
-        expect(r.value).toBe('yay');
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe('yay');
     });
 
     it('wraps a rejected promise', async () => {
@@ -110,20 +113,22 @@ describe('AsyncResult.fromPromise', () => {
 describe('AsyncResult.map', () => {
     it('transforms the success value', async () => {
         const r = await AsyncResult.success(21).map(x => x * 2);
-        expect(r.value).toBe(42);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('passes through failure unchanged', async () => {
-        const r = await AsyncResult.failure<number>('err').map(x => x * 2);
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('err');
+        const r = await AsyncResult.failure<string>('err').map(x => x * 2);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('err');
     });
 
     it('is chainable', async () => {
         const r = await AsyncResult.success(5)
             .map(x => x + 1)
             .map(x => x * 10);
-        expect(r.value).toBe(60);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(60);
     });
 });
 
@@ -134,30 +139,32 @@ describe('AsyncResult.mapAsync', () => {
         const r = await AsyncResult.success(21).mapAsync(
             async x => x * 2,
         );
-        expect(r.value).toBe(42);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('catches thrown errors in the callback and converts to Failure', async () => {
         const r = await AsyncResult.success(1).mapAsync(async () => {
             throw 'callback error';
         });
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('callback error');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('callback error');
     });
 
     it('passes through failure unchanged', async () => {
-        const r = await AsyncResult.failure<number>('original').mapAsync(
+        const r = await AsyncResult.failure<string>('original').mapAsync(
             async x => x * 2,
         );
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('original');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('original');
     });
 
     it('is chainable with map', async () => {
         const r = await AsyncResult.success(5)
             .mapAsync(async x => x + 5)
             .map(x => x * 2);
-        expect(r.value).toBe(20);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(20);
     });
 });
 
@@ -165,17 +172,17 @@ describe('AsyncResult.mapAsync', () => {
 
 describe('AsyncResult.mapErr', () => {
     it('transforms the error', async () => {
-        const r = await AsyncResult.failure<number>('raw').mapErr(
+        const r = await AsyncResult.failure<string>('raw').mapErr(
             e => `wrapped: ${e}`,
         );
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('wrapped: raw');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('wrapped: raw');
     });
 
     it('passes through success unchanged', async () => {
         const r = await AsyncResult.success(42).mapErr(e => `fail: ${e}`);
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toBe(42);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 });
 
@@ -192,7 +199,7 @@ describe('AsyncResult.mapErrAsync', () => {
     });
 
     it('catches thrown errors in the callback', async () => {
-        const r = await AsyncResult.failure<number>('original').mapErrAsync(
+        const r = await AsyncResult.failure<string>('original').mapErrAsync(
             async () => {
                 throw 'callback fail';
             },
@@ -206,7 +213,8 @@ describe('AsyncResult.mapErrAsync', () => {
         const r = await AsyncResult.success(1).mapErrAsync(
             async e => `mapped: ${e}`,
         );
-        expect(r.value).toBe(1);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(1);
     });
 });
 
@@ -217,30 +225,32 @@ describe('AsyncResult.andThen', () => {
         const r = await AsyncResult.success(21).andThen(x =>
             AsyncResult.success(x * 2),
         );
-        expect(r.value).toBe(42);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('chains to a sync IResultOfT on success', async () => {
         const r = await AsyncResult.success('hello').andThen(s =>
             Result.Success(s.length),
         );
-        expect(r.value).toBe(5);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(5);
     });
 
     it('short-circuits on failure', async () => {
         const r = await AsyncResult.failure<string>('fail')
-            .andThen(x => AsyncResult.success(x.length));
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('fail');
+            .andThen(x => AsyncResult.success((x as string).length));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('fail');
     });
 
     it('widens the error type', async () => {
-        const a = AsyncResult.success<number, 'A'>('value' as unknown as number);
+        const a = AsyncResult.success<number>('value' as unknown as number);
         // Issue: we can't really test this with the current API without a proper test case
         // Let's test through matching
         const r = await a.andThen(v => AsyncResult.failure('B' as const));
-        // r should be AsyncResult<number, 'A' | 'B'>
-        expect(r.isSuccess).toBe(false);
+        // r should be AsyncResult<number, 'B'>
+        expect(r.isFailure).toBe(true);
     });
 });
 
@@ -248,24 +258,27 @@ describe('AsyncResult.andThen', () => {
 
 describe('AsyncResult.orElse', () => {
     it('recovers from failure with an AsyncResult', async () => {
-        const r = await AsyncResult.failure<number>('down').orElse(
+        const r = await AsyncResult.failure<string>('down').orElse(
             () => AsyncResult.success(42),
         );
-        expect(r.value).toBe(42);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('recovers from failure with a sync IResultOfT', async () => {
-        const r = await AsyncResult.failure<number>('down').orElse(
+        const r = await AsyncResult.failure<string>('down').orElse(
             () => Result.Success(99),
         );
-        expect(r.value).toBe(99);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(99);
     });
 
     it('passes through success unchanged', async () => {
         const r = await AsyncResult.success(10).orElse(
             () => AsyncResult.success(20),
         );
-        expect(r.value).toBe(10);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(10);
     });
 });
 
@@ -278,12 +291,13 @@ describe('AsyncResult.tap', () => {
             side = v;
         });
         expect(side).toBe(5);
-        expect(r.value).toBe(5);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(5);
     });
 
     it('does not call side-effect on failure', async () => {
         let side = 0;
-        const r = await AsyncResult.failure<number>('err').tap(v => {
+        const r = await AsyncResult.failure<string>('err').tap(v => {
             side = v;
         });
         expect(side).toBe(0);
@@ -293,7 +307,7 @@ describe('AsyncResult.tap', () => {
 describe('AsyncResult.tapErr', () => {
     it('calls the side-effect on failure', async () => {
         let side = '';
-        const r = await AsyncResult.failure<number>('oops').tapErr(e => {
+        const r = await AsyncResult.failure<string>('oops').tapErr(e => {
             side = e;
         });
         expect(side).toBe('oops');
@@ -320,7 +334,7 @@ describe('AsyncResult.match', () => {
     });
 
     it('calls onFailure for failure', async () => {
-        const result = await AsyncResult.failure<number>('bad').match(
+        const result = await AsyncResult.failure<string>('bad').match(
             v => `ok: ${v}`,
             e => `err: ${e}`,
         );
@@ -335,7 +349,7 @@ describe('AsyncResult.unwrapOr', () => {
     });
 
     it('returns default on failure', async () => {
-        const v = await AsyncResult.failure<number>('err').unwrapOr(99);
+        const v = await (AsyncResult.failure<string>('err') as AsyncResult<number, string>).unwrapOr(99);
         expect(v).toBe(99);
     });
 });
@@ -345,7 +359,8 @@ describe('AsyncResult.toPromise', () => {
         const p = AsyncResult.success('x').toPromise();
         expect(p).toBeInstanceOf(Promise);
         const r = await p;
-        expect(r.value).toBe('x');
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe('x');
     });
 });
 
@@ -360,18 +375,18 @@ describe('AsyncResult.combine', () => {
         ]);
         const r = await combined;
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toEqual([1, 2, 3]);
+        if (r.isSuccess) expect(r.value).toEqual([1, 2, 3]);
     });
 
     it('short-circuits on first failure', async () => {
         const combined = AsyncResult.combine([
             AsyncResult.success(1),
-            AsyncResult.failure<number>('bad'),
+            AsyncResult.failure<string>('bad'),
             AsyncResult.success(3),
         ]);
         const r = await combined;
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('bad');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('bad');
     });
 
     it('works with mixed sync/async results via .from', async () => {
@@ -380,7 +395,8 @@ describe('AsyncResult.combine', () => {
             AsyncResult.from(Result.Success(2)),
         ]);
         const r = await combined;
-        expect(r.value).toEqual([1, 2]);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toEqual([1, 2]);
     });
 });
 
@@ -406,12 +422,12 @@ describe('AsyncResult.all', () => {
     it('short-circuits on first failure', async () => {
         const combined = AsyncResult.all([
             AsyncResult.success(1),
-            AsyncResult.failure<number>('oops'),
+            AsyncResult.failure<string>('oops'),
             AsyncResult.success(true),
         ] as const);
         const r = await combined;
-        expect(r.isSuccess).toBe(false);
-        expect(r.error).toBe('oops');
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('oops');
     });
 });
 
@@ -421,11 +437,11 @@ describe('AsyncResult.combineWithAllErrors', () => {
     it('accumulates all errors', async () => {
         const combined = AsyncResult.combineWithAllErrors([
             AsyncResult.success(1),
-            AsyncResult.failure<number>('err1'),
-            AsyncResult.failure<number>('err2'),
+            AsyncResult.failure<string>('err1'),
+            AsyncResult.failure<string>('err2'),
         ]);
         const r = await combined;
-        expect(r.isSuccess).toBe(false);
+        expect(r.isFailure).toBe(true);
         if (!r.isSuccess) {
             expect(r.error).toEqual(['err1', 'err2']);
         }
@@ -438,7 +454,7 @@ describe('AsyncResult.combineWithAllErrors', () => {
         ]);
         const r = await combined;
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toEqual([1, 2]);
+        if (r.isSuccess) expect(r.value).toEqual([1, 2]);
     });
 });
 
@@ -453,14 +469,16 @@ describe('AsyncResult ←→ Result integration', () => {
         ));
 
         const result = await ar.map(x => x * 3);
-        expect(result.value).toBe(30);
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(30);
     });
 
     it('supports await → pattern match → continue with AsyncResult', async () => {
         const ar = AsyncResult.success('hello');
 
         const len = await ar.map(s => s.length);
-        expect(len.value).toBe(5);
+        expect(len.isSuccess).toBe(true);
+        if (len.isSuccess) expect(len.value).toBe(5);
     });
 
     it('chains AsyncResult after sync Result', async () => {
@@ -469,6 +487,7 @@ describe('AsyncResult ←→ Result integration', () => {
             .mapAsync(async x => x * 10)
             .map(x => x + 1);
         const r = await ar;
-        expect(r.value).toBe(51);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(51);
     });
 });

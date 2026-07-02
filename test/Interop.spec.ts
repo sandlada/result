@@ -70,7 +70,7 @@ describe('sync OOP ↔ FP deep interop', () => {
 
         // Simulating the AGENTS.md TrdResult pattern
         const AppResult = {
-            Success: <T>(value: T) => Result.Success(value) as IResultOfT<T, AppError>,
+            Success: <T>(value: T) => Result.Success(value) as unknown as IResultOfT<T, AppError>,
             Failure: <T>(error: AppError) => Result.Failure<T, AppError>(error),
         };
 
@@ -260,7 +260,7 @@ describe('edge conditions across paradigms', () => {
         expect(voidResult.isSuccess).toBe(true);
         // Can still enter FP pipe
         const piped = pipe(
-            voidResult,
+            voidResult as unknown as IResultOfT<unknown, Error>,
             match(
                 () => 'void',
                 (_e) => 'error',

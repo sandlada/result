@@ -29,27 +29,28 @@ describe('ok', () => {
         const result = ok(42);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe(42);
+        if (result.isSuccess) expect(result.value).toBe(42);
     });
 
     it('ok(undefined) creates a success with undefined value', () => {
         const result = ok<number | undefined>(undefined);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBeUndefined();
+        if (result.isSuccess) expect(result.value).toBeUndefined();
     });
 
     it('ok(null) creates a success with null value', () => {
         const result = ok<string | null>(null);
 
         expect(result.isSuccess).toBe(true);
-        expect(result.value).toBeNull();
+        if (result.isSuccess) expect(result.value).toBeNull();
     });
 
     it('error type is never for an ok result (type-level: accessible without throw)', () => {
         const result = ok(42);
 
-        // error is accessible (sentinel), doesn't throw
+        // error is accessible (sentinel) at runtime, doesn't throw
+        // @ts-expect-error — .error is not on the success variant of the union
         expect(() => result.error).not.toThrow();
         // isFailure correctly reports false
         expect(result.isFailure).toBe(false);
@@ -62,7 +63,7 @@ describe('err', () => {
 
         expect(result.isSuccess).toBe(false);
         expect(result.isFailure).toBe(true);
-        expect(result.error).toBe('bad input');
+        if (!result.isSuccess) expect(result.error).toBe('bad input');
     });
 
     it('err works with Error instances', () => {
@@ -70,7 +71,7 @@ describe('err', () => {
         const result = err(error);
 
         expect(result.isSuccess).toBe(false);
-        expect(result.error).toBe(error);
+        if (!result.isSuccess) expect(result.error).toBe(error);
     });
 
     it('err works with discriminated union errors', () => {
@@ -225,7 +226,7 @@ describe('fp/bind', () => {
 // ── orElse ─────────────────────────────────────────────────────────────
 
 describe('fp/orElse', () => {
-    const fallback = (_e: string) => ok<string>(42) as IResultOfT<number | string, string>;
+    const fallback = (_e: string) => ok<number | string>(42) as IResultOfT<number | string, string>;
 
     it('curried: orElse(fn) recovers from failure', () => {
         const recover = orElse(fallback);
@@ -295,8 +296,8 @@ describe('fp/match', () => {
 
     it('onOk and onErr can return different types — TS infers union', () => {
         const result = match(
-            (_v: number) => 123 as const,
-            (_e: string) => 'error' as const,
+            (_v: number): 123 | 'error' => 123 as const,
+            (_e: string): 123 | 'error' => 'error' as const,
             ok(42),
         );
         // result type is 123 | 'error'
