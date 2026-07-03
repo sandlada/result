@@ -6,4 +6,4 @@
  */
 
 export { ofSome, ofNone } from './core.js';
-export { map, andThen, orElse, match, tap, unwrapOr } from './operators.js';
+export { map, andThen, orElse, match, tap, unwrapOr, filter, flatten, contains } from './operators.js';

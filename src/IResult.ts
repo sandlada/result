@@ -16,6 +16,50 @@ export interface IResultBase<TError = Error> {
 
     /** `true` if the operation failed. Always the negation of `isSuccess`. */
     readonly isFailure: boolean;
+
+    // ── Side-effect (void result) ──────────────────────────────────────
+
+    /** Side-effect on the success track. Returns `this` for chaining. */
+    tap(fn: () => void): IResult<TError>;
+
+    // ── Escape hatches ─────────────────────────────────────────────────
+
+    /**
+     * Panics on failure — throws a `TypeError` with the error payload.
+     * Use when success is logically guaranteed (tests, prototypes, invariant
+     * paths).
+     */
+    unwrap(): void;
+
+    /**
+     * Panics on failure — throws a `TypeError` with the given message.
+     * Like {@link unwrap} but with a custom error message.
+     */
+    expect(msg: string): void;
+
+    /**
+     * Panics on success — throws a `TypeError`.
+     * Use when failure is logically guaranteed.
+     */
+    unwrapErr(): TError;
+
+    /**
+     * Panics on success — throws a `TypeError` with the given message.
+     * Like {@link unwrapErr} but with a custom error message.
+     */
+    expectErr(msg: string): TError;
+
+    // ── Display ────────────────────────────────────────────────────────
+
+    /** Pretty-print: `Ok` or `Err(error)`. */
+    toString(): string;
+
+    /**
+     * Serializes to a plain object for `JSON.stringify`.
+     * Success returns `{ isSuccess: true }`.
+     * Failure returns `{ isSuccess: false, error }`.
+     */
+    toJSON(): { isSuccess: true } | { isSuccess: false; error: TError };
 }
 
 /**

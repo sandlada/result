@@ -1,4 +1,5 @@
 import type { IResultBase } from './IResult.js';
+import type { IOption } from './Option.js';
 
 /**
  * IResultOfTBase — internal flat interface for class implementation.
@@ -45,6 +46,128 @@ export interface IResultOfTBase<TValue, TError = Error> extends IResultBase<TErr
 
     /** Extracts the value on success, or returns a default on failure. */
     unwrapOr(defaultValue: TValue): TValue;
+
+    /**
+     * Extracts the value on success, or computes a default from the error on
+     * failure. Never throws.
+     */
+    unwrapOrElse(fn: (error: TError) => TValue): TValue;
+
+    // ── Escape hatches ─────────────────────────────────────────────────
+
+    /**
+     * Panics on failure — throws a `TypeError` with the error payload.
+     * Returns the value on success.
+     */
+    unwrap(): TValue;
+
+    /**
+     * Panics on failure — throws a `TypeError` with the given message.
+     * Returns the value on success.
+     */
+    expect(msg: string): TValue;
+
+    /**
+     * Panics on success — throws a `TypeError`.
+     * Returns the error on failure.
+     */
+    unwrapErr(): TError;
+
+    /**
+     * Panics on success — throws a `TypeError` with the given message.
+     * Returns the error on failure.
+     */
+    expectErr(msg: string): TError;
+    // ── Conversion ─────────────────────────────────────────────────────
+
+    /**
+     * Converts to an {@link IOption}:
+     * - `Success(value)` → `Some(value)`
+     * - `Failure(_)` → `None`
+     */
+    toOption(): IOption<TValue>;
+
+    // ── Combinators ────────────────────────────────────────────────────
+
+    /**
+     * Flattens a nested result: `Result<Result<U, E>, E>` → `Result<U, E>`.
+     *
+     * Only callable when `TValue` is itself `IResultOfT<U, TError>`.
+     */
+    flatten<U>(this: IResultOfT<IResultOfT<U, TError>, TError>): IResultOfT<U, TError>;
+
+    /**
+     * Logical AND: returns `other` if this is success, otherwise returns
+     * this failure. Useful for chaining multiple independent validations.
+     */
+    and<U, F>(other: IResultOfT<U, F>): IResultOfT<U, TError | F>;
+
+    /**
+     * Logical OR: returns `other` if this is failure, otherwise returns
+     * this success. Useful for trying fallback operations.
+     */
+    or<F>(other: IResultOfT<TValue, F>): IResultOfT<TValue, F>;
+
+    /**
+     * Returns `true` if the result is success and the value equals `value`.
+     */
+    contains(value: TValue): boolean;
+
+    /**
+     * Returns `true` if the result is success and the predicate holds.
+     */
+    exists(predicate: (value: TValue) => boolean): boolean;
+
+    /**
+     * Simultaneous map over both variants.
+     *
+     * - Success → `onSuccess(value)`
+     * - Failure → `onFailure(error)`
+     */
+    bimap<U, F>(
+        onSuccess: (value: TValue) => U,
+        onFailure: (error: TError) => F,
+    ): IResultOfT<U, F>;
+
+    /**
+     * Swaps success and failure: `Ok(v)` → `Err(v)`, `Err(e)` → `Ok(e)`.
+     */
+    swap(): IResultOfT<TError, TValue>;
+
+    // ── Extraction shortcuts ───────────────────────────────────────────
+
+    /** Extracts the value on success, or `null` on failure. */
+    getOrNull(): TValue | null;
+
+    /** Extracts the value on success, or `undefined` on failure. */
+    getOrUndefined(): TValue | undefined;
+
+    // ── Map + default ──────────────────────────────────────────────────
+
+    /**
+     * Maps the success value, or returns `defaultValue` on failure.
+     * Equivalent to `map(fn).unwrapOr(defaultValue)` but in one call.
+     */
+    mapOr<U>(defaultValue: U, fn: (value: TValue) => U): U;
+
+    /**
+     * Maps the success value, or computes a default from the error on
+     * failure. Equivalent to `map(fn).unwrapOrElse(onErr)`.
+     */
+    mapOrElse<U>(onErr: (error: TError) => U, fn: (value: TValue) => U): U;
+
+    // ── Display & Serialization ────────────────────────────────────────
+
+    /** Pretty-print: `Ok(value)` or `Err(error)`. */
+    toString(): string;
+
+    /**
+     * Serializes to a plain object for `JSON.stringify`.
+     *
+     * Success → `{ isSuccess: true, value }`.
+     * Failure → `{ isSuccess: false, error }`.
+     */
+    toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError };
 }
 
 /**

@@ -37,6 +37,21 @@ export interface IOptionBase<T> {
 
     /** Serializes to a plain object for JSON.stringify. */
     toJSON(): { isSome: true; value: T } | { isSome: false };
+
+    /**
+     * Returns None if the predicate returns `false`. Otherwise passes through.
+     */
+    filter(predicate: (value: T) => boolean): IOption<T>;
+
+    /**
+     * Flattens a nested Option: `Option<Option<U>>` → `Option<U>`.
+     */
+    flatten<U>(this: IOption<IOption<U>>): IOption<U>;
+
+    /**
+     * Returns `true` if the Option is Some and the value equals `value`.
+     */
+    contains(value: T): boolean;
 }
 
 /**
@@ -198,6 +213,30 @@ export class Option<T> implements IOptionBase<T> {
         return this.#isSome
             ? { isSome: true as const, value: this.#value! }
             : { isSome: false as const };
+    }
+
+    /**
+     * Returns None if the predicate returns `false`. Otherwise passes through.
+     */
+    filter(predicate: (value: T) => boolean): IOption<T> {
+        if (!this.#isSome) return this as unknown as IOption<T>;
+        if (!predicate(this.#value as T)) return Option.None() as unknown as IOption<T>;
+        return this as unknown as IOption<T>;
+    }
+
+    /**
+     * Flattens a nested Option: `Option<Option<U>>` → `Option<U>`.
+     */
+    flatten<U>(this: IOption<IOption<U>>): IOption<U> {
+        if (!this.isSome) return this as unknown as IOption<U>;
+        return this.value;
+    }
+
+    /**
+     * Returns `true` if the Option is Some and the value equals `value`.
+     */
+    contains(value: T): boolean {
+        return this.#isSome && this.#value === value;
     }
 }
 

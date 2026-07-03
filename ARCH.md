@@ -92,17 +92,25 @@ test/
   ConsumptionPatterns.spec.ts         — Real-world branching, early return, type narrowing
   IntegrationPattern.spec.ts          — Type alias & convenience factory
   Option.spec.ts                      — Option<T>: factories, methods, toJSON, FP operators, narrowing
+  Option.filter-flatten-contains.spec.ts — Option filter, flatten, contains (Phase 5d)
   Interop.spec.ts                     — Cross-paradigm: OOP↔FP sync, OOP↔FP async, sync↔async
   Result.custom-error-types.spec.ts   — Discriminated unions, classes, plain objects
   Result.default-error-type.spec.ts   — Default Error behavior
   Result.factories.spec.ts            — All 4 factory overloads
-  Result.fluent-methods.spec.ts       — ResultOfT instance methods: map, mapErr, andThen, orElse, match, tap, tapErr, unwrapOr
+  Result.fluent-methods.spec.ts       — ResultOfT fluent instance methods
   Result.invariant.spec.ts            — Mutual exclusivity, constructor throws, immutability
   Result.sentinel.spec.ts             — Error always accessible, sentinel pattern
   Result.static-utilities.spec.ts     — Result.tryCatch (sync), combine, all, combineWithAllErrors
   Result.tryCatchAsync.spec.ts        — tryCatchAsync, fromPromise bridge methods
   Result.type-tests.spec.ts           — Compile-time type assertions
   Result.value.spec.ts                — Value access on success/failure, narrowing
+  Result.unwrap-expect.spec.ts        — unwrap, expect, unwrapErr, expectErr (Phase 5a)
+  Result.toOption-fromOption.spec.ts  — toOption, fromOption (Phase 5a)
+  Result.unwrapOrElse.spec.ts         — unwrapOrElse (Phase 5a)
+  Result.fromPredicate.spec.ts        — fromPredicate (Phase 5a)
+  Result.combinators.spec.ts          — flatten, and, or, contains, exists, bimap, swap (Phase 5b)
+  Result.phase5c.spec.ts              — fromThrowable, mapOr, mapOrElse, getOrNull, toString (Phase 5c)
+  Result.toJSON.spec.ts               — toJSON on Result and ResultOfT (Phase 5e)
   AsyncResult.spec.ts                 — AsyncResult class (all methods, combine, integration)
   fp-async.spec.ts                    — FP async operators, composition, adapters
   fp-composition-adapters.spec.ts     — composeK, pipe, switchFn, liftMap, tee, FP combine/all
@@ -125,11 +133,22 @@ requires narrowing via `isSuccess`.
 IResultBase<TError = Error>              (internal interface)
   ├── readonly error: TError             Always accessible at runtime
   ├── readonly isSuccess: boolean
-  └── readonly isFailure: boolean
+  ├── readonly isFailure: boolean
+  ├── tap(fn: () => void): IResult<TError>
+  ├── unwrap(): void
+  ├── expect(msg: string): void
+  ├── unwrapErr(): TError
+  ├── expectErr(msg: string): TError
+  ├── toString(): string
+  └── toJSON(): { isSuccess: true } | { isSuccess: false; error: TError }
 
 IResultOfTBase<TValue, TError = Error>   (internal interface, extends IResultBase)
   ├── readonly value: TValue
-  └── map/mapErr/andThen/orElse/match/tap/tapErr/unwrapOr  (8 method signatures)
+  ├── map/mapErr/andThen/orElse/match/tap/tapErr/unwrapOr (fluent chain)
+  ├── unwrapOrElse, unwrap, expect, unwrapErr, expectErr (escape hatches)
+  ├── toOption, flatten, and, or, contains, exists, bimap, swap (combinators)
+  ├── getOrNull, getOrUndefined, mapOr, mapOrElse (extraction shorts)
+  └── toString, toJSON (display + serialization)
 
 ── Exported variant interfaces (discriminated union members) ──
 
@@ -166,10 +185,14 @@ IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
 Result<TError = Error>                   (class, implements IResultBase<TError>)
   ├── protected constructor(isSuccess, error?)  Validates invariant via assertResultInvariant
   ├── get isFailure(): boolean
+  ├── Instance: tap(), unwrap(), expect(), unwrapErr(), expectErr(), toString(), toJSON()
   ├── static Success(): IResult
   ├── static Success<TValue>(value): IResultOfT<TValue>
   ├── static Failure(error: Error): IResult
-  └── static Failure<TValue, TError>(error): IResultOfT<TValue, TError>
+  ├── static Failure<TValue, TError>(error): IResultOfT<TValue, TError>
+  ├── static fromOption<T,E>(opt, errorOnNone): IResultOfT<T, E>
+  ├── static fromPredicate<T,E>(v, pred, err): IResultOfT<T, E>
+  └── static fromThrowable<T,E>(fn, errorFn?): IResultOfT<T, E>
 
 ResultOfT<TValue, TError = Error>        (class, implements IResultOfTBase<TValue, TError>)
   ├── **Does NOT extend Result** (flat hierarchy — Phase 4a simplification)
@@ -189,6 +212,7 @@ IOptionBase<T>                       (internal interface)
   ├── readonly isNone: boolean
   ├── readonly value: T              Throws TypeError if isNone
   ├── map, andThen, orElse, match, tap, unwrapOr, toJSON  (7 methods)
+  ├── filter, flatten, contains      (3 methods — Phase 5d)
 
 ── Exported variant interfaces (discriminated union members) ──
 
@@ -214,7 +238,8 @@ Option<T>                            (class, implements IOptionBase<T>)
   ├── get value(): T                 Throws TypeError if None
   ├── static Some<T>(value): IOption<T>
   ├── static None(): IOption<never>
-  └── Instance methods: map, andThen, orElse, match, tap, unwrapOr, toJSON
+  └── Instance methods: map, andThen, orElse, match, tap, unwrapOr, toJSON,
+      filter, flatten, contains
 ```
 
 **Why internal flat bases?** A TypeScript class cannot `implements` a union
@@ -283,6 +308,25 @@ export interface IResultOfTBase<TValue, TError = Error> extends IResultBase<TErr
     tap(fn: (value: TValue) => void): IResultOfT<TValue, TError>;
     tapErr(fn: (error: TError) => void): IResultOfT<TValue, TError>;
     unwrapOr(defaultValue: TValue): TValue;
+    unwrapOrElse(fn: (error: TError) => TValue): TValue;
+    unwrap(): TValue;
+    expect(msg: string): TValue;
+    unwrapErr(): TError;
+    expectErr(msg: string): TError;
+    toOption(): IOption<TValue>;
+    flatten<U>(this: IResultOfT<IResultOfT<U, TError>, TError>): IResultOfT<U, TError>;
+    and<U, F>(other: IResultOfT<U, F>): IResultOfT<U, TError | F>;
+    or<F>(other: IResultOfT<TValue, F>): IResultOfT<TValue, F>;
+    contains(value: TValue): boolean;
+    exists(predicate: (value: TValue) => boolean): boolean;
+    bimap<U, F>(onSuccess: (v: TValue) => U, onFailure: (e: TError) => F): IResultOfT<U, F>;
+    swap(): IResultOfT<TError, TValue>;
+    getOrNull(): TValue | null;
+    getOrUndefined(): TValue | undefined;
+    mapOr<U>(defaultValue: U, fn: (v: TValue) => U): U;
+    mapOrElse<U>(onErr: (e: TError) => U, fn: (v: TValue) => U): U;
+    toString(): string;
+    toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError };
 }
 
 // Success variant — omits error, keeps value, inherits all methods via Omit
@@ -377,6 +421,9 @@ All factories live on `Result` (the non-generic base class), not on `ResultOfT`.
 | `Result.tryCatch<T, E>(fn, errorFn?)`          | `IResultOfT<T, E>`          | Wrap a sync function that may throw                              |
 | `Result.tryCatchAsync<T, E>(fn, errorFn?)`     | `Promise<IResultOfT<T, E>>` | Wrap an async function that may throw/reject; always resolves    |
 | `Result.fromPromise<T, E>(promise, errorFn?)`  | `Promise<IResultOfT<T, E>>` | Convenience wrapper around `tryCatchAsync` for existing promises |
+| `Result.fromOption<T, E>(opt, errorOnNone)`    | `IResultOfT<T, E>`          | Converts `Option.Some` → `Success`, `None` → `Failure`           |
+| `Result.fromPredicate<T, E>(v, pred, err)`     | `IResultOfT<T, E>`          | Returns `Success(v)` if `pred(v)`, else `Failure(err)`           |
+| `Result.fromThrowable<T, E>(fn, errorFn?)`     | `IResultOfT<T, E>`          | Converts a throwing function into a Result                       |
 | `Result.combine<T, E>(results[])`              | `IResultOfT<T[], E>`        | Combine array of results — short-circuits on first failure       |
 | `Result.all(tuple)`                            | `IResultOfT<[...], E>`      | Combine heterogeneous tuple — preserves each element's type      |
 | `Result.combineWithAllErrors<T, E>(results[])` | `IResultOfT<T[], E[]>`      | Combine array, accumulating all errors (validation aggregation)  |
@@ -395,21 +442,54 @@ Pure re-export for discoverability at the expected module path:
 export { ResultOfT } from './Result.js';
 ```
 
-### OOP Instance Methods (on `ResultOfT`)
+### OOP Instance Methods (on `Result` and `ResultOfT`)
 
 All instance methods return `IResultOfT<...>` (the interface), not the concrete class.
-Each method is conceptually equivalent to a corresponding FP operator.
+Void methods on `Result` have no `<TValue>` parameter.
 
-| Method                          | FP Equivalent | Signature                                                                   | Description                            |
-| ------------------------------- | ------------- | --------------------------------------------------------------------------- | -------------------------------------- |
-| `result.map(fn)`                | `map`         | `<U>(fn: (v: TValue) => U) => IResultOfT<U, TError>`                        | Transform success value                |
-| `result.mapErr(fn)`             | `mapErr`      | `<F>(fn: (e: TError) => F) => IResultOfT<TValue, F>`                        | Transform error                        |
-| `result.andThen(fn)`            | `bind`        | `<U, F>(fn: (v: TValue) => IResultOfT<U, F>) => IResultOfT<U, TError \| F>` | Chain (monadic bind)                   |
-| `result.orElse(fn)`             | `orElse`      | `<U, F>(fn: (e: TError) => IResultOfT<U, F>) => IResultOfT<TValue \| U, F>` | Error recovery                         |
-| `result.match(onOk, onErr)`     | `match`       | `<U>(onOk: (v: TValue) => U, onErr: (e: TError) => U) => U`                 | Terminal pattern-match                 |
-| `result.tap(fn)`                | `tap`         | `(fn: (v: TValue) => void) => IResultOfT<TValue, TError>`                   | Side-effect on success, returns `this` |
-| `result.tapErr(fn)`             | `tapErr`      | `(fn: (e: TError) => void) => IResultOfT<TValue, TError>`                   | Side-effect on failure, returns `this` |
-| `result.unwrapOr(defaultValue)` | `unwrapOr`    | `(defaultValue: TValue) => TValue`                                          | Safe value extraction with fallback    |
+#### Void Result (on `Result<TError>`)
+
+| Method                  | Signature                        | Description                      |
+| ----------------------- | -------------------------------- | -------------------------------- |
+| `result.tap(fn)`        | `(fn: () => void) => IResult<E>` | Side-effect on success           |
+| `result.unwrap()`       | `() => void`                     | Panics on failure                |
+| `result.expect(msg)`    | `(msg: string) => void`          | Panics with custom message       |
+| `result.unwrapErr()`    | `() => TError`                   | Panics on success, returns error |
+| `result.expectErr(msg)` | `(msg: string) => TError`        | Panics with custom message       |
+| `result.toString()`     | `() => string`                   | `Ok` or `Err(error)`             |
+| `result.toJSON()`       | `() => { isSuccess } \| {...}`   | Serializes for JSON.stringify    |
+
+#### Value Result (on `ResultOfT<TValue, TError>`)
+
+| Method                          | FP Equivalent  | Description                                  |
+| ------------------------------- | -------------- | -------------------------------------------- |
+| `result.map(fn)`                | `map`          | Transform success value                      |
+| `result.mapErr(fn)`             | `mapErr`       | Transform error                              |
+| `result.andThen(fn)`            | `bind`         | Chain (monadic bind)                         |
+| `result.orElse(fn)`             | `orElse`       | Error recovery                               |
+| `result.match(onOk, onErr)`     | `match`        | Terminal pattern-match                       |
+| `result.tap(fn)`                | `tap`          | Side-effect on success                       |
+| `result.tapErr(fn)`             | `tapErr`       | Side-effect on failure                       |
+| `result.unwrapOr(defaultValue)` | `unwrapOr`     | Safe value extraction with fallback          |
+| `result.unwrapOrElse(fn)`       | `unwrapOrElse` | Compute default from error                   |
+| `result.unwrap()`               | `unwrap`       | Panics on failure, returns value             |
+| `result.expect(msg)`            | `expect`       | Panics with custom message                   |
+| `result.unwrapErr()`            | `unwrapErr`    | Panics on success, returns error             |
+| `result.expectErr(msg)`         | `expectErr`    | Panics with custom message                   |
+| `result.toOption()`             | `toOption`     | `Success(v)` → `Some(v)`, `Failure` → `None` |
+| `result.flatten()`              | `flatten`      | Flattens nested Result<Result<U,E>,E>        |
+| `result.and(other)`             | `and`          | Logical AND, returns `other` on success      |
+| `result.or(other)`              | `or`           | Logical OR, returns `other` on failure       |
+| `result.contains(value)`        | `contains`     | `true` if success and value matches          |
+| `result.exists(pred)`           | `exists`       | `true` if success and predicate holds        |
+| `result.bimap(onOk, onErr)`     | `bimap`        | Simultaneous map over both variants          |
+| `result.swap()`                 | `swap`         | `Ok(v)` → `Err(v)`, `Err(e)` → `Ok(e)`       |
+| `result.getOrNull()`            | —              | Value on success, `null` on failure          |
+| `result.getOrUndefined()`       | —              | Value on success, `undefined` on failure     |
+| `result.mapOr(def, fn)`         | `mapOr`        | Map success or return default                |
+| `result.mapOrElse(onErr, fn)`   | `mapOrElse`    | Map success or compute from error            |
+| `result.toString()`             | —              | `Ok(value)` or `Err(error)`                  |
+| `result.toJSON()`               | —              | Serializes for JSON.stringify                |
 
 ### `src/index.ts` — Public Barrel (OOP)
 
@@ -492,6 +572,9 @@ All data-last curried, working with `IOption<T>` directly via `isSome` checks:
 | `match`    | `<T,U>(onSome, onNone) => (IOption<T>) => U`                    | Terminal pattern-match           |
 | `tap`      | `<T>(fn: (v: T) => void) => (IOption<T>) => IOption<T>`         | Side-effect on Some              |
 | `unwrapOr` | `<T>(defaultValue: T) => (IOption<T>) => T`                     | Safe extraction with default     |
+| `filter`   | `<T>(pred: (v: T) => boolean) => (IOption<T>) => IOption<T>`    | None if predicate fails          |
+| `flatten`  | `<T>(opt: IOption<IOption<T>>) => IOption<T>`                   | Flattens nested option           |
+| `contains` | `<T>(target: T) => (IOption<T>) => boolean`                     | True if Some and value matches   |
 
 ---
 
@@ -551,6 +634,20 @@ match<A, E, C>(onOk, onErr): (r: IResultOfT<A, E>) => C
 tap<A>(fn): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E>
 tapErr<E>(fn): <A>(r: IResultOfT<A, E>) => IResultOfT<A, E>
 unwrapOr<A>(defaultValue): <E>(r: IResultOfT<A, E>) => A
+unwrapOrElse<A, E>(fn: (e: E) => A): (r: IResultOfT<A, E>) => A
+unwrap<A, E>(r: IResultOfT<A, E>): A
+expect<A, E>(msg: string): (r: IResultOfT<A, E>) => A
+unwrapErr<A, E>(r: IResultOfT<A, E>): E
+expectErr<A, E>(msg: string): (r: IResultOfT<A, E>) => E
+flatten<A, E>(r: IResultOfT<IResultOfT<A, E>, E>): IResultOfT<A, E>
+and<B, F>(other: IResultOfT<B, F>): <A, E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>
+or<A, F>(other: IResultOfT<A, F>): <E>(r: IResultOfT<A, E>) => IResultOfT<A, F>
+contains<A>(value: A): <E>(r: IResultOfT<A, E>) => boolean
+exists<A>(pred: (v: A) => boolean): <E>(r: IResultOfT<A, E>) => boolean
+bimap<A, E, U, F>(onOk, onErr): (r: IResultOfT<A, E>) => IResultOfT<U, F>
+swap<A, E>(r: IResultOfT<A, E>): IResultOfT<E, A>
+mapOr<A, U>(def: U, fn: (v: A) => U): <E>(r: IResultOfT<A, E>) => U
+mapOrElse<A, E, U>(onErr, fn): (r: IResultOfT<A, E>) => U
 ```
 
 Each operator also accepts the result as an immediate second argument for direct calls:
@@ -597,10 +694,15 @@ Converts between Wlaschin's three function shapes:
 ### `src/fp/index.ts` — FP Barrel
 
 ```ts
-export { ok, err } from './core.js';
-export { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr } from './operators.js';
+export { ok, err, fromPredicate, fromThrowable } from './core.js';
+export {
+    map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr,
+    unwrapOrElse, unwrap, expect, unwrapErr, expectErr,
+    flatten, and, or, contains, exists, bimap, swap,
+    mapOr, mapOrElse,
+} from './operators.js';
 export { composeK, pipe } from './composition.js';
-export { switchFn, liftMap, tee } from './adapters.js';
+export { switchFn, liftMap, tee, toOption, fromOption } from './adapters.js';
 export { combine, all, combineWithAllErrors } from './combine.js';
 ```
 
@@ -818,31 +920,39 @@ pipe(r, map(x => x * 2), bind(x => Result.Success(x + 1)));
 
 ## Testing Architecture
 
-**19 test files** with **441 test cases**, all using Vitest. Tests cover every public API surface: OOP factories, OOP instance methods, FP sync operators, FP async operators, composition, adapters, combine utilities, Option type, and cross-paradigm interop.
+**27 test files** with **574 test cases**, all using Vitest. Tests cover every public API surface: OOP factories, OOP instance methods, FP sync operators, FP async operators, composition, adapters, combine utilities, Option type, and cross-paradigm interop.
 
 ### OOP Core Tests
 
-| Test File                           | Focus                                                                                                                                                           | Cases |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| `Result.factories.spec.ts`          | All 4 factory overloads, type inference, edge cases                                                                                                             | 16    |
-| `Result.static-utilities.spec.ts`   | `Result.tryCatch` (sync), `Result.combine`, `Result.all`, `Result.combineWithAllErrors`, FP interop                                                             | 25    |
-| `Result.fluent-methods.spec.ts`     | `ResultOfT` instance methods: `.map`, `.mapErr`, `.andThen`, `.orElse`, `.match`, `.tap`, `.tapErr`, `.unwrapOr`                                                | 33    |
-| `Result.invariant.spec.ts`          | Mutual exclusivity, constructor throws, immutability                                                                                                            | 10    |
-| `Result.sentinel.spec.ts`           | Error always accessible, sentinel vs real error                                                                                                                 | 8     |
-| `Result.value.spec.ts`              | Value access on success/failure, type narrowing, void success                                                                                                   | 12    |
-| `Result.default-error-type.spec.ts` | Default `TError = Error` behavior                                                                                                                               | 7     |
-| `Result.custom-error-types.spec.ts` | Discriminated unions, classes, plain objects                                                                                                                    | 12    |
-| `Result.type-tests.spec.ts`         | Compile-time type assertions (`expectTypeOf`)                                                                                                                   | 16    |
-| `ConsumptionPatterns.spec.ts`       | Real-world branching, early return, type narrowing                                                                                                              | 12    |
-| `IntegrationPattern.spec.ts`        | Type alias, convenience factory, `mapError()`, `never`                                                                                                          | 14    |
-| `Option.spec.ts`                    | `Option.Some`/`None`, `isSome`/`isNone`, `value`, `map`, `andThen`, `orElse`, `match`, `tap`, `unwrapOr`, `toJSON`, discriminated union narrowing, FP operators | 50    |
+| Test File                                | Focus                                                                                                                                                           | Cases |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `Result.factories.spec.ts`               | All 4 factory overloads, type inference, edge cases                                                                                                             | 16    |
+| `Result.static-utilities.spec.ts`        | `Result.tryCatch` (sync), `Result.combine`, `Result.all`, `Result.combineWithAllErrors`, FP interop                                                             | 25    |
+| `Result.fluent-methods.spec.ts`          | `ResultOfT` instance methods: `.map`, `.mapErr`, `.andThen`, `.orElse`, `.match`, `.tap`, `.tapErr`, `.unwrapOr`                                                | 33    |
+| `Result.invariant.spec.ts`               | Mutual exclusivity, constructor throws, immutability                                                                                                            | 10    |
+| `Result.sentinel.spec.ts`                | Error always accessible, sentinel vs real error                                                                                                                 | 8     |
+| `Result.value.spec.ts`                   | Value access on success/failure, type narrowing, void success                                                                                                   | 12    |
+| `Result.default-error-type.spec.ts`      | Default `TError = Error` behavior                                                                                                                               | 7     |
+| `Result.custom-error-types.spec.ts`      | Discriminated unions, classes, plain objects                                                                                                                    | 12    |
+| `Result.type-tests.spec.ts`              | Compile-time type assertions (`expectTypeOf`)                                                                                                                   | 16    |
+| `ConsumptionPatterns.spec.ts`            | Real-world branching, early return, type narrowing                                                                                                              | 12    |
+| `IntegrationPattern.spec.ts`             | Type alias, convenience factory, `mapError()`, `never`                                                                                                          | 14    |
+| `Option.spec.ts`                         | `Option.Some`/`None`, `isSome`/`isNone`, `value`, `map`, `andThen`, `orElse`, `match`, `tap`, `unwrapOr`, `toJSON`, discriminated union narrowing, FP operators | 50    |
+| `Option.filter-flatten-contains.spec.ts` | `filter`, `flatten`, `contains` (OOP + FP)                                                                                                                      | 12    |
+| `Result.unwrap-expect.spec.ts`           | `unwrap`, `expect`, `unwrapErr`, `expectErr` on both `Result` and `ResultOfT`                                                                                   | 32    |
+| `Result.toOption-fromOption.spec.ts`     | `toOption`/`fromOption`                                                                                                                                         | 14    |
+| `Result.unwrapOrElse.spec.ts`            | `unwrapOrElse`                                                                                                                                                  | 8     |
+| `Result.fromPredicate.spec.ts`           | `fromPredicate`                                                                                                                                                 | 8     |
+| `Result.combinators.spec.ts`             | `flatten`, `and`, `or`, `contains`, `exists`, `bimap`, `swap`                                                                                                   | 28    |
+| `Result.phase5c.spec.ts`                 | `fromThrowable`, `mapOr`, `mapOrElse`, `getOrNull`, `getOrUndefined`, `toString`, `tap` on void Result                                                          | 24    |
+| `Result.toJSON.spec.ts`                  | `toJSON` on `Result` (void) and `ResultOfT` (value), `JSON.stringify` round-trip                                                                                | 7     |
 
 ### FP Sync Tests
 
-| Test File                         | Focus                                                                                                               | Cases |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----- |
-| `fp-core-operators.spec.ts`       | `ok`/`err` constructors, `map`, `mapErr`, `bind`, `orElse`, `match`, `tap`, `tapErr`, `unwrapOr` (curried + direct) | 44    |
-| `fp-composition-adapters.spec.ts` | `composeK`, `pipe`, `switchFn`, `liftMap`, `tee`, FP `combine`/`all`/`combineWithAllErrors`                         | 28    |
+| Test File                         | Focus                                                                                                                 | Cases |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----- |
+| `fp-core-operators.spec.ts`       | `ok`/`err` constructors, `map`, `mapErr`, `bind`, `orElse`, `match`, `tap`, `tapErr`, `unwrapOr` (curried + direct)   | 44    |
+| `fp-composition-adapters.spec.ts` | `composeK`, `pipe`, `switchFn`, `liftMap`, `tee`, `toOption`, `fromOption`, FP `combine`/`all`/`combineWithAllErrors` | 28    |
 
 ### Async Tests
 

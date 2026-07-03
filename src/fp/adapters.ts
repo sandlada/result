@@ -1,6 +1,9 @@
 import type { IResultOfT } from '../IResultOfT.js';
 import { ok } from './core.js';
 import { map } from './operators.js';
+import { Option } from '../Option.js';
+import type { IOption } from '../Option.js';
+import { Result } from '../Result.js';
 
 // ─── Wlaschin's Three Function Shapes ──────────────────────────────────────
 //
@@ -59,4 +62,41 @@ export function tee<A>(f: (a: A) => void): (a: A) => A {
         f(a);
         return a;
     };
+}
+
+// ─── toOption ──────────────────────────────────────────────────────────────
+
+/**
+ * Converts a Result to an Option.
+ *
+ * - `Ok(value)` → `Some(value)`
+ * - `Err(_)` → `None`
+ *
+ * Discards the error information.
+ *
+ * @category Adapter: 2-track → Option
+ */
+export function toOption<A, E>(r: IResultOfT<A, E>): IOption<A> {
+    if (!r.isSuccess) return Option.None() as unknown as IOption<A>;
+    return Option.Some(r.value);
+}
+
+// ─── fromOption ─────────────────────────────────────────────────────────────
+
+/**
+ * Converts an Option to a Result, providing an error for the None case.
+ *
+ * - `Some(value)` → `Ok(value)`
+ * - `None` → `Err(errorOnNone)`
+ *
+ * @category Adapter: Option → 2-track
+ */
+export function fromOption<E>(errorOnNone: E): <A>(opt: IOption<A>) => IResultOfT<A, E>;
+export function fromOption<A, E>(errorOnNone: E, opt: IOption<A>): IResultOfT<A, E>;
+export function fromOption<A, E>(errorOnNone: E, opt?: IOption<A>): IResultOfT<A, E> | ((opt: IOption<A>) => IResultOfT<A, E>) {
+    if (opt === undefined) {
+        return (opt: IOption<A>): IResultOfT<A, E> => fromOption(errorOnNone, opt);
+    }
+    if (opt.isSome) return ok(opt.value) as unknown as IResultOfT<A, E>;
+    return Result.Failure<A, E>(errorOnNone);
 }

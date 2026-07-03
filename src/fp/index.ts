@@ -1,5 +1,11 @@
-export { ok, err } from './core.js';
-export { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr } from './operators.js';
+export { ok, err, fromPredicate, fromThrowable } from './core.js';
+export {
+    map, mapErr, bind, orElse, match, tap, tapErr,
+    unwrapOr, unwrapOrElse,
+    unwrap, expect, unwrapErr, expectErr,
+    flatten, and, or, contains, exists, bimap, swap,
+    mapOr, mapOrElse,
+} from './operators.js';
 export { composeK, pipe } from './composition.js';
-export { switchFn, liftMap, tee } from './adapters.js';
+export { switchFn, liftMap, tee, toOption, fromOption } from './adapters.js';
 export { combine, all, combineWithAllErrors } from './combine.js';

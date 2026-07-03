@@ -76,3 +76,31 @@ export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> 
 export function unwrapOr<T>(defaultValue: T): (opt: IOption<T>) => T {
     return opt => (opt.isSome ? opt.value : defaultValue);
 }
+
+/**
+ * Returns None if the predicate returns `false`. Otherwise passes through.
+ */
+export function filter<T>(
+    predicate: (value: T) => boolean,
+): (opt: IOption<T>) => IOption<T> {
+    return opt => {
+        if (!opt.isSome) return opt as unknown as IOption<T>;
+        if (!predicate(opt.value)) return Option.None() as unknown as IOption<T>;
+        return opt;
+    };
+}
+
+/**
+ * Flattens a nested Option: `Option<Option<U>>` → `Option<U>`.
+ */
+export function flatten<T>(opt: IOption<IOption<T>>): IOption<T> {
+    if (!opt.isSome) return opt as unknown as IOption<T>;
+    return opt.value;
+}
+
+/**
+ * Returns `true` if the Option is Some and the value equals `target`.
+ */
+export function contains<T>(target: T): (opt: IOption<T>) => boolean {
+    return opt => opt.isSome && opt.value === target;
+}
