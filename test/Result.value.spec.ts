@@ -1,67 +1,70 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
+import { ok, err } from '../src/index.js';
 
 describe('Value on success', () => {
     it('returns the provided value', () => {
-        const ok = Result.Success(42);
-        expect(ok.isSuccess).toBe(true);
-        if (ok.isSuccess) expect(ok.value).toBe(42);
+        const r = ok(42);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('works with object values', () => {
         const obj = { id: 1, name: 'Alice' };
-        const ok = Result.Success(obj);
-        expect(ok.isSuccess).toBe(true);
-        if (ok.isSuccess) {
-            expect(ok.value).toBe(obj);
-            expect(ok.value.name).toBe('Alice');
+        const r = ok(obj);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) {
+            expect(r.value).toBe(obj);
+            expect(r.value.name).toBe('Alice');
         }
     });
 
     it('works with string values', () => {
-        const ok = Result.Success('hello');
-        expect(ok.isSuccess).toBe(true);
-        if (ok.isSuccess) expect(ok.value).toBe('hello');
+        const r = ok('hello');
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe('hello');
     });
 
     it('works with array values', () => {
         const arr = [1, 2, 3];
-        const ok = Result.Success(arr);
-        expect(ok.isSuccess).toBe(true);
-        if (ok.isSuccess) expect(ok.value).toEqual([1, 2, 3]);
+        const r = ok(arr);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toEqual([1, 2, 3]);
     });
 
     it('works with boolean values', () => {
-        const ok = Result.Success(true);
-        expect(ok.isSuccess).toBe(true);
-        if (ok.isSuccess) expect(ok.value).toBe(true);
+        const r = ok(true);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(true);
     });
 });
 
 describe('Value on failure', () => {
-    it('throws TypeError when accessing value', () => {
-        const err = Result.Failure<string, Error>(new Error('nope'));
-        // @ts-expect-error — testing runtime throw on failure; type hides value on failure variant
-        expect(() => err.value).toThrow();
+    it('has no value property on failure objects', () => {
+        const r = err<string, Error>(new Error('nope'));
+        // Plain objects don't have a `value` property on failure
+        expect('value' in r).toBe(false);
     });
 
-    it('throws with a descriptive message', () => {
-        const err = Result.Failure<string, Error>(new Error('nope'));
-        // @ts-expect-error — testing runtime throw on failure; type hides value on failure variant
-        expect(() => err.value).toThrow(TypeError);
+    it('error is accessible on failure', () => {
+        const r = err<string, Error>(new Error('nope'));
+        if (r.isFailure) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect(r.error.message).toBe('nope');
+        }
     });
 
-    it('typed failure value access also throws', () => {
+    it('typed failure error access', () => {
         type AppError = { kind: 'NotFound' };
-        const err = Result.Failure<string, AppError>({ kind: 'NotFound' });
-        // @ts-expect-error — testing runtime throw on failure; type hides value on failure variant
-        expect(() => err.value).toThrow();
+        const r = err<string, AppError>({ kind: 'NotFound' });
+        if (r.isFailure) {
+            expect(r.error.kind).toBe('NotFound');
+        }
     });
 });
 
 describe('Type narrowing after isSuccess check', () => {
     it('value is safely accessible in success branch', () => {
-        const result = Result.Success('hello');
+        const result = ok('hello');
         if (result.isSuccess) {
             const val: string = result.value;
             expect(val).toBe('hello');
@@ -69,14 +72,14 @@ describe('Type narrowing after isSuccess check', () => {
     });
 
     it('value is safely avoided in failure branch', () => {
-        const result = Result.Failure<string, Error>(new Error('fail'));
+        const result = err<string, Error>(new Error('fail'));
         if (result.isFailure) {
             expect(result.error).toBeInstanceOf(Error);
         }
     });
 
     it('both branches cover all cases', () => {
-        const result: { isSuccess: boolean; value?: number; error?: Error } = Result.Success(10);
+        const result: { isSuccess: boolean; value?: number; error?: Error } = ok(10);
         if (result.isSuccess) {
             expect(result.value).toBe(10);
         } else {
@@ -86,8 +89,8 @@ describe('Type narrowing after isSuccess check', () => {
 });
 
 describe('Void success (no value)', () => {
-    it('Result.Success() returns IResult (not IResult<T>)', () => {
-        const ok = Result.Success();
-        expect(ok.isSuccess).toBe(true);
+    it('ok() returns IResult (not IResult<T>)', () => {
+        const r = ok();
+        expect(r.isSuccess).toBe(true);
     });
 });

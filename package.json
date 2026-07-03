@@ -10,29 +10,37 @@
             "types": "./build/index.d.ts",
             "default": "./build/index.js"
         },
-        "./fp": {
-            "types": "./build/fp/index.d.ts",
-            "default": "./build/fp/index.js"
-        },
-        "./promise": {
-            "types": "./build/promise/index.d.ts",
-            "default": "./build/promise/index.js"
-        },
-        "./fp/promise": {
-            "types": "./build/fp/promise/index.d.ts",
-            "default": "./build/fp/promise/index.js"
-        },
         "./option": {
-            "types": "./build/Option.d.ts",
-            "default": "./build/Option.js"
+            "types": "./build/option/index.d.ts",
+            "default": "./build/option/index.js"
         },
-        "./fp/option": {
-            "types": "./build/fp/option/index.d.ts",
-            "default": "./build/fp/option/index.js"
+        "./types": {
+            "types": "./build/types/index.d.ts",
+            "default": "./build/types/index.js"
         },
-        "./*": {
-            "types": "./build/*.d.ts",
-            "default": "./build/*.js"
+        "./factories": {
+            "types": "./build/factories/index.d.ts",
+            "default": "./build/factories/index.js"
+        },
+        "./operators": {
+            "types": "./build/operators/index.d.ts",
+            "default": "./build/operators/index.js"
+        },
+        "./async": {
+            "types": "./build/async/index.d.ts",
+            "default": "./build/async/index.js"
+        },
+        "./composition": {
+            "types": "./build/composition/index.d.ts",
+            "default": "./build/composition/index.js"
+        },
+        "./adapters": {
+            "types": "./build/adapters/index.d.ts",
+            "default": "./build/adapters/index.js"
+        },
+        "./combine": {
+            "types": "./build/combine/index.d.ts",
+            "default": "./build/combine/index.js"
         }
     },
     "files": [

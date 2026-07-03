@@ -1,34 +1,39 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
 import {
     ok,
     err,
     map,
+    mapErr,
     bind,
     orElse,
     match,
+    tap,
+    tapErr,
+    unwrapOr,
     composeK,
     pipe,
     combine,
-    unwrapOr as fpUnwrapOr,
-} from '../src/fp/index.js';
-import { AsyncResult } from '../src/promise/AsyncResult.js';
-import {
+    tryCatch,
     asyncOk,
     asyncErr,
-    map as fpAsyncMap,
-    bind as fpAsyncBind,
-    match as fpAsyncMatch,
-} from '../src/fp/promise/index.js';
-import { pipeAsync } from '../src/fp/promise/composition.js';
+    tryCatchAsync,
+    mapAsync,
+    mapErrAsync,
+    bindAsync,
+    orElseAsync,
+    matchAsync,
+    tapAsync,
+    tapErrAsync,
+    pipeAsync,
+} from '../src/index.js';
 
-// ── Sync OOP ↔ FP deep interop ────────────────────────────────────────
+// ── Sync FP deep interop ─────────────────────────────────────────────
 
-describe('sync OOP ↔ FP deep interop', () => {
-    it('full FP pipe with OOP entry (Result.Success)', () => {
+describe('sync FP interop', () => {
+    it('full FP pipe with ok entry', () => {
         const result = pipe(
-            Result.Success<number>(10),
+            ok<number>(10),
             map((x: number) => x * 2),
             bind((x: number) => ok(x + 1)),
             orElse((_e: Error) => ok<number>(0)),
@@ -41,37 +46,25 @@ describe('sync OOP ↔ FP deep interop', () => {
         expect(result).toBe('OK: 21');
     });
 
-    it('Result.combine accepts mixed ok() and Result.Success() elements', () => {
-        // Direct use of Result.combine with mixed origins
+    it('combine accepts ok() elements', () => {
         const results: IResultOfT<number, Error>[] = [
             ok<number>(1),
-            Result.Success(2),
+            ok(2),
             ok<number>(3),
         ];
 
-        const combined = Result.combine(results);
+        const combined = combine(results);
 
         expect(combined.isSuccess).toBe(true);
         if (combined.isSuccess) expect(combined.value).toEqual([1, 2, 3]);
     });
 
-    it('FP-entry / OOP-chain: ok(value).andThen(v => Result.Success(...)).map(...)', () => {
-        // ok() returns IResultOfT — it supports OOP .andThen/.map
-        const result = ok<number>(21)
-            .andThen(v => Result.Success(v * 2) as IResultOfT<number, Error>)
-            .map(x => x + 1);
-
-        expect(result.isSuccess).toBe(true);
-        if (result.isSuccess) expect(result.value).toBe(43);
-    });
-
     it('custom convenience factory works with FP map/bind', () => {
         type AppError = { kind: 'Fail'; msg: string };
 
-        // Simulating the AGENTS.md TrdResult pattern
         const AppResult = {
-            Success: <T>(value: T) => Result.Success(value) as unknown as IResultOfT<T, AppError>,
-            Failure: <T>(error: AppError) => Result.Failure<T, AppError>(error),
+            Success: <T>(value: T) => ok(value) as unknown as IResultOfT<T, AppError>,
+            Failure: <T>(error: AppError) => err<T, AppError>(error),
         };
 
         const r = AppResult.Success(10);
@@ -80,7 +73,6 @@ describe('sync OOP ↔ FP deep interop', () => {
         expect(mapped.isSuccess).toBe(true);
         if (mapped.isSuccess) expect(mapped.value).toBe(20);
 
-        // Failure path
         const f = AppResult.Failure<number>({ kind: 'Fail', msg: 'bad' });
         const bound = bind((x: number) => ok(x + 1), f);
 
@@ -88,9 +80,9 @@ describe('sync OOP ↔ FP deep interop', () => {
         if (!bound.isSuccess) expect(bound.error).toEqual({ kind: 'Fail', msg: 'bad' });
     });
 
-    it('composeK with first fn as OOP andThen, second as FP bind', () => {
+    it('composeK chains FP functions', () => {
         const f1 = (a: number): IResultOfT<number, Error> =>
-            Result.Success(a * 2) as IResultOfT<number, Error>;
+            ok(a * 2) as IResultOfT<number, Error>;
         const f2 = (b: number): IResultOfT<number, Error> =>
             ok(b + 1);
 
@@ -101,30 +93,26 @@ describe('sync OOP ↔ FP deep interop', () => {
         if (result.isSuccess) expect(result.value).toBe(21);
     });
 
-    it('ResultOfT.unwrapOr and fp/unwrapOr behave identically', () => {
-        const oopOk = Result.Success(42).unwrapOr(0);
-        const fpOk = fpUnwrapOr(0, ok(42));
+    it('unwrapOr works identically in both styles', () => {
+        const fpOk = unwrapOr(0, ok(42));
+        expect(fpOk).toBe(42);
 
-        expect(oopOk).toBe(fpOk);
-
-        const oopFail = Result.Failure<number, string>('bad').unwrapOr(99);
-        const fpFail = fpUnwrapOr(99, err('bad'));
-
-        expect(oopFail).toBe(fpFail);
+        const fpFail = unwrapOr(99, err<number, string>('bad'));
+        expect(fpFail).toBe(99);
     });
 });
 
-// ── Async OOP ↔ FP deep interop ───────────────────────────────────────
+// ── Async FP deep interop ─────────────────────────────────────────────
 
-describe('async OOP ↔ FP deep interop', () => {
-    it('AsyncResult.TryCatch → FP async map → bind → match', async () => {
-        const ar = AsyncResult.TryCatch(async () => 21);
+describe('async FP interop', () => {
+    it('tryCatchAsync → FP mapAsync → bindAsync → matchAsync', async () => {
+        const ar = tryCatchAsync(async () => 21);
 
         const result = await pipeAsync(
             ar,
-            fpAsyncMap((x: number) => x * 2),
-            fpAsyncBind((x: number) => asyncOk(x + 1)),
-            fpAsyncMatch(
+            mapAsync((x: number) => x * 2),
+            bindAsync((x: number) => asyncOk(x + 1)),
+            matchAsync(
                 (v: number) => `OK: ${v}`,
                 (e: unknown) => `ERR: ${String(e)}`,
             ),
@@ -133,25 +121,24 @@ describe('async OOP ↔ FP deep interop', () => {
         expect(result).toBe('OK: 43');
     });
 
-    it('FP async pipeAsync mixed with AsyncResult instance methods', async () => {
+    it('FP pipeAsync with asyncOk entry', async () => {
         const result = await pipeAsync(
             asyncOk(10),
-            fpAsyncMap((x: number) => x * 2),
+            mapAsync((x: number) => x * 2),
         );
 
-        // Pipe result is an AsyncResult — we can await it directly (thenable)
         const awaited = await result;
         expect(awaited.isSuccess).toBe(true);
         if (awaited.isSuccess) expect(awaited.value).toBe(20);
     });
 
-    it('AsyncResult.From() bridges sync OOP → async FP chain', async () => {
-        const syncResult = Result.Success(21);
-        const ar = AsyncResult.From(syncResult);
+    it('Promise.resolve bridges sync → async FP chain', async () => {
+        const syncResult = ok(21);
+        const ar = Promise.resolve(syncResult);
 
         const result = await pipeAsync(
             ar,
-            fpAsyncMap((x: number) => x * 2),
+            mapAsync((x: number) => x * 2),
         );
 
         const awaited = await result;
@@ -159,23 +146,12 @@ describe('async OOP ↔ FP deep interop', () => {
         if (awaited.isSuccess) expect(awaited.value).toBe(42);
     });
 
-    it('AsyncResult.toPromise() → sync FP map', async () => {
-        const ar = AsyncResult.Success(21).map(x => x * 2);
-        const promise = ar.toPromise();
-
-        const syncResult = await promise;
-        const mapped = map((x: number) => x + 1, syncResult);
-
-        expect(mapped.isSuccess).toBe(true);
-        if (mapped.isSuccess) expect(mapped.value).toBe(43);
-    });
-
     it('pipeAsync with all-FP-async and sync callback transparency', async () => {
         const result = await pipeAsync(
             asyncOk(10),
-            fpAsyncMap((x: number) => x * 2),      // sync callback in async context
-            fpAsyncBind((x: number) => asyncOk(x + 1)),
-            fpAsyncMatch(
+            mapAsync((x: number) => x * 2),
+            bindAsync((x: number) => asyncOk(x + 1)),
+            matchAsync(
                 (v: number) => v,
                 (_e: unknown) => -1,
             ),
@@ -185,49 +161,54 @@ describe('async OOP ↔ FP deep interop', () => {
     });
 });
 
-// ── Sync / Async cross-boundary interop ────────────────────────────────
+// ── Sync / Async cross-boundary ──────────────────────────────────────
 
 describe('sync ↔ async cross-boundary', () => {
-    it('sync Result.TryCatch → AsyncResult.From → async chain', async () => {
-        const sync = Result.tryCatch(() => 21);
-        const ar = AsyncResult.From(sync);
+    it('sync tryCatch → async pipeline', async () => {
+        const sync = tryCatch(() => 21);
+        const ar = Promise.resolve(sync);
 
-        const result = await ar.map(x => x * 2);
+        const result = await bindAsync(
+            (x: number) => asyncOk(x * 2),
+            ar,
+        );
         const awaited = await result;
 
         expect(awaited.isSuccess).toBe(true);
         if (awaited.isSuccess) expect(awaited.value).toBe(42);
     });
 
-    it('async result awaited → sync .map().andThen()', async () => {
-        const ar = AsyncResult.Success(10).map(x => x * 2);
-        const syncResult = await ar.toPromise();
+    it('async result awaited → sync operators', async () => {
+        const ar = mapAsync((x: number) => x * 2, asyncOk(10));
+        const syncResult = await ar;
 
-        const processed = syncResult
-            .map(x => x + 1)
-            .andThen(x => Result.Success(x * 2) as IResultOfT<number, Error>);
+        const processed = pipe(
+            syncResult,
+            map((x: number) => x + 1),
+            bind((x: number) => ok(x * 2) as IResultOfT<number, Error>),
+        );
 
         expect(processed.isSuccess).toBe(true);
         if (processed.isSuccess) expect(processed.value).toBe(42);
     });
 
-    it('AsyncResult.Combine accepts mixed sync-origin results', async () => {
-        const syncResults = [
-            AsyncResult.From(Result.Success(1) as IResultOfT<number, Error>),
-            AsyncResult.Success(2),
-            AsyncResult.From(Result.Success(3) as IResultOfT<number, Error>),
+    it('combine accepts mixed sync-origin results as promises', async () => {
+        const syncResults: Promise<IResultOfT<number, string>>[] = [
+            Promise.resolve(ok(1) as IResultOfT<number, string>),
+            asyncOk(2),
+            Promise.resolve(ok(3) as IResultOfT<number, string>),
         ];
 
-        const combined = AsyncResult.Combine(syncResults);
-        const awaited = await combined;
+        const resolved = await Promise.all(syncResults);
+        const combined = combine(resolved);
 
-        expect(awaited.isSuccess).toBe(true);
-        if (awaited.isSuccess) expect(awaited.value).toEqual([1, 2, 3]);
+        expect(combined.isSuccess).toBe(true);
+        if (combined.isSuccess) expect(combined.value).toEqual([1, 2, 3]);
     });
 
-    it('Result.combine and AsyncResult.Combine behave consistently on empty arrays', async () => {
-        const syncCombined = Result.combine([]);
-        const asyncCombined = await AsyncResult.Combine([]);
+    it('combine behaves consistently on empty arrays', async () => {
+        const syncCombined = combine([]);
+        const asyncCombined = await combine([]);
 
         expect(syncCombined.isSuccess).toBe(true);
         expect(asyncCombined.isSuccess).toBe(true);
@@ -235,30 +216,29 @@ describe('sync ↔ async cross-boundary', () => {
         if (asyncCombined.isSuccess) expect(asyncCombined.value).toEqual([]);
     });
 
-    it('sync FP pipe ending with AsyncResult.From enters async pipeline', async () => {
+    it('sync FP pipe enters async pipeline, then awaits', async () => {
         const syncResult = pipe(
             ok(10),
             map((x: number) => x * 2),
         );
 
-        const ar = AsyncResult.From(syncResult);
-        const result = await ar.map(x => x + 1);
-        const awaited = await result;
+        const result = await mapAsync(
+            (x: number) => x + 1,
+            Promise.resolve(syncResult),
+        );
 
-        expect(awaited.isSuccess).toBe(true);
-        if (awaited.isSuccess) expect(awaited.value).toBe(21);
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(21);
     });
 });
 
 // ── Edge conditions ────────────────────────────────────────────────────
 
-describe('edge conditions across paradigms', () => {
-    it('Result.Success(undefined) vs Result.Success() in FP pipe', () => {
-        // Result.Success() with no arg — void success
-        const voidResult = Result.Success();
+describe('edge conditions', () => {
+    it('ok(undefined) vs ok() in FP pipe', () => {
+        const voidResult = ok();
 
         expect(voidResult.isSuccess).toBe(true);
-        // Can still enter FP pipe
         const piped = pipe(
             voidResult as unknown as IResultOfT<unknown, Error>,
             match(
@@ -270,18 +250,12 @@ describe('edge conditions across paradigms', () => {
         expect(piped).toBe('void');
     });
 
-    it('empty array combine is consistent between Result and FP', () => {
-        const oop = Result.combine([]);
+    it('empty array combine is always success', () => {
         const fp = combine([]);
-
-        expect(oop.isSuccess).toBe(fp.isSuccess);
-        if (oop.isSuccess && fp.isSuccess) {
-            expect(oop.value).toEqual(fp.value);
-        }
+        expect(fp.isSuccess).toBe(true);
     });
 
     it('TError = never result passes through any FP operator', () => {
-        // ok() returns IResultOfT<T, never>
         const r = ok(42);
 
         const mapped = map((x: number) => x * 2, r);
@@ -293,18 +267,19 @@ describe('edge conditions across paradigms', () => {
         if (bound.isSuccess) expect(bound.value).toBe(85);
     });
 
-    it('andThen callback with different error type widens correctly', () => {
+    it('bind callback with different error type widens correctly', () => {
         type E1 = { kind: 'A' };
         type E2 = { kind: 'B' };
 
-        // Start with E1, andThen to E2 → result has E1 | E2
-        const r = Result.Failure<number, E1>({ kind: 'A' }).andThen(
-            (_v: number): IResultOfT<number, E2> =>
-                Result.Failure<number, E2>({ kind: 'B' }),
+        const r = err<number, E1>({ kind: 'A' });
+
+        const mapped = bind(
+            (_v: number): IResultOfT<number, E2> => err<number, E2>({ kind: 'B' }),
+            r,
         );
 
-        // Should be failure with E1 (short-circuited)
-        expect(r.isSuccess).toBe(false);
-        if (!r.isSuccess) expect(r.error).toEqual({ kind: 'A' });
+        expect(mapped.isSuccess).toBe(false);
+        if (!mapped.isSuccess) expect(mapped.error).toEqual({ kind: 'A' });
     });
 });
+

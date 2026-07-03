@@ -1,29 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { Result, ResultOfT } from '../src/Result.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import { ok, err } from '../src/index.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { unwrap, expect as expectOp, unwrapErr, expectErr } from '../src/index.js';
 
-// FP operators
-import { unwrap, expect as expectOp, unwrapErr, expectErr } from '../src/fp/operators.js';
+// ─── Void result escape hatches ────────────────────────────────────────────
 
-// ─── Result (void) — OOP ───────────────────────────────────────────────────
-
-describe('Result (void) — OOP escape hatches', () => {
-    describe('unwrap()', () => {
+describe('void result escape hatches', () => {
+    describe('unwrap(r)', () => {
         it('succeeds on a success result (no return)', () => {
-            const r = Result.Success();
-            // Should not throw
-            expect(() => r.unwrap()).not.toThrow();
+            const r = ok();
+            expect(() => unwrap(r)).not.toThrow();
         });
 
         it('throws TypeError on a failure result', () => {
-            const r = Result.Failure(new Error('boom'));
-            expect(() => r.unwrap()).toThrow(TypeError);
+            const r = err(new Error('boom'));
+            expect(() => unwrap(r)).toThrow(TypeError);
         });
 
         it('includes the error in the thrown message', () => {
-            const r = Result.Failure(new Error('something went wrong'));
+            const r = err(new Error('something went wrong'));
             try {
-                r.unwrap();
+                unwrap(r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect(String(e)).toContain('something went wrong');
@@ -31,28 +28,26 @@ describe('Result (void) — OOP escape hatches', () => {
         });
 
         it('works with custom (non-Error) TError', () => {
-            const r = Result.Failure({ kind: 'ValidationError' as const, reason: 'bad' });
+            const r = err({ kind: 'ValidationError' as const, reason: 'bad' });
             try {
-                r.unwrap();
+                unwrap(r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
-                // Plain objects serialize as [object Object] via String().
-                // Use expect() with a meaningful message for complex TError.
                 expect((e as TypeError).message).toContain('Called unwrap() on a failure result.');
             }
         });
     });
 
-    describe('expect(msg)', () => {
+    describe('expect(msg, r)', () => {
         it('succeeds on a success result (no return)', () => {
-            const r = Result.Success();
-            expect(() => r.expect('should not happen')).not.toThrow();
+            const r = ok();
+            expect(() => expectOp('should not happen', r)).not.toThrow();
         });
 
         it('throws TypeError with the custom message on failure', () => {
-            const r = Result.Failure(new Error('boom'));
+            const r = err(new Error('boom'));
             try {
-                r.expect('User must exist');
+                expectOp('User must exist', r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect(String(e)).toContain('User must exist');
@@ -61,31 +56,31 @@ describe('Result (void) — OOP escape hatches', () => {
         });
     });
 
-    describe('unwrapErr()', () => {
+    describe('unwrapErr(r)', () => {
         it('returns the error on failure', () => {
-            const err = new Error('boom');
-            const r = Result.Failure(err);
-            expect(r.unwrapErr()).toBe(err);
+            const errVal = new Error('boom');
+            const r = err(errVal);
+            expect(unwrapErr(r)).toBe(errVal);
         });
 
         it('throws TypeError on success', () => {
-            const r = Result.Success();
-            expect(() => r.unwrapErr()).toThrow(TypeError);
-            expect(() => r.unwrapErr()).toThrow('success');
+            const r = ok();
+            expect(() => unwrapErr(r)).toThrow(TypeError);
+            expect(() => unwrapErr(r)).toThrow('success');
         });
     });
 
-    describe('expectErr(msg)', () => {
+    describe('expectErr(msg, r)', () => {
         it('returns the error on failure', () => {
-            const err = new Error('boom');
-            const r = Result.Failure(err);
-            expect(r.expectErr('should not happen')).toBe(err);
+            const errVal = new Error('boom');
+            const r = err(errVal);
+            expect(expectErr('should not happen', r)).toBe(errVal);
         });
 
         it('throws TypeError with custom message on success', () => {
-            const r = Result.Success();
+            const r = ok();
             try {
-                r.expectErr('Expected failure');
+                expectErr('Expected failure', r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect((e as TypeError).message).toBe('Expected failure');
@@ -94,24 +89,24 @@ describe('Result (void) — OOP escape hatches', () => {
     });
 });
 
-// ─── ResultOfT<T> — OOP ─────────────────────────────────────────────────────
+// ─── Value result escape hatches ────────────────────────────────────────────
 
-describe('ResultOfT<T> — OOP escape hatches', () => {
-    describe('unwrap()', () => {
+describe('value result escape hatches', () => {
+    describe('unwrap(r)', () => {
         it('returns the value on success', () => {
-            const r = Result.Success(42);
-            expect(r.unwrap()).toBe(42);
+            const r = ok(42);
+            expect(unwrap(r)).toBe(42);
         });
 
         it('throws TypeError on failure', () => {
-            const r = Result.Failure<number>(new Error('no number here'));
-            expect(() => r.unwrap()).toThrow(TypeError);
+            const r = err<number>(new Error('no number here'));
+            expect(() => unwrap(r)).toThrow(TypeError);
         });
 
         it('includes the error in the thrown message', () => {
-            const r = Result.Failure<string>(new Error('parse error'));
+            const r = err<string>(new Error('parse error'));
             try {
-                r.unwrap();
+                unwrap(r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect(String(e)).toContain('parse error');
@@ -119,16 +114,16 @@ describe('ResultOfT<T> — OOP escape hatches', () => {
         });
     });
 
-    describe('expect(msg)', () => {
+    describe('expect(msg, r)', () => {
         it('returns the value on success', () => {
-            const r = Result.Success('hello');
-            expect(r.expect('should not happen')).toBe('hello');
+            const r = ok('hello');
+            expect(expectOp('should not happen', r)).toBe('hello');
         });
 
         it('throws TypeError with custom message on failure', () => {
-            const r = Result.Failure<string>(new Error('db down'));
+            const r = err<string>(new Error('db down'));
             try {
-                r.expect('Failed to fetch user');
+                expectOp('Failed to fetch user', r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect(String(e)).toContain('Failed to fetch user');
@@ -138,9 +133,9 @@ describe('ResultOfT<T> — OOP escape hatches', () => {
 
         it('works with discriminated union TError', () => {
             type AppErr = { kind: 'NotFound'; id: number };
-            const r = Result.Failure<string, AppErr>({ kind: 'NotFound', id: 42 });
+            const r = err<string, AppErr>({ kind: 'NotFound', id: 42 });
             try {
-                r.expect('User lookup');
+                expectOp('User lookup', r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect((e as TypeError).message).toContain('User lookup');
@@ -148,31 +143,31 @@ describe('ResultOfT<T> — OOP escape hatches', () => {
         });
     });
 
-    describe('unwrapErr()', () => {
+    describe('unwrapErr(r)', () => {
         it('returns the error on failure', () => {
-            const err = new Error('nope');
-            const r = Result.Failure<number>(err);
-            expect(r.unwrapErr()).toBe(err);
+            const errVal = new Error('nope');
+            const r = err<number>(errVal);
+            expect(unwrapErr(r)).toBe(errVal);
         });
 
         it('throws TypeError on success', () => {
-            const r = Result.Success(99);
-            expect(() => r.unwrapErr()).toThrow(TypeError);
-            expect(() => r.unwrapErr()).toThrow('success');
+            const r = ok(99);
+            expect(() => unwrapErr(r)).toThrow(TypeError);
+            expect(() => unwrapErr(r)).toThrow('success');
         });
     });
 
-    describe('expectErr(msg)', () => {
+    describe('expectErr(msg, r)', () => {
         it('returns the error on failure', () => {
-            const err = new Error('bad');
-            const r = Result.Failure<number>(err);
-            expect(r.expectErr('not needed')).toBe(err);
+            const errVal = new Error('bad');
+            const r = err<number>(errVal);
+            expect(expectErr('not needed', r)).toBe(errVal);
         });
 
         it('throws TypeError with custom message on success', () => {
-            const r = Result.Success(7);
+            const r = ok(7);
             try {
-                r.expectErr('This should have failed');
+                expectErr('This should have failed', r);
             } catch (e: unknown) {
                 expect(e).toBeInstanceOf(TypeError);
                 expect((e as TypeError).message).toBe('This should have failed');
@@ -186,24 +181,24 @@ describe('ResultOfT<T> — OOP escape hatches', () => {
 describe('FP escape hatch operators', () => {
     describe('unwrap(r)', () => {
         it('returns value on success', () => {
-            const r: IResultOfT<number> = Result.Success(42);
+            const r: IResultOfT<number> = ok(42);
             expect(unwrap(r)).toBe(42);
         });
 
         it('throws TypeError on failure', () => {
-            const r: IResultOfT<number> = Result.Failure<number>(new Error('fail'));
+            const r: IResultOfT<number> = err<number>(new Error('fail'));
             expect(() => unwrap(r)).toThrow(TypeError);
         });
     });
 
     describe('expect(msg, r)', () => {
         it('returns value on success', () => {
-            const r: IResultOfT<string> = Result.Success('hi');
+            const r: IResultOfT<string> = ok('hi');
             expect(expectOp('nope', r)).toBe('hi');
         });
 
         it('throws with custom message on failure', () => {
-            const r: IResultOfT<number> = Result.Failure<number>(new Error('oops'));
+            const r: IResultOfT<number> = err<number>(new Error('oops'));
             try {
                 expectOp('Config missing', r);
             } catch (e: unknown) {
@@ -213,7 +208,7 @@ describe('FP escape hatch operators', () => {
         });
 
         it('curried form works', () => {
-            const r: IResultOfT<number> = Result.Failure<number>(new Error('bad'));
+            const r: IResultOfT<number> = err<number>(new Error('bad'));
             const configOrDie = expectOp('Config required');
             expect(() => configOrDie(r)).toThrow(TypeError);
         });
@@ -221,26 +216,26 @@ describe('FP escape hatch operators', () => {
 
     describe('unwrapErr(r)', () => {
         it('returns error on failure', () => {
-            const err = new Error('oops');
-            const r: IResultOfT<number> = Result.Failure<number>(err);
-            expect(unwrapErr(r)).toBe(err);
+            const errVal = new Error('oops');
+            const r: IResultOfT<number> = err<number>(errVal);
+            expect(unwrapErr(r)).toBe(errVal);
         });
 
         it('throws on success', () => {
-            const r: IResultOfT<number> = Result.Success(1);
+            const r: IResultOfT<number> = ok(1);
             expect(() => unwrapErr(r)).toThrow(TypeError);
         });
     });
 
     describe('expectErr(msg, r)', () => {
         it('returns error on failure', () => {
-            const err = new Error('boom');
-            const r: IResultOfT<number> = Result.Failure<number>(err);
-            expect(expectErr('not needed', r)).toBe(err);
+            const errVal = new Error('boom');
+            const r: IResultOfT<number> = err<number>(errVal);
+            expect(expectErr('not needed', r)).toBe(errVal);
         });
 
         it('throws with custom message on success', () => {
-            const r: IResultOfT<number> = Result.Success(3);
+            const r: IResultOfT<number> = ok(3);
             try {
                 expectErr('Should be error', r);
             } catch (e: unknown) {
@@ -250,7 +245,7 @@ describe('FP escape hatch operators', () => {
         });
 
         it('curried form works', () => {
-            const r: IResultOfT<number> = Result.Success(5);
+            const r: IResultOfT<number> = ok(5);
             const mustFail = expectErr('Expected error path');
             expect(() => mustFail(r)).toThrow('Expected error path');
         });
@@ -261,18 +256,19 @@ describe('FP escape hatch operators', () => {
 
 describe('Type narrowing after escape hatches', () => {
     it('unwrap() preserves TValue type', () => {
-        const r: IResultOfT<{ name: string }> = Result.Success({ name: 'Alice' });
-        const user = r.unwrap();
+        const r: IResultOfT<{ name: string }> = ok({ name: 'Alice' });
+        const user = unwrap(r);
         // Type-level check: user.name should be accessible
         expect(user.name).toBe('Alice');
     });
 
     it('expectErr() preserves TError type', () => {
         type AppErr = { code: number; msg: string };
-        const err: AppErr = { code: 500, msg: 'server error' };
-        const r: IResultOfT<string, AppErr> = Result.Failure<string, AppErr>(err);
-        const unwrapped = r.expectErr('not needed');
+        const appErr: AppErr = { code: 500, msg: 'server error' };
+        const r: IResultOfT<string, AppErr> = err<string, AppErr>(appErr);
+        const unwrapped = expectErr('not needed', r);
         // Type-level check: unwrapped.code exists
         expect(unwrapped.code).toBe(500);
     });
 });
+

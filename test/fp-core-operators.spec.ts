@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
 import {
     ok,
     err,
@@ -13,7 +12,7 @@ import {
     tapErr,
     unwrapOr,
     composeK,
-} from '../src/fp/index.js';
+} from '../src/index.js';
 
 // ── Constructors: ok / err ─────────────────────────────────────────────
 
@@ -391,24 +390,24 @@ describe('fp/unwrapOr', () => {
 // ── OOP / FP interop ───────────────────────────────────────────────────
 
 describe('FP operators on OOP results', () => {
-    it('map(fn) works on Result.Success()', () => {
-        const result = map((x: number) => x * 2, Result.Success(21));
+    it('map(fn) works on ok()', () => {
+        const result = map((x: number) => x * 2, ok(21));
 
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBe(42);
     });
 
-    it('map(fn) works on Result.Failure() — pass through', () => {
+    it('map(fn) works on err() — pass through', () => {
         const error = new Error('fail');
-        const result = map((x: number) => x * 2, Result.Failure<number, Error>(error));
+        const result = map((x: number) => x * 2, err<number, Error>(error));
 
         expect(result.isSuccess).toBe(false);
         if (!result.isSuccess) expect(result.error).toBe(error);
     });
 
     it('composeK accepts OOP-style andThen callbacks', () => {
-        const f1 = (a: number) => Result.Success(a * 2) as IResultOfT<number, Error>;
-        const f2 = (b: number) => Result.Success(b + 1) as IResultOfT<number, Error>;
+        const f1 = (a: number) => ok(a * 2) as IResultOfT<number, Error>;
+        const f2 = (b: number) => ok(b + 1) as IResultOfT<number, Error>;
 
         const composed = composeK(f1, f2);
 
@@ -417,3 +416,4 @@ describe('FP operators on OOP results', () => {
         if (result.isSuccess) expect(result.value).toBe(21);
     });
 });
+

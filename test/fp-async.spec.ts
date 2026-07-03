@@ -1,21 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr } from '../src/fp/promise/core.js';
+import { asyncOk, asyncErr } from '../src/index.js';
 import {
-    map,
     mapAsync,
-    mapErr,
     mapErrAsync,
-    bind,
-    orElse,
-    match,
-    tap,
-    tapErr,
-    unwrapOr,
-} from '../src/fp/promise/operators.js';
-import { composeKAsync, pipeAsync } from '../src/fp/promise/composition.js';
-import { switchFnAsync, teeAsync } from '../src/fp/promise/adapters.js';
-import { AsyncResult } from '../src/promise/AsyncResult.js';
-import { Result } from '../src/Result.js';
+    bindAsync,
+    orElseAsync,
+    matchAsync,
+    tapAsync,
+    tapErrAsync,
+    unwrapOrAsync,
+} from '../src/index.js';
+import { composeKAsync, pipeAsync } from '../src/index.js';
+import { switchFnAsync, teeAsync } from '../src/index.js';
+import { ok, err } from '../src/index.js';
+import { unwrap } from '../src/index.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
 
 // ─── core ─────────────────────────────────────────────────────────────────
 
@@ -33,24 +32,24 @@ describe('FP async core', () => {
     });
 });
 
-// ─── map ──────────────────────────────────────────────────────────────────
+// ─── mapAsync ──────────────────────────────────────────────────────────────
 
-describe('FP async map', () => {
+describe('FP async mapAsync', () => {
     it('maps success value (curried)', async () => {
-        const double = map((x: number) => x * 2);
+        const double = mapAsync((x: number) => x * 2);
         const r = await double(asyncOk(21));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('maps success value (direct)', async () => {
-        const r = await map((x: number) => x * 2, asyncOk(21));
+        const r = await mapAsync((x: number) => x * 2, asyncOk(21));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('passes through failure', async () => {
-        const r = await map((x: number) => x * 2, asyncErr<string>('fail'));
+        const r = await mapAsync((x: number) => x * 2, asyncErr<string>('fail'));
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('fail');
     });
@@ -75,18 +74,18 @@ describe('FP async mapAsync', () => {
     });
 });
 
-// ─── mapErr ───────────────────────────────────────────────────────────────
+// ─── mapErrAsync ───────────────────────────────────────────────────────────
 
-describe('FP async mapErr', () => {
+describe('FP async mapErrAsync', () => {
     it('maps error (curried)', async () => {
-        const wrap = mapErr((e: string) => `wrapped: ${e}`);
+        const wrap = mapErrAsync((e: string) => `wrapped: ${e}`);
         const r = await wrap(asyncErr<string>('raw'));
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('wrapped: raw');
     });
 
     it('passes through success', async () => {
-        const r = await mapErr((e: string) => `wrapped: ${e}`, asyncOk(42));
+        const r = await mapErrAsync((e: string) => `wrapped: ${e}`, asyncOk(42));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
@@ -118,19 +117,19 @@ describe('FP async mapErrAsync', () => {
     });
 });
 
-// ─── bind ─────────────────────────────────────────────────────────────────
+// ─── bindAsync ────────────────────────────────────────────────────────────
 
-describe('FP async bind', () => {
+describe('FP async bindAsync', () => {
     it('chains to AsyncResult (curried)', async () => {
-        const chain = bind((x: number) => asyncOk(x * 2));
+        const chain = bindAsync((x: number) => asyncOk(x * 2));
         const r = await chain(asyncOk(21));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('chains to sync IResultOfT', async () => {
-        const r = await bind(
-            (s: string) => Result.Success(s.length),
+        const r = await bindAsync(
+            (s: string) => ok(s.length),
             asyncOk('hello'),
         );
         expect(r.isSuccess).toBe(true);
@@ -138,7 +137,7 @@ describe('FP async bind', () => {
     });
 
     it('short-circuits on failure', async () => {
-        const r = await bind(
+        const r = await bindAsync(
             (x: number) => asyncOk(x * 2),
             asyncErr<string>('fail'),
         );
@@ -147,28 +146,28 @@ describe('FP async bind', () => {
     });
 });
 
-// ─── orElse ───────────────────────────────────────────────────────────────
+// ─── orElseAsync ──────────────────────────────────────────────────────────
 
-describe('FP async orElse', () => {
+describe('FP async orElseAsync', () => {
     it('recovers from failure (curried)', async () => {
-        const recover = orElse(() => asyncOk(42));
+        const recover = orElseAsync(() => asyncOk(42));
         const r = await recover(asyncErr<string>('down'));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('passes through success', async () => {
-        const r = await orElse(() => asyncOk(99), asyncOk(10));
+        const r = await orElseAsync(() => asyncOk(99), asyncOk(10));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(10);
     });
 });
 
-// ─── match ────────────────────────────────────────────────────────────────
+// ─── matchAsync ───────────────────────────────────────────────────────────
 
-describe('FP async match', () => {
+describe('FP async matchAsync', () => {
     it('matches on success (curried)', async () => {
-        const m = match(
+        const m = matchAsync(
             (v: number) => `ok: ${v}`,
             (e: string) => `err: ${e}`,
         );
@@ -177,7 +176,7 @@ describe('FP async match', () => {
     });
 
     it('matches on failure', async () => {
-        const result = await match(
+        const result = await matchAsync(
             (v: number) => `ok: ${v}`,
             (e: string) => `err: ${e}`,
             asyncErr<string>('bad'),
@@ -186,12 +185,12 @@ describe('FP async match', () => {
     });
 });
 
-// ─── tap / tapErr ─────────────────────────────────────────────────────────
+// ─── tapAsync / tapErrAsync ───────────────────────────────────────────────
 
-describe('FP async tap', () => {
+describe('FP async tapAsync', () => {
     it('calls side-effect on success', async () => {
         let side = 0;
-        const r = await tap((v: number) => { side = v; }, asyncOk(5));
+        const r = await tapAsync((v: number) => { side = v; }, asyncOk(5));
         expect(side).toBe(5);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(5);
@@ -199,29 +198,29 @@ describe('FP async tap', () => {
 
     it('does not call on failure', async () => {
         let side = 0;
-        await tap((v: number) => { side = v; }, asyncErr<string>('err'));
+        await tapAsync((v: number) => { side = v; }, asyncErr<string>('err'));
         expect(side).toBe(0);
     });
 });
 
-describe('FP async tapErr', () => {
+describe('FP async tapErrAsync', () => {
     it('calls side-effect on failure', async () => {
         let side = '';
-        const r = await tapErr((e: string) => { side = e; }, asyncErr<string>('oops'));
+        const r = await tapErrAsync((e: string) => { side = e; }, asyncErr<string>('oops'));
         expect(side).toBe('oops');
     });
 });
 
-// ─── unwrapOr ─────────────────────────────────────────────────────────────
+// ─── unwrapOrAsync ────────────────────────────────────────────────────────
 
-describe('FP async unwrapOr', () => {
+describe('FP async unwrapOrAsync', () => {
     it('returns value on success', async () => {
-        const v = await unwrapOr(0, asyncOk(42));
+        const v = await unwrapOrAsync(0, asyncOk(42));
         expect(v).toBe(42);
     });
 
     it('returns default on failure', async () => {
-        const v = await unwrapOr(99, asyncErr<string>('err'));
+        const v = await unwrapOrAsync(99, asyncErr<string>('err'));
         expect(v).toBe(99);
     });
 });
@@ -257,9 +256,9 @@ describe('FP async pipeAsync', () => {
     it('pipes through async operators', async () => {
         const result = await pipeAsync(
             asyncOk(21),
-            map((x: number) => x * 2),
-            map((x: number) => x + 1),
-            match(
+            mapAsync((x: number) => x * 2),
+            mapAsync((x: number) => x + 1),
+            matchAsync<string, number, string>(
                 v => `Value: ${v}`,
                 e => `Error: ${e}`,
             ),
@@ -271,9 +270,9 @@ describe('FP async pipeAsync', () => {
     it('handles failure in pipeline', async () => {
         const result = await pipeAsync(
             asyncOk(5),
-            bind((_x: number) => asyncErr<string>('pipeline fail')),
-            map((x: number) => x * 2),
-            match(
+            bindAsync((_x: number) => asyncErr<string>('pipeline fail')),
+            mapAsync((x: number) => x * 2),
+            matchAsync<string, number, string>(
                 v => `ok: ${v}`,
                 e => `err: ${e}`,
             ),
@@ -305,21 +304,15 @@ describe('FP async teeAsync', () => {
     });
 });
 
-// ─── Integration: FP async + OOP ─────────────────────────────────────────
+// ─── Integration: FP async + sync ────────────────────────────────────────
 
-describe('FP async ←→ OOP integration', () => {
-    it('mixes FP async operators with AsyncResult methods', async () => {
-        const ar = asyncOk(10);
-        const r = await ar.map(x => x * 3);
-        expect(r.isSuccess).toBe(true);
-        if (r.isSuccess) expect(r.value).toBe(30);
-    });
-
+describe('FP async ←→ sync integration', () => {
     it('chains FP async operators from sync Results', async () => {
-        const sync = Result.Success(5);
-        const ar = AsyncResult.From(sync);
-        const r = await map((x: number) => x * 10, ar);
+        const sync = ok(5);
+        const ar = asyncOk(sync);
+        const r = await mapAsync((x: IResultOfT<number>) => unwrap(x) * 10, ar);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(50);
     });
 });
+

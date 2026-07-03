@@ -1,135 +1,88 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import { Option } from '../src/Option.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
-import type { IOption } from '../src/Option.js';
+import { ok, err } from '../src/index.js';
+import { ofSome, ofNone } from '../src/index.js';
+import type { IOption } from '../src/types/Option.js';
+import { toOption, fromOption, unwrap, unwrapErr } from '../src/index.js';
 
-// FP adapters
-import { toOption as fpToOption, fromOption as fpFromOption } from '../src/fp/adapters.js';
+// ─── toOption ───────────────────────────────────────────────────────────────
 
-// ─── ResultOfT.toOption() — OOP ─────────────────────────────────────────────
-
-describe('ResultOfT.toOption() — OOP', () => {
+describe('toOption', () => {
     it('Success(value) → Some(value)', () => {
-        const r = Result.Success(42);
-        const opt = r.toOption();
+        const opt = toOption(ok(42));
         expect(opt.isSome).toBe(true);
         expect(opt.isNone).toBe(false);
-        expect(opt.value).toBe(42);
+        if (opt.isSome) expect(opt.value).toBe(42);
     });
 
     it('Failure(error) → None', () => {
-        const r = Result.Failure<number>(new Error('boom'));
-        const opt = r.toOption();
+        const opt = toOption(err<number>(new Error('boom')));
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
     });
 
     it('preserves object references on success', () => {
         const obj = { name: 'Alice' };
-        const r = Result.Success(obj);
-        const opt = r.toOption();
+        const opt = toOption(ok(obj));
         expect(opt.isSome).toBe(true);
-        expect(opt.value).toBe(obj); // same reference
+        if (opt.isSome) expect(opt.value).toBe(obj);
     });
 
     it('works with discriminated union TError', () => {
         type AppErr = { kind: 'NotFound' };
-        const r = Result.Failure<string, AppErr>({ kind: 'NotFound' });
-        const opt = r.toOption();
+        const opt = toOption(err<string, AppErr>({ kind: 'NotFound' }));
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
     });
 });
 
-// ─── Result.fromOption() — OOP static ───────────────────────────────────────
+// ─── fromOption ─────────────────────────────────────────────────────────────
 
-describe('Result.fromOption() — OOP static', () => {
-    it('Some(value) → Success(value)', () => {
-        const opt = Option.Some('hello');
-        const r = Result.fromOption(opt, new Error('missing'));
+describe('fromOption', () => {
+    it('Some(value) → Success(value) — direct form', () => {
+        const opt = ofSome('hello');
+        const r = fromOption(new Error('missing'), opt);
         expect(r.isSuccess).toBe(true);
-        expect(r.isFailure).toBe(false);
-        expect(r.unwrap()).toBe('hello');
+        expect(unwrap(r)).toBe('hello');
     });
 
-    it('None → Failure(errorOnNone)', () => {
-        const err = new Error('value was missing');
-        const opt = Option.None();
-        const r = Result.fromOption(opt, err);
+    it('None → Failure(errorOnNone) — direct form', () => {
+        const errVal = new Error('value was missing');
+        const opt = ofNone();
+        const r = fromOption(errVal, opt);
         expect(r.isSuccess).toBe(false);
-        expect(r.isFailure).toBe(true);
-        expect(r.unwrapErr()).toBe(err);
+        expect(unwrapErr(r)).toBe(errVal);
     });
 
     it('works with custom TError types', () => {
         type AppErr = { kind: 'MissingValue'; field: string };
         const missingErr: AppErr = { kind: 'MissingValue', field: 'username' };
-        const opt: IOption<string> = Option.None();
-        const r = Result.fromOption(opt, missingErr);
+        const opt: IOption<string> = ofNone();
+        const r = fromOption(missingErr, opt);
         expect(r.isSuccess).toBe(false);
-        expect(r.unwrapErr()).toEqual(missingErr);
+        expect(unwrapErr(r)).toEqual(missingErr);
     });
 
     it('round-trips: Success → toOption → fromOption', () => {
-        const original = Result.Success(99);
-        const back = Result.fromOption(original.toOption(), new Error('gone'));
-        expect(back.unwrap()).toBe(99);
+        const original = ok(99);
+        const back = fromOption(new Error('gone'), toOption(original));
+        expect(unwrap(back)).toBe(99);
     });
 
     it('round-trips: Failure → toOption → fromOption loses error', () => {
-        const originalErr = new Error('original error');
         const lostErr = new Error('was none');
-        const original = Result.Failure<number>(originalErr);
-        const back = Result.fromOption(original.toOption(), lostErr);
-        // The original error is discarded; we get the errorOnNone instead
-        expect(back.unwrapErr()).toBe(lostErr);
-    });
-});
-
-// ─── FP toOption ────────────────────────────────────────────────────────────
-
-describe('FP toOption', () => {
-    it('Ok(value) → Some(value)', () => {
-        const r: IResultOfT<number> = Result.Success(7);
-        const opt = fpToOption(r);
-        expect(opt.isSome).toBe(true);
-        expect(opt.value).toBe(7);
-    });
-
-    it('Err(_) → None', () => {
-        const r: IResultOfT<number> = Result.Failure<number>(new Error('fail'));
-        const opt = fpToOption(r);
-        expect(opt.isSome).toBe(false);
-        expect(opt.isNone).toBe(true);
-    });
-});
-
-// ─── FP fromOption ──────────────────────────────────────────────────────────
-
-describe('FP fromOption', () => {
-    it('Some(value) → Ok(value) — direct form', () => {
-        const opt: IOption<string> = Option.Some('hi');
-        const r = fpFromOption(new Error('nope'), opt);
-        expect(r.isSuccess).toBe(true);
-        expect(r.unwrap()).toBe('hi');
-    });
-
-    it('None → Err(errorOnNone) — direct form', () => {
-        const err = new Error('missing');
-        const opt: IOption<number> = Option.None();
-        const r = fpFromOption(err, opt);
-        expect(r.isSuccess).toBe(false);
-        expect(r.unwrapErr()).toBe(err);
+        const original = err<number>(new Error('original error'));
+        const back = fromOption(lostErr, toOption(original));
+        expect(unwrapErr(back)).toBe(lostErr);
     });
 
     it('curried form works', () => {
-        const missingOrDie = fpFromOption(new Error('Value required'));
-        const r = missingOrDie(Option.Some(123));
-        expect(r.unwrap()).toBe(123);
+        const missingOrDie = fromOption(new Error('Value required'));
+        const r = missingOrDie(ofSome(123));
+        expect(unwrap(r)).toBe(123);
 
-        const r2 = missingOrDie(Option.None());
+        const r2 = missingOrDie(ofNone());
         expect(r2.isSuccess).toBe(false);
-        expect(r2.unwrapErr()).toBeInstanceOf(Error);
+        expect(unwrapErr(r2)).toBeInstanceOf(Error);
     });
 });
+

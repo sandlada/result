@@ -1,33 +1,30 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import { ok, err } from '../src/index.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { fromPredicate, unwrap, unwrapErr } from '../src/index.js';
 
-// FP constructor
-import { fromPredicate } from '../src/fp/core.js';
+// ─── fromPredicate ────────────────────────────────────────────────────
 
-// ─── Result.fromPredicate() — OOP static ────────────────────────────────────
-
-describe('Result.fromPredicate() — OOP static', () => {
-    it('returns Success(value) when predicate returns true', () => {
-        const r = Result.fromPredicate(5, (n) => n > 0, new Error('non-positive'));
+describe('fromPredicate', () => {
+    it('direct form: returns Ok when predicate passes', () => {
+        const r = fromPredicate((s: string) => s.length >= 3, 'too-short', 'hello');
         expect(r.isSuccess).toBe(true);
-        expect(r.unwrap()).toBe(5);
+        expect(unwrap(r)).toBe('hello');
     });
 
-    it('returns Failure(errorOnFalse) when predicate returns false', () => {
-        const err = new Error('must be positive');
-        const r = Result.fromPredicate(-3, (n) => n > 0, err);
+    it('direct form: returns Err when predicate fails', () => {
+        const r = fromPredicate((s: string) => s.length >= 3, 'too-short', 'ab');
         expect(r.isSuccess).toBe(false);
-        expect(r.unwrapErr()).toBe(err);
+        expect(unwrapErr(r)).toBe('too-short');
     });
 
-    it('works with complex objects', () => {
+    it('direct form: works with complex objects', () => {
         type User = { name: string; age: number };
         const user: User = { name: 'Alice', age: 17 };
-        const r = Result.fromPredicate(
-            user,
-            (u) => u.age >= 18,
+        const r = fromPredicate(
+            (u: User) => u.age >= 18,
             { kind: 'Underage' as const, age: user.age },
+            user,
         );
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) {
@@ -36,30 +33,14 @@ describe('Result.fromPredicate() — OOP static', () => {
         }
     });
 
-    it('works with string-based validation', () => {
-        const r = Result.fromPredicate(
-            'hello@world.com',
-            (s) => s.includes('@'),
+    it('direct form: works with string-based validation', () => {
+        const r = fromPredicate(
+            (s: string) => s.includes('@'),
             { kind: 'InvalidEmail' as const },
+            'hello@world.com',
         );
         expect(r.isSuccess).toBe(true);
-        expect(r.unwrap()).toBe('hello@world.com');
-    });
-});
-
-// ─── FP fromPredicate ───────────────────────────────────────────────────────
-
-describe('FP fromPredicate', () => {
-    it('direct form: returns Ok when predicate passes', () => {
-        const r = fromPredicate((s: string) => s.length >= 3, 'too-short', 'hello');
-        expect(r.isSuccess).toBe(true);
-        expect(r.unwrap()).toBe('hello');
-    });
-
-    it('direct form: returns Err when predicate fails', () => {
-        const r = fromPredicate((s: string) => s.length >= 3, 'too-short', 'ab');
-        expect(r.isSuccess).toBe(false);
-        expect(r.unwrapErr()).toBe('too-short');
+        expect(unwrap(r)).toBe('hello@world.com');
     });
 
     it('curried form: creates reusable validator', () => {
@@ -88,6 +69,8 @@ describe('FP fromPredicate', () => {
         expect(r1.isSuccess).toBe(true);
 
         const r2: IResultOfT<number, Error> = positiveOrDie(-1);
-        expect(r2.unwrapErr()).toBeInstanceOf(Error);
+        expect(r2.isSuccess).toBe(false);
+        expect(unwrapErr(r2)).toBeInstanceOf(Error);
     });
 });
+

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import type { IResult } from '../src/IResult.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import { ok, err } from '../src/index.js';
+import type { IResult } from '../src/types/IResult.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
@@ -18,7 +18,7 @@ describe('Integration: Type Alias', () => {
 
     it('type alias resolves correctly', () => {
         function createUser(): AppResult<{ id: number }> {
-            return Result.Success({ id: 1 }) as unknown as AppResult<{ id: number }>;
+            return ok({ id: 1 }) as unknown as AppResult<{ id: number }>;
         }
         const r = createUser();
         expect(r.isSuccess).toBe(true);
@@ -30,12 +30,12 @@ describe('Integration: Type Alias', () => {
     it('type alias works with failure', () => {
         function findUser(id: string): AppResult<{ id: number; name: string }> {
             if (!id) {
-                return Result.Failure<{ id: number; name: string }, AppError>({
+                return err<{ id: number; name: string }, AppError>({
                     kind: 'Validation',
                     fields: { id: 'Required' },
                 });
             }
-            return Result.Success({ id: 1, name: 'Alice' }) as unknown as AppResult<{ id: number; name: string }>;
+            return ok({ id: 1, name: 'Alice' }) as unknown as AppResult<{ id: number; name: string }>;
         }
 
         const r = findUser('');
@@ -51,24 +51,27 @@ describe('Integration: Convenience Factory', () => {
 
     const AppResult = {
         Success<T = void>(value?: T): AppResult<T> {
-            if (value === undefined) return Result.Success() as unknown as AppResult<T>;
-            return Result.Success(value) as unknown as AppResult<T>;
+            if (value === undefined) return ok() as unknown as AppResult<T>;
+            return ok(value) as unknown as AppResult<T>;
         },
         Failure(error: AppError): AppResult<never> {
-            return Result.Failure(error) as AppResult<never>;
+            return err(error) as AppResult<never>;
         },
     } as const;
 
+    const Appok = AppResult.Success;
+    const Apperr = AppResult.Failure;
+
     describe('Success (void)', () => {
         it('returns success without value', () => {
-            const ok = AppResult.Success();
+            const ok = Appok();
             expect(ok.isSuccess).toBe(true);
         });
     });
 
     describe('Success<T>(value)', () => {
         it('returns success with value', () => {
-            const ok = AppResult.Success({ id: 1, name: 'Alice' });
+            const ok = Appok({ id: 1, name: 'Alice' });
             expect(ok.isSuccess).toBe(true);
             if (ok.isSuccess) {
                 expect(ok.value.name).toBe('Alice');
@@ -76,7 +79,7 @@ describe('Integration: Convenience Factory', () => {
         });
 
         it('works with primitive values', () => {
-            const ok = AppResult.Success(42);
+            const ok = Appok(42);
             expect(ok.isSuccess).toBe(true);
             if (ok.isSuccess) {
                 expect(ok.value).toBe(42);
@@ -86,7 +89,7 @@ describe('Integration: Convenience Factory', () => {
 
     describe('Failure(error)', () => {
         it('returns failure without explicit generics', () => {
-            const err = AppResult.Failure({
+            const err = Apperr({
                 kind: 'Validation',
                 fields: { email: 'Invalid format' },
             });
@@ -100,12 +103,12 @@ describe('Integration: Convenience Factory', () => {
     describe('no generic parameters needed', () => {
         function getUser(id: string): AppResult<{ id: number; name: string }> {
             if (!id) {
-                return AppResult.Failure({
+                return Apperr({
                     kind: 'Validation',
                     fields: { id: 'Required' },
                 });
             }
-            return AppResult.Success({ id: 1, name: 'Alice' });
+            return Appok({ id: 1, name: 'Alice' });
         }
 
         it('success path', () => {
@@ -131,19 +134,22 @@ describe('Integration: never assignability', () => {
 
     const AppResult = {
         Success<T = void>(value?: T): AppResult<T> {
-            if (value === undefined) return Result.Success() as unknown as AppResult<T>;
-            return Result.Success(value) as unknown as AppResult<T>;
+            if (value === undefined) return ok() as unknown as AppResult<T>;
+            return ok(value) as unknown as AppResult<T>;
         },
         Failure(error: AppError): AppResult<never> {
-            return Result.Failure(error) as AppResult<never>;
+            return err(error) as AppResult<never>;
         },
     } as const;
+
+    const Appok = AppResult.Success;
+    const Apperr = AppResult.Failure;
 
     it('Failure (never) is assignable to any AppResult<T>', () => {
         function tryParse(input: string): AppResult<number> {
             const n = Number(input);
-            if (isNaN(n)) return AppResult.Failure({ kind: 'Validation', fields: { input: 'NaN' } });
-            return AppResult.Success(n);
+            if (isNaN(n)) return Apperr({ kind: 'Validation', fields: { input: 'NaN' } });
+            return Appok(n);
         }
 
         const r = tryParse('42');
@@ -156,10 +162,10 @@ describe('Integration: never assignability', () => {
 
     it('Failure can be returned from any value-typed function', () => {
         function getString(): AppResult<string> {
-            return AppResult.Failure({ kind: 'NotFound', resource: 'String', id: 'x' });
+            return Apperr({ kind: 'NotFound', resource: 'String', id: 'x' });
         }
         function getNumber(): AppResult<number> {
-            return AppResult.Failure({ kind: 'NotFound', resource: 'Number', id: 'y' });
+            return Apperr({ kind: 'NotFound', resource: 'Number', id: 'y' });
         }
 
         expect(getString().isFailure).toBe(true);
@@ -172,21 +178,24 @@ describe('Integration: mapError()', () => {
 
     const AppResult = {
         Success<T = void>(value?: T): AppResult<T> {
-            if (value === undefined) return Result.Success() as unknown as AppResult<T>;
-            return Result.Success(value) as unknown as AppResult<T>;
+            if (value === undefined) return ok() as unknown as AppResult<T>;
+            return ok(value) as unknown as AppResult<T>;
         },
         Failure(error: AppError): AppResult<never> {
-            return Result.Failure(error) as AppResult<never>;
+            return err(error) as AppResult<never>;
         },
     } as const;
 
+    const Appok = AppResult.Success;
+    const Apperr = AppResult.Failure;
+
     function mapError<T>(result: IResultOfT<T, SubError>): AppResult<T> {
-        if (result.isSuccess) return AppResult.Success(result.value);
-        return AppResult.Failure(convertToAppError(result.error));
+        if (result.isSuccess) return Appok(result.value);
+        return Apperr(convertToAppError(result.error));
     }
 
     it('converts success transparently', () => {
-        const subResult = Result.Success('hello');
+        const subResult = ok('hello');
         const mapped = mapError(subResult as unknown as IResultOfT<string, SubError>);
         expect(mapped.isSuccess).toBe(true);
         if (mapped.isSuccess) {
@@ -195,7 +204,7 @@ describe('Integration: mapError()', () => {
     });
 
     it('converts failure error', () => {
-        const subResult = Result.Failure<string, SubError>({ code: 'E1', detail: 'Oops' });
+        const subResult = err<string, SubError>({ code: 'E1', detail: 'Oops' });
         const mapped = mapError(subResult);
         expect(mapped.isFailure).toBe(true);
         if (mapped.isFailure) {
@@ -212,17 +221,20 @@ describe('Integration: Type alias + Factory compose', () => {
 
     const AppResult = {
         Success<T = void>(value?: T): AppResult<T> {
-            if (value === undefined) return Result.Success() as unknown as AppResult<T>;
-            return Result.Success(value) as unknown as AppResult<T>;
+            if (value === undefined) return ok() as unknown as AppResult<T>;
+            return ok(value) as unknown as AppResult<T>;
         },
         Failure(error: AppError): AppResult<never> {
-            return Result.Failure(error) as AppResult<never>;
+            return err(error) as AppResult<never>;
         },
     } as const;
 
+    const Appok = AppResult.Success;
+    const Apperr = AppResult.Failure;
+
     it('type alias used in function signature', () => {
         function doWork(): AppResult<string> {
-            return AppResult.Success('done');
+            return Appok('done');
         }
         const r = doWork();
         expect(r.isSuccess).toBe(true);
@@ -230,10 +242,11 @@ describe('Integration: Type alias + Factory compose', () => {
 
     it('factory used without generics in body', () => {
         function mayFail(flag: boolean): AppResult<number> {
-            if (flag) return AppResult.Failure({ kind: 'NotFound', resource: 'num', id: '0' });
-            return AppResult.Success(1);
+            if (flag) return Apperr({ kind: 'NotFound', resource: 'num', id: '0' });
+            return Appok(1);
         }
         expect(mayFail(true).isFailure).toBe(true);
         expect(mayFail(false).isSuccess).toBe(true);
     });
 });
+

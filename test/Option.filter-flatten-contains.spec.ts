@@ -1,81 +1,87 @@
 import { describe, it, expect } from 'vitest';
-import { Option } from '../src/Option.js';
-import type { IOption } from '../src/Option.js';
+import { ofSome, ofNone } from '../src/option/index.js';
+import type { IOption } from '../src/types/Option.js';
 
 // FP option operators
-import { filter, flatten, contains } from '../src/fp/option/operators.js';
+import { filter, flatten, contains } from '../src/option/index.js';
 
 describe('Option — filter', () => {
-    it('OOP: Some with passing predicate returns Some', () => {
-        const opt = Option.Some(5);
-        const result = opt.filter(n => n > 0);
+    it('Some with passing predicate returns Some', () => {
+        const predicate = (n: number) => n > 0;
+        const result = filter(predicate)(ofSome(5));
         expect(result.isSome).toBe(true);
-        expect(result.value).toBe(5);
+        if (result.isSome) expect(result.value).toBe(5);
     });
 
-    it('OOP: Some with failing predicate returns None', () => {
-        const opt = Option.Some(-1);
-        const result = opt.filter(n => n > 0);
+    it('Some with failing predicate returns None', () => {
+        const predicate = (n: number) => n > 0;
+        const result = filter(predicate)(ofSome(-1));
         expect(result.isSome).toBe(false);
     });
 
-    it('OOP: None stays None', () => {
-        const opt = Option.None();
-        const result = opt.filter((n: number) => n > 0);
+    it('None stays None', () => {
+        const predicate = (n: number) => n > 0;
+        const result = filter(predicate)(ofNone() as IOption<number>);
         expect(result.isSome).toBe(false);
     });
 
-    it('FP: curried form', () => {
+    it('curried form', () => {
         const positive = filter((n: number) => n > 0);
-        expect(positive(Option.Some(5)).isSome).toBe(true);
-        expect(positive(Option.Some(-1)).isSome).toBe(false);
-        expect(positive(Option.None()).isSome).toBe(false);
+        expect(positive(ofSome(5)).isSome).toBe(true);
+        expect(positive(ofSome(-1)).isSome).toBe(false);
+        expect(positive(ofNone() as IOption<number>).isSome).toBe(false);
     });
 });
 
 describe('Option — flatten', () => {
-    it('OOP: Some(Some(value)) → Some(value)', () => {
-        const inner: IOption<number> = Option.Some(42);
-        const outer: IOption<IOption<number>> = Option.Some(inner);
-        expect(outer.flatten().isSome).toBe(true);
-        expect(outer.flatten().unwrapOr(0)).toBe(42);
+    it('Some(Some(value)) -> Some(value)', () => {
+        const inner: IOption<number> = ofSome(42);
+        const outer: IOption<IOption<number>> = ofSome(inner);
+        const result = flatten(outer);
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(42);
     });
 
-    it('OOP: Some(None) → None', () => {
-        const inner: IOption<number> = Option.None();
-        const outer: IOption<IOption<number>> = Option.Some(inner);
-        expect(outer.flatten().isSome).toBe(false);
+    it('Some(None) -> None', () => {
+        const inner: IOption<number> = ofNone();
+        const outer: IOption<IOption<number>> = ofSome(inner);
+        const result = flatten(outer);
+        expect(result.isSome).toBe(false);
     });
 
-    it('OOP: None → None', () => {
-        const outer: IOption<IOption<number>> = Option.None();
-        expect(outer.flatten().isSome).toBe(false);
+    it('None -> None', () => {
+        const outer: IOption<IOption<number>> = ofNone();
+        const result = flatten(outer);
+        expect(result.isSome).toBe(false);
     });
 
-    it('FP: direct form', () => {
-        const inner: IOption<string> = Option.Some('hi');
-        const outer: IOption<IOption<string>> = Option.Some(inner);
-        expect(flatten(outer).unwrapOr('')).toBe('hi');
+    it('direct form', () => {
+        const inner: IOption<string> = ofSome('hi');
+        const outer: IOption<IOption<string>> = ofSome(inner);
+        const result = flatten(outer);
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe('hi');
     });
 });
 
 describe('Option — contains', () => {
-    it('OOP: Some with matching value returns true', () => {
-        expect(Option.Some(42).contains(42)).toBe(true);
+    it('Some with matching value returns true', () => {
+        expect(contains(42)(ofSome(42))).toBe(true);
     });
 
-    it('OOP: Some with non-matching value returns false', () => {
-        expect(Option.Some(42).contains(99)).toBe(false);
+    it('Some with non-matching value returns false', () => {
+        expect(contains(99)(ofSome(42))).toBe(false);
     });
 
-    it('OOP: None returns false', () => {
-        expect(Option.None().contains(42)).toBe(false);
+    it('None returns false', () => {
+        expect(contains(42)(ofNone() as IOption<number>)).toBe(false);
     });
 
-    it('FP: curried form', () => {
+    it('curried form', () => {
         const isFortyTwo = contains(42);
-        expect(isFortyTwo(Option.Some(42))).toBe(true);
-        expect(isFortyTwo(Option.Some(7))).toBe(false);
-        expect(isFortyTwo(Option.None())).toBe(false);
+        expect(isFortyTwo(ofSome(42))).toBe(true);
+        expect(isFortyTwo(ofSome(7))).toBe(false);
+        expect(isFortyTwo(ofNone() as IOption<number>)).toBe(false);
     });
 });
+

@@ -1,56 +1,56 @@
 import { describe, it, expect } from 'vitest';
-import { Option } from '../src/Option.js';
-import type { IOption, IOptionSome, IOptionNone } from '../src/Option.js';
+import type { IOption, IOptionSome, IOptionNone } from '../src/types/Option.js';
 import {
     ofSome,
     ofNone,
-    map,
+    mapOption,
     andThen,
-    orElse,
-    match,
-    tap,
-    unwrapOr,
-} from '../src/fp/option/index.js';
+    orElseOption,
+    matchOption,
+    tapOption,
+    unwrapOrOption,
+    pipe,
+} from '../src/index.js';
 
 // ─── Static factories ───────────────────────────────────────────────────────
 
-describe('Option.Some(value)', () => {
+describe('ofSome(value)', () => {
     it('returns a Some variant', () => {
-        const opt = Option.Some(42);
+        const opt = ofSome(42);
         expect(opt.isSome).toBe(true);
         expect(opt.isNone).toBe(false);
     });
 
     it('carries the value', () => {
-        const opt = Option.Some('hello');
+        const opt = ofSome('hello');
         if (opt.isSome) expect(opt.value).toBe('hello');
     });
 
     it('conforms to IOptionSome<T>', () => {
-        const opt: IOptionSome<number> = Option.Some(42) as IOptionSome<number>;
+        const opt: IOptionSome<number> = ofSome(42) as IOptionSome<number>;
         expect(opt.isSome).toBe(true);
     });
 
     it('conforms to IOption<T>', () => {
-        const opt: IOption<number> = Option.Some(42);
+        const opt: IOption<number> = ofSome(42);
         expect(opt.isSome).toBe(true);
     });
 });
 
-describe('Option.None()', () => {
+describe('ofNone()', () => {
     it('returns a None variant', () => {
-        const opt = Option.None();
+        const opt = ofNone();
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
     });
 
     it('conforms to IOptionNone', () => {
-        const opt: IOptionNone = Option.None() as unknown as IOptionNone;
+        const opt: IOptionNone = ofNone() as unknown as IOptionNone;
         expect(opt.isSome).toBe(false);
     });
 
     it('conforms to IOption<never>', () => {
-        const opt: IOption<never> = Option.None();
+        const opt: IOption<never> = ofNone();
         expect(opt.isSome).toBe(false);
     });
 });
@@ -59,199 +59,191 @@ describe('Option.None()', () => {
 
 describe('value getter', () => {
     it('returns the value on Some', () => {
-        const opt = Option.Some({ name: 'Alice', age: 30 });
+        const opt = ofSome({ name: 'Alice', age: 30 });
         if (opt.isSome) {
             expect(opt.value.name).toBe('Alice');
             expect(opt.value.age).toBe(30);
         }
     });
 
-    it('throws TypeError on None', () => {
-        const opt = Option.None();
-        expect(() => opt.value).toThrow(TypeError);
-        expect(() => opt.value).toThrow(
-            'Cannot access value on None',
-        );
+    it('returns undefined on None', () => {
+        const opt = ofNone();
+        expect(opt.value).toBeUndefined();
     });
 });
 
-// ─── map ────────────────────────────────────────────────────────────────────
+// ─── mapOption ──────────────────────────────────────────────────────────────
 
-describe('Option.map', () => {
+describe('mapOption', () => {
     it('transforms the value on Some', () => {
-        const result = Option.Some(5).map(x => x * 2);
+        const result = mapOption((x: number) => x * 2)(ofSome(5));
         expect(result.isSome).toBe(true);
         if (result.isSome) expect(result.value).toBe(10);
     });
 
     it('passes through None unchanged', () => {
-        const result = Option.None().map((x: number) => x * 2);
+        const result = mapOption((x: number) => x * 2)(ofNone());
         expect(result.isSome).toBe(false);
     });
 
-    it('chains multiple maps', () => {
-        const result = Option.Some(5)
-            .map(x => x * 2)
-            .map(x => x.toString())
-            .map(s => s + 'px');
+    it('chains multiple maps via pipe', () => {
+        const result = pipe(
+            ofSome(5),
+            mapOption((x: number) => x * 2),
+            mapOption((x: number) => x.toString()),
+            mapOption((s: string) => s + 'px'),
+        );
         if (result.isSome) expect(result.value).toBe('10px');
     });
 });
 
 // ─── andThen (monadic bind) ─────────────────────────────────────────────────
 
-describe('Option.andThen', () => {
+describe('andThen', () => {
     it('chains an Option-returning function on Some', () => {
-        const result = Option.Some(5).andThen(x => Option.Some(x * 2));
+        const result = andThen((x: number) => ofSome(x * 2))(ofSome(5));
         expect(result.isSome).toBe(true);
         if (result.isSome) expect(result.value).toBe(10);
     });
 
     it('can return None from the chain', () => {
-        const result = Option.Some(5).andThen(() => Option.None());
+        const result = andThen(() => ofNone())(ofSome(5));
         expect(result.isSome).toBe(false);
     });
 
     it('passes through None unchanged', () => {
-        const result = Option.None().andThen((x: number) => Option.Some(x * 2));
+        const result = andThen((x: number) => ofSome(x * 2))(ofNone());
         expect(result.isSome).toBe(false);
     });
 
     it('chains multiple andThen calls', () => {
-        const result = Option.Some(5)
-            .andThen(x => Option.Some(x * 2))
-            .andThen(x => Option.Some(x + 3))
-            .andThen(x => Option.Some(x.toString()));
+        const result = pipe(
+            ofSome(5),
+            andThen((x: number) => ofSome(x * 2)),
+            andThen((x: number) => ofSome(x + 3)),
+            andThen((x: number) => ofSome(x.toString())),
+        );
         if (result.isSome) expect(result.value).toBe('13');
     });
 
     it('short-circuits on first None', () => {
         let called = false;
-        const result = Option.Some(5)
-            .andThen(() => Option.None())
-            .andThen(() => {
+        const result = pipe(
+            ofSome(5),
+            andThen(() => ofNone()),
+            andThen(() => {
                 called = true;
-                return Option.Some(42);
-            });
+                return ofSome(42);
+            }),
+        );
         expect(result.isSome).toBe(false);
         expect(called).toBe(false);
     });
 });
 
-// ─── orElse ─────────────────────────────────────────────────────────────────
+// ─── orElseOption ────────────────────────────────────────────────────────────
 
-describe('Option.orElse', () => {
+describe('orElseOption', () => {
     it('passes through Some unchanged', () => {
-        const result = Option.Some(5).orElse(() => Option.Some(10));
+        const result = orElseOption(() => ofSome(10))(ofSome(5));
         if (result.isSome) expect(result.value).toBe(5);
     });
 
     it('falls back to the alternative on None', () => {
-        const result = Option.None().orElse(() => Option.Some(42));
+        const result = orElseOption(() => ofSome(42))(ofNone());
         expect(result.isSome).toBe(true);
         if (result.isSome) expect(result.value).toBe(42);
     });
 
     it('returns None if the fallback also returns None', () => {
-        const result = Option.None().orElse(() => Option.None());
+        const result = orElseOption(() => ofNone())(ofNone());
         expect(result.isSome).toBe(false);
     });
 
     it('does not call fallback on Some (lazy evaluation)', () => {
         let called = false;
-        const result = Option.Some(5).orElse(() => {
+        const result = orElseOption(() => {
             called = true;
-            return Option.Some(10);
-        });
+            return ofSome(10);
+        })(ofSome(5));
         expect(called).toBe(false);
         if (result.isSome) expect(result.value).toBe(5);
     });
 });
 
-// ─── match ─────────────────────────────────────────────────────────────────
+// ─── matchOption ────────────────────────────────────────────────────────────
 
-describe('Option.match', () => {
+describe('matchOption', () => {
     it('calls onSome on a Some', () => {
-        const result = Option.Some(5).match(
-            v => `got ${v}`,
+        const result = matchOption(
+            (v: number) => `got ${v}`,
             () => 'missing',
-        );
+        )(ofSome(5));
         expect(result).toBe('got 5');
     });
 
     it('calls onNone on a None', () => {
-        const result = Option.None().match(
+        const result = matchOption(
             (v: number) => `got ${v}`,
             () => 'missing',
-        );
+        )(ofNone());
         expect(result).toBe('missing');
     });
 });
 
-// ─── tap ────────────────────────────────────────────────────────────────────
+// ─── tapOption ──────────────────────────────────────────────────────────────
 
-describe('Option.tap', () => {
+describe('tapOption', () => {
     it('calls fn with the value on Some', () => {
         let sideEffect = '';
-        const result = Option.Some('hello').tap(v => {
+        const result = tapOption((v: string) => {
             sideEffect = v;
-        });
+        })(ofSome('hello'));
         expect(sideEffect).toBe('hello');
-        // returns this for chaining
         if (result.isSome) expect(result.value).toBe('hello');
     });
 
-    it('does not call fn on None', () => {
+    it('returns the same None', () => {
         let called = false;
-        const result = Option.None().tap(() => {
+        const result = tapOption(() => {
             called = true;
-        });
+        })(ofNone());
         expect(called).toBe(false);
         expect(result.isSome).toBe(false);
     });
 });
 
-// ─── unwrapOr ───────────────────────────────────────────────────────────────
+// ─── unwrapOrOption ─────────────────────────────────────────────────────────
 
-describe('Option.unwrapOr', () => {
+describe('unwrapOrOption', () => {
     it('extracts the value on Some', () => {
-        const val = Option.Some(42).unwrapOr(0);
+        const val = unwrapOrOption(0)(ofSome(42));
         expect(val).toBe(42);
     });
 
     it('returns the default on None', () => {
-        const val = Option.None().unwrapOr(42);
+        const val = unwrapOrOption(42)(ofNone());
         expect(val).toBe(42);
     });
 
     it('works with object defaults', () => {
         const defaultUser = { name: 'Guest' };
-        const val = Option.None().unwrapOr(defaultUser);
+        const val = unwrapOrOption(defaultUser)(ofNone());
         expect(val).toBe(defaultUser);
     });
 });
 
-// ─── toJSON ─────────────────────────────────────────────────────────────────
+// ─── toJSON — Option type is plain data, JSON.stringify gives the raw shape ──
 
-describe('Option.toJSON', () => {
-    it('serializes Some as { isSome: true, value }', () => {
-        const json = Option.Some(42).toJSON();
-        expect(json).toEqual({ isSome: true, value: 42 });
+describe('Option toJSON', () => {
+    it('JSON.stringify on Some gives { isSome: true, isNone: false, value }', () => {
+        const str = JSON.stringify(ofSome('hello'));
+        expect(str).toBe('{"isSome":true,"isNone":false,"value":"hello"}');
     });
 
-    it('serializes None as { isSome: false }', () => {
-        const json = Option.None().toJSON();
-        expect(json).toEqual({ isSome: false });
-    });
-
-    it('works with JSON.stringify on Some', () => {
-        const str = JSON.stringify(Option.Some('hello'));
-        expect(str).toBe('{"isSome":true,"value":"hello"}');
-    });
-
-    it('works with JSON.stringify on None', () => {
-        const str = JSON.stringify(Option.None());
-        expect(str).toBe('{"isSome":false}');
+    it('JSON.stringify on None gives { isSome: false, isNone: true }', () => {
+        const str = JSON.stringify(ofNone());
+        expect(str).toBe('{"isSome":false,"isNone":true}');
     });
 });
 
@@ -266,8 +258,8 @@ describe('IOption discriminated union narrowing', () => {
             }
             return null;
         }
-        expect(getValue(Option.Some(5))).toBe(5);
-        expect(getValue(Option.None())).toBeNull();
+        expect(getValue(ofSome(5))).toBe(5);
+        expect(getValue(ofNone())).toBeNull();
     });
 
     it('narrows to None via isNone check', () => {
@@ -277,8 +269,8 @@ describe('IOption discriminated union narrowing', () => {
             }
             return `has value: ${opt.value}`;
         }
-        expect(description(Option.Some(5))).toBe('has value: 5');
-        expect(description(Option.None())).toBe('empty');
+        expect(description(ofSome(5))).toBe('has value: 5');
+        expect(description(ofNone())).toBe('empty');
     });
 });
 
@@ -300,96 +292,87 @@ describe('FP option core', () => {
 // ─── FP option operators ────────────────────────────────────────────────────
 
 describe('FP option operators', () => {
-    describe('map', () => {
+    describe('mapOption', () => {
         it('transforms Some value', () => {
-            const result = map((x: number) => x * 2)(Option.Some(5));
+            const result = mapOption((x: number) => x * 2)(ofSome(5));
             if (result.isSome) expect(result.value).toBe(10);
         });
 
         it('passes through None', () => {
-            const result = map((x: number) => x * 2)(Option.None());
+            const result = mapOption((x: number) => x * 2)(ofNone());
             expect(result.isSome).toBe(false);
         });
     });
 
     describe('andThen', () => {
         it('chains Some', () => {
-            const fn = andThen((x: number) => Option.Some(x * 2));
-            const result = fn(Option.Some(5));
+            const result = andThen((x: number) => ofSome(x * 2))(ofSome(5));
             if (result.isSome) expect(result.value).toBe(10);
         });
 
         it('passes through None', () => {
-            const fn = andThen((x: number) => Option.Some(x * 2));
-            const result = fn(Option.None());
+            const result = andThen((x: number) => ofSome(x * 2))(ofNone());
             expect(result.isSome).toBe(false);
         });
 
         it('can chain to None', () => {
-            const fn = andThen(() => Option.None());
-            const result = fn(Option.Some(5));
+            const result = andThen(() => ofNone())(ofSome(5));
             expect(result.isSome).toBe(false);
         });
     });
 
-    describe('orElse', () => {
+    describe('orElseOption', () => {
         it('passes through Some', () => {
-            const fn = orElse(() => Option.Some(99));
-            const result = fn(Option.Some(5));
+            const result = orElseOption(() => ofSome(99))(ofSome(5));
             if (result.isSome) expect(result.value).toBe(5);
         });
 
         it('falls back on None', () => {
-            const fn = orElse(() => Option.Some(42));
-            const result = fn(Option.None());
+            const result = orElseOption(() => ofSome(42))(ofNone());
             if (result.isSome) expect(result.value).toBe(42);
         });
     });
 
-    describe('match', () => {
+    describe('matchOption', () => {
         it('calls onSome for Some', () => {
-            const fn = match(
+            const fn = matchOption(
                 (v: number) => `num: ${v}`,
                 () => 'none',
             );
-            expect(fn(Option.Some(5))).toBe('num: 5');
+            expect(fn(ofSome(5))).toBe('num: 5');
         });
 
         it('calls onNone for None', () => {
-            const fn = match(
+            const fn = matchOption(
                 (v: number) => `num: ${v}`,
                 () => 'none',
             );
-            expect(fn(Option.None())).toBe('none');
+            expect(fn(ofNone())).toBe('none');
         });
     });
 
-    describe('tap', () => {
+    describe('tapOption', () => {
         it('calls side-effect on Some', () => {
             let val = 0;
-            const fn = tap((x: number) => { val = x; });
-            const result = fn(Option.Some(42));
+            const result = tapOption((x: number) => { val = x; })(ofSome(42));
             expect(val).toBe(42);
             if (result.isSome) expect(result.value).toBe(42);
         });
 
         it('does not call side-effect on None', () => {
             let called = false;
-            const fn = tap(() => { called = true; });
-            fn(Option.None());
+            tapOption(() => { called = true; })(ofNone());
             expect(called).toBe(false);
         });
     });
 
-    describe('unwrapOr', () => {
+    describe('unwrapOrOption', () => {
         it('returns value on Some', () => {
-            const fn = unwrapOr(0);
-            expect(fn(Option.Some(42))).toBe(42);
+            expect(unwrapOrOption(0)(ofSome(42))).toBe(42);
         });
 
         it('returns default on None', () => {
-            const fn = unwrapOr(99);
-            expect(fn(Option.None())).toBe(99);
+            expect(unwrapOrOption(99)(ofNone())).toBe(99);
         });
     });
 });
@@ -398,11 +381,12 @@ describe('FP option operators', () => {
 
 describe('Option.None structural behavior', () => {
     it('multiple None() calls are both None variants', () => {
-        const a = Option.None();
-        const b = Option.None();
+        const a = ofNone();
+        const b = ofNone();
         expect(a.isSome).toBe(false);
         expect(b.isSome).toBe(false);
         expect(a.isNone).toBe(true);
         expect(b.isNone).toBe(true);
     });
 });
+

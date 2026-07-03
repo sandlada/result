@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '../src/Result.js';
-import type { IResultOfT } from '../src/IResultOfT.js';
+import type { IResultOfT } from '../src/types/IResultOfT.js';
 import {
     ok,
     err,
@@ -16,7 +15,7 @@ import {
     combine,
     all,
     combineWithAllErrors,
-} from '../src/fp/index.js';
+} from '../src/index.js';
 
 // ── composeK ───────────────────────────────────────────────────────────
 
@@ -311,9 +310,9 @@ describe('fp/combineWithAllErrors', () => {
 // ── OOP / FP interop ───────────────────────────────────────────────────
 
 describe('FP composition with OOP results', () => {
-    it('pipe starting with Result.Success goes through full FP pipeline', () => {
+    it('pipe starting with ok goes through full FP pipeline', () => {
         const result = pipe(
-            Result.Success<number>(10),
+            ok<number>(10),
             map((x: number) => x * 2),
             bind((x: number) => ok(x + 1)),
             match(
@@ -325,13 +324,13 @@ describe('FP composition with OOP results', () => {
         expect(result).toBe('value: 21');
     });
 
-    it('fp/combine accepts Result.Success and Result.Failure elements', () => {
+    it('fp/combine accepts ok and err elements', () => {
         const error = new Error('fail');
 
         const result = combine([
-            Result.Success(1) as IResultOfT<number, Error>,
-            Result.Success(2) as IResultOfT<number, Error>,
-            Result.Failure<number, Error>(error),
+            ok(1) as IResultOfT<number, Error>,
+            ok(2) as IResultOfT<number, Error>,
+            err<number, Error>(error),
         ]);
 
         expect(result.isSuccess).toBe(false);
@@ -340,11 +339,12 @@ describe('FP composition with OOP results', () => {
 
     it('switchFn wrapping a function that returns an OOP Result', () => {
         const wrapped = switchFn((x: number) =>
-            x > 0 ? Result.Success(x * 2) : Result.Failure<number, Error>(new Error('negative')),
+            x > 0 ? ok(x * 2) : err<number, Error>(new Error('negative')),
         );
 
         const r1 = wrapped(21);
         expect(r1.isSuccess).toBe(true);
-        if (r1.isSuccess) expect(r1.value).toStrictEqual(Result.Success(42));
+        if (r1.isSuccess) expect(r1.value).toStrictEqual(ok(42));
     });
 });
+

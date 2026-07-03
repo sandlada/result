@@ -46,41 +46,89 @@
 | `test`       | `vitest run`                   |
 | `test:watch` | `vitest`                       |
 
+### Package Exports
+
+The package exposes the following entry points via `package.json` `"exports"`:
+
+| Entry point     | Resolves to                          |
+| --------------- | ------------------------------------ |
+| `.`             | `./build/index.js` (barrel)          |
+| `./types`       | `./build/types/index.js` (type defs) |
+| `./factories`   | `./build/factories/index.js`         |
+| `./operators`   | `./build/operators/index.js`         |
+| `./async`       | `./build/async/index.js`             |
+| `./composition` | `./build/composition/index.js`       |
+| `./adapters`    | `./build/adapters/index.js`          |
+| `./combine`     | `./build/combine/index.js`           |
+| `./option`      | `./build/option/index.js`            |
+
 ---
 
 ## Source Layout
 
 ```
 src/
-  IResult.ts          — IResultBase (internal), IResultSuccess, IResultFailure, IResult (union)
-  IResultOfT.ts       — IResultOfTBase (internal), IResultOfTSuccess, IResultOfTFailure, IResultOfT (union)
-  Result.ts           — Result<TError> class + ResultOfT<TValue, TError> class (independent classes)
-  ResultOfT.ts        — Re-export barrel for ResultOfT
-  Option.ts           — Option<T> class + IOption<T> discriminated union
-  index.ts            — Public barrel re-exports
-  internal/
-    sentinel.ts       — NONE sentinel symbol
-    invariant.ts      — AssertResultInvariant helper for constructor validation
-  promise/
-    AsyncResult.ts    — AsyncResult<TValue, TError> class
-    index.ts          — Promise barrel re-exports
-  fp/
-    core.ts           — ok(), err() constructors
-    operators.ts      — map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr
-    composition.ts    — composeK (2–6 overloads), pipe (1–10 overloads)
-    adapters.ts       — switchFn, liftMap, tee
-    combine.ts        — combine, all, combineWithAllErrors
-    index.ts          — FP barrel re-exports
-    option/
-      core.ts         — ofSome(), ofNone() constructors
-      operators.ts    — map, andThen, orElse, match, tap, unwrapOr (option-specific)
-      index.ts        — FP option barrel re-exports
-    promise/
-      core.ts         — asyncOk(), asyncErr() constructors
-      operators.ts    — map, mapAsync, mapErr, mapErrAsync, bind, orElse, match, tap, tapErr, unwrapOr
-      composition.ts  — composeKAsync (2–6 overloads), pipeAsync (1–10 overloads)
-      adapters.ts     — switchFnAsync, teeAsync
-      index.ts        — FP async barrel re-exports
+  index.ts             — Public barrel re-exports (all exports, Option operators renamed with suffix)
+
+  types/               — Type definitions (discriminated union interfaces)
+    IResult.ts         — IResultSuccess, IResultFailure, IResult
+    IResultOfT.ts      — IResultOfTSuccess, IResultOfTFailure, IResultOfT
+    Option.ts          — IOptionSome, IOptionNone, IOption
+    index.ts           — Barrel re-export
+
+  factories/           — Core constructors
+    ok.ts, err.ts, fromPredicate.ts, fromThrowable.ts,
+    tryCatch.ts, tryCatchAsync.ts, fromPromise.ts,
+    asyncOk.ts, asyncErr.ts
+    index.ts           — Barrel re-export
+
+  operators/           — Sync operators
+    and.ts, bimap.ts, bind.ts, contains.ts, exists.ts,
+    expect.ts, expectErr.ts, flatten.ts, map.ts, mapErr.ts,
+    mapOr.ts, mapOrElse.ts, match.ts, or.ts, orElse.ts,
+    swap.ts, tap.ts, tapErr.ts, unwrap.ts, unwrapErr.ts,
+    unwrapOr.ts, unwrapOrElse.ts
+    index.ts           — Barrel re-export
+
+  async/               — Async operators
+    bindAsync.ts, mapAsync.ts, mapErrAsync.ts, matchAsync.ts,
+    orElseAsync.ts, tapAsync.ts, tapErrAsync.ts, unwrapOrAsync.ts
+    index.ts           — Barrel re-export
+
+  composition/         — Composition utilities
+    composeK.ts, composeKAsync.ts, pipe.ts, pipeAsync.ts
+    index.ts           — Barrel re-export
+
+  adapters/            — Adapter / interop functions
+    fromOption.ts, liftMap.ts, switchFn.ts, switchFnAsync.ts,
+    tee.ts, teeAsync.ts, toOption.ts
+    index.ts           — Barrel re-export
+
+  combine/             — Result aggregation
+    all.ts, combine.ts, combineWithAllErrors.ts
+    index.ts           — Barrel re-export
+
+  option/              — Option sub-module (unchanged)
+    ofSome.ts, ofNone.ts, map.ts, andThen.ts, orElse.ts,
+    match.ts, tap.ts, unwrapOr.ts, filter.ts, flatten.ts,
+    contains.ts, index.ts
+
+build/
+  index.js            — Compiled output (mirrors src/)
+  index.d.ts          — Type declarations
+  types/              — Compiled types/ mirror
+  factories/          — Compiled factories/ mirror
+  operators/          — Compiled operators/ mirror
+  async/              — Compiled async/ mirror
+  composition/        — Compiled composition/ mirror
+  adapters/           — Compiled adapters/ mirror
+  combine/            — Compiled combine/ mirror
+  option/             — Compiled option/ mirror
+  ...
+    filter.ts          — filter()
+    flatten.ts         — flatten()
+    contains.ts        — contains()
+    index.ts           — Option barrel re-exports (simple names)
 
 build/
   index.js            — Compiled output (mirrors src/)
@@ -91,312 +139,179 @@ test/
   ComplexIntegration.spec.ts          — Multi-layer, railway, aggregation, async patterns
   ConsumptionPatterns.spec.ts         — Real-world branching, early return, type narrowing
   IntegrationPattern.spec.ts          — Type alias & convenience factory
+  Interop.spec.ts                     — Cross-paradigm: sync←→async, FP composition
   Option.spec.ts                      — Option<T>: factories, methods, toJSON, FP operators, narrowing
-  Option.filter-flatten-contains.spec.ts — Option filter, flatten, contains (Phase 5d)
-  Interop.spec.ts                     — Cross-paradigm: OOP↔FP sync, OOP↔FP async, sync↔async
+  Option.filter-flatten-contains.spec.ts — Option filter, flatten, contains
+  Result.combinators.spec.ts          — flatten, and, or, contains, exists, bimap, swap
   Result.custom-error-types.spec.ts   — Discriminated unions, classes, plain objects
   Result.default-error-type.spec.ts   — Default Error behavior
-  Result.factories.spec.ts            — All 4 factory overloads
-  Result.fluent-methods.spec.ts       — ResultOfT fluent instance methods
-  Result.invariant.spec.ts            — Mutual exclusivity, constructor throws, immutability
-  Result.sentinel.spec.ts             — Error always accessible, sentinel pattern
-  Result.static-utilities.spec.ts     — Result.tryCatch (sync), combine, all, combineWithAllErrors
-  Result.tryCatchAsync.spec.ts        — tryCatchAsync, fromPromise bridge methods
+  Result.factories.spec.ts            — ok/err factory overloads
+  Result.fromPredicate.spec.ts        — fromPredicate
+  Result.phase5c.spec.ts              — fromThrowable, mapOr, mapOrElse
+  Result.static-utilities.spec.ts     — tryCatch, combine, all, combineWithAllErrors
+  Result.toJSON.spec.ts               — toJSON on Result objects
+  Result.toOption-fromOption.spec.ts  — toOption, fromOption adapters
   Result.type-tests.spec.ts           — Compile-time type assertions
+  Result.unwrap-expect.spec.ts        — unwrap, expect, unwrapErr, expectErr
+  Result.unwrapOrElse.spec.ts         — unwrapOrElse
   Result.value.spec.ts                — Value access on success/failure, narrowing
-  Result.unwrap-expect.spec.ts        — unwrap, expect, unwrapErr, expectErr (Phase 5a)
-  Result.toOption-fromOption.spec.ts  — toOption, fromOption (Phase 5a)
-  Result.unwrapOrElse.spec.ts         — unwrapOrElse (Phase 5a)
-  Result.fromPredicate.spec.ts        — fromPredicate (Phase 5a)
-  Result.combinators.spec.ts          — flatten, and, or, contains, exists, bimap, swap (Phase 5b)
-  Result.phase5c.spec.ts              — fromThrowable, mapOr, mapOrElse, getOrNull, toString (Phase 5c)
-  Result.toJSON.spec.ts               — toJSON on Result and ResultOfT (Phase 5e)
-  AsyncResult.spec.ts                 — AsyncResult class (all methods, combine, integration)
   fp-async.spec.ts                    — FP async operators, composition, adapters
-  fp-composition-adapters.spec.ts     — composeK, pipe, switchFn, liftMap, tee, FP combine/all
+  fp-composition-adapters.spec.ts     — composeK, pipe, switchFn, liftMap, tee, combine/all
   fp-core-operators.spec.ts           — ok/err constructors, map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr
 ```
 
 ---
 
-## Class Hierarchy
+## Discriminated Union Types
 
-The interfaces use a **discriminated union** pattern (inspired by true-myth's
-Omit pattern). Each result type is split into a success variant and a failure
-variant, discriminated by the `isSuccess` literal. The `value` and `error`
-properties are restricted to their respective variants — accessing them
-requires narrowing via `isSuccess`.
+All result and option values are **plain objects** with a discriminant property — no classes, no sentinel, no constructor invariants.
 
 ```
-── Internal flat bases (for class implementation) ──
+── IResult (void result) ──
 
-IResultBase<TError = Error>              (internal interface)
-  ├── readonly error: TError             Always accessible at runtime
-  ├── readonly isSuccess: boolean
-  ├── readonly isFailure: boolean
-  ├── tap(fn: () => void): IResult<TError>
-  ├── unwrap(): void
-  ├── expect(msg: string): void
-  ├── unwrapErr(): TError
-  ├── expectErr(msg: string): TError
-  ├── toString(): string
-  └── toJSON(): { isSuccess: true } | { isSuccess: false; error: TError }
-
-IResultOfTBase<TValue, TError = Error>   (internal interface, extends IResultBase)
-  ├── readonly value: TValue
-  ├── map/mapErr/andThen/orElse/match/tap/tapErr/unwrapOr (fluent chain)
-  ├── unwrapOrElse, unwrap, expect, unwrapErr, expectErr (escape hatches)
-  ├── toOption, flatten, and, or, contains, exists, bimap, swap (combinators)
-  ├── getOrNull, getOrUndefined, mapOr, mapOrElse (extraction shorts)
-  └── toString, toJSON (display + serialization)
-
-── Exported variant interfaces (discriminated union members) ──
-
-IResultSuccess                           (interface — success variant)
-  ├── readonly isSuccess: true           Literal discriminant
+IResultSuccess                      (interface — success variant)
+  ├── readonly isSuccess: true      Literal discriminant
   └── readonly isFailure: false
 
-IResultFailure<TError = Error>           (interface — failure variant)
-  ├── readonly isSuccess: false          Literal discriminant
+IResultFailure<TError = Error>      (interface — failure variant)
+  ├── readonly isSuccess: false     Literal discriminant
   ├── readonly isFailure: true
   └── readonly error: TError
 
-IResultOfTSuccess<TValue, TError>        (interface — success variant)
-  ├── extends Omit<IResultOfTBase, 'error'|'isSuccess'|'isFailure'>
-  ├── readonly isSuccess: true           Literal discriminant
+IResult<TError = Error>            = IResultSuccess | IResultFailure<TError>
+
+── IResultOfT (value-bearing result) ──
+
+IResultOfTSuccess<TValue>           (interface — success variant)
+  ├── readonly isSuccess: true      Literal discriminant
   ├── readonly isFailure: false
-  ├── readonly value: TValue
-  └── (inherits all 8 methods via Omit)
+  └── readonly value: TValue
 
-IResultOfTFailure<TValue, TError>        (interface — failure variant)
-  ├── extends Omit<IResultOfTBase, 'value'|'isSuccess'|'isFailure'>
-  ├── readonly isSuccess: false          Literal discriminant
+IResultOfTFailure<TValue, TError>   (interface — failure variant)
+  ├── readonly isSuccess: false     Literal discriminant
   ├── readonly isFailure: true
-  ├── readonly error: TError
-  └── (inherits all 8 methods via Omit)
+  └── readonly error: TError
 
-── Exported union type aliases ──
+IResultOfT<TValue, TError = Error> = IResultOfTSuccess<TValue, TError>
+                                    | IResultOfTFailure<TValue, TError>
 
-IResult<TError = Error>                  = IResultSuccess | IResultFailure<TError>
-IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
+── IOption (optional value) ──
 
-── Concrete classes (implement the internal flat bases) ──
-
-Result<TError = Error>                   (class, implements IResultBase<TError>)
-  ├── protected constructor(isSuccess, error?)  Validates invariant via assertResultInvariant
-  ├── get isFailure(): boolean
-  ├── Instance: tap(), unwrap(), expect(), unwrapErr(), expectErr(), toString(), toJSON()
-  ├── static Success(): IResult
-  ├── static Success<TValue>(value): IResultOfT<TValue>
-  ├── static Failure(error: Error): IResult
-  ├── static Failure<TValue, TError>(error): IResultOfT<TValue, TError>
-  ├── static fromOption<T,E>(opt, errorOnNone): IResultOfT<T, E>
-  ├── static fromPredicate<T,E>(v, pred, err): IResultOfT<T, E>
-  └── static fromThrowable<T,E>(fn, errorFn?): IResultOfT<T, E>
-
-ResultOfT<TValue, TError = Error>        (class, implements IResultOfTBase<TValue, TError>)
-  ├── **Does NOT extend Result** (flat hierarchy — Phase 4a simplification)
-  ├── readonly #value: TValue | undefined   Private field
-  ├── constructor(value?, isSuccess?, error?)   Validates invariant via assertResultInvariant
-  ├── get value(): TValue
-  └── toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError }
-```
-
-### Option Class Hierarchy (added Phase 2)
-
-```
-── Internal flat base (for class implementation) ──
-
-IOptionBase<T>                       (internal interface)
-  ├── readonly isSome: boolean
-  ├── readonly isNone: boolean
-  ├── readonly value: T              Throws TypeError if isNone
-  ├── map, andThen, orElse, match, tap, unwrapOr, toJSON  (7 methods)
-  ├── filter, flatten, contains      (3 methods — Phase 5d)
-
-── Exported variant interfaces (discriminated union members) ──
-
-IOptionSome<T>                       (extends Omit<IOptionBase<T>, 'isSome' | 'isNone'>)
-  ├── readonly isSome: true          Literal discriminant
+IOptionSome<T>                      (interface — Some variant)
+  ├── readonly isSome: true         Literal discriminant
   ├── readonly isNone: false
   └── readonly value: T
 
-IOptionNone                          (extends Omit<IOptionBase<never>, 'value' | 'isSome' | 'isNone'>)
-  ├── readonly isSome: false         Literal discriminant
-  └── readonly isNone: true
+IOptionNone                         (interface — None variant)
+  ├── readonly isSome: false        Literal discriminant
+  ├── readonly isNone: true
+  └── (no value property)
 
-── Exported union type alias ──
-
-IOption<T> = IOptionSome<T> | IOptionNone
-
-── Concrete class ──
-
-Option<T>                            (class, implements IOptionBase<T>)
-  ├── private constructor(isSome, value?)
-  ├── get isSome(): boolean
-  ├── get isNone(): boolean
-  ├── get value(): T                 Throws TypeError if None
-  ├── static Some<T>(value): IOption<T>
-  ├── static None(): IOption<never>
-  └── Instance methods: map, andThen, orElse, match, tap, unwrapOr, toJSON,
-      filter, flatten, contains
+IOption<T>                         = IOptionSome<T> | IOptionNone
 ```
 
-**Why internal flat bases?** A TypeScript class cannot `implements` a union
-type. The `IResultBase` and `IResultOfTBase` flat interfaces provide the full
-shape for the class to implement. Factory methods then cast the class instance
-to the exported union type (`as unknown as IResult` / `IResultOfT`).
+**Key points:**
+- The `isSuccess` / `isSome` literal discriminates the variant
+- `value` is only on the success/Some variant — accessing `.value` on a failure/None is a **type error**
+- `error` is only on the failure variant — accessing `.error` on success is a **type error**
+- Naming via `isSuccess` before accessing variant-specific properties
+- No classes, no prototype methods — pure data objects
 
 ---
 
 ## Module Architecture
 
-### `src/IResult.ts` — Base Result Contract (Discriminated Union)
+### `src/IResult.ts` & `src/IResultOfT.ts` — Discriminated Union Types
 
-The fundamental contract, expressed as a **discriminated union** of a success
-variant and a failure variant. The `isSuccess` literal property discriminates
-them.
+Both files export **plain interfaces and type aliases only** — no classes, no
+internal flat bases. Results are plain objects created by factory functions.
 
 ```ts
-// Internal flat base — for class implementation only
-export interface IResultBase<TError = Error> {
-    readonly error: TError;
-    readonly isSuccess: boolean;
-    readonly isFailure: boolean;
-}
-
-// Success variant — no error property
-export interface IResultSuccess {
-    readonly isSuccess: true;
-    readonly isFailure: false;
-}
-
-// Failure variant — carries error
-export interface IResultFailure<TError = Error> {
-    readonly isSuccess: false;
-    readonly isFailure: true;
-    readonly error: TError;
-}
-
-// Union type alias — what consumers use
+// IResult.ts — void result contract
 export type IResult<TError = Error> = IResultSuccess | IResultFailure<TError>;
-```
 
-- `IResultBase` is `@internal` — used by the `Result` class to `implements`
-- `IResultSuccess` has **no `error` property** — accessing `.error` on a
-  success result is a **type error** (must narrow via `isSuccess` first)
-- `IResultFailure` has **no value** — it only carries `error`
-- At runtime, the `error` property on a success result still returns the
-  sentinel, but the type system does not expose it
-- Generic default: `TError = Error`
-
-### `src/IResultOfT.ts` — Value-Bearing Contract (Discriminated Union)
-
-Extends the base contract with a success payload, using the **Omit pattern**
-(inspired by true-myth) to split into success and failure variants while
-preserving all instance methods on both.
-
-```ts
-// Internal flat base — contains value + all 8 method signatures
-export interface IResultOfTBase<TValue, TError = Error> extends IResultBase<TError> {
-    readonly value: TValue;
-    map<U>(fn: (value: TValue) => U): IResultOfT<U, TError>;
-    mapErr<F>(fn: (error: TError) => F): IResultOfT<TValue, F>;
-    andThen<U, F>(fn: (value: TValue) => IResultOfT<U, F>): IResultOfT<U, TError | F>;
-    orElse<U, F>(fn: (error: TError) => IResultOfT<U, F>): IResultOfT<TValue | U, F>;
-    match<U>(onSuccess: (value: TValue) => U, onFailure: (error: TError) => U): U;
-    tap(fn: (value: TValue) => void): IResultOfT<TValue, TError>;
-    tapErr(fn: (error: TError) => void): IResultOfT<TValue, TError>;
-    unwrapOr(defaultValue: TValue): TValue;
-    unwrapOrElse(fn: (error: TError) => TValue): TValue;
-    unwrap(): TValue;
-    expect(msg: string): TValue;
-    unwrapErr(): TError;
-    expectErr(msg: string): TError;
-    toOption(): IOption<TValue>;
-    flatten<U>(this: IResultOfT<IResultOfT<U, TError>, TError>): IResultOfT<U, TError>;
-    and<U, F>(other: IResultOfT<U, F>): IResultOfT<U, TError | F>;
-    or<F>(other: IResultOfT<TValue, F>): IResultOfT<TValue, F>;
-    contains(value: TValue): boolean;
-    exists(predicate: (value: TValue) => boolean): boolean;
-    bimap<U, F>(onSuccess: (v: TValue) => U, onFailure: (e: TError) => F): IResultOfT<U, F>;
-    swap(): IResultOfT<TError, TValue>;
-    getOrNull(): TValue | null;
-    getOrUndefined(): TValue | undefined;
-    mapOr<U>(defaultValue: U, fn: (v: TValue) => U): U;
-    mapOrElse<U>(onErr: (e: TError) => U, fn: (v: TValue) => U): U;
-    toString(): string;
-    toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError };
-}
-
-// Success variant — omits error, keeps value, inherits all methods via Omit
-export interface IResultOfTSuccess<TValue, TError = Error>
-    extends Omit<IResultOfTBase<TValue, TError>, 'error' | 'isSuccess' | 'isFailure'> {
-    readonly isSuccess: true;
-    readonly isFailure: false;
-    readonly value: TValue;
-}
-
-// Failure variant — omits value, keeps error, inherits all methods via Omit
-export interface IResultOfTFailure<TValue, TError = Error>
-    extends Omit<IResultOfTBase<TValue, TError>, 'value' | 'isSuccess' | 'isFailure'> {
-    readonly isSuccess: false;
-    readonly isFailure: true;
-    readonly error: TError;
-}
-
-// Union type alias — what consumers use
+// IResultOfT.ts — value-bearing result contract
 export type IResultOfT<TValue, TError = Error> =
     | IResultOfTSuccess<TValue, TError>
     | IResultOfTFailure<TValue, TError>;
 ```
 
-**Key points:**
+Both types are **discriminated unions** where `isSuccess` is the discriminant.
 
-- `IResultOfTBase` is `@internal` — used by the `ResultOfT` class to `implements`
-- The **Omit pattern** ensures both variants inherit all 8 instance methods,
-  so `result.map(...)` works on the union type without narrowing
-- `value` is **omitted** from the failure variant — accessing `.value` on a
-  failure is a **type error** (must narrow via `isSuccess` first)
-- `error` is **omitted** from the success variant — accessing `.error` on a
-  success is a **type error**
-- `value` getter in the concrete class throws `TypeError` at runtime if
-  accessed on a failure (defense-in-depth beyond the type system)
-- Default `TError = Error`
+### `src/fp/core.ts` — Factory Functions
 
-### `src/Result.ts` — Base Class + Generic Subclass
-
-Contains **both** `Result<TError>` and `ResultOfT<TValue, TError>` in a single file. As of Phase 4a, `ResultOfT` **no longer extends `Result`** — it independently implements `IResultOfTBase`. Both classes use the extracted `assertResultInvariant` from `src/internal/invariant.ts`.
-
-#### `src/internal/invariant.ts` — Invariant Helper
+Produces plain discriminated-union objects — no classes, no sentinel, no
+constructor invariants.
 
 ```ts
-export function assertResultInvariant<TError>(isSuccess: boolean, error: TError): void;
+ok(): IResult<never>;                    // void success
+ok<T>(value: T): IResultOfT<T, never>;   // success with value
+err<E>(error: E): IResultOfT<never, E>;  // failure with error
 ```
 
-Validates the mutual exclusivity contract: success must not carry a real error, failure must carry a real error. Used by both `Result` and `ResultOfT` constructors.
+### `src/fp/operators.ts` — FP Operators (Data-Last)
 
-#### Sentinel (`NONE`)
+All operators are **data-last** (take data as the final argument):
 
 ```ts
-import { NONE } from './internal/sentinel.js';
+map(fn, result)       → IResultOfT<U, E>
+mapErr(fn, result)    → IResultOfT<T, F>
+bind(fn, result)      → IResultOfT<U, E | F>
+orElse(fn, result)    → IResultOfT<T | U, F>
+match(okFn, errFn, result) → U
+tap(fn, result)       → IResultOfT<T, E>
+tapErr(fn, result)    → IResultOfT<T, E>
+unwrapOr(def, result) → T
 ```
 
-- Defined in `src/internal/sentinel.ts` as `Symbol.for('result:none')`
-- Shared between OOP (`Result.ts`) and FP (`fp/core.ts`) modules
-- Uses `Symbol.for()` so the same symbol survives HMR / module reloads
-- Cast to `TError` to satisfy the type system
-- On success results, stored as the `error` value
-- Distinct from any real user-supplied error
+Async operators append `Async` suffix: `mapAsync`, `bindAsync`, `orElseAsync`,
+`matchAsync`, `tapAsync`, `tapErrAsync`, `unwrapOrAsync`, `mapErrAsync`.
 
-#### Constructor Invariant
+Option operators are **curried** (data-last via a single-arg function):
 
-The constructor enforces mutual exclusivity:
+```ts
+mapOption(fn)(opt)     → IOption<U>
+andThen(fn)(opt)       → IOption<U>
+orElseOption(fn)(opt)  → IOption<T>
+matchOption(okFn, noneFn)(opt) → U
+tapOption(fn)(opt)     → IOption<T>
+unwrapOrOption(def)(opt) → T
+```
 
-| Condition                      | Action                                                     |
-| ------------------------------ | ---------------------------------------------------------- |
-| `isSuccess && error !== NONE`  | throws `TypeError` — "success must not carry a real error" |
-| `!isSuccess && error === NONE` | throws `TypeError` — "failure must carry a real error"     |
+### `src/fp/combine.ts` — Combinators
+
+```ts
+combine(results: IResultOfT<A, E>[]): IResultOfT<A[], E>
+all(tuple): IResultOfT<tuple>
+combineWithAllErrors(results: IResultOfT<A, E>[]): IResultOfT<A[], E[]>
+```
+
+### `src/fp/composition.ts` — Pipelines
+
+```ts
+pipe(result, fn1, fn2, ...)     → IResultOfT<U, E>
+pipeAsync(ar, fn1, fn2, ...)    → Promise<IResultOfT<U, E>>
+composeK(fn1, fn2, ...)         → (a) => IResultOfT<U, E>
+composeKAsync(fn1, fn2, ...)    → (a) => Promise<IResultOfT<U, E>>
+```
+
+### `src/fp/adapters.ts` — Adapters
+
+```ts
+switchFn(okFn, errFn)(r)    → U (branch on result state)
+liftMap(fn)(r)              → IResultOfT<U, E> (lift fn into result)
+tee(fn)(r)                  → IResultOfT<T, E> (side-effect, passes through)
+toOption(r)                 → IOption<T> (convert result to option)
+fromOption(errorOnNone)(opt) → IResultOfT<T, E> (convert option to result)
+```
+
+### `src/fp/option/` — Option Module
+
+```ts
+ofSome(value)  → IOption<T>
+ofNone()       → IOption<never>
+map, andThen, orElse, match, tap, unwrapOr, filter, flatten, contains
+```
 
 #### Static Factory Methods
 
