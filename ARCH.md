@@ -15,7 +15,6 @@
 | Field      | Value                        |
 | ---------- | ---------------------------- |
 | Name       | `@sandlada/result`           |
-| Version    | `0.0.1-20260702.a`           |
 | Type       | `module` (ESM)               |
 | License    | MIT                          |
 | Repository | `github.com/sandlada/result` |

@@ -1,7 +1,7 @@
 {
     "name": "@sandlada/result",
-    "version": "0.0.1-20260702.a",
-    "description": "Type-safe Result pattern for TypeScript — explicit error handling without exceptions",
+    "version": "0.0.2-20260704.a",
+    "description": "Type-safe Result Pattern & ROP for TypeScript — Explicit Error Handling without Exceptions",
     "type": "module",
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
@@ -72,6 +72,11 @@
     "homepage": "https://github.com/sandlada/result#readme",
     "keywords": [
         "result",
+        "result-pattern",
+        "rop",
+        "option",
+        "async",
+        "async-result",
         "either",
         "error-handling",
         "functional",
@@ -83,7 +88,7 @@
     "author": "Kai-Orion & Sandlada",
     "license": "MIT",
     "devDependencies": {
-        "@typescript/native-preview": "^7.0.0-dev.20260630.1",
+        "@typescript/native-preview": "^7.0.0-dev.20260704.1",
         "@vitest/ui": "^4.1.9",
         "vitest": "^4.1.9"
     }
