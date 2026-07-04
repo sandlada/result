@@ -179,18 +179,19 @@ double(ok(21)); // Ok(42)
 import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPromise, asyncOk, asyncErr } from '@sandlada/result';
 ```
 
-| Function        | Signature                                           | Description                                         |
-| --------------- | --------------------------------------------------- | --------------------------------------------------- |
-| `ok()`          | `ok(): IResult<never>`                              | Void success                                        |
-| `ok(value)`     | `ok<T>(value: T): IResultOfT<T, never>`             | Success with value                                  |
-| `err(error)`    | `err<E>(error: E): IResultOfT<never, E>`            | Failure with error                                  |
-| `fromPredicate` | `fromPredicate<T,E>(pred, errorFn, value?)`         | `Ok(v)` if predicate passes, `Err(errorFn(v))` else |
-| `fromThrowable` | `fromThrowable<A,E>(fn, errorFn?)`                  | Wrap throwing function into Result                  |
-| `tryCatch`      | `tryCatch<T,E>(fn, errorFn?)`                       | Execute fn, catch throws                            |
-| `tryCatchAsync` | `tryCatchAsync<T,E>(fn, errorFn?)`                  | Async fn, catch rejections                          |
-| `fromPromise`   | `fromPromise<T,E>(promise, errorFn?)`               | Wrap Promise into Result                            |
-| `asyncOk`       | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`  | Pre-resolved success Promise                        |
-| `asyncErr`      | `asyncErr<E>(error): Promise<IResultOfT<never, E>>` | Pre-resolved failure Promise                        |
+| Function          | Signature                                                    | Description                                         |
+| ----------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| `ok()`            | `ok(): IResult<never>`                                       | Void success                                        |
+| `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                  |
+| `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                  |
+| `fromPredicate`   | `fromPredicate<T,E>(pred, errorFn, value?)`                  | `Ok(v)` if predicate passes, `Err(errorFn(v))` else |
+| `fromThrowable`   | `fromThrowable<A,E>(fn, errorFn?)`                           | Wrap throwing function into Result                  |
+| `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                            |
+| `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                          |
+| `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                        | Wrap Promise into Result                            |
+| `fromSafePromise` | `fromSafePromise<T>(promise): Promise<IResultOfT<T, never>>` | Wrap a never-reject Promise                         |
+| `asyncOk`         | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`           | Pre-resolved success Promise                        |
+| `asyncErr`        | `asyncErr<E>(error): Promise<IResultOfT<never, E>>`          | Pre-resolved failure Promise                        |
 
 ### Sync Operators
 
@@ -198,34 +199,39 @@ import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPro
 import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse, ap, separate, traverseArray } from '@sandlada/result';
 ```
 
-| Operator        | Signature                                                 | Description                         |
-| --------------- | --------------------------------------------------------- | ----------------------------------- |
-| `map`           | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`    | Transform success value             |
-| `mapErr`        | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>` | Transform error                     |
-| `bind`          | `bind<A,B,F>(f): <E>(...) => IResultOfT<B,E\|F>`          | Monadic bind (chain)                |
-| `orElse`        | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`        | Error recovery                      |
-| `match`         | `match<A,E,C>(onOk, onErr): (r) => C`                     | Terminal pattern-match              |
-| `tap`           | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                   | Side-effect on success              |
-| `tapErr`        | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                | Side-effect on failure              |
-| `unwrapOr`      | `unwrapOr<A>(def): <E>(r) => A`                           | Extract value or default            |
-| `unwrapOrElse`  | `unwrapOrElse<A,E>(fn): (r) => A`                         | Extract value or compute from error |
-| `unwrap`        | `unwrap<A,E>(r): A`                                       | Panics on failure                   |
-| `expect`        | `expect<A,E>(msg): (r) => A`                              | Panics with custom message          |
-| `unwrapErr`     | `unwrapErr<A,E>(r): E`                                    | Panics on success, returns error    |
-| `expectErr`     | `expectErr<A,E>(msg): (r) => E`                           | Panics with custom message          |
-| `flatten`       | `flatten<A,E>(r): IResultOfT<A,E>`                        | Flatten nested Result               |
-| `and`           | `and<B,F>(other): <A,E>(r) => IResultOfT<B,F>`            | Logical AND on Result               |
-| `or`            | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`               | Logical OR on Result                |
-| `contains`      | `contains<A>(target): <E>(r) => boolean`                  | True if success and value matches   |
-| `exists`        | `exists<A>(pred): <E>(r) => boolean`                      | True if success and predicate holds |
-| `bimap`         | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`     | Simultaneously map both variants    |
-| `swap`          | `swap<A,E>(r): IResultOfT<E,A>`                           | Swap Ok/Err                         |
-| `mapOr`         | `mapOr<A,B,E>(def, fn): (r) => B`                         | Map success or return default       |
-| `mapOrElse`     | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                   | Map success or compute from error   |
-| `filterOrElse`  | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`  | Filter success or map to error      |
-| `ap`            | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`            | Apply wrapped fn to wrapped value   |
-| `separate`      | `separate<T,E>(results): { ok: T[]; err: E[] }`           | Partition successes and failures    |
-| `traverseArray` | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`      | Apply fn to every element, collect  |
+| Operator          | Signature                                                 | Description                               |
+| ----------------- | --------------------------------------------------------- | ----------------------------------------- |
+| `map`             | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`    | Transform success value                   |
+| `mapErr`          | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>` | Transform error                           |
+| `bind`            | `bind<A,B,F>(f): <E>(...) => IResultOfT<B,E\|F>`          | Monadic bind (chain)                      |
+| `orElse`          | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`        | Error recovery                            |
+| `match`           | `match<A,E,C>(onOk, onErr): (r) => C`                     | Terminal pattern-match                    |
+| `tap`             | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                   | Side-effect on success                    |
+| `tapErr`          | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                | Side-effect on failure                    |
+| `unwrapOr`        | `unwrapOr<A>(def): <E>(r) => A`                           | Extract value or default                  |
+| `unwrapOrElse`    | `unwrapOrElse<A,E>(fn): (r) => A`                         | Extract value or compute from error       |
+| `unwrap`          | `unwrap<A,E>(r): A`                                       | Panics on failure                         |
+| `expect`          | `expect<A,E>(msg): (r) => A`                              | Panics with custom message                |
+| `unwrapErr`       | `unwrapErr<A,E>(r): E`                                    | Panics on success, returns error          |
+| `expectErr`       | `expectErr<A,E>(msg): (r) => E`                           | Panics with custom message                |
+| `flatten`         | `flatten<A,E>(r): IResultOfT<A,E>`                        | Flatten nested Result                     |
+| `and`             | `and<B,F>(other): <A,E>(r) => IResultOfT<B,F>`            | Logical AND on Result                     |
+| `or`              | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`               | Logical OR on Result                      |
+| `contains`        | `contains<A>(target): <E>(r) => boolean`                  | True if success and value matches         |
+| `exists`          | `exists<A>(pred): <E>(r) => boolean`                      | True if success and predicate holds       |
+| `bimap`           | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`     | Simultaneously map both variants          |
+| `swap`            | `swap<A,E>(r): IResultOfT<E,A>`                           | Swap Ok/Err                               |
+| `mapOr`           | `mapOr<A,B,E>(def, fn): (r) => B`                         | Map success or return default             |
+| `mapOrElse`       | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                   | Map success or compute from error         |
+| `filterOrElse`    | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`  | Filter success or map to error            |
+| `ap`              | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`            | Apply wrapped fn to wrapped value         |
+| `separate`        | `separate<T,E>(results): { ok: T[]; err: E[] }`           | Partition successes and failures          |
+| `traverseArray`   | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`      | Apply fn to every element, collect        |
+| `andTee`          | `andTee<A,B,E,F>(fn): (r) => IResultOfT<A,E>`             | Side-effect on success, ignores fn result |
+| `orTee`           | `orTee<A,E,B,F>(fn): (r) => IResultOfT<A,E>`              | Side-effect on failure, ignores fn result |
+| `andThrough`      | `andThrough<A,B,E,F>(fn): (r) => IResultOfT<A,E\|F>`      | Side-effect on success, propagates fn err |
+| `unsafeUnwrap`    | `unsafeUnwrap<A,E>(r): A`                                 | Throws raw error on failure               |
+| `unsafeUnwrapErr` | `unsafeUnwrapErr<A,E>(r): E`                              | Throws raw value on success               |
 
 ### Async Operators
 
@@ -235,19 +241,21 @@ import { mapAsync, mapErrAsync, mapOrAsync, mapOrElseAsync, bindAsync, orElseAsy
 
 All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync or async.
 
-| Operator            | Signature                                                            | Description                         |
-| ------------------- | -------------------------------------------------------------------- | ----------------------------------- |
-| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`    | Transform success value             |
-| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>` | Transform error                     |
-| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                      | Map success or return default       |
-| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                | Map success or compute from error   |
-| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`       | Chain (monadic bind)                |
-| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`     | Error recovery                      |
-| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                  | Terminal pattern-match              |
-| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                | Side-effect on success              |
-| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`             | Side-effect on failure              |
-| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                        | Extract value or default            |
-| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                      | Extract value or compute from error |
+| Operator            | Signature                                                                    | Description                         |
+| ------------------- | ---------------------------------------------------------------------------- | ----------------------------------- |
+| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`            | Transform success value             |
+| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>`         | Transform error                     |
+| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                              | Map success or return default       |
+| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                        | Map success or compute from error   |
+| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`               | Chain (monadic bind)                |
+| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`             | Error recovery                      |
+| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                          | Terminal pattern-match              |
+| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                        | Side-effect on success              |
+| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`                     | Side-effect on failure              |
+| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                | Extract value or default            |
+| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                              | Extract value or compute from error |
+| `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`         | Map sync Result with async callback |
+| `asyncAndThen`      | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>` | Chain sync Result with async fn     |
 
 ### Composition
 
@@ -259,6 +267,8 @@ import { pipe, pipeAsync, composeK, composeKAsync } from '@sandlada/result';
 | --------------- | -------------------------------------------------------- | ------------------------------------------ |
 | `pipe`          | `pipe(value, fn1, fn2, ...)` (1–10 overloads)            | Left-to-right function composition         |
 | `pipeAsync`     | `pipeAsync(value, ...fns)` (1–10 overloads)              | Async pipe                                 |
+| `safeTry`       | `safeTry<T,E>(result): Generator<IResultOfT<never,E>,T>` | Generator yield* for Result pipelines      |
+| `fromSafeTry`   | `fromSafeTry<T,E>(gen): IResultOfT<T,E>`                 | Evaluate a safeTry generator               |
 | `composeK`      | `composeK<A,B,C,E>(f1, f2): (a: A) => IResultOfT<C,E>`   | Kleisli composition (`>=>`, 2–6 overloads) |
 | `composeKAsync` | `composeKAsync<A,B,C,E>(f1, f2): (a: A) => Promise<...>` | Async Kleisli composition (2–6)            |
 
@@ -298,21 +308,24 @@ import { ofSome, ofNone, map, andThen, orElse, match, tap, unwrapOr, filter, fla
 
 All option operators are curried data-last (option is the final argument).
 
-| Function   | Signature                                          | Description                                      |
-| ---------- | -------------------------------------------------- | ------------------------------------------------ |
-| `ofSome`   | `ofSome<T>(value): IOption<T>`                     | Create Some                                      |
-| `ofNone`   | `ofNone(): IOption<never>`                         | Create None                                      |
-| `map`      | `map<T,U>(fn): (IOption<T>) => IOption<U>`         | Transform value if Some                          |
-| `andThen`  | `andThen<T,U>(fn): (IOption<T>) => IOption<U>`     | Monadic bind (chain)                             |
-| `orElse`   | `orElse<T>(fn): (IOption<T>) => IOption<T>`        | Fall back if None                                |
-| `match`    | `match<T,U>(onSome, onNone): (IOption<T>) => U`    | Terminal pattern-match                           |
-| `tap`      | `tap<T>(fn): (IOption<T>) => IOption<T>`           | Side-effect on Some                              |
-| `unwrapOr` | `unwrapOr<T>(def): (IOption<T>) => T`              | Safe extraction with default                     |
-| `filter`   | `filter<T>(pred): (IOption<T>) => IOption<T>`      | None if predicate fails                          |
-| `flatten`  | `flatten<T>(opt: IOption<IOption<T>>): IOption<T>` | Flatten nested option                            |
-| `contains` | `contains<T>(target): (IOption<T>) => boolean`     | True if Some and value matches                   |
-| `all`      | `all(tuple): IOption<[...values]>`                 | Combine multiple Options (short-circuit on None) |
-| `zipWith`  | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`         | Combine two Options with a function              |
+| Function    | Signature                                                | Description                                      |
+| ----------- | -------------------------------------------------------- | ------------------------------------------------ |
+| `ofSome`    | `ofSome<T>(value): IOption<T>`                           | Create Some                                      |
+| `ofNone`    | `ofNone(): IOption<never>`                               | Create None                                      |
+| `map`       | `map<T,U>(fn): (IOption<T>) => IOption<U>`               | Transform value if Some                          |
+| `andThen`   | `andThen<T,U>(fn): (IOption<T>) => IOption<U>`           | Monadic bind (chain)                             |
+| `orElse`    | `orElse<T>(fn): (IOption<T>) => IOption<T>`              | Fall back if None                                |
+| `match`     | `match<T,U>(onSome, onNone): (IOption<T>) => U`          | Terminal pattern-match                           |
+| `tap`       | `tap<T>(fn): (IOption<T>) => IOption<T>`                 | Side-effect on Some                              |
+| `unwrapOr`  | `unwrapOr<T>(def): (IOption<T>) => T`                    | Safe extraction with default                     |
+| `filter`    | `filter<T>(pred): (IOption<T>) => IOption<T>`            | None if predicate fails                          |
+| `flatten`   | `flatten<T>(opt: IOption<IOption<T>>): IOption<T>`       | Flatten nested option                            |
+| `contains`  | `contains<T>(target): (IOption<T>) => boolean`           | True if Some and value matches                   |
+| `okOr`      | `okOr<E>(errFn): <T>(IOption<T>) => IResultOfT<T,E>`     | Option → Result with default error               |
+| `okOrElse`  | `okOrElse<E>(errFn): <T>(IOption<T>) => IResultOfT<T,E>` | Option → Result with lazy error                  |
+| `transpose` | `transpose<T,E>(opt): IResultOfT<IOption<T>,E>`          | Transpose Option<Result> → Result<Option>        |
+| `all`       | `all(tuple): IOption<[...values]>`                       | Combine multiple Options (short-circuit on None) |
+| `zipWith`   | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`               | Combine two Options with a function              |
 
 > **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`. `andThen` is exported without a suffix.
 
@@ -369,6 +382,98 @@ const result = pipe(
     getUser('42'),
     mapErr((e: AppError) => `Error: ${e.kind}`),
 );
+```
+
+### Generator-based Pipelines (safeTry)
+
+`safeTry` enables `yield*` error propagation — short-circuits to the nearest `fromSafeTry` on the first failure:
+
+```ts
+import { ok, err, pipe, map, safeTry, fromSafeTry } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
+
+function* validateAndProcess(input: unknown): Generator<IResultOfT<never, string>, string> {
+    const parsed = yield* safeTry(parseInput(input));
+    const validated = yield* safeTry(validate(parsed));
+    const saved = yield* safeTry(save(validated));
+    return saved;
+}
+
+const result = pipe(
+    fromSafeTry(() => validateAndProcess({ name: 'Alice' })),
+    map((s: string) => `Saved: ${s}`),
+);
+// Ok("Saved: ...") or first Err encountered
+```
+
+### Side-effect Operators (andTee / orTee / andThrough)
+
+```ts
+import { ok, err, pipe, andTee, orTee, andThrough } from '@sandlada/result';
+
+// andTee — side-effect on success, ignores callback's result
+const r1 = pipe(
+    ok(42),
+    andTee((x: number) => { console.log(x); return ok('ignored'); }),
+);
+// Still Ok(42), regardless of what the callback returns
+
+// orTee — side-effect on failure, ignores callback's result
+const r2 = pipe(
+    err('fail'),
+    orTee((e: string) => { console.log(e); return ok('ignored'); }),
+);
+// Still Err('fail'), regardless of what the callback returns
+
+// andThrough — side-effect that can propagate errors
+const r3 = pipe(
+    ok(42),
+    andThrough((x: number) => x > 0 ? ok(undefined) : err('negative')),
+);
+// Ok(42) — original value preserved on callback success
+// If callback returns Err, that error propagates instead
+```
+
+### Bridge Sync → Async
+
+```ts
+import { ok, err, asyncMap, asyncAndThen } from '@sandlada/result';
+
+// asyncMap — transform a sync Result with an async callback
+const r1: Promise<IResultOfT<string, Error>> = asyncMap(
+    async (x: number) => `Got: ${x}`,
+    ok(42),
+);
+
+// asyncAndThen — chain a sync Result with an async result-returning callback
+const r2: Promise<IResultOfT<string, Error>> = asyncAndThen(
+    async (x: number) => x > 0 ? ok(`positive: ${x}`) : err('negative'),
+    ok(42),
+);
+```
+
+### Unsafe Extraction
+
+```ts
+import { unsafeUnwrap, unsafeUnwrapErr } from '@sandlada/result';
+
+// unsafeUnwrap — throws the raw error on failure (no TypeError wrapper)
+const value: number = unsafeUnwrap(ok(42));    // 42
+// unsafeUnwrap(err('crash'))                    // 💥 throws 'crash' raw
+
+// unsafeUnwrapErr — throws the raw value on success
+const error: string = unsafeUnwrapErr(err('x')); // 'x'
+// unsafeUnwrapErr(ok(42))                        // 💥 throws 42 raw
+```
+
+### Safe Promise
+
+```ts
+import { fromSafePromise } from '@sandlada/result';
+
+const p = Promise.resolve(42);
+const result: Promise<IResultOfT<number, never>> = fromSafePromise(p);
+// result resolves to Ok(42) — error type is `never` (no rejection handling)
 ```
 
 ### Async Operations
@@ -434,6 +539,45 @@ const result = pipe(
     unwrapOrOption(0),
 );
 // 10
+```
+
+### Option ↔ Result Conversion
+
+```ts
+import { ok, err } from '@sandlada/result';
+import { ofSome, ofNone, okOr, okOrElse, transpose } from '@sandlada/result/option';
+import type { IResultOfT } from '@sandlada/result';
+import type { IOption } from '@sandlada/result';
+
+// okOr — Option → Result with a fixed error on None
+const r1: IResultOfT<number, string> = okOr('default error', ofSome(42));
+// Ok(42)
+
+const r2: IResultOfT<number, string> = okOr('default error', ofNone());
+// Err('default error')
+
+// okOrElse — Option → Result with lazy error computation
+const r3: IResultOfT<number, string> = okOrElse(
+    () => 'computed error',
+    ofSome(42),
+);
+// Ok(42)
+
+const r4: IResultOfT<number, string> = okOrElse(
+    () => 'computed error',
+    ofNone(),
+);
+// Err('computed error')
+
+// transpose — Swap Option<Result> ↔ Result<Option>
+const r5: IResultOfT<IOption<number>, string> = transpose(ofSome(ok(42)));
+// Ok(Some(42))
+
+const r6: IResultOfT<IOption<number>, string> = transpose(ofSome(err('fail')));
+// Err('fail')
+
+const r7: IResultOfT<IOption<number>, string> = transpose(ofNone());
+// Ok(None)
 ```
 
 ---

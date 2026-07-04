@@ -80,26 +80,30 @@ src/
   factories/           — Core constructors
     ok.ts, err.ts, fromPredicate.ts, fromThrowable.ts,
     tryCatch.ts, tryCatchAsync.ts, fromPromise.ts,
+    fromSafePromise.ts,
     asyncOk.ts, asyncErr.ts
     index.ts           — Barrel re-export
 
   operators/           — Sync operators
-    and.ts, bimap.ts, bind.ts, contains.ts, exists.ts,
-    expect.ts, expectErr.ts, filterOrElse.ts, flatten.ts,
-    map.ts, mapErr.ts, mapOr.ts, mapOrElse.ts, match.ts,
-    or.ts, orElse.ts, swap.ts, tap.ts, tapErr.ts, unwrap.ts,
-    unwrapErr.ts, unwrapOr.ts, unwrapOrElse.ts
+    and.ts, andTee.ts, andThrough.ts, bimap.ts, bind.ts,
+    contains.ts, exists.ts, expect.ts, expectErr.ts,
+    filterOrElse.ts, flatten.ts, map.ts, mapErr.ts, mapOr.ts,
+    mapOrElse.ts, match.ts, or.ts, orElse.ts, orTee.ts,
+    swap.ts, tap.ts, tapErr.ts, unsafeUnwrap.ts,
+    unsafeUnwrapErr.ts, unwrap.ts, unwrapErr.ts, unwrapOr.ts,
+    unwrapOrElse.ts
     index.ts           — Barrel re-export
 
   async/               — Async operators
-    bindAsync.ts, mapAsync.ts, mapErrAsync.ts, mapOrAsync.ts,
-    mapOrElseAsync.ts, matchAsync.ts, orElseAsync.ts,
-    tapAsync.ts, tapErrAsync.ts, unwrapOrAsync.ts,
-    unwrapOrElseAsync.ts
+    asyncAndThen.ts, asyncMap.ts, bindAsync.ts, mapAsync.ts,
+    mapErrAsync.ts, mapOrAsync.ts, mapOrElseAsync.ts,
+    matchAsync.ts, orElseAsync.ts, tapAsync.ts, tapErrAsync.ts,
+    unwrapOrAsync.ts, unwrapOrElseAsync.ts
     index.ts           — Barrel re-export
 
   composition/         — Composition utilities
-    composeK.ts, composeKAsync.ts, pipe.ts, pipeAsync.ts
+    composeK.ts, composeKAsync.ts, pipe.ts, pipeAsync.ts,
+    safeTry.ts
     index.ts           — Barrel re-export
 
   adapters/            — Adapter / interop functions
@@ -112,8 +116,9 @@ src/
     index.ts           — Barrel re-export
 
   option/              — Option sub-module
-    ofSome.ts, ofNone.ts, all.ts, andThen.ts, contains.ts,
-    filter.ts, flatten.ts, map.ts, match.ts, orElse.ts,
+    ofSome.ts, ofNone.ts, all.ts, andThen.ts, kOr.ts,
+    okOrElse.ts, orElse.ts, tap.ts, transpose.ts,
+   ts, flatten.ts, map.ts, match.ts, orElse.ts,
     tap.ts, unwrapOr.ts, zipWith.ts, index.ts
 
   async-result/        — Lazy AsyncResult thunk
@@ -170,6 +175,7 @@ test/
   factories/tryCatchAsync.spec.ts     — tryCatchAsync (resolve, throw, etc.)
   factories/fromThrowable.spec.ts     — fromThrowable wrap, caught, error mapper
   factories/fromPredicate.spec.ts     — fromPredicate true/false/DU error
+  factories/fromSafePromise.spec.ts   — fromSafePromise (resolved, rejection)
 
   # operators/ — 1:1 with src/operators/
   operators/map.spec.ts               — map (curried/direct, failure pass-through)
@@ -194,6 +200,11 @@ test/
   operators/swap.spec.ts              — swap (success→failure, failure→success)
   operators/mapOr.spec.ts             — mapOr (default value, curried)
   operators/mapOrElse.spec.ts         — mapOrElse (lazy error/value, curried)
+  operators/andTee.spec.ts            — andTee (side-effect success, ignores fn result)
+  operators/orTee.spec.ts             — orTee (side-effect failure, ignores fn result)
+  operators/andThrough.spec.ts        — andThrough (side-effect, propagates fn error)
+  operators/unsafeUnwrap.spec.ts      — unsafeUnwrap (throws raw error)
+  operators/unsafeUnwrapErr.spec.ts   — unsafeUnwrapErr (throws raw value)
 
   # async/ — 1:1 with src/async/
   async/mapAsync.spec.ts             — mapAsync (curried/direct, failure pass-through)
@@ -202,6 +213,8 @@ test/
   async/mapOrElseAsync.spec.ts       — mapOrElseAsync (success/failure, curried)
   async/bindAsync.spec.ts            — bindAsync (chain, sync binding, short-circuit)
   async/orElseAsync.spec.ts          — orElseAsync (recovery, pass-through)
+  async/asyncMap.spec.ts             — asyncMap (sync Result, async callback)
+  async/asyncAndThen.spec.ts         — asyncAndThen (sync Result, async chain)
   async/matchAsync.spec.ts           — matchAsync (success/failure curried)
   async/tapAsync.spec.ts             — tapAsync (side-effect on success)
   async/tapErrAsync.spec.ts          — tapErrAsync (side-effect on failure)
@@ -211,6 +224,7 @@ test/
   # composition/ — 1:1 with src/composition/
   composition/composeK.spec.ts        — composeK (chain, short-circuit, nested)
   composition/pipe.spec.ts            — pipe (single arg, multi-fn, early failure)
+  composition/safeTry.spec.ts         — safeTry/fromSafeTry (generator yield*)
   composition/composeKAsync.spec.ts   — composeKAsync (async switch functions)
   composition/pipeAsync.spec.ts       — pipeAsync (async pipeline, failure handling)
 
@@ -241,6 +255,9 @@ test/
   option/flatten.spec.ts              — flatten (nested Some/None)
   option/contains.spec.ts             — contains (matching, non-matching)
   option/all.spec.ts                  — all (tuple, heterogeneous, short-circuit)
+  option/okOr.spec.ts                 — okOr (Option→Result with default error)
+  option/okOrElse.spec.ts             — okOrElse (Option→Result with lazy error)
+  option/transpose.spec.ts            — transpose (Option<Result>↔Result<Option>)
   option/zipWith.spec.ts              — zipWith (combine fn, partial application)
 
   # types/ — 1:1 with src/types/

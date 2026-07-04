@@ -82,3 +82,35 @@ describe('option flatten', () => {
         flatten(nested);
     });
 });
+
+// ── okOr / okOrElse ───────────────────────────────────────────────────────
+describe('option okOr / okOrElse', () => {
+    const some = ofSome(42);
+    const none = ofNone() as ReturnType<typeof ofSome<number>>;
+
+    bench('okOr — Some path', () => {
+        okOr(0)(some);
+    });
+    bench('okOr — None path', () => {
+        okOr(0)(none);
+    });
+    bench('okOrElse — Some path', () => {
+        okOrElse(() => 0)(some);
+    });
+    bench('okOrElse — None path', () => {
+        okOrElse(() => 0)(none);
+    });
+});
+
+// ── transpose ──────────────────────────────────────────────────────────────
+describe('option transpose', () => {
+    const someOk = ofSome(ok(42)) as ReturnType<typeof ofSome<IResultOfT<number, string>>>;
+    const none = ofNone() as ReturnType<typeof ofSome<IResultOfT<number, string>>>;
+
+    bench('transpose — Some(Ok)', () => {
+        transpose(someOk);
+    });
+    bench('transpose — None', () => {
+        transpose(none);
+    });
+});

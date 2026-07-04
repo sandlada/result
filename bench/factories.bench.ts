@@ -73,3 +73,10 @@ describe('fromThrowable', () => {
         safeDiv(10, 0);
     });
 });
+
+// ── fromSafePromise ───────────────────────────────────────────────────────
+describe('fromSafePromise', () => {
+    bench('fromSafePromise(resolved)', async () => {
+        await fromSafePromise(Promise.resolve(42));
+    });
+});

@@ -20,6 +20,7 @@ export { fromThrowable } from './factories/fromThrowable.js';
 export { tryCatch } from './factories/tryCatch.js';
 export { tryCatchAsync } from './factories/tryCatchAsync.js';
 export { fromPromise } from './factories/fromPromise.js';
+export { fromSafePromise } from './factories/fromSafePromise.js';
 export { asyncOk } from './factories/asyncOk.js';
 export { asyncErr } from './factories/asyncErr.js';
 
@@ -49,7 +50,12 @@ export { mapOrElse } from './operators/mapOrElse.js';
 export { ap } from './operators/ap.js';
 export { separate } from './operators/separate.js';
 export { traverseArray } from './operators/traverseArray.js';
+export { andTee } from './operators/andTee.js';
+export { orTee } from './operators/orTee.js';
+export { andThrough } from './operators/andThrough.js';
 export { filterOrElse } from './operators/filterOrElse.js';
+export { unsafeUnwrap } from './operators/unsafeUnwrap.js';
+export { unsafeUnwrapErr } from './operators/unsafeUnwrapErr.js';
 
 // ── Async operators ─────────────────────────────────────────────────────────
 export { mapAsync } from './async/mapAsync.js';
@@ -63,11 +69,15 @@ export { tapAsync } from './async/tapAsync.js';
 export { tapErrAsync } from './async/tapErrAsync.js';
 export { unwrapOrAsync } from './async/unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './async/unwrapOrElseAsync.js';
+export { asyncMap } from './async/asyncMap.js';
+export { asyncAndThen } from './async/asyncAndThen.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
 export { pipe } from './composition/pipe.js';
 export { composeKAsync } from './composition/composeKAsync.js';
+export { safeTry } from './composition/safeTry.js';
+export { fromSafeTry } from './composition/safeTry.js';
 export { pipeAsync } from './composition/pipeAsync.js';
 
 // ── Adapters ────────────────────────────────────────────────────────────────
@@ -115,5 +125,8 @@ export {
     contains as containsOption,
     all as allOption,
     zipWith as zipWithOption,
+    okOr as okOrOption,
+    okOrElse as okOrElseOption,
+    transpose as transposeOption,
 } from './option/index.js';
 

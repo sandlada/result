@@ -4,6 +4,8 @@
  * Re-exports all asynchronous operators for working with Promise<Result> values.
  */
 
+export { asyncAndThen } from './asyncAndThen.js';
+export { asyncMap } from './asyncMap.js';
 export { bindAsync } from './bindAsync.js';
 export { mapAsync } from './mapAsync.js';
 export { mapErrAsync } from './mapErrAsync.js';

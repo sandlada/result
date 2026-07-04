@@ -216,3 +216,49 @@ describe('traverseArray', () => {
         traverseArray(failAt, items10);
     });
 });
+
+// ── andTee ─────────────────────────────────────────────────────────────────
+describe('andTee', () => {
+    const teeFn = (v: number) => { void v; return ok('ignored'); };
+
+    bench('andTee — success path', () => {
+        andTee(teeFn, success);
+    });
+    bench('andTee — failure pass-through', () => {
+        andTee(teeFn, failure);
+    });
+});
+
+// ── orTee ──────────────────────────────────────────────────────────────────
+describe('orTee', () => {
+    const teeFn = (e: string) => { void e; return ok(0); };
+
+    bench('orTee — failure path', () => {
+        orTee(teeFn, failure);
+    });
+    bench('orTee — success pass-through', () => {
+        orTee(teeFn, success);
+    });
+});
+
+// ── andThrough ─────────────────────────────────────────────────────────────
+describe('andThrough', () => {
+    const throughFn = (v: number) => { void v; return ok('ok'); };
+
+    bench('andThrough — success path (fn returns ok)', () => {
+        andThrough(throughFn, success);
+    });
+    bench('andThrough — failure pass-through', () => {
+        andThrough(throughFn, failure);
+    });
+});
+
+// ── unsafeUnwrap / unsafeUnwrapErr ────────────────────────────────────────
+describe('unsafe unwrapping', () => {
+    bench('unsafeUnwrap — success', () => {
+        unsafeUnwrap(success);
+    });
+    bench('unsafeUnwrapErr — failure', () => {
+        unsafeUnwrapErr(failure);
+    });
+});

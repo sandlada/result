@@ -79,6 +79,7 @@ const name = pipe(
 | `tryCatchAsync`        | function | Wrap an async throwing function                 |
 | `fromPredicate`        | function | Create result from a predicate                  |
 | `fromThrowable`        | function | Wrap a throwing function (typed)                |
+| `fromSafePromise`      | function | Wrap a never-reject Promise into Result         |
 | `map`                  | function | Transform success (data-last)                   |
 | `mapErr`               | function | Transform error (data-last)                     |
 | `bind`                 | function | Monadic chain (data-last)                       |
@@ -86,11 +87,18 @@ const name = pipe(
 | `match`                | function | Terminal pattern-match (data-last)              |
 | `tap`                  | function | Side-effect on success (data-last)              |
 | `tapErr`               | function | Side-effect on failure (data-last)              |
+| `andTee`               | function | Side-effect on success, ignores callback error  |
+| `orTee`                | function | Side-effect on failure, ignores callback error  |
+| `andThrough`           | function | Side-effect on success, propagates callback err |
+| `unsafeUnwrap`         | function | Throws on failure (unconstrained E)             |
+| `unsafeUnwrapErr`      | function | Throws on success (unconstrained E)             |
 | `unwrapOr`             | function | Safe extraction with default (data-last)        |
 | `unwrap`               | function | Extract value or throw (data-last)              |
 | `unwrapErr`            | function | Extract error or throw (data-last)              |
 | `flatten`              | function | Flatten nested result (data-last)               |
 | `bimap`                | function | Transform both success and error (data-last)    |
+| `safeTry`              | function | Generator-based yield* error propagation        |
+| `fromSafeTry`          | function | Evaluates a safeTry generator                   |
 | `combine`              | function | Combine results, short-circuit on first failure |
 | `all`                  | function | Combine heterogeneous tuple                     |
 | `combineWithAllErrors` | function | Accumulate all errors                           |
@@ -116,19 +124,22 @@ const name = pipe(
 
 ### FP Option (`@sandlada/result/option`)
 
-| Export     | Description                                   |
-| ---------- | --------------------------------------------- |
-| `ofSome`   | Create Some (wraps a value)                   |
-| `ofNone`   | Create None (no value)                        |
-| `map`      | Transform value if Some (curried)             |
-| `andThen`  | Monadic chain (curried)                       |
-| `orElse`   | Fall back to alternative if None (curried)    |
-| `match`    | Terminal pattern-match (curried)              |
-| `tap`      | Side-effect on Some (curried)                 |
-| `unwrapOr` | Safe extraction with default (curried)        |
-| `filter`   | Keep Some only if predicate matches (curried) |
-| `flatten`  | Flatten nested option (curried)               |
-| `contains` | Check if Some matches value (curried)         |
+| Export      | Description                                   |
+| ----------- | --------------------------------------------- |
+| `ofSome`    | Create Some (wraps a value)                   |
+| `ofNone`    | Create None (no value)                        |
+| `map`       | Transform value if Some (curried)             |
+| `andThen`   | Monadic chain (curried)                       |
+| `orElse`    | Fall back to alternative if None (curried)    |
+| `match`     | Terminal pattern-match (curried)              |
+| `tap`       | Side-effect on Some (curried)                 |
+| `unwrapOr`  | Safe extraction with default (curried)        |
+| `filter`    | Keep Some only if predicate matches (curried) |
+| `okOr`      | Option → Result with default error (curried)  |
+| `okOrElse`  | Option → Result with lazy error (curried)     |
+| `transpose` | Transpose Option<Result> → Result<Option>     |
+| `flatten`   | Flatten nested option (curried)               |
+| `contains`  | Check if Some matches value (curried)         |
 
 ### Conversion Adapters
 
@@ -232,6 +243,8 @@ const result = await pipeAsync(
 | `composeKAsync` | Kleisli composition (2–6 overloads) |
 | `switchFnAsync` | 1-track → 2-track async adapter     |
 | `teeAsync`      | dead-end → 1-track async adapter    |
+| `asyncMap`      | Map sync Result with async callback |
+| `asyncAndThen`  | Chain sync Result with async fn     |
 
 ### tryCatchAsync & fromPromise
 

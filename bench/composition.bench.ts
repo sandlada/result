@@ -57,3 +57,21 @@ describe('composeK (Kleisli composition)', () => {
         composed(5);
     });
 });
+
+// ── safeTry / fromSafeTry ──────────────────────────────────────────────────
+describe('safeTry / fromSafeTry', () => {
+    bench('fromSafeTry — all success (3 steps)', () => {
+        fromSafeTry(function* () {
+            const a = yield* safeTry(ok(10));
+            const b = yield* safeTry(ok(a * 2));
+            return b + 5;
+        });
+    });
+
+    bench('fromSafeTry — first step fails', () => {
+        fromSafeTry(function* () {
+            const a = yield* safeTry(err<string>('fail'));
+            return a * 2;
+        });
+    });
+});
