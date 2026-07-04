@@ -1,0 +1,2 @@
+import { describe, it, expect } from 'vitest';import { ok, err } from '../../src/index.js';import type { IResultOfT } from '../../src/types/IResultOfT.js';import { mapOr } from '../../src/index.js';describe('mapOr', () => {    it('direct form', () => {        const r: IResultOfT<number> = ok(3);        expect(mapOr(0, (v: number) => v + 1, r)).toBe(4);    });    it('curried form', () => {        const doubleOrZero = mapOr(0, (v: number) => v * 2);        expect(doubleOrZero(ok(5))).toBe(10);        expect(doubleOrZero(err<number>(new Error('x')))).toBe(0);    });});
+

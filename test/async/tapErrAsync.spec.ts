@@ -1,0 +1,1 @@
+import { describe, it, expect } from 'vitest';import { asyncErr, tapErrAsync } from '../../src/index.js';describe('tapErrAsync', () => {    it('calls side-effect on failure', async () => {        let side = '';        const r = await tapErrAsync((e: string) => { side = e; }, asyncErr<string>('oops'));        expect(side).toBe('oops');    });});

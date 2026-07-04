@@ -45,16 +45,20 @@ export { bimap } from './operators/bimap.js';
 export { swap } from './operators/swap.js';
 export { mapOr } from './operators/mapOr.js';
 export { mapOrElse } from './operators/mapOrElse.js';
+export { filterOrElse } from './operators/filterOrElse.js';
 
 // ── Async operators ─────────────────────────────────────────────────────────
 export { mapAsync } from './async/mapAsync.js';
 export { mapErrAsync } from './async/mapErrAsync.js';
+export { mapOrAsync } from './async/mapOrAsync.js';
+export { mapOrElseAsync } from './async/mapOrElseAsync.js';
 export { bindAsync } from './async/bindAsync.js';
 export { orElseAsync } from './async/orElseAsync.js';
 export { matchAsync } from './async/matchAsync.js';
 export { tapAsync } from './async/tapAsync.js';
 export { tapErrAsync } from './async/tapErrAsync.js';
 export { unwrapOrAsync } from './async/unwrapOrAsync.js';
+export { unwrapOrElseAsync } from './async/unwrapOrElseAsync.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
@@ -88,5 +92,7 @@ export {
     filter as filterOption,
     flatten as flattenOption,
     contains as containsOption,
+    all as allOption,
+    zipWith as zipWithOption,
 } from './option/index.js';
 

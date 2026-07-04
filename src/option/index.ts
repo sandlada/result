@@ -16,4 +16,6 @@ export { unwrapOr } from './unwrapOr.js';
 export { filter } from './filter.js';
 export { flatten } from './flatten.js';
 export { contains } from './contains.js';
+export { all } from './all.js';
+export { zipWith } from './zipWith.js';
 

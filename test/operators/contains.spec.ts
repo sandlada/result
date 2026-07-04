@@ -1,0 +1,2 @@
+import { describe, it, expect } from 'vitest';import { ok, err } from '../../src/index.js';import { contains } from '../../src/index.js';describe('contains', () => {    it('curried form', () => {        const isFortyTwo = contains(42);        expect(isFortyTwo(ok(42))).toBe(true);        expect(isFortyTwo(ok(7))).toBe(false);        expect(isFortyTwo(err<number>(new Error('err')))).toBe(false);    });});
+

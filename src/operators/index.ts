@@ -9,6 +9,7 @@ export { bimap } from './bimap.js';
 export { bind } from './bind.js';
 export { contains } from './contains.js';
 export { exists } from './exists.js';
+export { filterOrElse } from './filterOrElse.js';
 export { expect } from './expect.js';
 export { expectErr } from './expectErr.js';
 export { flatten } from './flatten.js';

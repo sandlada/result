@@ -2,7 +2,17 @@
 
 ## Overview
 
-`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a type-safe, exception-free approach to error handling. It provides `IResult` interfaces and `Result` classes that make error flows explicit in the type system, inspired by C# Result pattern libraries but with **fully generic, user-definable error types**.
+`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing `throw`/`catch` for predictable failure paths.
+
+The library provides:
+
+- **`IResult<TError>`** — base contract: success/failure discriminated union (void result)
+- **`IResultOfT<TValue, TError>`** — value-bearing result contract
+- **`IOption<T>`** — optional value (Some/None discriminated union)
+- **Standalone FP operators** — data-last curried functions for transforming results
+- **Generic `TError`** — users define their own error types (key differentiator)
+
+> **Key design choice:** No classes, no prototype methods, no sentinel values. Everything is built on **plain discriminated union objects** with standalone functions.
 
 ## Installation
 
@@ -12,291 +22,420 @@ npm install @sandlada/result
 
 > **Module system:** This package is **ESM-only** (`"type": "module"`). It cannot be used with `require()`. Your project must use ESM (`import`) or enable dynamic `import()` in CJS contexts.
 
-### Import Paths
+## Import Paths
 
-| Sub-path       | Import                                                        | Description             |
-| -------------- | ------------------------------------------------------------- | ----------------------- |
-| `.` (default)  | `import { Result, Option } from '@sandlada/result'`           | OOP API, all core types |
-| `./fp`         | `import { ok, err, pipe } from '@sandlada/result/fp'`         | FP sync operators       |
-| `./fp/option`  | `import { ofSome, map } from '@sandlada/result/fp/option'`    | FP option operators     |
-| `./promise`    | `import { AsyncResult } from '@sandlada/result/promise'`      | Async OOP API           |
-| `./fp/promise` | `import { asyncOk, bind } from '@sandlada/result/fp/promise'` | FP async operators      |
-| `./option`     | `import { Option } from '@sandlada/result/option'`            | Option type (direct)    |
+| Entry point     | Import                                                     | Description               |
+| --------------- | ---------------------------------------------------------- | ------------------------- |
+| `.` (default)   | `import { ok, pipe, map } from '@sandlada/result'`         | All exports (main barrel) |
+| `./types`       | `import type { IResultOfT } from '@sandlada/result/types'` | Type definitions only     |
+| `./factories`   | `import { ok, err } from '@sandlada/result/factories'`     | Core constructors         |
+| `./operators`   | `import { map, bind } from '@sandlada/result/operators'`   | Sync operators            |
+| `./async`       | `import { mapAsync } from '@sandlada/result/async'`        | Async operators           |
+| `./composition` | `import { pipe } from '@sandlada/result/composition'`      | Composition utilities     |
+| `./adapters`    | `import { toOption } from '@sandlada/result/adapters'`     | Adapter functions         |
+| `./combine`     | `import { combine } from '@sandlada/result/combine'`       | Parallel combination      |
+| `./option`      | `import { ofSome, map } from '@sandlada/result/option'`    | Option sub-module         |
 
 ## Core Types
 
 ### `IResult<TError = Error>`
 
-The base result contract. Every result has an error and a success/failure status.
+The base result contract for void operations (no success value).
 
 ```ts
-interface IResult<TError = Error> {
+type IResult<TError = Error> = IResultSuccess | IResultFailure<TError>;
+
+interface IResultSuccess {
+    readonly isSuccess: true;
+    readonly isFailure: false;
+}
+
+interface IResultFailure<TError = Error> {
+    readonly isSuccess: false;
+    readonly isFailure: true;
     readonly error: TError;
-    readonly isSuccess: boolean;
-    readonly isFailure: boolean;
 }
 ```
 
-- `error` — always accessible. On success, returns an internal sentinel; check `isSuccess` before interpreting.
-- `isSuccess` — `true` if the operation succeeded.
-- `isFailure` — `true` if the operation failed (computed as `!isSuccess`).
+- **`isSuccess` / `isFailure`** — literal discriminants. Narrow before accessing variant-specific properties.
+- **`error`** — only present on the `IResultFailure` variant. Accessing `.error` on success is a **compile-time type error**.
 
 ### `IResultOfT<TValue, TError = Error>`
 
-A result that carries a **success value**.
+A value-bearing result — either success with a value, or failure with an error.
 
 ```ts
-interface IResultOfT<TValue, TError = Error> extends IResult<TError> {
+type IResultOfT<TValue, TError = Error> =
+    | IResultOfTSuccess<TValue>
+    | IResultOfTFailure<TError>;
+
+interface IResultOfTSuccess<TValue> {
+    readonly isSuccess: true;
+    readonly isFailure: false;
     readonly value: TValue;
+}
+
+interface IResultOfTFailure<TError = Error> {
+    readonly isSuccess: false;
+    readonly isFailure: true;
+    readonly error: TError;
 }
 ```
 
-- `value` — the success payload. **Throws `TypeError`** if accessed on a failure result.
+- **`value`** — only present on the success variant. Access without narrowing is a **compile-time type error**.
+- **`error`** — only present on the failure variant.
 
 ### Default Error Type
 
 When `TError` is omitted, it defaults to `Error`:
 
 ```ts
-const result: IResult = Result.Failure(new Error('fail'));       // IResult<Error>
-const result: IResultOfT<string> = Result.Success('hello');         // IResultOfT<string, Error>
+import { ok, err } from '@sandlada/result';
+
+const success: IResultOfT<number> = ok(42);          // IResultOfT<number, Error>
+const failure: IResultOfT<never> = err(new Error('x')); // IResultOfT<never, Error>
 ```
 
-## API Reference
-
-The package exports the following symbols. The default entry (`@sandlada/result`) provides the OOP API; the `@sandlada/result/fp` sub-path provides the functional API.
-
-### Default Export (`@sandlada/result`)
-
-| Export       | Kind      | Signature                                                      | Description                                  |
-| ------------ | --------- | -------------------------------------------------------------- | -------------------------------------------- |
-| `IResult`    | interface | `IResult<TError = Error>`                                      | Base result contract (no value)              |
-| `IResultOfT` | interface | `IResultOfT<TValue, TError = Error>` extends `IResult<TError>` | Value-bearing result contract                |
-| `Result`     | class     | `Result<TError = Error>` implements `IResult<TError>`          | Base class with static factories + utilities |
-| `ResultOfT`  | class     | `ResultOfT<TValue, TError = Error>`                            | Generic result with value + fluent methods   |
-| `Option`     | class     | `Option<T>` with static `Some(value)` / `None()`               | Optional value: Some(value) or None          |
-| `IOption`    | type      | `IOption<T> = IOptionSome<T> \| IOptionNone`                   | Discriminated union for Option               |
-
-### FP Export (`@sandlada/result/fp`)
-
-| Export                 | Kind     | Signature                                              | Description                             |
-| ---------------------- | -------- | ------------------------------------------------------ | --------------------------------------- |
-| `ok`                   | function | `ok(): IResult` / `ok<T>(value: T): IResultOfT<T>`     | Create success result                   |
-| `err`                  | function | `err<E>(error: E): IResultOfT<never, E>`               | Create failure result                   |
-| `map`                  | function | `map<A,B>(f, r?)` (data-last curried)                  | Transform success value                 |
-| `mapErr`               | function | `mapErr<E,F>(f, r?)` (data-last curried)               | Transform error                         |
-| `bind`                 | function | `bind<A,B,F>(f, r?)` (data-last curried)               | Monadic bind (chain)                    |
-| `orElse`               | function | `orElse<E,B,F>(f, r?)` (data-last curried)             | Error recovery                          |
-| `match`                | function | `match<A,E,C>(onOk, onErr, r?)` (data-last curried)    | Terminal pattern-match                  |
-| `tap`                  | function | `tap<A>(fn, r?)` (data-last curried)                   | Side-effect on success                  |
-| `tapErr`               | function | `tapErr<E>(fn, r?)` (data-last curried)                | Side-effect on failure                  |
-| `unwrapOr`             | function | `unwrapOr<A>(defaultValue, r?)` (data-last curried)    | Safe extraction with default            |
-| `pipe`                 | function | `pipe(value, ...fns)` (1–10 typed overloads)           | Left-to-right pipeline                  |
-| `composeK`             | function | `composeK(f1, f2, ...)` (Kleisli `>=>`, 2–6 overloads) | Compose switch functions                |
-| `switchFn`             | function | `switchFn(f)`                                          | 1-track → switch adapter                |
-| `liftMap`              | function | `liftMap(f, r?)` (alias for `map`)                     | 1-track → 2-track adapter               |
-| `tee`                  | function | `tee(f)`                                               | Dead-end → 1-track adapter              |
-| `combine`              | function | `combine(results[])`                                   | Combine array, short-circuit first fail |
-| `all`                  | function | `all(tuple)`                                           | Combine tuple, preserve types           |
-| `combineWithAllErrors` | function | `combineWithAllErrors(results[])`                      | Combine array, accumulate all errors    |
-
-### FP Option Export (`@sandlada/result/fp/option`)
-
-| Export     | Kind     | Signature                                       | Description                      |
-| ---------- | -------- | ----------------------------------------------- | -------------------------------- |
-| `ofSome`   | function | `ofSome<T>(value: T): IOption<T>`               | Create Some (contains a value)   |
-| `ofNone`   | function | `ofNone(): IOption<never>`                      | Create None (no value)           |
-| `map`      | function | `map<T,U>(fn): (IOption<T>) => IOption<U>`      | Transform value if Some          |
-| `andThen`  | function | `andThen<T,U>(fn): (IOption<T>) => IOption<U>`  | Monadic bind (chain)             |
-| `orElse`   | function | `orElse<T>(fn): (IOption<T>) => IOption<T>`     | Fall back to alternative if None |
-| `match`    | function | `match<T,U>(onSome, onNone): (IOption<T>) => U` | Terminal pattern-match           |
-| `tap`      | function | `tap<T>(fn): (IOption<T>) => IOption<T>`        | Side-effect on Some              |
-| `unwrapOr` | function | `unwrapOr<T>(defaultValue): (IOption<T>) => T`  | Safe extraction with default     |
-
-### Promise Export (`@sandlada/result/promise`)
-
-| Export        | Kind  | Signature                             | Description                                |
-| ------------- | ----- | ------------------------------------- | ------------------------------------------ |
-| `AsyncResult` | class | `AsyncResult<TValue, TError = Error>` | Lazy `Promise<IResultOfT>` with fluent API |
-
-### FP Promise Export (`@sandlada/result/fp/promise`)
-
-| Export          | Kind     | Signature                                                   | Description                          |
-| --------------- | -------- | ----------------------------------------------------------- | ------------------------------------ |
-| `asyncOk`       | function | `asyncOk<T>(value: T): AsyncResult<T, never>`               | Create success `AsyncResult`         |
-| `asyncErr`      | function | `asyncErr<E>(error: E): AsyncResult<never, E>`              | Create failure `AsyncResult`         |
-| `map`           | function | `map<A,B>(f, r?)` (data-last curried)                       | Sync transform success value         |
-| `mapAsync`      | function | `mapAsync<A,B>(f, r?)` (data-last curried)                  | Async transform success value        |
-| `mapErr`        | function | `mapErr<E,F>(f, r?)` (data-last curried)                    | Sync transform error                 |
-| `mapErrAsync`   | function | `mapErrAsync<E,F>(f, r?)` (data-last curried)               | Async transform error                |
-| `bind`          | function | `bind<A,B,F>(f, r?)` (data-last curried)                    | Monadic bind (chain)                 |
-| `orElse`        | function | `orElse<E,B,F>(f, r?)` (data-last curried)                  | Error recovery                       |
-| `match`         | function | `match<A,E,C>(onOk, onErr, r?)` (data-last curried)         | Terminal pattern-match               |
-| `tap`           | function | `tap<A>(fn, r?)` (data-last curried)                        | Side-effect on success               |
-| `tapErr`        | function | `tapErr<E>(fn, r?)` (data-last curried)                     | Side-effect on failure               |
-| `unwrapOr`      | function | `unwrapOr<A>(defaultValue, r?)` (data-last curried)         | Safe extraction with default         |
-| `pipeAsync`     | function | `pipeAsync(value, ...fns)` (1–10 typed overloads)           | Left-to-right async pipeline         |
-| `composeKAsync` | function | `composeKAsync(f1, f2, ...)` (Kleisli `>=>`, 2–6 overloads) | Compose async switch functions       |
-| `switchFnAsync` | function | `switchFnAsync(f)`                                          | 1-track async → async switch adapter |
-| `teeAsync`      | function | `teeAsync(f)`                                               | Async dead-end → 1-track adapter     |
-
-### `Result<TError = Error>`
+Users can supply custom error types:
 
 ```ts
-class Result<TError = Error> implements IResult<TError> {
-    readonly isSuccess: boolean;
-    readonly error: TError;
-    protected constructor(isSuccess: boolean, error?: TError);
+type AppError = { kind: 'NotFound'; id: string } | { kind: 'Validation'; field: string };
 
-    get isFailure(): boolean;  // !isSuccess
-
-    static Success(): IResult;
-    static Success<TValue>(value: TValue): IResultOfT<TValue>;
-    static Failure(error: Error): IResult;
-    static Failure<TValue, TError>(error: TError): IResultOfT<TValue, TError>;
+function findUser(id: string): IResultOfT<User, AppError> {
+    if (!id) return err({ kind: 'NotFound', id });
+    return ok({ id, name: 'Alice' });
 }
-```
-
-- **Constructor is `protected`** — always use static factories, never `new Result(...)`.
-- **`Result.Failure()` with no argument** throws `TypeError`.
-- **Invariant violation** (success with real error, or failure with sentinel) throws `TypeError`.
-
-### `ResultOfT<TValue, TError = Error>`
-
-```ts
-class ResultOfT<TValue, TError = Error>
-    implements IResultOfT<TValue, TError>
-{
-    constructor(value?: TValue, isSuccess?: boolean, error?: TError);
-
-    get value(): TValue;  // throws TypeError if isFailure
-    toJSON(): { isSuccess: true; value: TValue } | { isSuccess: false; error: TError };
-}
-```
-
-- **`value` getter** throws `TypeError` with message `"Cannot access value on a failure result. Check isSuccess before accessing value."` when accessed on a failure.
-- **`toJSON()`** serializes to a plain object for use with `JSON.stringify`.
-
----
-
-## Option — Optional Value Type
-
-`@sandlada/result` includes an `Option<T>` type (inspired by Rust's `Option<T>` and
-F#'s `'a option`) alongside the Result types. Import from the main entry or the
-`./option` sub-path:
-
-```ts
-import { Option } from '@sandlada/result';
-// or
-import { Option } from '@sandlada/result/option';
-import type { IOption, IOptionSome, IOptionNone } from '@sandlada/result/option';
 ```
 
 ### `IOption<T>`
 
-A discriminated union of `IOptionSome<T> | IOptionNone`. Use `isSome` to narrow:
+The Option type represents an optional value.
 
 ```ts
-function describe(opt: IOption<number>): string {
-    if (opt.isSome) return `Got: ${opt.value}`;   // narrowed to Some
-    return 'Nothing';                              // narrowed to None
+type IOption<T> = IOptionSome<T> | IOptionNone;
+
+interface IOptionSome<T> {
+    readonly isSome: true;
+    readonly isNone: false;
+    readonly value: T;
+}
+
+interface IOptionNone {
+    readonly isSome: false;
+    readonly isNone: true;
 }
 ```
 
-### `Option<T>` — Static Factories
+### Type Narrowing
 
-| Factory            | Returns          | Description          |
-| ------------------ | ---------------- | -------------------- |
-| `Option.Some(val)` | `IOption<T>`     | Wrap a value         |
-| `Option.None()`    | `IOption<never>` | Create an empty None |
-
-### `Option<T>` — Instance Methods
-
-All methods return `IOption<...>` (the interface), not the concrete class.
-
-| Method                       | Description                                                 |
-| ---------------------------- | ----------------------------------------------------------- |
-| `opt.map(fn)`                | Transform value if Some, pass through None                  |
-| `opt.andThen(fn)`            | Chain an Option-returning function (bind)                   |
-| `opt.orElse(fn)`             | Fall back to alternative if None                            |
-| `opt.match(onSome, onNone)`  | Terminal — pattern-match both cases                         |
-| `opt.tap(fn)`                | Side-effect on Some, returns `this`                         |
-| `opt.unwrapOr(defaultValue)` | Safe extraction with default                                |
-| `opt.toJSON()`               | Serialize: `{ isSome: true, value }` or `{ isSome: false }` |
-
-### FP Option (`@sandlada/result/fp/option`)
-
-Data-last curried operators for use with `pipe`:
+Always narrow before accessing variant-specific properties:
 
 ```ts
-import { ofSome, ofNone, map, andThen, orElse, match, tap, unwrapOr } from '@sandlada/result/fp/option';
+if (result.isSuccess) {
+    console.log(result.value); // ✓ safe — narrowed to success variant
+} else {
+    console.log(result.error); // ✓ safe — narrowed to failure variant
+}
 
-pipe(
-    ofSome(5),
-    map(x => x * 2),
-    andThen(x => x > 5 ? ofSome(x) : ofNone()),
-    unwrapOr(0),
-); // 10
+if (option.isSome) {
+    console.log(option.value); // ✓ safe — narrowed to Some variant
+}
 ```
 
 ---
 
-## Factory Methods
+## API Reference
 
-All factory methods live on the `Result` class.
-
-### `Result.Success()`
-
-Creates a success result with no value.
+All operators are **data-last curried** — they accept the result/option as the final argument, supporting both of these styles:
 
 ```ts
-const ok = Result.Success();
-ok.isSuccess; // true
-ok.isFailure; // false
+// Direct: operator(fn, result)
+map(x => x * 2, ok(21)); // Ok(42)
+
+// Curried (partial application):
+const double = map(x => x * 2);
+double(ok(21)); // Ok(42)
 ```
 
-### `Result.Failure(error)`
-
-Creates a failure result. **The non-generic overload only accepts `Error` instances.** For custom error types (plain objects, discriminated unions, etc.), use the two-parameter generic `Result.Failure<TValue, TError>(error)` overload instead.
-
-> **Note:** TypeScript uses structural typing, so objects with `message: string` / `name: string` are assignable to `Error` at the type level. The non-generic overload is intended for actual `Error` instances; the library does not perform runtime `instanceof` checks.
+### Factories
 
 ```ts
-const err = Result.Failure(new Error('Something went wrong'));
-err.isSuccess; // false
-err.error.message; // 'Something went wrong'
+import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPromise, asyncOk, asyncErr } from '@sandlada/result';
 ```
 
-### `Result.Success<TValue>(value)`
+| Function        | Signature                                           | Description                                         |
+| --------------- | --------------------------------------------------- | --------------------------------------------------- |
+| `ok()`          | `ok(): IResult<never>`                              | Void success                                        |
+| `ok(value)`     | `ok<T>(value: T): IResultOfT<T, never>`             | Success with value                                  |
+| `err(error)`    | `err<E>(error: E): IResultOfT<never, E>`            | Failure with error                                  |
+| `fromPredicate` | `fromPredicate<T,E>(pred, errorFn, value?)`         | `Ok(v)` if predicate passes, `Err(errorFn(v))` else |
+| `fromThrowable` | `fromThrowable<A,E>(fn, errorFn?)`                  | Wrap throwing function into Result                  |
+| `tryCatch`      | `tryCatch<T,E>(fn, errorFn?)`                       | Execute fn, catch throws                            |
+| `tryCatchAsync` | `tryCatchAsync<T,E>(fn, errorFn?)`                  | Async fn, catch rejections                          |
+| `fromPromise`   | `fromPromise<T,E>(promise, errorFn?)`               | Wrap Promise into Result                            |
+| `asyncOk`       | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`  | Pre-resolved success Promise                        |
+| `asyncErr`      | `asyncErr<E>(error): Promise<IResultOfT<never, E>>` | Pre-resolved failure Promise                        |
 
-Creates a success result carrying a value. The type is inferred from the argument.
+### Sync Operators
 
 ```ts
-const ok = Result.Success({ id: 1, name: 'Alice' });
-// IResultOfT<{ id: number; name: string }>
-ok.value.name; // 'Alice'
+import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse } from '@sandlada/result';
 ```
 
-### `Result.Failure<TValue, TError>(error)`
+| Operator       | Signature                                                 | Description                         |
+| -------------- | --------------------------------------------------------- | ----------------------------------- |
+| `map`          | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`    | Transform success value             |
+| `mapErr`       | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>` | Transform error                     |
+| `bind`         | `bind<A,B,F>(f): <E>(...) => IResultOfT<B,E\|F>`          | Monadic bind (chain)                |
+| `orElse`       | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`        | Error recovery                      |
+| `match`        | `match<A,E,C>(onOk, onErr): (r) => C`                     | Terminal pattern-match              |
+| `tap`          | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                   | Side-effect on success              |
+| `tapErr`       | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                | Side-effect on failure              |
+| `unwrapOr`     | `unwrapOr<A>(def): <E>(r) => A`                           | Extract value or default            |
+| `unwrapOrElse` | `unwrapOrElse<A,E>(fn): (r) => A`                         | Extract value or compute from error |
+| `unwrap`       | `unwrap<A,E>(r): A`                                       | Panics on failure                   |
+| `expect`       | `expect<A,E>(msg): (r) => A`                              | Panics with custom message          |
+| `unwrapErr`    | `unwrapErr<A,E>(r): E`                                    | Panics on success, returns error    |
+| `expectErr`    | `expectErr<A,E>(msg): (r) => E`                           | Panics with custom message          |
+| `flatten`      | `flatten<A,E>(r): IResultOfT<A,E>`                        | Flatten nested Result               |
+| `and`          | `and<B,F>(other): <A,E>(r) => IResultOfT<B,F>`            | Logical AND on Result               |
+| `or`           | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`               | Logical OR on Result                |
+| `contains`     | `contains<A>(target): <E>(r) => boolean`                  | True if success and value matches   |
+| `exists`       | `exists<A>(pred): <E>(r) => boolean`                      | True if success and predicate holds |
+| `bimap`        | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`     | Simultaneously map both variants    |
+| `swap`         | `swap<A,E>(r): IResultOfT<E,A>`                           | Swap Ok/Err                         |
+| `mapOr`        | `mapOr<A,B,E>(def, fn): (r) => B`                         | Map success or return default       |
+| `mapOrElse`    | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                   | Map success or compute from error   |
+| `filterOrElse` | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`  | Filter success or map to error      |
 
-Creates a failure result with a typed error. `TValue` must be explicitly specified (there is no value to infer it from); `TError` is inferred from the argument.
+### Async Operators
 
 ```ts
-type ApiError = { status: number; message: string };
-
-const err = Result.Failure<string, ApiError>({
-    status: 404,
-    message: 'User not found',
-});
-// IResultOfT<string, ApiError>
+import { mapAsync, mapErrAsync, mapOrAsync, mapOrElseAsync, bindAsync, orElseAsync, matchAsync, tapAsync, tapErrAsync, unwrapOrAsync, unwrapOrElseAsync } from '@sandlada/result';
 ```
 
-## OOP Fluent API
+All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync or async.
 
-`ResultOfT` instances provide fluent methods for chaining operations. All methods
-return `IResultOfT<...>` (the interface).
+| Operator            | Signature                                                            | Description                         |
+| ------------------- | -------------------------------------------------------------------- | ----------------------------------- |
+| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`    | Transform success value             |
+| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>` | Transform error                     |
+| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                      | Map success or return default       |
+| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                | Map success or compute from error   |
+| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`       | Chain (monadic bind)                |
+| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`     | Error recovery                      |
+| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                  | Terminal pattern-match              |
+| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                | Side-effect on success              |
+| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`             | Side-effect on failure              |
+| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                        | Extract value or default            |
+| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                      | Extract value or compute from error |
 
-### `result.map(fn)`
+### Composition
+
+```ts
+import { pipe, pipeAsync, composeK, composeKAsync } from '@sandlada/result';
+```
+
+| Function        | Signature                                                | Description                                |
+| --------------- | -------------------------------------------------------- | ------------------------------------------ |
+| `pipe`          | `pipe(value, fn1, fn2, ...)` (1–10 overloads)            | Left-to-right function composition         |
+| `pipeAsync`     | `pipeAsync(value, ...fns)` (1–10 overloads)              | Async pipe                                 |
+| `composeK`      | `composeK<A,B,C,E>(f1, f2): (a: A) => IResultOfT<C,E>`   | Kleisli composition (`>=>`, 2–6 overloads) |
+| `composeKAsync` | `composeKAsync<A,B,C,E>(f1, f2): (a: A) => Promise<...>` | Async Kleisli composition (2–6)            |
+
+### Adapters
+
+```ts
+import { switchFn, switchFnAsync, liftMap, tee, teeAsync, toOption, fromOption } from '@sandlada/result';
+```
+
+| Function        | Signature                                            | Description                                          |
+| --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| `switchFn`      | `switchFn(f): (a: A) => IResultOfT<B, never>`        | 1-track → switch (value → Result)                    |
+| `switchFnAsync` | `switchFnAsync(f): (a: A) => Promise<IResultOfT<B>>` | Async 1-track → async switch                         |
+| `liftMap`       | `liftMap(f): IResultOfT<A,E> => IResultOfT<B,E>`     | 1-track → 2-track (alias for `map`)                  |
+| `tee`           | `tee(f): (a: A) => A`                                | Dead-end → 1-track (side-effect, returns input)      |
+| `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                  | Async dead-end → 1-track                             |
+| `toOption`      | `toOption(r): IOption<A>`                            | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
+| `fromOption`    | `fromOption(opt, errorOnNone): IResultOfT<T,E>`      | Option → Result (`Some(v) → Ok(v)`, `None → Err(e)`) |
+
+### Combine
+
+```ts
+import { combine, all, combineWithAllErrors } from '@sandlada/result';
+```
+
+| Function               | Signature                                    | Behavior                            |
+| ---------------------- | -------------------------------------------- | ----------------------------------- |
+| `combine`              | `combine<A,E>(results[]): IResultOfT<A[],E>` | Short-circuits on first failure     |
+| `all`                  | `all(tuple): IResultOfT<[...tuple], E>`      | Heterogeneous tuple, short-circuits |
+| `combineWithAllErrors` | `combineWithAllErrors<A,E>(results[]): ...`  | Accumulates **all** errors          |
+
+### Option Module
+
+```ts
+import { ofSome, ofNone, map, andThen, orElse, match, tap, unwrapOr, filter, flatten, contains, all, zipWith } from '@sandlada/result/option';
+```
+
+All option operators are curried data-last (option is the final argument).
+
+| Function   | Signature                                          | Description                                      |
+| ---------- | -------------------------------------------------- | ------------------------------------------------ |
+| `ofSome`   | `ofSome<T>(value): IOption<T>`                     | Create Some                                      |
+| `ofNone`   | `ofNone(): IOption<never>`                         | Create None                                      |
+| `map`      | `map<T,U>(fn): (IOption<T>) => IOption<U>`         | Transform value if Some                          |
+| `andThen`  | `andThen<T,U>(fn): (IOption<T>) => IOption<U>`     | Monadic bind (chain)                             |
+| `orElse`   | `orElse<T>(fn): (IOption<T>) => IOption<T>`        | Fall back if None                                |
+| `match`    | `match<T,U>(onSome, onNone): (IOption<T>) => U`    | Terminal pattern-match                           |
+| `tap`      | `tap<T>(fn): (IOption<T>) => IOption<T>`           | Side-effect on Some                              |
+| `unwrapOr` | `unwrapOr<T>(def): (IOption<T>) => T`              | Safe extraction with default                     |
+| `filter`   | `filter<T>(pred): (IOption<T>) => IOption<T>`      | None if predicate fails                          |
+| `flatten`  | `flatten<T>(opt: IOption<IOption<T>>): IOption<T>` | Flatten nested option                            |
+| `contains` | `contains<T>(target): (IOption<T>) => boolean`     | True if Some and value matches                   |
+| `all`      | `all(tuple): IOption<[...values]>`                 | Combine multiple Options (short-circuit on None) |
+| `zipWith`  | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`         | Combine two Options with a function              |
+
+> **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`. `andThen` is exported without a suffix.
+
+---
+
+## Canonical Examples
+
+### Basic Usage
+
+```ts
+import { ok, err, map, match, pipe } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
+
+function divide(a: number, b: number): IResultOfT<number, string> {
+    return b === 0 ? err('Division by zero') : ok(a / b);
+}
+
+// Pattern matching
+const result = match(
+    (v: number) => `Result: ${v}`,
+    (e: string) => `Error: ${e}`,
+    divide(10, 2),
+);
+// "Result: 5"
+
+// Pipeline composition
+const doubleIfPositive = pipe(
+    ok(5),
+    filterOrElse(
+        (x: number) => x > 0,
+        (x: number) => `Negative: ${x}`,
+    ),
+    map((x: number) => x * 2),
+);
+// Ok(10)
+```
+
+### Custom Error Types
+
+```ts
+type AppError =
+    | { kind: 'NotFound'; id: string }
+    | { kind: 'Validation'; field: string; value: unknown }
+    | { kind: 'Database'; cause: Error };
+
+function getUser(id: string): IResultOfT<User, AppError> {
+    if (!id) return err({ kind: 'NotFound', id });
+    // ...
+    return ok({ id, name: 'Alice' });
+}
+
+// Error transformation
+const result = pipe(
+    getUser('42'),
+    mapErr((e: AppError) => `Error: ${e.kind}`),
+);
+```
+
+### Async Operations
+
+```ts
+import { asyncOk, asyncErr, mapAsync, pipeAsync, unwrapOrElseAsync } from '@sandlada/result';
+
+async function fetchUser(id: string) {
+    if (!id) return asyncErr('Invalid ID');
+    const data = await fetch(`/users/${id}`);
+    const user = await data.json();
+    return asyncOk(user);
+}
+
+const result = await pipeAsync(
+    fetchUser('42'),
+    mapAsync((u: User) => u.name),
+    unwrapOrElseAsync((e: string) => `fallback: ${e}`),
+);
+```
+
+### Integration Pattern (Pre-configured Error Type)
+
+```ts
+import { ok, err } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';
+
+type AppError = { kind: 'NotFound' } | { kind: 'Validation'; field: string };
+
+// Type alias
+type AppResult<T = void> = IResultOfT<T, AppError>;
+
+// Convenience factory (eliminates TError generic in call sites)
+const AppResult = {
+    Success<T = void>(value?: T): AppResult<T> {
+        return (value === undefined ? ok() : ok(value)) as unknown as AppResult<T>;
+    },
+    Failure(error: AppError): AppResult<never> {
+        return err(error) as AppResult<never>;
+    },
+} as const;
+
+// Usage — no TError generic needed:
+function findUser(id: string): AppResult<User> {
+    if (!id) return AppResult.Failure({ kind: 'NotFound' });
+    return AppResult.Success({ id, name: 'Alice' });
+}
+```
+
+### Option
+
+```ts
+import { ofSome, ofNone, map as mapOption, andThen, unwrapOr as unwrapOrOption, pipe } from '@sandlada/result';
+import type { IOption } from '@sandlada/result';
+
+function firstElement<T>(arr: T[]): IOption<T> {
+    return arr.length > 0 ? ofSome(arr[0]) : ofNone();
+}
+
+const result = pipe(
+    firstElement([1, 2, 3]),
+    mapOption((x: number) => x * 10),
+    unwrapOrOption(0),
+);
+// 10
+```
+
+---
+
+## JSON Serialization
+
+Result and Option objects can be serialized with `JSON.stringify`:
+
+```ts
+JSON.stringify(ok(42));
+// '{"isSuccess":true,"value":42}'
+
+JSON.stringify(err('fail'));
+// '{"isSuccess":false,"error":"fail"}'
+
+JSON.stringify(ofSome(42));
+// '{"isSome":true,"value":42}'
+
+JSON.stringify(ofNone());
+// '{"isSome":false}'
+```
 
 Transform the success value. On failure, passes through unchanged.
 

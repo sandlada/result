@@ -1,0 +1,2 @@
+import { describe, it, expect } from 'vitest';import { ok, err } from '../../src/index.js';import { exists } from '../../src/index.js';describe('exists', () => {    it('curried form', () => {        const isPositive = exists((n: number) => n > 0);        expect(isPositive(ok(5))).toBe(true);        expect(isPositive(ok(-1))).toBe(false);        expect(isPositive(err<number>(new Error('err')))).toBe(false);    });});
+
