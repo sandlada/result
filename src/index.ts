@@ -54,6 +54,7 @@ export { andTee } from './operators/andTee.js';
 export { orTee } from './operators/orTee.js';
 export { andThrough } from './operators/andThrough.js';
 export { filterOrElse } from './operators/filterOrElse.js';
+export { orThrow, orThrowWith } from './operators/orThrow.js';
 export { unsafeUnwrap } from './operators/unsafeUnwrap.js';
 export { unsafeUnwrapErr } from './operators/unsafeUnwrapErr.js';
 
@@ -71,6 +72,7 @@ export { unwrapOrAsync } from './async/unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './async/unwrapOrElseAsync.js';
 export { asyncMap } from './async/asyncMap.js';
 export { asyncAndThen } from './async/asyncAndThen.js';
+export { asyncAndThrough } from './async/asyncAndThrough.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
@@ -109,6 +111,7 @@ export {
     tapErr as asyncResultTapErr,
     unwrapOr as asyncResultUnwrapOr,
     combine as asyncResultCombine,
+    combineWithAllErrors as asyncResultCombineWithAllErrors,
 } from './async-result/index.js';
 
 // ── Option (re-exported with renamed identifiers) ───────────────────────────

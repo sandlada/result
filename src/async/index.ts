@@ -5,6 +5,7 @@
  */
 
 export { asyncAndThen } from './asyncAndThen.js';
+export { asyncAndThrough } from './asyncAndThrough.js';
 export { asyncMap } from './asyncMap.js';
 export { bindAsync } from './bindAsync.js';
 export { mapAsync } from './mapAsync.js';

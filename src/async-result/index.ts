@@ -20,3 +20,4 @@ export { tap } from './tap.js';
 export { tapErr } from './tapErr.js';
 export { unwrapOr } from './unwrapOr.js';
 export { combine } from './combine.js';
+export { combineWithAllErrors } from './combineWithAllErrors.js';

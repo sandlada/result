@@ -35,7 +35,7 @@ export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
 ): Generator<IResultOfT<never, E>, T, unknown> {
     if(result.isSuccess) return result.value as T;
-    return yield result as unknown as IResultOfT<never, E>;
+    return (yield result as unknown as IResultOfT<never, E>) as unknown as T;
 }
 
 /**
