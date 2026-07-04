@@ -57,7 +57,10 @@
     "scripts": {
         "build": "tsgo --project tsconfig.json",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "bench": "vitest bench",
+        "bench:json": "vitest bench --outputJson=bench/results.json",
+        "bench:ui": "vitest bench --ui"
     },
     "repository": {
         "type": "git",
@@ -81,6 +84,7 @@
     "license": "MIT",
     "devDependencies": {
         "@typescript/native-preview": "^7.0.0-dev.20260630.1",
+        "@vitest/ui": "^4.1.9",
         "vitest": "^4.1.9"
     }
 }
