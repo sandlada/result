@@ -7,7 +7,7 @@ import { expect as expectOp } from '../../src/index.js';
 
 describe('expect (void result)', () => {
     it('succeeds on a success result (no return)', () => {
-        const r = ok();
+        const r = ok() as IResultOfT<void, never>;
         expect(() => expectOp('should not happen', r)).not.toThrow();
     });
 
@@ -32,7 +32,7 @@ describe('expect (value result)', () => {
     });
 
     it('throws TypeError with custom message on failure', () => {
-        const r = err<string>(new Error('db down'));
+        const r = err(new Error('db down'));
         try {
             expectOp('Failed to fetch user', r);
         } catch (e: unknown) {
@@ -44,7 +44,7 @@ describe('expect (value result)', () => {
 
     it('works with discriminated union TError', () => {
         type AppErr = { kind: 'NotFound'; id: number };
-        const r = err<string, AppErr>({ kind: 'NotFound', id: 42 });
+        const r = err<AppErr>({ kind: 'NotFound', id: 42 });
         try {
             expectOp('User lookup', r);
         } catch (e: unknown) {
@@ -63,7 +63,7 @@ describe('expect (FP operator)', () => {
     });
 
     it('throws on failure', () => {
-        const r: IResultOfT<number> = err<number>(new Error('op fail'));
+        const r: IResultOfT<number> = err(new Error('op fail'));
         expect(() => expectOp('should not happen', r)).toThrow(TypeError);
     });
 });

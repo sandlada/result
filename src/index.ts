@@ -10,6 +10,7 @@ export type {
     IResultOfTFailure,
 } from './types/IResultOfT.js';
 export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
+export type { AsyncResult } from './types/AsyncResult.js';
 
 // ── Core constructors ───────────────────────────────────────────────────────
 export { ok } from './factories/ok.js';
@@ -45,6 +46,9 @@ export { bimap } from './operators/bimap.js';
 export { swap } from './operators/swap.js';
 export { mapOr } from './operators/mapOr.js';
 export { mapOrElse } from './operators/mapOrElse.js';
+export { ap } from './operators/ap.js';
+export { separate } from './operators/separate.js';
+export { traverseArray } from './operators/traverseArray.js';
 export { filterOrElse } from './operators/filterOrElse.js';
 
 // ── Async operators ─────────────────────────────────────────────────────────
@@ -79,6 +83,23 @@ export { teeAsync } from './adapters/teeAsync.js';
 export { combine } from './combine/combine.js';
 export { all } from './combine/all.js';
 export { combineWithAllErrors } from './combine/combineWithAllErrors.js';
+
+// ── AsyncResult ─────────────────────────────────────────────────────────────
+export {
+    from,
+    fromPromise as asyncResultFromPromise,
+    fromResult,
+    map as asyncResultMap,
+    mapAsync as asyncResultMapAsync,
+    mapErr as asyncResultMapErr,
+    andThen as asyncResultAndThen,
+    orElse as asyncResultOrElse,
+    match as asyncResultMatch,
+    tap as asyncResultTap,
+    tapErr as asyncResultTapErr,
+    unwrapOr as asyncResultUnwrapOr,
+    combine as asyncResultCombine,
+} from './async-result/index.js';
 
 // ── Option (re-exported with renamed identifiers) ───────────────────────────
 export { ofSome, ofNone } from './option/index.js';

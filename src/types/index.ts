@@ -11,3 +11,4 @@ export type {
     IResultOfTFailure,
 } from './IResultOfT.js';
 export type { IOption, IOptionSome, IOptionNone } from './Option.js';
+export type { AsyncResult } from './AsyncResult.js';

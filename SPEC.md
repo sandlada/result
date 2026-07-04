@@ -24,17 +24,18 @@ npm install @sandlada/result
 
 ## Import Paths
 
-| Entry point     | Import                                                     | Description               |
-| --------------- | ---------------------------------------------------------- | ------------------------- |
-| `.` (default)   | `import { ok, pipe, map } from '@sandlada/result'`         | All exports (main barrel) |
-| `./types`       | `import type { IResultOfT } from '@sandlada/result/types'` | Type definitions only     |
-| `./factories`   | `import { ok, err } from '@sandlada/result/factories'`     | Core constructors         |
-| `./operators`   | `import { map, bind } from '@sandlada/result/operators'`   | Sync operators            |
-| `./async`       | `import { mapAsync } from '@sandlada/result/async'`        | Async operators           |
-| `./composition` | `import { pipe } from '@sandlada/result/composition'`      | Composition utilities     |
-| `./adapters`    | `import { toOption } from '@sandlada/result/adapters'`     | Adapter functions         |
-| `./combine`     | `import { combine } from '@sandlada/result/combine'`       | Parallel combination      |
-| `./option`      | `import { ofSome, map } from '@sandlada/result/option'`    | Option sub-module         |
+| Entry point      | Import                                                     | Description               |
+| ---------------- | ---------------------------------------------------------- | ------------------------- |
+| `.` (default)    | `import { ok, pipe, map } from '@sandlada/result'`         | All exports (main barrel) |
+| `./types`        | `import type { IResultOfT } from '@sandlada/result/types'` | Type definitions only     |
+| `./factories`    | `import { ok, err } from '@sandlada/result/factories'`     | Core constructors         |
+| `./operators`    | `import { map, bind } from '@sandlada/result/operators'`   | Sync operators            |
+| `./async`        | `import { mapAsync } from '@sandlada/result/async'`        | Async operators           |
+| `./composition`  | `import { pipe } from '@sandlada/result/composition'`      | Composition utilities     |
+| `./adapters`     | `import { toOption } from '@sandlada/result/adapters'`     | Adapter functions         |
+| `./combine`      | `import { combine } from '@sandlada/result/combine'`       | Parallel combination      |
+| `./option`       | `import { ofSome, map } from '@sandlada/result/option'`    | Option sub-module         |
+| `./async-result` | `import { from } from '@sandlada/result/async-result'`     | Lazy AsyncResult thunk    |
 
 ## Core Types
 
@@ -126,6 +127,21 @@ interface IOptionNone {
 }
 ```
 
+### `AsyncResult<TValue, TError = Error>`
+
+A **lazy** async result — wraps `() => Promise<IResultOfT<TValue, TError>>`.
+Execution is deferred until `.run()` is called.
+
+```ts
+interface AsyncResult<TValue, TError = Error> {
+    readonly run: () => Promise<IResultOfT<TValue, TError>>;
+}
+```
+
+- All operators return a new lazy `AsyncResult` without executing.
+- Terminal operators (`.run()`, `match`, `unwrapOr`) trigger execution.
+- See [AsyncResult API Reference](#asyncresult-sandladaresultasync-result) for details.
+
 ### Type Narrowing
 
 Always narrow before accessing variant-specific properties:
@@ -179,34 +195,37 @@ import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPro
 ### Sync Operators
 
 ```ts
-import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse } from '@sandlada/result';
+import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse, ap, separate, traverseArray } from '@sandlada/result';
 ```
 
-| Operator       | Signature                                                 | Description                         |
-| -------------- | --------------------------------------------------------- | ----------------------------------- |
-| `map`          | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`    | Transform success value             |
-| `mapErr`       | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>` | Transform error                     |
-| `bind`         | `bind<A,B,F>(f): <E>(...) => IResultOfT<B,E\|F>`          | Monadic bind (chain)                |
-| `orElse`       | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`        | Error recovery                      |
-| `match`        | `match<A,E,C>(onOk, onErr): (r) => C`                     | Terminal pattern-match              |
-| `tap`          | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                   | Side-effect on success              |
-| `tapErr`       | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                | Side-effect on failure              |
-| `unwrapOr`     | `unwrapOr<A>(def): <E>(r) => A`                           | Extract value or default            |
-| `unwrapOrElse` | `unwrapOrElse<A,E>(fn): (r) => A`                         | Extract value or compute from error |
-| `unwrap`       | `unwrap<A,E>(r): A`                                       | Panics on failure                   |
-| `expect`       | `expect<A,E>(msg): (r) => A`                              | Panics with custom message          |
-| `unwrapErr`    | `unwrapErr<A,E>(r): E`                                    | Panics on success, returns error    |
-| `expectErr`    | `expectErr<A,E>(msg): (r) => E`                           | Panics with custom message          |
-| `flatten`      | `flatten<A,E>(r): IResultOfT<A,E>`                        | Flatten nested Result               |
-| `and`          | `and<B,F>(other): <A,E>(r) => IResultOfT<B,F>`            | Logical AND on Result               |
-| `or`           | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`               | Logical OR on Result                |
-| `contains`     | `contains<A>(target): <E>(r) => boolean`                  | True if success and value matches   |
-| `exists`       | `exists<A>(pred): <E>(r) => boolean`                      | True if success and predicate holds |
-| `bimap`        | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`     | Simultaneously map both variants    |
-| `swap`         | `swap<A,E>(r): IResultOfT<E,A>`                           | Swap Ok/Err                         |
-| `mapOr`        | `mapOr<A,B,E>(def, fn): (r) => B`                         | Map success or return default       |
-| `mapOrElse`    | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                   | Map success or compute from error   |
-| `filterOrElse` | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`  | Filter success or map to error      |
+| Operator        | Signature                                                 | Description                         |
+| --------------- | --------------------------------------------------------- | ----------------------------------- |
+| `map`           | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`    | Transform success value             |
+| `mapErr`        | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>` | Transform error                     |
+| `bind`          | `bind<A,B,F>(f): <E>(...) => IResultOfT<B,E\|F>`          | Monadic bind (chain)                |
+| `orElse`        | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`        | Error recovery                      |
+| `match`         | `match<A,E,C>(onOk, onErr): (r) => C`                     | Terminal pattern-match              |
+| `tap`           | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                   | Side-effect on success              |
+| `tapErr`        | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                | Side-effect on failure              |
+| `unwrapOr`      | `unwrapOr<A>(def): <E>(r) => A`                           | Extract value or default            |
+| `unwrapOrElse`  | `unwrapOrElse<A,E>(fn): (r) => A`                         | Extract value or compute from error |
+| `unwrap`        | `unwrap<A,E>(r): A`                                       | Panics on failure                   |
+| `expect`        | `expect<A,E>(msg): (r) => A`                              | Panics with custom message          |
+| `unwrapErr`     | `unwrapErr<A,E>(r): E`                                    | Panics on success, returns error    |
+| `expectErr`     | `expectErr<A,E>(msg): (r) => E`                           | Panics with custom message          |
+| `flatten`       | `flatten<A,E>(r): IResultOfT<A,E>`                        | Flatten nested Result               |
+| `and`           | `and<B,F>(other): <A,E>(r) => IResultOfT<B,F>`            | Logical AND on Result               |
+| `or`            | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`               | Logical OR on Result                |
+| `contains`      | `contains<A>(target): <E>(r) => boolean`                  | True if success and value matches   |
+| `exists`        | `exists<A>(pred): <E>(r) => boolean`                      | True if success and predicate holds |
+| `bimap`         | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`     | Simultaneously map both variants    |
+| `swap`          | `swap<A,E>(r): IResultOfT<E,A>`                           | Swap Ok/Err                         |
+| `mapOr`         | `mapOr<A,B,E>(def, fn): (r) => B`                         | Map success or return default       |
+| `mapOrElse`     | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                   | Map success or compute from error   |
+| `filterOrElse`  | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`  | Filter success or map to error      |
+| `ap`            | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`            | Apply wrapped fn to wrapped value   |
+| `separate`      | `separate<T,E>(results): { ok: T[]; err: E[] }`           | Partition successes and failures    |
+| `traverseArray` | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`      | Apply fn to every element, collect  |
 
 ### Async Operators
 
@@ -657,47 +676,100 @@ r.map(x => x * 2);                       // OOP
 pipe(r, map(x => x * 2));                // FP, 相同 r
 ```
 
-## AsyncResult (`@sandlada/result/promise`)
+## AsyncResult (@sandlada/result/async-result)
 
-`AsyncResult` 是一個 lazy 的 `Promise<IResultOfT<TValue, TError>>`，提供與
-`ResultOfT` 一致的流暢 API。它可以被直接 `await`，回傳底層的 `IResultOfT`。
+`AsyncResult<T, E>` is a **lazy thunk** wrapping `() => Promise<IResultOfT<T, E>>`.
+Unlike the eager `Promise<IResultOfT>` pattern, AsyncResult defers execution
+until `.run()` is called, enabling composable pipelines without side effects.
 
-### 導入
+### Type
 
 ```ts
-import { AsyncResult } from '@sandlada/result/promise';
+import type { AsyncResult } from '@sandlada/result';
+// or from the types sub-path:
+import type { AsyncResult } from '@sandlada/result/types';
+
+interface AsyncResult<T, E = Error> {
+    readonly run: () => Promise<IResultOfT<T, E>>;
+}
 ```
 
-### 靜態工廠（camelCase）
-
-| Factory                      | Returns                 | Description                               |
-| ---------------------------- | ----------------------- | ----------------------------------------- |
-| `AsyncResult.success()`      | `AsyncResult<void>`     | 建立 void success                         |
-| `AsyncResult.success(value)` | `AsyncResult<T>`        | 建立攜帶值的 success                      |
-| `AsyncResult.failure(error)` | `AsyncResult<never, E>` | 建立 failure                              |
-| `AsyncResult.tryCatch(fn)`   | `AsyncResult<T, E>`     | 包裝 async function，catch rejection      |
-| `AsyncResult.from(result)`   | `AsyncResult<T, E>`     | 將 sync `IResultOfT` 提升至 `AsyncResult` |
-| `AsyncResult.fromPromise(p)` | `AsyncResult<T, E>`     | 包裝現有 `Promise<T>`                     |
-
-### 實例方法
+### Factories
 
 ```ts
-// 轉換（回傳 AsyncResult）
-asyncResult.map(fn)            // 同步轉換 success value
-asyncResult.mapAsync(fn)       // 非同步轉換 success value，catch callback 例外
-asyncResult.mapErr(fn)         // 同步轉換 error
-asyncResult.mapErrAsync(fn)    // 非同步轉換 error，catch callback 例外
+import { from, fromPromise, fromResult } from '@sandlada/result/async-result';
+// or from the main barrel:
+import { from, fromPromise, fromResult } from '@sandlada/result';
+```
 
-// 鏈接（回傳 AsyncResult，error type widening）
-asyncResult.andThen(fn)        // monadic bind — fn 可回傳 AsyncResult 或 IResultOfT
-asyncResult.orElse(fn)         // error recovery — fn 可回傳 AsyncResult 或 IResultOfT
+| Function      | Signature                                             | Description                                   |
+| ------------- | ----------------------------------------------------- | --------------------------------------------- |
+| `from`        | `from<T,E>(thunk): AsyncResult<T,E>`                  | Wrap a thunk `() => Promise<IResultOfT<T,E>>` |
+| `fromPromise` | `fromPromise<T,E>(thunk, errorFn?): AsyncResult<T,E>` | Wrap `() => Promise<T>`, catch rejections     |
+| `fromResult`  | `fromResult<T,E>(result): AsyncResult<T,E>`           | Lift sync `IResultOfT` into AsyncResult       |
 
-// 副作用（回傳 AsyncResult）
-asyncResult.tap(fn)            // success 副作用
-asyncResult.tapErr(fn)         // failure 副作用
+All factories are **lazy** — the computation doesn't start until `.run()`.
 
-// 終端（回傳 Promise）
-await asyncResult.match(onOk, onErr)  // pattern-match
+### Operators (Lazy)
+
+Lazy operators return a new `AsyncResult` without executing. Import from `@sandlada/result/async-result` or the main barrel (prefixed with `asyncResult`):
+
+```ts
+import { map, mapAsync, mapErr, andThen, orElse, tap, tapErr, combine } from '@sandlada/result/async-result';
+```
+
+| Operator   | Signature                                                      | Description                              |
+| ---------- | -------------------------------------------------------------- | ---------------------------------------- |
+| `map`      | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Sync map over success value              |
+| `mapAsync` | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Async map (fn throws → rejection)        |
+| `mapErr`   | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Sync map over error                      |
+| `andThen`  | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Monadic bind (fn returns AsyncResult)    |
+| `orElse`   | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery from failure                    |
+| `tap`      | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success                   |
+| `tapErr`   | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure                   |
+| `combine`  | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
+
+### Terminal Operators
+
+Terminal operators call `.run()` and return `Promise`:
+
+```ts
+import { match, unwrapOr } from '@sandlada/result/async-result';
+```
+
+| Operator   | Signature                                                       | Description                   |
+| ---------- | --------------------------------------------------------------- | ----------------------------- |
+| `match`    | `match<T,E,U>(handlers, ar): Promise<U>`                        | Run and pattern-match         |
+| `unwrapOr` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | Run, extract value or default |
+
+### Example
+
+```ts
+import { fromPromise, map, andThen, match } from '@sandlada/result/async-result';
+import type { AsyncResult } from '@sandlada/result';
+
+// Build a lazy pipeline
+const fetchUser: AsyncResult<User, Error> = fromPromise(
+    () => fetch('/api/user/42').then(r => r.json()),
+);
+
+const pipeline = pipeAsyncResult(
+    fetchUser,
+    map((u: User) => u.name),
+    andThen((name: string) =>
+        fromPromise(() => fetch(`/api/profile/${name}`).then(r => r.json())),
+    ),
+);
+
+// Execute
+const result = await pipeline.run(); // IResultOfT<Profile, Error>
+
+// Or use a terminal operator:
+const name = await match(
+    { ok: (p: Profile) => p.displayName, err: () => 'Anonymous' },
+    pipeline,
+);
+```
 await asyncResult.unwrapOr(def)       // safe extraction
 await asyncResult.toPromise()         // escape hatch: Promise<IResultOfT>
 ```

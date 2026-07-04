@@ -50,17 +50,18 @@
 
 The package exposes the following entry points via `package.json` `"exports"`:
 
-| Entry point     | Resolves to                          |
-| --------------- | ------------------------------------ |
-| `.`             | `./build/index.js` (barrel)          |
-| `./types`       | `./build/types/index.js` (type defs) |
-| `./factories`   | `./build/factories/index.js`         |
-| `./operators`   | `./build/operators/index.js`         |
-| `./async`       | `./build/async/index.js`             |
-| `./composition` | `./build/composition/index.js`       |
-| `./adapters`    | `./build/adapters/index.js`          |
-| `./combine`     | `./build/combine/index.js`           |
-| `./option`      | `./build/option/index.js`            |
+| Entry point      | Resolves to                               |
+| ---------------- | ----------------------------------------- |
+| `.`              | `./build/index.js` (barrel)               |
+| `./types`        | `./build/types/index.js` (type defs)      |
+| `./factories`    | `./build/factories/index.js`              |
+| `./operators`    | `./build/operators/index.js`              |
+| `./async`        | `./build/async/index.js`                  |
+| `./composition`  | `./build/composition/index.js`            |
+| `./adapters`     | `./build/adapters/index.js`               |
+| `./combine`      | `./build/combine/index.js`                |
+| `./option`       | `./build/option/index.js`                 |
+| `./async-result` | `./build/async-result/index.js` (lazy AR) |
 
 ---
 
@@ -115,6 +116,15 @@ src/
     filter.ts, flatten.ts, map.ts, match.ts, orElse.ts,
     tap.ts, unwrapOr.ts, zipWith.ts, index.ts
 
+  async-result/        — Lazy AsyncResult thunk
+    AsyncResult.ts     — AsyncResult interface (lazy thunk)
+    from.ts            — From thunk factory
+    fromPromise.ts     — Wrap Promise<T> into AsyncResult
+    fromResult.ts      — Lift sync Result into AsyncResult
+    map.ts, mapAsync.ts, mapErr.ts, andThen.ts, orElse.ts,
+    match.ts, tap.ts, tapErr.ts, unwrapOr.ts, combine.ts
+    index.ts           — Barrel re-export
+
 build/
   index.js            — Compiled output (mirrors src/)
   index.d.ts          — Type declarations
@@ -126,6 +136,7 @@ build/
   adapters/           — Compiled adapters/ mirror
   combine/            — Compiled combine/ mirror
   option/             — Compiled option/ mirror
+  async-result/       — Compiled async-result/ mirror
   ...
     filter.ts          — filter()
     flatten.ts         — flatten()
@@ -236,6 +247,21 @@ test/
   types/IResult.spec.ts               — IResult discriminated union contract
   types/IResultOfT.spec.ts            — IResultOfT discriminated union contract
   types/Option.spec.ts                — IOption discriminated union narrowing
+
+  # async-result/ — 1:1 with src/async-result/
+  async-result/from.spec.ts           — from (lazy thunk, laziness contract)
+  async-result/fromPromise.spec.ts    — fromPromise (resolve, reject, errorFn)
+  async-result/fromResult.spec.ts     — fromResult (sync→async lift)
+  async-result/map.spec.ts            — map (curried, failure pass-through, lazy)
+  async-result/mapAsync.spec.ts       — mapAsync (async fn, rejection propagation)
+  async-result/mapErr.spec.ts         — mapErr (curried, success pass-through)
+  async-result/andThen.spec.ts        — andThen (chain, short-circuit, curried)
+  async-result/orElse.spec.ts         — orElse (recovery, curried)
+  async-result/match.spec.ts          — match (terminal, curried)
+  async-result/tap.spec.ts            — tap (side-effect on success)
+  async-result/tapErr.spec.ts         — tapErr (side-effect on failure)
+  async-result/unwrapOr.spec.ts       — unwrapOr (terminal, default value)
+  async-result/combine.spec.ts        — combine (all success, short-circuit, lazy)
 ```
 
 ---
@@ -346,31 +372,34 @@ accepts the result as an immediate last argument for direct calls:
 map(x => x * 2, ok(21));  // Ok(42)
 ```
 
-| File              | Signature                                                         | Description                         |
-| ----------------- | ----------------------------------------------------------------- | ----------------------------------- |
-| `map.ts`          | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`            | Transform success value             |
-| `mapErr.ts`       | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>`         | Transform error                     |
-| `bind.ts`         | `bind<A,B,F>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E\|F>`      | Chain (monadic bind)                |
-| `orElse.ts`       | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`                | Error recovery                      |
-| `match.ts`        | `match<A,E,C>(onOk, onErr): (r) => C`                             | Terminal pattern-match              |
-| `tap.ts`          | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                           | Side-effect on success              |
-| `tapErr.ts`       | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                        | Side-effect on failure              |
-| `unwrapOr.ts`     | `unwrapOr<A>(def): <E>(r) => A`                                   | Extract value or default            |
-| `unwrapOrElse.ts` | `unwrapOrElse<A,E>(fn): (r) => A`                                 | Extract value or compute from error |
-| `unwrap.ts`       | `unwrap<A,E>(r): A`                                               | Panics on failure                   |
-| `expect.ts`       | `expect<A,E>(msg): (r) => A`                                      | Panics with custom message          |
-| `unwrapErr.ts`    | `unwrapErr<A,E>(r): E`                                            | Panics on success, returns error    |
-| `expectErr.ts`    | `expectErr<A,E>(msg): (r) => E`                                   | Panics with custom message          |
-| `flatten.ts`      | `flatten<A,E>(r: IResultOfT<IResultOfT<A,E>,E>): IResultOfT<A,E>` | Flatten nested Result               |
-| `and.ts`          | `and<B,F>(other): <A,E>(r) => IResultOfT<B,E\|F>`                 | Logical AND                         |
-| `or.ts`           | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`                       | Logical OR                          |
-| `contains.ts`     | `contains<A>(target): <E>(r) => boolean`                          | True if success and value matches   |
-| `exists.ts`       | `exists<A>(pred): <E>(r) => boolean`                              | True if success and predicate holds |
-| `bimap.ts`        | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`             | Simultaneous map over both variants |
-| `swap.ts`         | `swap<A,E>(r): IResultOfT<E,A>`                                   | Swap Ok/Err                         |
-| `filterOrElse.ts` | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`          | Filter success or map to error      |
-| `mapOr.ts`        | `mapOr<A,B,E>(def, fn): (r) => B`                                 | Map success or return default       |
-| `mapOrElse.ts`    | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                           | Map success or compute from error   |
+| File               | Signature                                                         | Description                         |
+| ------------------ | ----------------------------------------------------------------- | ----------------------------------- |
+| `map.ts`           | `map<A,B>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E>`            | Transform success value             |
+| `mapErr.ts`        | `mapErr<E,F>(f): <A>(IResultOfT<A,E>) => IResultOfT<A,F>`         | Transform error                     |
+| `bind.ts`          | `bind<A,B,F>(f): <E>(IResultOfT<A,E>) => IResultOfT<B,E\|F>`      | Chain (monadic bind)                |
+| `orElse.ts`        | `orElse<E,B,F>(f): <A>(...) => IResultOfT<A\|B,F>`                | Error recovery                      |
+| `match.ts`         | `match<A,E,C>(onOk, onErr): (r) => C`                             | Terminal pattern-match              |
+| `tap.ts`           | `tap<A>(fn): <E>(r) => IResultOfT<A,E>`                           | Side-effect on success              |
+| `tapErr.ts`        | `tapErr<E>(fn): <A>(r) => IResultOfT<A,E>`                        | Side-effect on failure              |
+| `unwrapOr.ts`      | `unwrapOr<A>(def): <E>(r) => A`                                   | Extract value or default            |
+| `unwrapOrElse.ts`  | `unwrapOrElse<A,E>(fn): (r) => A`                                 | Extract value or compute from error |
+| `unwrap.ts`        | `unwrap<A,E>(r): A`                                               | Panics on failure                   |
+| `expect.ts`        | `expect<A,E>(msg): (r) => A`                                      | Panics with custom message          |
+| `unwrapErr.ts`     | `unwrapErr<A,E>(r): E`                                            | Panics on success, returns error    |
+| `expectErr.ts`     | `expectErr<A,E>(msg): (r) => E`                                   | Panics with custom message          |
+| `flatten.ts`       | `flatten<A,E>(r: IResultOfT<IResultOfT<A,E>,E>): IResultOfT<A,E>` | Flatten nested Result               |
+| `and.ts`           | `and<B,F>(other): <A,E>(r) => IResultOfT<B,E\|F>`                 | Logical AND                         |
+| `or.ts`            | `or<A,F>(other): <E>(r) => IResultOfT<A,F>`                       | Logical OR                          |
+| `contains.ts`      | `contains<A>(target): <E>(r) => boolean`                          | True if success and value matches   |
+| `exists.ts`        | `exists<A>(pred): <E>(r) => boolean`                              | True if success and predicate holds |
+| `bimap.ts`         | `bimap<A,E,C,F>(onOk, onErr): (r) => IResultOfT<C,F>`             | Simultaneous map over both variants |
+| `swap.ts`          | `swap<A,E>(r): IResultOfT<E,A>`                                   | Swap Ok/Err                         |
+| `traverseArray.ts` | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`              | Apply fn to every element, collect  |
+| `separate.ts`      | `separate<T,E>(results): { ok: T[]; err: E[] }`                   | Partition successes and failures    |
+| `ap.ts`            | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`                    | Apply wrapped fn to wrapped value   |
+| `filterOrElse.ts`  | `filterOrElse<A,E>(pred, errFn): (r) => IResultOfT<A,E>`          | Filter success or map to error      |
+| `mapOr.ts`         | `mapOr<A,B,E>(def, fn): (r) => B`                                 | Map success or return default       |
+| `mapOrElse.ts`     | `mapOrElse<A,B,E>(onErr, fn): (r) => B`                           | Map success or compute from error   |
 
 ### `src/async/` — Async Operators (Promise-based)
 
@@ -451,12 +480,13 @@ All operators are curried data-last.
 export type { IResult, IResultSuccess, IResultFailure } from './types/IResult.js';
 export type { IResultOfT, IResultOfTSuccess, IResultOfTFailure } from './types/IResultOfT.js';
 export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
+export type { AsyncResult } from './types/AsyncResult.js';
 
 // ── Core constructors ──
 export { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPromise, asyncOk, asyncErr } from './factories/index.js';
 
 // ── Sync operators ──
-export { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse } from './operators/index.js';
+export { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, ap, separate, traverseArray } from './operators/index.js';
 
 // ── Async operators ──
 export { mapAsync, mapErrAsync, mapOrAsync, mapOrElseAsync, bindAsync, orElseAsync, matchAsync, tapAsync, tapErrAsync, unwrapOrAsync, unwrapOrElseAsync } from './async/index.js';
@@ -473,6 +503,10 @@ export { combine, all, combineWithAllErrors } from './combine/index.js';
 // ── Option (re-exported with renamed identifiers to avoid name collisions) ──
 export { ofSome, ofNone } from './option/index.js';
 export { map as mapOption, andThen, orElse as orElseOption, match as matchOption, tap as tapOption, unwrapOr as unwrapOrOption, filter as filterOption, flatten as flattenOption, contains as containsOption, all as allOption, zipWith as zipWithOption } from './option/index.js';
+
+// ── AsyncResult (re-exported with renamed identifiers) ──
+export { from, fromPromise, fromResult } from './async-result/index.js';
+export { map as asyncResultMap, mapAsync as asyncResultMapAsync, mapErr as asyncResultMapErr, andThen as asyncResultAndThen, orElse as asyncResultOrElse, match as asyncResultMatch, tap as asyncResultTap, tapErr as asyncResultTapErr, unwrapOr as asyncResultUnwrapOr, combine as asyncResultCombine } from './async-result/index.js';
 ```
 
 - Uses `export type` for interfaces/type aliases (required by `verbatimModuleSyntax`)
@@ -565,6 +599,77 @@ computation is handled entirely through `Promise<IResultOfT>` with data-last
 curried operators — no wrapper class needed.
 
 ---
+
+## AsyncResult Module Architecture (`@sandlada/result/async-result`)
+
+The AsyncResult module provides a **lazy thunk** wrapping asynchronous Result
+computations. Unlike the eager `Promise<IResultOfT>` pattern in `src/async/`,
+AsyncResult defers execution until `.run()` is called, enabling composable
+builder-style pipelines without side effects.
+
+### Type Definition (`src/types/AsyncResult.ts`)
+
+```ts
+export interface AsyncResult<T, E = Error> {
+    readonly run: () => Promise<IResultOfT<T, E>>;
+}
+```
+
+A plain interface with a single `run()` method — no class, no prototype, no
+eager execution.
+
+### Factories (`src/async-result/`)
+
+| File             | Signature                                             | Description                         |
+| ---------------- | ----------------------------------------------------- | ----------------------------------- |
+| `from.ts`        | `from<T,E>(thunk): AsyncResult<T,E>`                  | Wrap a thunk into an AsyncResult    |
+| `fromPromise.ts` | `fromPromise<T,E>(thunk, errorFn?): AsyncResult<T,E>` | Wrap a `() => Promise<T>` (lazy)    |
+| `fromResult.ts`  | `fromResult<T,E>(result): AsyncResult<T,E>`           | Lift a sync Result into AsyncResult |
+
+All factories are **lazy** — the computation doesn't start until `.run()`.
+
+### Operators (`src/async-result/`)
+
+All operators are **lazy** (return a new `AsyncResult` without running) and
+**data-last curried** where appropriate.
+
+| File          | Signature                                                       | Description                                          |
+| ------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
+| `map.ts`      | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`        | Sync map over success value                          |
+| `mapAsync.ts` | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Async map over success value (fn throws → rejection) |
+| `mapErr.ts`   | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`     | Sync map over error                                  |
+| `andThen.ts`  | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`    | Chain (monadic bind, fn returns AsyncResult)         |
+| `orElse.ts`   | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>`  | Recovery from failure                                |
+| `match.ts`    | `match<T,E,U>(handlers, ar): Promise<U>`                        | **Terminal** — runs and pattern-matches              |
+| `tap.ts`      | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`          | Side-effect on success                               |
+| `tapErr.ts`   | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`       | Side-effect on failure                               |
+| `unwrapOr.ts` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | **Terminal** — runs, extracts or defaults            |
+| `combine.ts`  | `combine<T,E>(results): AsyncResult<T[],E>`                     | Combine array, short-circuits on failure             |
+
+**Lazy vs Terminal:**
+- **Lazy** operators (`map`, `mapAsync`, `mapErr`, `andThen`, `orElse`, `tap`, `tapErr`, `combine`) return a new `AsyncResult` — they never call `.run()`
+- **Terminal** operators (`match`, `unwrapOr`) call `.run()` internally and return `Promise<U>`
+
+### AsyncResult vs `Promise<IResultOfT>` (src/async/)
+
+| Concern         | `src/async/` (eager)                  | `src/async-result/` (lazy)                     |
+| --------------- | ------------------------------------- | ---------------------------------------------- |
+| Data type       | `Promise<IResultOfT<T, E>>`           | `AsyncResult<T, E>` (thunk)                    |
+| Execution       | Eager — promise starts on creation    | Lazy — starts on `.run()`                      |
+| Composition     | `pipeAsync(value, mapAsync(fn), ...)` | `ar.then(map(fn)).then(mapAsync(g)).run()`     |
+| Terminal unwind | `await promise` → narrow              | `match` / `unwrapOr` return `Promise`          |
+| Best for        | One-shot async ops, fire-and-forget   | Complex pipelines, retries, deferred execution |
+
+### Integration with Barrel
+
+Exported from `@sandlada/result` with renamed identifiers to avoid collisions:
+
+```ts
+export { from, fromPromise, fromResult } from './async-result/index.js';
+export { map as asyncResultMap, mapAsync as asyncResultMapAsync, ... } from './async-result/index.js';
+```
+
+Also available as a standalone sub-path: `@sandlada/result/async-result`.
 
 ## Key Design Patterns
 

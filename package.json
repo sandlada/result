@@ -41,6 +41,10 @@
         "./combine": {
             "types": "./build/combine/index.d.ts",
             "default": "./build/combine/index.js"
+        },
+        "./async-result": {
+            "types": "./build/async-result/index.d.ts",
+            "default": "./build/async-result/index.js"
         }
     },
     "files": [
