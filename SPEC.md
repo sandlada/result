@@ -140,7 +140,6 @@ interface AsyncResult<TValue, TError = Error> {
 
 - All operators return a new lazy `AsyncResult` without executing.
 - Terminal operators (`.run()`, `match`, `unwrapOr`) trigger execution.
-- See [AsyncResult API Reference](#asyncresult-sandladaresultasync-result) for details.
 
 ### Type Narrowing
 
@@ -176,27 +175,27 @@ double(ok(21)); // Ok(42)
 ### Factories
 
 ```ts
-import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPromise, asyncOk, asyncErr } from '@sandlada/result';
+import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPromise, fromSafePromise, asyncOk, asyncErr } from '@sandlada/result';
 ```
 
-| Function          | Signature                                                    | Description                                         |
-| ----------------- | ------------------------------------------------------------ | --------------------------------------------------- |
-| `ok()`            | `ok(): IResult<never>`                                       | Void success                                        |
-| `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                  |
-| `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                  |
-| `fromPredicate`   | `fromPredicate<T,E>(pred, errorFn, value?)`                  | `Ok(v)` if predicate passes, `Err(errorFn(v))` else |
-| `fromThrowable`   | `fromThrowable<A,E>(fn, errorFn?)`                           | Wrap throwing function into Result                  |
-| `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                            |
-| `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                          |
-| `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                        | Wrap Promise into Result                            |
-| `fromSafePromise` | `fromSafePromise<T>(promise): Promise<IResultOfT<T, never>>` | Wrap a never-reject Promise                         |
-| `asyncOk`         | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`           | Pre-resolved success Promise                        |
-| `asyncErr`        | `asyncErr<E>(error): Promise<IResultOfT<never, E>>`          | Pre-resolved failure Promise                        |
+| Function          | Signature                                                    | Description                                           |
+| ----------------- | ------------------------------------------------------------ | ----------------------------------------------------- |
+| `ok()`            | `ok(): IResult<never>`                                       | Void success                                          |
+| `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                    |
+| `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                    |
+| `fromPredicate`   | `fromPredicate<T,E>(predicate, errorOnFalse, value?)`        | `Ok(v)` if predicate passes, `Err(errorOnFalse)` else |
+| `fromThrowable`   | `fromThrowable<A,E>(fn, errorFn?)`                           | Wrap throwing function into Result                    |
+| `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                              |
+| `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                            |
+| `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                        | Wrap Promise into Result                              |
+| `fromSafePromise` | `fromSafePromise<T>(promise): Promise<IResultOfT<T, never>>` | Wrap a never-reject Promise                           |
+| `asyncOk`         | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`           | Pre-resolved success Promise                          |
+| `asyncErr`        | `asyncErr<E>(error): Promise<IResultOfT<never, E>>`          | Pre-resolved failure Promise                          |
 
 ### Sync Operators
 
 ```ts
-import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse, ap, separate, traverseArray } from '@sandlada/result';
+import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, expect, unwrapErr, expectErr, flatten, and, or, contains, exists, bimap, swap, mapOr, mapOrElse, filterOrElse, ap, separate, traverseArray, andTee, orTee, andThrough, unsafeUnwrap, unsafeUnwrapErr, orThrow, orThrowWith } from '@sandlada/result';
 ```
 
 | Operator          | Signature                                                 | Description                               |
@@ -232,35 +231,38 @@ import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, 
 | `andThrough`      | `andThrough<A,B,E,F>(fn): (r) => IResultOfT<A,E\|F>`      | Side-effect on success, propagates fn err |
 | `unsafeUnwrap`    | `unsafeUnwrap<A,E>(r): A`                                 | Throws raw error on failure               |
 | `unsafeUnwrapErr` | `unsafeUnwrapErr<A,E>(r): E`                              | Throws raw value on success               |
+| `orThrow`         | `orThrow<T, E extends Error>(r): T`                       | Unwrap success or throw the error         |
+| `orThrowWith`     | `orThrowWith<T,E>(errorFn): <A>(r) => A`                  | Unwrap success or throw custom error      |
 
 ### Async Operators
 
 ```ts
-import { mapAsync, mapErrAsync, mapOrAsync, mapOrElseAsync, bindAsync, orElseAsync, matchAsync, tapAsync, tapErrAsync, unwrapOrAsync, unwrapOrElseAsync } from '@sandlada/result';
+import { mapAsync, mapErrAsync, mapOrAsync, mapOrElseAsync, bindAsync, orElseAsync, matchAsync, tapAsync, tapErrAsync, unwrapOrAsync, unwrapOrElseAsync, asyncMap, asyncAndThen, asyncAndThrough } from '@sandlada/result';
 ```
 
 All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync or async.
 
-| Operator            | Signature                                                                    | Description                         |
-| ------------------- | ---------------------------------------------------------------------------- | ----------------------------------- |
-| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`            | Transform success value             |
-| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>`         | Transform error                     |
-| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                              | Map success or return default       |
-| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                        | Map success or compute from error   |
-| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`               | Chain (monadic bind)                |
-| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`             | Error recovery                      |
-| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                          | Terminal pattern-match              |
-| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                        | Side-effect on success              |
-| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`                     | Side-effect on failure              |
-| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                | Extract value or default            |
-| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                              | Extract value or compute from error |
-| `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`         | Map sync Result with async callback |
-| `asyncAndThen`      | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>` | Chain sync Result with async fn     |
+| Operator            | Signature                                                                       | Description                              |
+| ------------------- | ------------------------------------------------------------------------------- | ---------------------------------------- |
+| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`               | Transform success value                  |
+| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>`            | Transform error                          |
+| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                                 | Map success or return default            |
+| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                           | Map success or compute from error        |
+| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`                  | Chain (monadic bind)                     |
+| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`                | Error recovery                           |
+| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                             | Terminal pattern-match                   |
+| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                           | Side-effect on success                   |
+| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`                        | Side-effect on failure                   |
+| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                   | Extract value or default                 |
+| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                                 | Extract value or compute from error      |
+| `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`            | Map sync Result with async callback      |
+| `asyncAndThen`      | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
+| `asyncAndThrough`   | `asyncAndThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>` | Chain sync Result with async side-effect |
 
 ### Composition
 
 ```ts
-import { pipe, pipeAsync, composeK, composeKAsync } from '@sandlada/result';
+import { pipe, pipeAsync, composeK, composeKAsync, safeTry, fromSafeTry } from '@sandlada/result';
 ```
 
 | Function        | Signature                                                | Description                                |
@@ -278,15 +280,15 @@ import { pipe, pipeAsync, composeK, composeKAsync } from '@sandlada/result';
 import { switchFn, switchFnAsync, liftMap, tee, teeAsync, toOption, fromOption } from '@sandlada/result';
 ```
 
-| Function        | Signature                                            | Description                                          |
-| --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
-| `switchFn`      | `switchFn(f): (a: A) => IResultOfT<B, never>`        | 1-track → switch (value → Result)                    |
-| `switchFnAsync` | `switchFnAsync(f): (a: A) => Promise<IResultOfT<B>>` | Async 1-track → async switch                         |
-| `liftMap`       | `liftMap(f): IResultOfT<A,E> => IResultOfT<B,E>`     | 1-track → 2-track (alias for `map`)                  |
-| `tee`           | `tee(f): (a: A) => A`                                | Dead-end → 1-track (side-effect, returns input)      |
-| `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                  | Async dead-end → 1-track                             |
-| `toOption`      | `toOption(r): IOption<A>`                            | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
-| `fromOption`    | `fromOption(opt, errorOnNone): IResultOfT<T,E>`      | Option → Result (`Some(v) → Ok(v)`, `None → Err(e)`) |
+| Function        | Signature                                                        | Description                                          |
+| --------------- | ---------------------------------------------------------------- | ---------------------------------------------------- |
+| `switchFn`      | `switchFn(f): (a: A) => IResultOfT<B, never>`                    | 1-track → switch (value → Result)                    |
+| `switchFnAsync` | `switchFnAsync<A,B>(f): (a: A) => Promise<IResultOfT<B, never>>` | Async 1-track → async switch                         |
+| `liftMap`       | `liftMap(f): IResultOfT<A,E> => IResultOfT<B,E>`                 | 1-track → 2-track (alias for `map`)                  |
+| `tee`           | `tee(f): (a: A) => A`                                            | Dead-end → 1-track (side-effect, returns input)      |
+| `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                              | Async dead-end → 1-track                             |
+| `toOption`      | `toOption(r): IOption<A>`                                        | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
+| `fromOption`    | `fromOption<E>(errorOnNone, opt?): IResultOfT<T,E>`              | Option → Result (`Some(v) → Ok(v)`, `None → Err(e)`) |
 
 ### Combine
 
@@ -321,13 +323,13 @@ All option operators are curried data-last (option is the final argument).
 | `filter`    | `filter<T>(pred): (IOption<T>) => IOption<T>`            | None if predicate fails                          |
 | `flatten`   | `flatten<T>(opt: IOption<IOption<T>>): IOption<T>`       | Flatten nested option                            |
 | `contains`  | `contains<T>(target): (IOption<T>) => boolean`           | True if Some and value matches                   |
-| `okOr`      | `okOr<E>(errFn): <T>(IOption<T>) => IResultOfT<T,E>`     | Option → Result with default error               |
+| `okOr`      | `okOr<E>(error: E): <T>(IOption<T>) => IResultOfT<T,E>`  | Option → Result with default error               |
 | `okOrElse`  | `okOrElse<E>(errFn): <T>(IOption<T>) => IResultOfT<T,E>` | Option → Result with lazy error                  |
 | `transpose` | `transpose<T,E>(opt): IResultOfT<IOption<T>,E>`          | Transpose Option<Result> → Result<Option>        |
 | `all`       | `all(tuple): IOption<[...values]>`                       | Combine multiple Options (short-circuit on None) |
 | `zipWith`   | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`               | Combine two Options with a function              |
 
-> **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`. `andThen` is exported without a suffix.
+> **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`, `okOrOption`, `okOrElseOption`, `transposeOption`. `andThen` is exported without a suffix.
 
 ---
 
@@ -597,156 +599,16 @@ JSON.stringify(ofSome(42));
 // '{"isSome":true,"value":42}'
 
 JSON.stringify(ofNone());
-// '{"isSome":false}'
-```
+// '{"isSome":false,"isNone":true}'
 
-Transform the success value. On failure, passes through unchanged.
+## Data-Last Functions (FP Style)
 
-```ts
-const r = Result.Success(21);
-r.map(x => x * 2); // IResultOfT<42, Error>
-```
-
-### `result.mapErr(fn)`
-
-Transform the error. On success, passes through unchanged.
-
-```ts
-const r = Result.Failure<number>('bad');
-r.mapErr(e => ({ code: 500, message: e })); // IResultOfT<number, { code: number; message: string }>
-```
-
-### `result.andThen(fn)`
-
-Monadic bind — chain a result-returning function. On failure, short-circuits.
-
-```ts
-Result.Success(21)
-  .andThen(x => x > 10 ? Result.Success(x * 2) : Result.Failure<number>('too small'));
-// IResultOfT<42, Error>
-```
-
-### `result.orElse(fn)`
-
-Error recovery — try an alternative path on failure.
-
-```ts
-Result.Failure<User>('not found')
-  .orElse(() => Result.Success({ id: 0, name: 'Anonymous' }));
-// IResultOfT<User, Error>
-```
-
-### `result.match(onSuccess, onFailure)`
-
-Terminal — pattern-match on both cases. Both callbacks must return the same type.
-
-```ts
-const message = result.match(
-  v => `Got: ${v}`,
-  e => `Error: ${e}`,
-);
-```
-
-### `result.tap(fn)` / `result.tapErr(fn)`
-
-Side-effects without changing the result. Returns `this` for chaining.
-
-```ts
-result
-  .tap(v => console.log('Processing:', v))   // only on success
-  .tapErr(e => logger.error(e))               // only on failure
-  .andThen(process);
-```
-
-### `result.unwrapOr(defaultValue)`
-
-Safe extraction — returns the value on success, or a default on failure. Never throws.
-
-```ts
-const name = result.unwrapOr('Unknown');
-```
-
-## Static Utilities
-
-### `Result.tryCatch(fn, errorFn?)`
-
-Wrap a synchronous function that may throw. Optionally map the caught error.
-
-```ts
-const parsed = Result.tryCatch(
-  () => JSON.parse(input),
-  (e) => ({ kind: 'ParseError' as const, raw: String(e) }),
-);
-```
-
-### `Result.tryCatchAsync(fn, errorFn?)`
-
-Wrap an **asynchronous** function that may throw. The returned `Promise` **always resolves** — rejected promises are caught and converted to failure results. This is the primary bridge between the `Promise` world and the `Result` world.
-
-```ts
-const user = await Result.tryCatchAsync(
-  () => fetch('/api/user/42').then(r => r.json()),
-  (e) => ({ kind: 'NetworkError' as const, cause: String(e) }),
-);
-// Promise<IResultOfT<User, { kind: 'NetworkError'; cause: string }>>
-```
-
-- If `fn` fulfills → `IResultOfT<T, E>` with `isSuccess: true`
-- If `fn` rejects/throws → `IResultOfT<T, E>` with `isSuccess: false`
-- `errorFn` is optional; when omitted, the caught value is cast directly to `E`
-- TypeScript infers `T` from the function return, `E` from `errorFn` (or defaults to `Error`)
-
-### `Result.fromPromise(promise, errorFn?)`
-
-Convenience wrapper around `tryCatchAsync` for when you already have a `Promise<T>`.
-
-```ts
-const raw = fetch('/api/user/42').then(r => r.json()); // Promise<User>
-const user = await Result.fromPromise(raw, (e) => ({ kind: 'FetchError', cause: String(e) }));
-// Promise<IResultOfT<User, { kind: 'FetchError'; cause: string }>>
-```
-
-Delegates directly to `Result.tryCatchAsync(() => promise, errorFn)`.
-
-### `Result.combine(results[])`
-
-Combine an array of results — returns the first failure, or a success with all values.
-
-```ts
-const all = Result.combine([parseInt('1'), parseInt('2'), parseInt('x')]);
-// all.isFailure === true, all.error is the parse error from 'x'
-```
-
-### `Result.all(tuple)`
-
-Like `Promise.all` for Result — combine a tuple while preserving heterogeneous types.
-
-```ts
-const t = Result.all([ok(1), ok('hello'), ok(true)] as const);
-// IResultOfT<[number, string, boolean], Error>
-```
-
-### `Result.combineWithAllErrors(results[])`
-
-Combine results, accumulating **all** errors (validation aggregation).
-
-```ts
-const r = Result.combineWithAllErrors([
-  validateName(''),    // failure
-  validateEmail('x'),  // failure
-  validateAge(25),     // success
-]);
-// r.isFailure === true, r.error.length === 2
-```
-
-## FP（函數式）模組
-
-`@sandlada/result/fp` 提供 F# 風格的 pure functions，支援 data-last currying 與 `pipe` 組合。
+All functions in `@sandlada/result` support data-last currying for composition with `pipe`.
 
 ### 建構子
 
 ```ts
-import { ok, err } from '@sandlada/result/fp';
+import { ok, err } from '@sandlada/result';
 
 const success = ok(42);           // IResultOfT<number>
 const failure = err('bad input');  // IResultOfT<never, string>
@@ -757,7 +619,7 @@ const failure = err('bad input');  // IResultOfT<never, string>
 所有運算子支援 partial application：
 
 ```ts
-import { map, bind, match } from '@sandlada/result/fp';
+import { map, bind, match } from '@sandlada/result';
 
 const double = map((x: number) => x * 2);  // 部分應用
 const result = double(ok(21));              // ok(42)
@@ -766,7 +628,7 @@ const result = double(ok(21));              // ok(42)
 ### Pipe 組合
 
 ```ts
-import { ok, err, map, bind, match, pipe } from '@sandlada/result/fp';
+import { ok, err, map, bind, match, pipe } from '@sandlada/result';
 
 type AppErr = { kind: 'TooSmall'; value: number };
 
@@ -788,7 +650,7 @@ process(30); // "Failed: TooSmall"
 ### Kleisli Composition (`composeK`)
 
 ```ts
-import { composeK } from '@sandlada/result/fp';
+import { composeK } from '@sandlada/result';
 
 const validate = composeK(parseInput, checkBusinessRules);
 // validate: (input: string) => IResultOfT<Output, Error>
@@ -797,7 +659,7 @@ const validate = composeK(parseInput, checkBusinessRules);
 ### Adapters (Wlaschin Three-Shape System)
 
 ```ts
-import { switchFn, liftMap, tee } from '@sandlada/result/fp';
+import { switchFn, liftMap, tee } from '@sandlada/result';
 
 // switchFn: plain function → switch function
 const safeParse = switchFn(JSON.parse);
@@ -807,17 +669,16 @@ const safeParse = switchFn(JSON.parse);
 const log = tee((x: unknown) => console.log('Got:', x));
 ```
 
-### OOP ↔ FP 互通
+### FP Style Interop
 
-兩種風格可以混合使用，因為它們操作相同的 `IResultOfT` 物件：
+Because both factories (`ok`, `err`) and operators (`map`, `bind`) operate on the same plain-object discriminated unions, you can freely mix them with `pipe`:
 
 ```ts
-import { Result } from '@sandlada/result';
-import { map, bind } from '@sandlada/result/fp';
+import { ok, map, pipe } from '@sandlada/result';
 
-const r = Result.Success(42);
-r.map(x => x * 2);                       // OOP
-pipe(r, map(x => x * 2));                // FP, 相同 r
+const r = ok(42);
+pipe(r, map(x => x * 2));                // pipe 組合
+const r2 = map(x => x * 2)(r);           // data-last currying
 ```
 
 ## AsyncResult (@sandlada/result/async-result)
@@ -859,19 +720,20 @@ All factories are **lazy** — the computation doesn't start until `.run()`.
 Lazy operators return a new `AsyncResult` without executing. Import from `@sandlada/result/async-result` or the main barrel (prefixed with `asyncResult`):
 
 ```ts
-import { map, mapAsync, mapErr, andThen, orElse, tap, tapErr, combine } from '@sandlada/result/async-result';
+import { map, mapAsync, mapErr, andThen, orElse, tap, tapErr, combine, combineWithAllErrors } from '@sandlada/result/async-result';
 ```
 
-| Operator   | Signature                                                      | Description                              |
-| ---------- | -------------------------------------------------------------- | ---------------------------------------- |
-| `map`      | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Sync map over success value              |
-| `mapAsync` | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Async map (fn throws → rejection)        |
-| `mapErr`   | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Sync map over error                      |
-| `andThen`  | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Monadic bind (fn returns AsyncResult)    |
-| `orElse`   | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery from failure                    |
-| `tap`      | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success                   |
-| `tapErr`   | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure                   |
-| `combine`  | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
+| Operator               | Signature                                                      | Description                              |
+| ---------------------- | -------------------------------------------------------------- | ---------------------------------------- |
+| `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Sync map over success value              |
+| `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Async map (fn throws → rejection)        |
+| `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Sync map over error                      |
+| `andThen`              | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Monadic bind (fn returns AsyncResult)    |
+| `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery from failure                    |
+| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success                   |
+| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure                   |
+| `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
+| `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`     | Combine array, accumulates all errors    |
 
 ### Terminal Operators
 
@@ -897,12 +759,10 @@ const fetchUser: AsyncResult<User, Error> = fromPromise(
     () => fetch('/api/user/42').then(r => r.json()),
 );
 
-const pipeline = pipeAsyncResult(
-    fetchUser,
-    map((u: User) => u.name),
+const pipeline = map((u: User) => u.name)(
     andThen((name: string) =>
         fromPromise(() => fetch(`/api/profile/${name}`).then(r => r.json())),
-    ),
+    )(fetchUser),
 );
 
 // Execute
@@ -914,102 +774,8 @@ const name = await match(
     pipeline,
 );
 ```
-await asyncResult.unwrapOr(def)       // safe extraction
-await asyncResult.toPromise()         // escape hatch: Promise<IResultOfT>
-```
 
-### 直接 await
 
-`AsyncResult` 實作了 thenable protocol，可以直接 await 取得 `IResultOfT`：
-
-```ts
-const r: IResultOfT<User, AppError> = await AsyncResult.tryCatch(() => fetchUser(id));
-if (r.isSuccess) {
-    console.log(r.value.name);
-}
-```
-
-### 範例：Async Pipeline
-
-```ts
-const result = await AsyncResult.tryCatch(() => fetchUser(id))
-    .mapAsync(user => enrichProfile(user))   // async transform
-    .map(profile => profile.displayName)      // sync transform
-    .andThen(name => validateName(name))      // chain to another AsyncResult
-    .tapErr(e => logger.error(e));           // side-effect on error
-
-// result: IResultOfT<string, ValidationError | NetworkError>
-```
-
-### 並行組合
-
-```ts
-// short-circuits on first failure
-const all = await AsyncResult.combine([
-    AsyncResult.tryCatch(() => fetch('/a')),
-    AsyncResult.tryCatch(() => fetch('/b')),
-]);
-
-// accumulate all errors
-const validated = await AsyncResult.combineWithAllErrors([
-    validateName(name),
-    validateEmail(email),
-]);
-
-// heterogeneous tuple
-const t = await AsyncResult.all([
-    AsyncResult.success(42),
-    AsyncResult.success('hello'),
-] as const);
-```
-
-## FP Async 模組 (`@sandlada/result/fp/promise`)
-
-`./fp/promise` 提供 data-last curried 風格的 async 運算子，對應 sync `./fp`。
-
-```ts
-import {
-    asyncOk, asyncErr,
-    map, mapAsync, mapErr, mapErrAsync,
-    bind, orElse, match, tap, tapErr, unwrapOr,
-    composeKAsync, pipeAsync,
-    switchFnAsync, teeAsync,
-} from '@sandlada/result/fp/promise';
-```
-
-### 建構子
-
-```ts
-const ok = asyncOk(42);         // AsyncResult<number, never>
-const err = asyncErr('bad');    // AsyncResult<never, string>
-```
-
-### 運算子（Data-Last Curried）
-
-```ts
-const double = map((x: number) => x * 2);   // 部分應用
-const r = await double(asyncOk(21));         // AsyncResult<42, never>
-
-const fetchLen = mapAsync(async (url: string) => fetch(url).then(r => r.json()));
-```
-
-### Pipe 組合
-
-```ts
-await pipeAsync(
-    asyncOk(42),
-    map(x => x * 2),
-    bind(x => x > 50 ? asyncOk(x) : asyncErr('too small')),
-    match(v => `OK: ${v}`, e => `Error: ${e}`),
-);
-```
-
-### Kleisli Composition
-
-```ts
-const validate = composeKAsync(parseInput, checkBusinessRules);
-// validate: (input: string) => AsyncResult<Output, Error>
-```
 
 ## Custom Error Types
 
@@ -1027,20 +793,20 @@ type AppError =
 
 function getUser(id: string): IResultOfT<User, AppError> {
     if (!id) {
-        return Result.Failure<User, AppError>({
+        return err<AppError>({
             kind: 'Validation',
             fields: { id: 'Required' },
         });
     }
     const user = db.find(id);
     if (!user) {
-        return Result.Failure<User, AppError>({
+        return err<AppError>({
             kind: 'NotFound',
             resource: 'User',
             id,
         });
     }
-    return Result.Success(user);
+    return ok(user);
 }
 ```
 
@@ -1080,11 +846,11 @@ class DomainError extends Error {
 
 function validateEmail(email: string): IResultOfT<string, DomainError> {
     if (!email.includes('@')) {
-        return Result.Failure<string, DomainError>(
+        return err<DomainError>(
             new DomainError('Invalid email format', 'INVALID_EMAIL'),
         );
     }
-    return Result.Success(email);
+    return ok(email);
 }
 ```
 
@@ -1093,14 +859,14 @@ function validateEmail(email: string): IResultOfT<string, DomainError> {
 For simple cases, pass any object as the error:
 
 ```ts
-const result = Result.Failure<number>({ reason: 'timeout', retryAfter: 5000 });
+const result = err({ reason: 'timeout', retryAfter: 5000 });
 // result.error.reason === 'timeout'
 // result.error.retryAfter === 5000
 ```
 
 ## Result 集成 — 預先綁定錯誤類型
 
-當一個項目或第三方套件使用固定的錯誤類型時，每次都寫 `IResultOfT<T, MyError>` 和 `Result.Failure<T, MyError>(...)` 會很繁瑣。`@sandlada/result` 的泛型設計天然支援**兩層封裝**來消除重複。
+當一個項目或第三方套件使用固定的錯誤類型時，每次都寫 `IResultOfT<T, MyError>` 和 `err<MyError>(...)` 會很繁瑣。`@sandlada/result` 的泛型設計天然支援**兩層封裝**來消除重複。
 
 ### 方案一：型別別名（Type Alias）
 
@@ -1124,7 +890,7 @@ function createUser(data: UserInput): AppResult<User> {
 }
 ```
 
-但工廠方法仍然需要顯式標註 — `Result.Failure<User, AppError>(...)` 無法省去。
+但工廠方法仍然需要顯式標註 — `err<AppError>(...)` 無法省去。
 
 ### 方案二：便利工廠（Convenience Factory）
 
@@ -1132,7 +898,7 @@ function createUser(data: UserInput): AppResult<User> {
 
 ```ts
 // app-result.ts
-import { Result } from '@sandlada/result';
+import { ok, err } from '@sandlada/result';
 import type { IResultOfT } from '@sandlada/result';
 import type { AppError } from './errors';
 
@@ -1141,15 +907,15 @@ export type AppResult<T = void> = IResultOfT<T, AppError>;
 export const AppResult = {
     /** 建立不帶值的成功結果 */
     Success(): AppResult<void> {
-        return Result.Success() as AppResult<void>;
+        return ok() as AppResult<void>;
     },
     /** 建立帶值的成功結果 */
     Success<T>(value: T): AppResult<T> {
-        return Result.Success(value) as AppResult<T>;
+        return ok(value) as AppResult<T>;
     },
     /** 建立失敗結果 (never 表示無值) */
     Failure(error: AppError): AppResult<never> {
-        return Result.Failure<never, AppError>(error) as AppResult<never>;
+        return err(error) as AppResult<never>;
     },
 } as const;
 ```
@@ -1246,7 +1012,7 @@ function process(): IResultOfT<Output, AppError> {
     const validated = validateEmail(userResult.value.email);
     if (validated.isFailure) return validated;
 
-    return Result.Success(transform(validated.value));
+    return ok(transform(validated.value));
 }
 ```
 
@@ -1266,29 +1032,12 @@ function handle(result: IResultOfT<string, AppError>) {
 
 ### Railway-Oriented Programming
 
-`@sandlada/result` provides **built-in** operators for functional pipelines. Choose between **OOP fluent chaining** or **FP data-last curried** style — both are first-class.
-
-#### OOP Style (Fluent Chaining)
-
-```ts
-type AppError =
-    | { kind: 'ParseError'; raw: string }
-    | { kind: 'InvalidRange'; min: number; max: number; actual: number };
-
-function parse(input: string): IResultOfT<number, AppError> { /* ... */ }
-function validateRange(min: number, max: number): (n: number) => IResultOfT<number, AppError> { /* ... */ }
-
-const result = parse('21')
-    .map(n => n * 2)
-    .andThen(validateRange(1, 100))
-    .andThen(save);
-// Short-circuits on first failure
-```
+All operators are **data-last curried** — compose them with `pipe` for left-to-right reading:
 
 #### FP Style (Curried + Pipe)
 
 ```ts
-import { ok, map, bind, pipe } from '@sandlada/result/fp';
+import { ok, map, bind, pipe } from '@sandlada/result';
 
 const result = pipe(
     parse('21'),
@@ -1348,12 +1097,12 @@ function getUserController(id: string): AppResult<HttpResponse> {
 
 ### Result Combining / Aggregation
 
-`Result.combine` and `Result.combineWithAllErrors` are **built into the library** (see [Static Utilities](#static-utilities)). They are also available in FP style via `@sandlada/result/fp`.
+`combine` and `combineWithAllErrors` are **built into the library** (see [Factories](#factories)).
 
 #### Short-Circuit (First Failure Wins)
 
 ```ts
-import { combine } from '@sandlada/result/fp';
+import { combine } from '@sandlada/result';
 
 const r = combine([validateName('Alice'), validateEmail('bad'), validateAge(-5)]);
 // r.isFailure === true, r.error is the first validation error
@@ -1362,7 +1111,7 @@ const r = combine([validateName('Alice'), validateEmail('bad'), validateAge(-5)]
 #### Accumulate All Errors
 
 ```ts
-import { combineWithAllErrors } from '@sandlada/result/fp';
+import { combineWithAllErrors } from '@sandlada/result';
 
 type ValidationError = { field: string; message: string };
 
@@ -1374,98 +1123,15 @@ const r = combineWithAllErrors([
 // r.isFailure === true, r.error.length === 2
 ```
 
-Or with OOP style:
-
-```ts
-const r = Result.combineWithAllErrors([
-    validateName('Alice'),
-    validateEmail('bad'),
-    validateAge(-5),
-]);
-```
-
-## C# Reference Comparison
-
-This library is inspired by the C# Result pattern. Key differences:
-
-| Concept           | C#                                                               | This Library                              |
-| ----------------- | ---------------------------------------------------------------- | ----------------------------------------- |
-| Base interface    | `IResult { DomainError Error; bool IsSuccess; bool IsFailure; }` | `IResult<TError = Error>`                 |
-| Value interface   | `IResult<out T> : IResult { T Value; }`                          | `IResultOfT<TValue, TError = Error>`      |
-| Error type        | `DomainError` (hardcoded enum)                                   | `TError` (generic, user-defined)          |
-| No-error sentinel | `DomainError.General.None`                                       | `Symbol.for('result:none')` (internal)    |
-| Void success      | `Result.Success()`                                               | `Result.Success()`                        |
-| Void failure      | `Result.Failure(DomainError)`                                    | `Result.Failure(error)`                   |
-| Value success     | `Result.Success<T>(T)`                                           | `Result.Success<T>(value)`                |
-| Value failure     | `Result.Failure<T>(DomainError)`                                 | `Result.Failure<T, E>(error)`             |
-| Convention        | PascalCase                                                       | PascalCase (static), camelCase (instance) |
-
-### C# Reference Implementation
-
-For comparison, the original C# pattern:
-
-```cs
-public interface IResult {
-    DomainError Error { get; }
-    bool IsSuccess { get; }
-    bool IsFailure { get; }
-}
-
-public interface IResult<out T> : IResult {
-    T Value { get; }
-}
-
-public class Result : IResult {
-    public DomainError Error { get; }
-    public bool IsSuccess { get; }
-    public bool IsFailure => !this.IsSuccess;
-
-    protected Result(bool isSuccess, DomainError error) {
-        if (isSuccess && error != DomainError.General.None ||
-            !isSuccess && error == DomainError.General.None) {
-            throw new ArgumentException("Invalid error combination.", nameof(error));
-        }
-        this.IsSuccess = isSuccess;
-        this.Error = error;
-    }
-
-    public static Result Success() =>
-        new(true, DomainError.General.None);
-
-    public static Result Failure(DomainError error) =>
-        new(false, error);
-
-    public static IResult<T> Success<T>(T value) =>
-        new Result<T>(value, true, DomainError.General.None);
-
-    public static IResult<T> Failure<T>(DomainError error) =>
-        new Result<T>(default, false, error);
-}
-
-public class Result<TValue> : Result, IResult<TValue> {
-    private readonly TValue? _value;
-
-    public TValue Value => this.IsSuccess
-        ? _value!
-        : throw new InvalidOperationException(
-            "The value of a failure result can not be accessed.");
-
-    protected internal Result(TValue? value, bool isSuccess, DomainError error)
-        : base(isSuccess, error) {
-        _value = value;
-    }
-}
-```
-
 ## TypeScript Design Decisions
 
 - **Default `TError = Error`** — zero-config for simple use cases; override with custom types for domain-specific error handling.
-- **Sentinel pattern** — `error` is always accessible (never throws), matching C# semantics where `Error` returns `DomainError.General.None` on success. The sentinel key is `Symbol.for('result:none')` (registered globally to survive module reloads).
-- **`value` throws on failure** — guards against accidental access; forces explicit `isSuccess` checks. Throws `TypeError` with a descriptive message.
-- **`Result` constructor is `protected`** — users cannot instantiate `Result` directly. The `ResultOfT` constructor is `public` (internal-use only, since `Result`'s static factories must call `new ResultOfT(...)`). Always use `Result.Success` / `Result.Failure`. The constructor enforces the mutual-exclusivity invariant, throwing `TypeError` on violation.
-- **`Result.Failure()` requires an argument** — calling `Result.Failure()` with no arguments throws `TypeError`. Always provide an error object.
-- **`null` and `undefined` are valid success values** — `Result.Success<number | null>(null)` and `Result.Success<number | undefined>(undefined)` are supported. The factory overload uses `arguments.length` to distinguish void-success (`Result.Success()`) from explicit-undefined-success (`Result.Success(undefined)`).
-- **PascalCase static, camelCase instance** — static factory methods use PascalCase (`Result.Success`, `Result.Failure`) matching C# convention, while instance properties use camelCase (`isSuccess`, `isFailure`) following TypeScript convention.
-- **`Result` base class is generic** — `Result<TError = Error>`, not non-generic. This ensures `error` is typed without casting in the base class.
-- **`isFailure` is a getter** — implemented as `get isFailure(): boolean { return !this.isSuccess; }`, not a stored property. Ensures `isFailure` is always the logical negation of `isSuccess`.
+- **Plain objects, no classes** — every result or option value is a plain discriminated union object. There are no classes, no prototype chains, no `new` constructors. This ensures maximum compatibility with generic TypeScript patterns, `JSON.stringify`, and structured clone algorithms.
+- **`value` and `error` are variant-exclusive** — `value` only exists when `isSuccess === true`, `error` only exists when `isFailure === true`. This is enforced at the type level via discriminated union, not at runtime. Access without narrowing is a type error.
+- **`null` and `undefined` are valid values** — `ok<number | null>(null)` and `ok<number | undefined>(undefined)` are supported. The `ok` factory uses `arguments.length` to distinguish void-success (`ok()`) from explicit-undefined-success (`ok(undefined)`).
+- **`isSuccess`/`isFailure` are own properties** — unlike a getter-based implementation, these are plain `boolean` properties on the object. This simplifies serialization and structured cloning.
+- **Sentinel `error` on success** — a success result's `error` property is `undefined` (not a sentinel symbol). The `IResult` union type ensures you only access `error` after narrowing.
+- **No method chaining** — because results are plain objects, operators are standalone functions with data-last signatures: `map(fn)(result)`. Compose with `pipe` for left-to-right reading.
+- **`camelCase` throughout** — all function names (`ok`, `err`, `isSuccess`, `map`, `andThen`) use camelCase. The C# convention (`Result.Success`) is not followed in this library.
+- **Minimal runtime overhead** — no classes, no getters, no `Proxy`, no prototype lookups. Every result is a `{ isSuccess, value }` or `{ isSuccess, error }` object literal.
 

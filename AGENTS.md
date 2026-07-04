@@ -58,15 +58,14 @@ export type TrdResult<T = void> = IResultOfT<T, TrdError>;
 
 ```ts
 // trd-result.ts
-import { ok, err } from '@sandlada/result/fp';
+import { ok, err } from '@sandlada/result';
 import type { IResultOfT } from '@sandlada/result';
 import type { TrdError } from './errors';
 
 export type TrdResult<T = void> = IResultOfT<T, TrdError>;
 
 export const TrdResult = {
-    Success(): TrdResult<void>,
-    Success<T>(value: T): TrdResult<T>,
+    Success<T>(value?: T): TrdResult<T> { return (value === undefined ? ok() : ok(value)) as unknown as TrdResult<T>; },
     Failure(error: TrdError): TrdResult<never>,
 } as const;
 
@@ -97,7 +96,7 @@ IResult<TError = Error>                  = IResultSuccess | IResultFailure<TErro
 ── IResultOfT (value-bearing) ──
 
 IResultOfTSuccess<TValue>                (isSuccess: true, isFailure: false, value: TValue)
-IResultOfTFailure<TValue, TError>        (isSuccess: false, isFailure: true, error: TError)
+IResultOfTFailure<TError>                (isSuccess: false, isFailure: true, error: TError)
 IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
 
 ── IOption ──
@@ -133,32 +132,19 @@ if (result.isSuccess) {
 
 ```
 src/
-  IResult.ts           — IResultSuccess, IResultFailure, IResult (discriminated union type)
-  IResultOfT.ts        — IResultOfTSuccess, IResultOfTFailure, IResultOfT (discriminated union type)
-  Option.ts            — IOptionSome, IOptionNone, IOption (discriminated union type)
-  index.ts             — public barrel re-exports
-
-  // One file per export — users import from '@sandlada/result' (no /fp suffix)
-  ok.ts, err.ts, fromPredicate.ts, fromThrowable.ts, tryCatch.ts,
-  tryCatchAsync.ts, fromPromise.ts, asyncOk.ts, asyncErr.ts,
-  map.ts, mapErr.ts, bind.ts, orElse.ts, match.ts, tap.ts, tapErr.ts,
-  unwrapOr.ts, unwrapOrElse.ts, unwrap.ts, expect.ts, unwrapErr.ts,
-  expectErr.ts, flatten.ts, and.ts, or.ts, contains.ts, exists.ts,
-  bimap.ts, swap.ts, mapOr.ts, mapOrElse.ts,
-  mapAsync.ts, mapErrAsync.ts, bindAsync.ts, orElseAsync.ts,
-  matchAsync.ts, tapAsync.ts, tapErrAsync.ts, unwrapOrAsync.ts,
-  composeK.ts, pipe.ts, composeKAsync.ts, pipeAsync.ts,
-  switchFn.ts, liftMap.ts, tee.ts, toOption.ts, fromOption.ts,
-  switchFnAsync.ts, teeAsync.ts,
-  combine.ts, all.ts, combineWithAllErrors.ts
-
-  option/
-    ofSome.ts          — ofSome()
-    ofNone.ts          — ofNone()
-    map.ts, andThen.ts, orElse.ts, match.ts, tap.ts,
-    unwrapOr.ts, filter.ts, flatten.ts, contains.ts
-    index.ts           — Option barrel (exported as @sandlada/result/option)
+  index.ts              — Public barrel
+  types/                — IResult, IResultOfT, IOption, AsyncResult interfaces
+  factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc.
+  operators/            — map, bind, match, unwrap, orThrow, separate, etc.
+  async/                — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
+  async-result/         — AsyncResult lazy thunk operators
+  composition/          — pipe, composeK, safeTry
+  adapters/             — switchFn, liftMap, tee, toOption, fromOption
+  combine/              — combine, all, combineWithAllErrors
+  option/               — ofSome, ofNone, map, andThen, match, etc.
 ```
+
+Tests mirror source: `test/` mirrors `src/` structure.
 
 ## C# / TypeScript Mapping
 
@@ -184,8 +170,12 @@ src/
 - Option types (`IOptionSome`/`IOptionNone`) are also plain discriminated union objects, not classes.
 - Operators are data-last (result is the final argument).
 
-## Development Workflow
+## Document Responsibilities
 
-1. **ARCH.md holds the current architecture design.** `ARCH.md` is the authoritative record of the project's architecture. It must always reflect the latest design decisions, class hierarchy, module relationships, and any architectural changes made during development.
+The project maintains three complementary documentation files with distinct responsibilities:
 
-2. **Every code update must update ARCH.md.** Whenever you modify source code, add new files, change interfaces, or alter the module structure, you **must** update `ARCH.md` to keep it in sync with the codebase. This includes — but is not limited to — adding new classes or interfaces, modifying existing type signatures, restructuring modules, or changing architectural patterns.
+1. **ARCH.md is the architecture record.** Update whenever source code, interfaces, or module structure change.
+
+2. **SPEC.md is the consumer reference.** Update when adding new exports or changing public API behavior.
+
+3. **AGENTS.md guides AI agents.** Update when project conventions, workflow, or source layout change.
