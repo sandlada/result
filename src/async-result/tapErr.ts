@@ -16,14 +16,14 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function tapErr<T, E>(
-    fn: (error: E) => void | Promise<void>,
+    fn: (error: E) => void,
 ): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void | Promise<void>,
+    fn: (error: E) => void,
     ar: AsyncResult<T, E>,
 ): AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void | Promise<void>,
+    fn: (error: E) => void,
     ar?: AsyncResult<T, E>,
 ): AsyncResult<T, E> | ((ar: AsyncResult<T, E>) => AsyncResult<T, E>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): AsyncResult<T, E> => tapErr(fn, ar);
@@ -32,7 +32,7 @@ export function tapErr<T, E>(
             const r = await ar.run();
             if(r.isFailure) {
                 try {
-                    await fn(r.error);
+                    fn(r.error);
                 } catch(e: unknown) {
                     return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
                 }

@@ -14,14 +14,14 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * ```
  */
 export function tap<T>(
-    fn: (value: T) => void | Promise<void>,
+    fn: (value: T) => void,
 ): (ao: AsyncOption<T>) => AsyncOption<T>;
 export function tap<T>(
-    fn: (value: T) => void | Promise<void>,
+    fn: (value: T) => void,
     ao: AsyncOption<T>,
 ): AsyncOption<T>;
 export function tap<T>(
-    fn: (value: T) => void | Promise<void>,
+    fn: (value: T) => void,
     ao?: AsyncOption<T>,
 ): AsyncOption<T> | ((ao: AsyncOption<T>) => AsyncOption<T>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => tap(fn, ao);
@@ -30,7 +30,7 @@ export function tap<T>(
             const opt = await ao.run();
             if (opt.isSome) {
                 try {
-                    await fn(opt.value);
+                    fn(opt.value);
                 } catch {
                     // tap side-effects staying on the railway: ignore errors or should it turn to None?
                     // Project convention for tap seems to be staying on railway but for async we might want safety.

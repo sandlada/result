@@ -14,7 +14,7 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 export function switchFnAsync<A, B>(
-    f: (a: A) => Promise<B>,
+    f: (a: A) => B | Promise<B>,
 ): (a: A) => Promise<IResultOfT<B, never>> {
     return async (a: A): Promise<IResultOfT<B, never>> => {
         try { return ok(await f(a)) as IResultOfT<B, never>; }

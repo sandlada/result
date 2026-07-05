@@ -5,10 +5,12 @@ import {
     asyncOptionFromPromise as fromPromise,
     asyncOptionFromOption as fromOption,
     asyncOptionMap as map,
+    asyncOptionMapAsync as mapAsync,
     asyncOptionAndThen as andThen,
     asyncOptionOrElse as orElse,
     asyncOptionMatch as match,
     asyncOptionTap as tap,
+    asyncOptionTapAsync as tapAsync,
     asyncOptionUnwrapOr as unwrapOr
 } from '../../src/index.js';
 
@@ -34,6 +36,19 @@ describe('AsyncOption', () => {
             expect(result.isNone).toBe(true);
         });
 
+        it('mapAsync should transform value', async () => {
+            const ao = mapAsync(async (x: number) => x * 2, fromOption(ofSome(21)));
+            const result = await ao.run();
+            expect(result.isSome).toBe(true);
+            if (result.isSome) expect(result.value).toBe(42);
+        });
+
+        it('mapAsync should catch errors and return None', async () => {
+            const ao = mapAsync(async () => { throw new Error('boom'); }, fromOption(ofSome(21)));
+            const result = await ao.run();
+            expect(result.isNone).toBe(true);
+        });
+
         it('fromOption should lift a sync option', async () => {
             const ao = fromOption(ofSome(42));
             const result = await ao.run();
@@ -52,6 +67,19 @@ describe('AsyncOption', () => {
 
         it('map should catch errors and return None', async () => {
             const ao = map(() => { throw new Error('boom'); }, fromOption(ofSome(21)));
+            const result = await ao.run();
+            expect(result.isNone).toBe(true);
+        });
+
+        it('tapAsync should execute async side-effect on Some', async () => {
+            const fn = vi.fn().mockResolvedValue(undefined);
+            const ao = tapAsync(fn, fromOption(ofSome(42)));
+            await ao.run();
+            expect(fn).toHaveBeenCalledWith(42);
+        });
+
+        it('tapAsync should turn to None on error', async () => {
+            const ao = tapAsync(async () => { throw new Error('boom'); }, fromOption(ofSome(42)));
             const result = await ao.run();
             expect(result.isNone).toBe(true);
         });

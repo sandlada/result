@@ -744,10 +744,13 @@ import { map, mapAsync, mapErr, andThen, orElse, tap, tapErr, combine, combineWi
 | `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Transform success value (sync)           |
 | `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Transform success value (async)          |
 | `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Transform error (sync)                   |
+| `mapErrAsync`          | `mapErrAsync<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>` | Transform error (async)                  |
 | `andThen`              | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Chain (supports Promise<IResult> interop)|
 | `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery (supports Promise<IResult> interop)|
-| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success (sync/async)      |
-| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure (sync/async)      |
+| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success (sync)            |
+| `tapAsync`             | `tapAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`    | Side-effect on success (async)           |
+| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure (sync)            |
+| `tapErrAsync`          | `tapErrAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>` | Side-effect on failure (async)           |
 | `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
 | `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`     | Combine array, accumulates all errors    |
 
@@ -808,10 +811,12 @@ Execution is deferred until `.run()` is called.
 
 | Operator  | Signature                                              | Description                               |
 | --------- | ------------------------------------------------------ | ----------------------------------------- |
-| `map`     | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Transform value (sync/async callback)     |
-| `andThen` | `andThen<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Chain (supports Promise<IOption> interop) |
-| `orElse`  | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`    | Recovery (supports Promise<IOption> interop)|
-| `tap`     | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`       | Side-effect on Some (sync/async callback) |
+| `map`      | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`      | Transform value (sync)                   |
+| `mapAsync` | `mapAsync<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Transform value (async)                  |
+| `andThen`  | `andThen<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`  | Chain (supports Promise<IOption> interop) |
+| `orElse`   | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`     | Recovery (supports Promise<IOption> interop)|
+| `tap`      | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`        | Side-effect on Some (sync)               |
+| `tapAsync` | `tapAsync<T>(fn): (AsyncOption<T>) => AsyncOption<T>`   | Side-effect on Some (async)              |
 
 ### Terminal Operators
 

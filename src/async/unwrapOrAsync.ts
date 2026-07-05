@@ -12,17 +12,17 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function unwrapOrAsync<A>(
-    defaultValue: A,
+    defaultValue: A | Promise<A>,
 ): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A>;
 export function unwrapOrAsync<A, E>(
-    defaultValue: A,
+    defaultValue: A | Promise<A>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<A>;
 export function unwrapOrAsync<A, E>(
-    defaultValue: A,
+    defaultValue: A | Promise<A>,
     r?: Promise<IResultOfT<A, E>>,
 ): Promise<A> | ((r: Promise<IResultOfT<A, E>>) => Promise<A>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<A> => unwrapOrAsync(defaultValue, r);
-    return r.then(inner => inner.isSuccess ? inner.value : defaultValue);
+    return r.then(async inner => inner.isSuccess ? inner.value : await defaultValue);
 }
 
