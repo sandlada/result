@@ -6,8 +6,15 @@
  * @example
  * ```ts
  * import { fromPredicate } from '@sandlada/result';
- * const r = fromPredicate(n => n > 0, 'must be positive', 5);
- * // r = Ok(5)
+ *
+ * // Direct form
+ * const r1 = fromPredicate(n => n > 0, 'must be positive', 5);
+ * // r1 = Ok(5)
+ *
+ * // Curried form
+ * const isPositive = fromPredicate((n: number) => n > 0, 'must be positive');
+ * const r2 = isPositive(5);
+ * // r2 = Ok(5)
  * ```
  */
 
