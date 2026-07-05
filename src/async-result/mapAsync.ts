@@ -31,8 +31,12 @@ export function mapAsync<T, U, E>(
         run: async (): Promise<IResultOfT<U, E>> => {
             const r = await ar.run();
             if(!r.isSuccess) return r as unknown as IResultOfT<U, E>;
-            const mapped = await fn(r.value);
-            return { isSuccess: true as const, isFailure: false as const, value: mapped } as IResultOfT<U, E>;
+            try {
+                const mapped = await fn(r.value);
+                return { isSuccess: true as const, isFailure: false as const, value: mapped } as IResultOfT<U, E>;
+            } catch(e: unknown) {
+                return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<U, E>;
+            }
         },
     };
 }

@@ -29,7 +29,13 @@ export function mapOrElseAsync<A, B, E>(
 ): Promise<B> | ((r: Promise<IResultOfT<A, E>>) => Promise<B>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<B> => mapOrElseAsync(onErr, fn, r);
     return r.then(async inner => {
-        if(inner.isSuccess) return await fn(inner.value);
-        return await onErr(inner.error);
+        try {
+            if(inner.isSuccess) return await fn(inner.value);
+            return await onErr(inner.error);
+        } catch(e: unknown) {
+            // In mapOrElse, if both tracks fail, we might want to let it propagate
+            // or have a specific behavior. Usually we let it propagate as it's a terminal-like mapping.
+            throw e;
+        }
     });
 }

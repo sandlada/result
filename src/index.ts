@@ -11,6 +11,7 @@ export type {
 } from './types/IResultOfT.js';
 export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
 export type { AsyncResult } from './types/AsyncResult.js';
+export type { AsyncOption } from './types/AsyncOption.js';
 
 // ── Core constructors ───────────────────────────────────────────────────────
 export { ok } from './factories/ok.js';
@@ -73,6 +74,12 @@ export { unwrapOrElseAsync } from './async/unwrapOrElseAsync.js';
 export { asyncMap } from './async/asyncMap.js';
 export { asyncAndThen } from './async/asyncAndThen.js';
 export { asyncAndThrough } from './async/asyncAndThrough.js';
+export { mapAsyncOption } from './async/mapAsyncOption.js';
+export { bindAsyncOption } from './async/bindAsyncOption.js';
+export { matchAsyncOption } from './async/matchAsyncOption.js';
+export { orElseAsyncOption } from './async/orElseAsyncOption.js';
+export { tapAsyncOption } from './async/tapAsyncOption.js';
+export { unwrapOrAsyncOption } from './async/unwrapOrAsyncOption.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
@@ -113,6 +120,19 @@ export {
     combine as asyncResultCombine,
     combineWithAllErrors as asyncResultCombineWithAllErrors,
 } from './async-result/index.js';
+
+// ── AsyncOption ─────────────────────────────────────────────────────────────
+export {
+    from as asyncOptionFrom,
+    fromPromise as asyncOptionFromPromise,
+    fromOption as asyncOptionFromOption,
+    map as asyncOptionMap,
+    andThen as asyncOptionAndThen,
+    orElse as asyncOptionOrElse,
+    match as asyncOptionMatch,
+    tap as asyncOptionTap,
+    unwrapOr as asyncOptionUnwrapOr,
+} from './async-option/index.js';
 
 // ── Option (re-exported with renamed identifiers) ───────────────────────────
 export { ofSome, ofNone } from './option/index.js';

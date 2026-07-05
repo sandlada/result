@@ -18,3 +18,10 @@ export { tapAsync } from './tapAsync.js';
 export { tapErrAsync } from './tapErrAsync.js';
 export { unwrapOrAsync } from './unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';
+
+export { mapAsyncOption } from './mapAsyncOption.js';
+export { bindAsyncOption } from './bindAsyncOption.js';
+export { matchAsyncOption } from './matchAsyncOption.js';
+export { orElseAsyncOption } from './orElseAsyncOption.js';
+export { tapAsyncOption } from './tapAsyncOption.js';
+export { unwrapOrAsyncOption } from './unwrapOrAsyncOption.js';

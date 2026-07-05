@@ -16,14 +16,14 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function andThen<T, U, E>(
-    fn: (value: T) => AsyncResult<U, E>,
+    fn: (value: T) => AsyncResult<U, E> | Promise<IResultOfT<U, E>>,
 ): (ar: AsyncResult<T, E>) => AsyncResult<U, E>;
 export function andThen<T, U, E>(
-    fn: (value: T) => AsyncResult<U, E>,
+    fn: (value: T) => AsyncResult<U, E> | Promise<IResultOfT<U, E>>,
     ar: AsyncResult<T, E>,
 ): AsyncResult<U, E>;
 export function andThen<T, U, E>(
-    fn: (value: T) => AsyncResult<U, E>,
+    fn: (value: T) => AsyncResult<U, E> | Promise<IResultOfT<U, E>>,
     ar?: AsyncResult<T, E>,
 ): AsyncResult<U, E> | ((ar: AsyncResult<T, E>) => AsyncResult<U, E>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): AsyncResult<U, E> => andThen(fn, ar);
@@ -31,7 +31,15 @@ export function andThen<T, U, E>(
         run: async (): Promise<IResultOfT<U, E>> => {
             const r = await ar.run();
             if(!r.isSuccess) return r as unknown as IResultOfT<U, E>;
-            return fn(r.value).run();
+            try {
+                const next = await fn(r.value);
+                if (next && 'run' in next && typeof next.run === 'function') {
+                    return next.run();
+                }
+                return next as IResultOfT<U, E>;
+            } catch(e: unknown) {
+                return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<U, E>;
+            }
         },
     };
 }

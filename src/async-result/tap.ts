@@ -30,7 +30,13 @@ export function tap<T, E>(
     return {
         run: async (): Promise<IResultOfT<T, E>> => {
             const r = await ar.run();
-            if(r.isSuccess) fn(r.value);
+            if(r.isSuccess) {
+                try {
+                    await fn(r.value);
+                } catch(e: unknown) {
+                    return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
+                }
+            }
             return r;
         },
     };

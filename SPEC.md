@@ -36,6 +36,7 @@ npm install @sandlada/result
 | `./combine`      | `import { combine } from '@sandlada/result/combine'`       | Parallel combination      |
 | `./option`       | `import { ofSome, map } from '@sandlada/result/option'`    | Option sub-module         |
 | `./async-result` | `import { from } from '@sandlada/result/async-result'`     | Lazy AsyncResult thunk    |
+| `./async-option` | `import { from } from '@sandlada/result/async-option'`     | Lazy AsyncOption thunk    |
 
 ## Core Types
 
@@ -136,9 +137,17 @@ Execution is deferred until `.run()` is called.
 interface AsyncResult<TValue, TError = Error> {
     readonly run: () => Promise<IResultOfT<TValue, TError>>;
 }
+
+/**
+ * AsyncOption — a lazy async option.
+ * Wraps `() => Promise<IOption<T>>`.
+ */
+interface AsyncOption<T> {
+    readonly run: () => Promise<IOption<T>>;
+}
 ```
 
-- All operators return a new lazy `AsyncResult` without executing.
+- All operators return a new lazy `AsyncResult` or `AsyncOption` without executing.
 - Terminal operators (`.run()`, `match`, `unwrapOr`) trigger execution.
 
 ### Type Narrowing
@@ -256,8 +265,14 @@ All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync
 | `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                   | Extract value or default                 |
 | `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                                 | Extract value or compute from error      |
 | `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`            | Map sync Result with async callback      |
-| `asyncAndThen`      | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
-| `asyncAndThrough`   | `asyncAndThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>` | Chain sync Result with async side-effect |
+| `asyncAndThen`       | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
+| `asyncAndThrough`    | `asyncAndThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async side-effect |
+| `mapAsyncOption`     | `mapAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`          | Transform async option                   |
+| `bindAsyncOption`    | `bindAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`         | Chain async option                       |
+| `matchAsyncOption`   | `matchAsyncOption<T,U>(onSome, onNone): (Promise<IOption<T>>) => Promise<U>`    | Match async option                       |
+| `orElseAsyncOption`  | `orElseAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`         | Recover async option                     |
+| `tapAsyncOption`     | `tapAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`            | Side-effect async option                 |
+| `unwrapOrAsyncOption` | `unwrapOrAsyncOption<T>(def): (Promise<IOption<T>>) => Promise<T>`             | Unwrap async option                      |
 
 ### Composition
 
@@ -775,7 +790,34 @@ const name = await match(
 );
 ```
 
+## AsyncOption (@sandlada/result/async-option)
 
+`AsyncOption<T>` is a **lazy thunk** wrapping `() => Promise<IOption<T>>`.
+Execution is deferred until `.run()` is called.
+
+### Factories
+
+| Function      | Signature                               | Description                          |
+| ------------- | --------------------------------------- | ------------------------------------ |
+| `from`        | `from<T>(thunk): AsyncOption<T>`        | Wrap a `() => Promise<IOption<T>>`   |
+| `fromPromise` | `fromPromise<T>(thunk): AsyncOption<T>` | Wrap `() => Promise<T>`, catch → None |
+| `fromOption`  | `fromOption<T>(opt): AsyncOption<T>`    | Lift sync `IOption` into AsyncOption |
+
+### Operators (Lazy)
+
+| Operator  | Signature                                              | Description                               |
+| --------- | ------------------------------------------------------ | ----------------------------------------- |
+| `map`     | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Transform value (sync/async)              |
+| `andThen` | `andThen<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Chain (supports Promise<IOption> interop) |
+| `orElse`  | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`    | Recovery from None                        |
+| `tap`     | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`       | Side-effect on Some                       |
+
+### Terminal Operators
+
+| Operator   | Signature                                                   | Description                   |
+| ---------- | ----------------------------------------------------------- | ----------------------------- |
+| `match`    | `match({ some, none }, ao): Promise<U>`                     | Run and pattern-match         |
+| `unwrapOr` | `unwrapOr<T>(defaultValue): (AsyncOption<T>) => Promise<T>` | Run, extract value or default |
 
 ## Custom Error Types
 
