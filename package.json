@@ -45,6 +45,10 @@
         "./async-result": {
             "types": "./build/async-result/index.d.ts",
             "default": "./build/async-result/index.js"
+        },
+        "./async-option": {
+            "types": "./build/async-option/index.d.ts",
+            "default": "./build/async-option/index.js"
         }
     },
     "files": [
