@@ -236,13 +236,13 @@ import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, 
 | `ap`              | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`            | Apply wrapped fn to wrapped value         |
 | `separate`        | `separate<T,E>(results): { ok: T[]; err: E[] }`           | Partition successes and failures          |
 | `traverseArray`   | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`      | Apply fn to every element, collect        |
-| `andTee`          | `andTee<A,B,E,F>(fn): (r) => IResultOfT<A,E>`             | Side-effect on success, ignores fn result |
+| `andTee`          | `andTee<A,B,F>(fn): <E>(r) => IResultOfT<A,E>`             | Side-effect on success, ignores fn result |
 | `orTee`           | `orTee<A,E,B,F>(fn): (r) => IResultOfT<A,E>`              | Side-effect on failure, ignores fn result |
-| `andThrough`      | `andThrough<A,B,E,F>(fn): (r) => IResultOfT<A,E\|F>`      | Side-effect on success, propagates fn err |
+| `andThrough`      | `andThrough<A,B,F>(fn): <E>(r) => IResultOfT<A,E\|F>`      | Side-effect on success, propagates fn err |
 | `unsafeUnwrap`    | `unsafeUnwrap<A,E>(r): A`                                 | Throws raw error on failure               |
 | `unsafeUnwrapErr` | `unsafeUnwrapErr<A,E>(r): E`                              | Throws raw value on success               |
 | `orThrow`         | `orThrow<T, E extends Error>(r): T`                       | Unwrap success or throw the error         |
-| `orThrowWith`     | `orThrowWith<T,E>(errorFn): <A>(r) => A`                  | Unwrap success or throw custom error      |
+| `orThrowWith`     | `orThrowWith<T,E>(errorFn): (r) => T`                     | Unwrap success or throw custom error      |
 
 ### Async Operators
 
@@ -304,7 +304,8 @@ import { switchFn, switchFnAsync, liftMap, tee, teeAsync, toOption, fromOption }
 | `tee`           | `tee(f): (a: A) => A`                                            | Dead-end → 1-track (side-effect, returns input)      |
 | `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                              | Async dead-end → 1-track                             |
 | `toOption`      | `toOption(r): IOption<A>`                                        | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
-| `fromOption`    | `fromOption<E>(errorOnNone, opt?): IResultOfT<T,E>`              | Option → Result (`Some(v) → Ok(v)`, `None → Err(e)`) |
+| `fromOption`    | `fromOption<E>(err, opt): IResultOfT<T,E>`                        | Direct: Option → Result                              |
+|                 | `fromOption<E>(err): (opt) => IResultOfT<T,E>`                   | Curried: returns a converter (data-last)             |
 
 ### Combine
 
@@ -316,7 +317,7 @@ import { combine, all, combineWithAllErrors } from '@sandlada/result';
 | ---------------------- | -------------------------------------------- | ----------------------------------- |
 | `combine`              | `combine<A,E>(results[]): IResultOfT<A[],E>` | Short-circuits on first failure     |
 | `all`                  | `all(tuple): IResultOfT<[...tuple], E>`      | Heterogeneous tuple, short-circuits |
-| `combineWithAllErrors` | `combineWithAllErrors<A,E>(results[]): ...`  | Accumulates **all** errors          |
+| `combineWithAllErrors` | `combineWithAllErrors<A,E>(results): IResultOfT<A[],E[]>` | Accumulates **all** errors          |
 
 ### Option Module
 
@@ -341,7 +342,7 @@ All option operators are curried data-last (option is the final argument).
 | `contains`  | `contains<T>(target): (IOption<T>) => boolean`           | True if Some and value matches                   |
 | `okOr`      | `okOr<E>(error: E): <T>(IOption<T>) => IResultOfT<T,E>`  | Option → Result with default error               |
 | `okOrElse`  | `okOrElse<E>(errFn): <T>(IOption<T>) => IResultOfT<T,E>` | Option → Result with lazy error                  |
-| `transpose` | `transpose<T,E>(opt): IResultOfT<IOption<T>,E>`          | Transpose Option<Result> → Result<Option>        |
+| `transpose` | `transpose<T,E>(opt: IOption<IResultOfT<T,E>>): ...`     | Transpose Option<Result> → Result<Option>        |
 | `all`       | `all(tuple): IOption<[...values]>`                       | Combine multiple Options (short-circuit on None) |
 | `zipWith`   | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`               | Combine two Options with a function              |
 

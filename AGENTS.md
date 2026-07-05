@@ -66,7 +66,7 @@ export type TrdResult<T = void> = IResultOfT<T, TrdError>;
 
 export const TrdResult = {
     Success<T>(value?: T): TrdResult<T> { return (value === undefined ? ok() : ok(value)) as unknown as TrdResult<T>; },
-    Failure(error: TrdError): TrdResult<never>,
+    Failure(error: TrdError): TrdResult<never> { return err(error) as unknown as TrdResult<never>; },
 } as const;
 
 // Usage — no TError generic needed:
