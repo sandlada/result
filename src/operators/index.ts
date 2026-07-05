@@ -27,6 +27,8 @@ export { swap } from './swap.js';
 export { tap } from './tap.js';
 export { tapErr } from './tapErr.js';
 export { traverseArray } from './traverseArray.js';
+export { expect } from './expect.js';
+export { expectErr } from './expectErr.js';
 export { orThrow, orThrowWith } from './orThrow.js';
 export { unsafeUnwrap } from './unsafeUnwrap.js';
 export { unsafeUnwrapErr } from './unsafeUnwrapErr.js';

@@ -193,7 +193,7 @@ import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPro
 | `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                    |
 | `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                    |
 | `fromPredicate`   | `fromPredicate<T,E>(predicate, errorOnFalse, value?)`        | `Ok(v)` if predicate passes, `Err(errorOnFalse)` else |
-| `fromThrowable`   | `fromThrowable<A,E>(fn, errorFn?)`                           | Wrap throwing function into Result                    |
+| `fromThrowable`   | `fromThrowable<A,T,E>(fn, errorFn?)`                         | Wrap throwing function into Result                    |
 | `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                              |
 | `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                            |
 | `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                        | Wrap Promise into Result                              |
@@ -284,8 +284,8 @@ import { pipe, pipeAsync, composeK, composeKAsync, safeTry, fromSafeTry } from '
 | --------------- | -------------------------------------------------------- | ------------------------------------------ |
 | `pipe`          | `pipe(value, fn1, fn2, ...)` (1–10 overloads)            | Left-to-right function composition         |
 | `pipeAsync`     | `pipeAsync(value, ...fns)` (1–10 overloads)              | Async pipe                                 |
-| `safeTry`       | `safeTry<T,E>(result): Generator<IResultOfT<never,E>,T>` | Generator yield* for Result pipelines      |
-| `fromSafeTry`   | `fromSafeTry<T,E>(gen): IResultOfT<T,E>`                 | Evaluate a safeTry generator               |
+| `safeTry`       | `safeTry<T,E>(result): Generator<IResultOfT<never,E>,T>`         | Generator yield* for Result pipelines      |
+| `fromSafeTry`   | `fromSafeTry<T,E>(gen: () => Generator<...>): IResultOfT<T,E>`   | Evaluate a safeTry generator               |
 | `composeK`      | `composeK<A,B,C,E>(f1, f2): (a: A) => IResultOfT<C,E>`   | Kleisli composition (`>=>`, 2–6 overloads) |
 | `composeKAsync` | `composeKAsync<A,B,C,E>(f1, f2): (a: A) => Promise<...>` | Async Kleisli composition (2–6)            |
 

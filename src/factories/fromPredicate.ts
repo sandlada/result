@@ -6,7 +6,7 @@
  * @example
  * ```ts
  * import { fromPredicate } from '@sandlada/result';
- * const r = fromPredicate(5, n => n > 0, 'must be positive');
+ * const r = fromPredicate(n => n > 0, 'must be positive', 5);
  * // r = Ok(5)
  * ```
  */
