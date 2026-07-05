@@ -8,13 +8,13 @@
  *
  * @example
  * ```ts
- * import { asyncAndThen, ok, err } from '@sandlada/result';
+ * import { asyncBind, ok, err } from '@sandlada/result';
  *
- * const r = await asyncAndThen(async (x: number) => ok(x * 2), ok(21));
+ * const r = await asyncBind(async (x: number) => ok(x * 2), ok(21));
  * // Ok(42)
  *
  * // Curried form:
- * const process = asyncAndThen(async (x: number) => x > 0 ? ok(x) : err('negative'));
+ * const process = asyncBind(async (x: number) => x > 0 ? ok(x) : err('negative'));
  * const r2 = await process(ok(5));
  * ```
  */
@@ -22,18 +22,18 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
-export function asyncAndThen<A, B, F>(
+export function asyncBind<A, B, F>(
     f: (a: A) => Promise<IResultOfT<B, F>>,
 ): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, E | F>>;
-export function asyncAndThen<A, B, E, F>(
+export function asyncBind<A, B, E, F>(
     f: (a: A) => Promise<IResultOfT<B, F>>,
     r: IResultOfT<A, E>,
 ): Promise<IResultOfT<B, E | F>>;
-export function asyncAndThen<A, B, E, F>(
+export function asyncBind<A, B, E, F>(
     f: (a: A) => Promise<IResultOfT<B, F>>,
     r?: IResultOfT<A, E>,
 ): Promise<IResultOfT<B, E | F>> | (<E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, E | F>>) {
-    if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<B, E | F>> => asyncAndThen(f, r);
+    if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<B, E | F>> => asyncBind(f, r);
     if(!r.isSuccess) return Promise.resolve(r as unknown as IResultOfT<B, E | F>);
     try {
         return f(r.value).then(

@@ -252,14 +252,29 @@ All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync
 | `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                   | Extract value or default                 |
 | `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                                 | Extract value or compute from error      |
 | `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`            | Map sync Result with async callback      |
-| `asyncAndThen`       | `asyncAndThen<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
-| `asyncAndThrough`    | `asyncAndThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async side-effect |
+| `asyncBind`         | `asyncBind<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
+| `asyncBindThrough`  | `asyncBindThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async side-effect |
+| `bimapAsync`        | `bimapAsync<A,E,B,F>(ok, err): (Promise<...>) => Promise<...>` | Map both variants async |
+| `swapAsync`         | `swapAsync<A,E>(Promise<...>): Promise<...>` | Swap variants async |
+| `flattenAsync`      | `flattenAsync<A,E>(Promise<...>): Promise<...>` | Flatten nested async result |
+| `containsAsync`     | `containsAsync<A>(val): (Promise<...>) => Promise<boolean>` | Contains value async |
+| `existsAsync`       | `existsAsync<A>(pred): (Promise<...>) => Promise<boolean>` | Predicate holds async |
+| `filterOrElseAsync` | `filterOrElseAsync(pred, err): (Promise<...>) => Promise<...>` | Filter success async |
+| `asyncTap`          | `asyncTap(fn): (IResultOfT) => Promise<...>` | Async side-effect on sync success |
+| `asyncTapErr`       | `asyncTapErr(fn): (IResultOfT) => Promise<...>` | Async side-effect on sync failure |
+| `bindThroughAsync`  | `bindThroughAsync(fn): (Promise<...>) => Promise<...>` | Side-effect that can propagate errors async |
 | `mapAsyncOption`     | `mapAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`          | Transform async option                   |
 | `bindAsyncOption`    | `bindAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`         | Chain async option                       |
 | `matchAsyncOption`   | `matchAsyncOption<T,U>(onSome, onNone): (Promise<IOption<T>>) => Promise<U>`    | Match async option                       |
 | `orElseAsyncOption`  | `orElseAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`         | Recover async option                     |
 | `tapAsyncOption`     | `tapAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`            | Side-effect async option                 |
 | `unwrapOrAsyncOption` | `unwrapOrAsyncOption<T>(def): (Promise<IOption<T>>) => Promise<T>`             | Unwrap async option                      |
+| `asyncBindOption`    | `asyncBindOption(fn): (IOption) => Promise<...>` | Chain sync Option with async fn |
+| `asyncTapOption`     | `asyncTapOption(fn): (IOption) => Promise<...>` | Async side-effect on sync Some |
+| `filterAsyncOption`  | `filterAsyncOption(pred): (Promise<...>) => Promise<...>` | Filter async option |
+| `flattenAsyncOption` | `flattenAsyncOption(Promise<...>): Promise<...>` | Flatten nested async option |
+| `containsAsyncOption`| `containsAsyncOption(val): (Promise<...>) => Promise<boolean>` | Contains value async option |
+| `existsAsyncOption`  | `existsAsyncOption(pred): (Promise<...>) => Promise<boolean>` | Predicate holds async option |
 
 ### Composition
 
@@ -302,7 +317,7 @@ All option operators are curried data-last (option is the final argument).
 | `ofSome`    | `ofSome<T>(value): IOption<T>`                           | Create Some                                      |
 | `ofNone`    | `ofNone(): IOption<never>`                               | Create None                                      |
 | `map`       | `map<T,U>(fn): (IOption<T>) => IOption<U>`               | Transform value if Some                          |
-| `andThen`   | `andThen<T,U>(fn): (IOption<T>) => IOption<U>`           | Monadic bind (chain)                             |
+| `bind`      | `bind<T,U>(fn): (IOption<T>) => IOption<U>`              | Monadic bind (chain)                             |
 | `orElse`    | `orElse<T>(fn): (IOption<T>) => IOption<T>`              | Fall back if None                                |
 | `match`     | `match<T,U>(onSome, onNone): (IOption<T>) => U`          | Terminal pattern-match                           |
 | `tap`       | `tap<T>(fn): (IOption<T>) => IOption<T>`                 | Side-effect on Some                              |
@@ -316,7 +331,7 @@ All option operators are curried data-last (option is the final argument).
 | `all`       | `all(tuple): IOption<[...values]>`                       | Combine multiple Options (short-circuit on None) |
 | `zipWith`   | `zipWith<A,B,C>(fn): (a, b) => IOption<C>`               | Combine two Options with a function              |
 
-> **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`, `okOrOption`, `okOrElseOption`, `transposeOption`. `andThen` is exported without a suffix.
+> **Note:** When importing via the main barrel (`@sandlada/result`), Option operators are renamed with a suffix to avoid name collisions with Result operators: `mapOption`, `bindOption`, `orElseOption`, `matchOption`, `tapOption`, `unwrapOrOption`, `filterOption`, `flattenOption`, `containsOption`, `allOption`, `zipWithOption`, `okOrOption`, `okOrElseOption`, `transposeOption`.
 
 ---
 
@@ -424,8 +439,8 @@ const r1: Promise<IResultOfT<string, Error>> = asyncMap(
     ok(42),
 );
 
-// asyncAndThen — chain a sync Result with an async result-returning callback
-const r2: Promise<IResultOfT<string, Error>> = asyncAndThen(
+// asyncBind — chain a sync Result with an async result-returning callback
+const r2: Promise<IResultOfT<string, Error>> = asyncBind(
     async (x: number) => x > 0 ? ok(`positive: ${x}`) : err('negative'),
     ok(42),
 );
@@ -663,7 +678,7 @@ Lazy operators return a new `AsyncResult` without executing. Import from `@sandl
 | `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Transform success value (async)          |
 | `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Transform error (sync)                   |
 | `mapErrAsync`          | `mapErrAsync<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>` | Transform error (async)                  |
-| `andThen`              | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Chain (supports Promise<IResult> interop)|
+| `bind`                 | `bind<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`      | Chain (supports Promise<IResult> interop)|
 | `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery (supports Promise<IResult> interop)|
 | `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success (sync)            |
 | `tapAsync`             | `tapAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`    | Side-effect on success (async)           |
@@ -671,6 +686,15 @@ Lazy operators return a new `AsyncResult` without executing. Import from `@sandl
 | `tapErrAsync`          | `tapErrAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>` | Side-effect on failure (async)           |
 | `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
 | `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`     | Combine array, accumulates all errors    |
+| `bimap`                | `bimap(ok, err): (AsyncResult) => AsyncResult` | Map both variants lazy |
+| `swap`                 | `swap(AsyncResult): AsyncResult` | Swap variants lazy |
+| `flatten`              | `flatten(AsyncResult): AsyncResult` | Flatten nested lazy result |
+| `contains`             | `contains(val): (AsyncResult) => Promise<boolean>` | Contains value lazy |
+| `exists`               | `exists(pred): (AsyncResult) => Promise<boolean>` | Predicate holds lazy |
+| `filterOrElse`         | `filterOrElse(pred, err): (AsyncResult) => AsyncResult` | Filter success lazy |
+| `andTee`               | `andTee(fn): (AsyncResult) => AsyncResult` | Success side-effect lazy |
+| `orTee`                | `orTee(fn): (AsyncResult) => AsyncResult` | Failure side-effect lazy |
+| `andThrough`           | `andThrough(fn): (AsyncResult) => AsyncResult` | Propagating side-effect lazy |
 
 ### Terminal Operators
 
@@ -690,7 +714,7 @@ const fetchUser: AsyncResult<User, Error> = fromPromise(
 );
 
 const pipeline = map((u: User) => u.name)(
-    andThen((name: string) =>
+    bind((name: string) =>
         fromPromise(() => fetch(`/api/profile/${name}`).then(r => r.json())),
     )(fetchUser),
 );
@@ -724,10 +748,14 @@ Execution is deferred until `.run()` is called.
 | --------- | ------------------------------------------------------ | ----------------------------------------- |
 | `map`      | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`      | Transform value (sync)                   |
 | `mapAsync` | `mapAsync<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Transform value (async)                  |
-| `andThen`  | `andThen<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`  | Chain (supports Promise<IOption> interop) |
+| `bind`     | `bind<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Chain (supports Promise<IOption> interop) |
 | `orElse`   | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`     | Recovery (supports Promise<IOption> interop)|
 | `tap`      | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`        | Side-effect on Some (sync)               |
 | `tapAsync` | `tapAsync<T>(fn): (AsyncOption<T>) => AsyncOption<T>`   | Side-effect on Some (async)              |
+| `filter`   | `filter(pred): (AsyncOption) => AsyncOption` | Filter lazy option |
+| `flatten`  | `flatten(AsyncOption): AsyncOption` | Flatten nested lazy option |
+| `contains` | `contains(val): (AsyncOption) => Promise<boolean>` | Contains value lazy option |
+| `exists`   | `exists(pred): (AsyncOption) => Promise<boolean>` | Predicate holds lazy option |
 
 ### Terminal Operators
 
@@ -1080,6 +1108,5 @@ const r = combineWithAllErrors([
 - **`isSuccess`/`isFailure` are own properties** — unlike a getter-based implementation, these are plain `boolean` properties on the object. This simplifies serialization and structured cloning.
 - **Sentinel `error` on success** — a success result's `error` property is `undefined` (not a sentinel symbol). The `IResult` union type ensures you only access `error` after narrowing.
 - **No method chaining** — because results are plain objects, operators are standalone functions with data-last signatures: `map(fn)(result)`. Compose with `pipe` for left-to-right reading.
-- **`camelCase` throughout** — all function names (`ok`, `err`, `isSuccess`, `map`, `andThen`) use camelCase. The C# convention (`Result.Success`) is not followed in this library.
+- **`camelCase` throughout** — all function names (`ok`, `err`, `isSuccess`, `map`, `bind`) use camelCase. The C# convention (`Result.Success`) is not followed in this library.
 - **Minimal runtime overhead** — no classes, no getters, no `Proxy`, no prototype lookups. Every result is a `{ isSuccess, value }` or `{ isSuccess, error }` object literal.
-

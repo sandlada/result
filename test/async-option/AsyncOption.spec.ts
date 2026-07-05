@@ -6,7 +6,7 @@ import {
     asyncOptionFromOption as fromOption,
     asyncOptionMap as map,
     asyncOptionMapAsync as mapAsync,
-    asyncOptionAndThen as andThen,
+    asyncOptionBind as bind,
     asyncOptionOrElse as orElse,
     asyncOptionMatch as match,
     asyncOptionTap as tap,
@@ -84,22 +84,22 @@ describe('AsyncOption', () => {
             expect(result.isNone).toBe(true);
         });
 
-        it('andThen should chain AsyncOption', async () => {
-            const ao = andThen((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
+        it('bind should chain AsyncOption', async () => {
+            const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
             const result = await ao.run();
             expect(result.isSome).toBe(true);
             if (result.isSome) expect(result.value).toBe(42);
         });
 
-        it('andThen should support Promise<IOption> interop', async () => {
-            const ao = andThen((x: number) => Promise.resolve(ofSome(x * 2)), fromOption(ofSome(21)));
+        it('bind should support Promise<IOption> interop', async () => {
+            const ao = bind((x: number) => Promise.resolve(ofSome(x * 2)), fromOption(ofSome(21)));
             const result = await ao.run();
             expect(result.isSome).toBe(true);
             if (result.isSome) expect(result.value).toBe(42);
         });
 
-        it('andThen should catch errors and return None', async () => {
-            const ao = andThen(() => { throw new Error('boom'); }, fromOption(ofSome(21)));
+        it('bind should catch errors and return None', async () => {
+            const ao = bind(() => { throw new Error('boom'); }, fromOption(ofSome(21)));
             const result = await ao.run();
             expect(result.isNone).toBe(true);
         });

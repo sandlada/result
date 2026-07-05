@@ -1,11 +1,15 @@
 export { from } from './from.js';
 export { fromPromise } from './fromPromise.js';
 export { fromOption } from './fromOption.js';
+export { bind } from './bind.js';
+export { contains } from './contains.js';
+export { exists } from './exists.js';
+export { filter } from './filter.js';
+export { flatten } from './flatten.js';
 export { map } from './map.js';
 export { mapAsync } from './mapAsync.js';
-export { andThen } from './andThen.js';
-export { orElse } from './orElse.js';
 export { match } from './match.js';
+export { orElse } from './orElse.js';
 export { tap } from './tap.js';
 export { tapAsync } from './tapAsync.js';
 export { unwrapOr } from './unwrapOr.js';
