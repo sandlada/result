@@ -192,7 +192,8 @@ import { ok, err, fromPredicate, fromThrowable, tryCatch, tryCatchAsync, fromPro
 | `ok()`            | `ok(): IResult<never>`                                       | Void success                                          |
 | `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                    |
 | `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                    |
-| `fromPredicate`   | `fromPredicate<T,E>(predicate, errorOnFalse, value?)`        | `Ok(v)` if predicate passes, `Err(errorOnFalse)` else |
+| `fromPredicate`   | `fromPredicate<T,E>(pred, err, val): IResultOfT<T,E>`        | Direct: `Ok(val)` if pred passes, else `Err(err)`     |
+|                   | `fromPredicate<T,E>(pred, err): (val: T) => IResultOfT<T,E>` | Curried: returns validator function (data-last)       |
 | `fromThrowable`   | `fromThrowable<A,T,E>(fn, errorFn?)`                         | Wrap throwing function into Result                    |
 | `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                              |
 | `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                            |
