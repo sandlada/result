@@ -1,6 +1,6 @@
 /**
- * @fileoverwork Side-effect on the error track. Calls `fn` with the error on failure
- * and passes the original result through unchanged.
+ * @fileoverview Side-effect on the error track. Calls `fn` with the error on failure
+ * and passes the original result through unchanged. The callback may be sync or async.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example
@@ -16,14 +16,14 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
 ): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
     ar: AsyncResult<T, E>,
 ): AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
     ar?: AsyncResult<T, E>,
 ): AsyncResult<T, E> | ((ar: AsyncResult<T, E>) => AsyncResult<T, E>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): AsyncResult<T, E> => tapErr(fn, ar);

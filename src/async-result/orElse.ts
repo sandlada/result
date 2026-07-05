@@ -1,5 +1,5 @@
 /**
- * @fileoverwork Recovers from failure by chaining to an alternative AsyncResult.
+ * @fileoverview Recovers from failure by chaining to an alternative AsyncResult or Promise<IResult>.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example

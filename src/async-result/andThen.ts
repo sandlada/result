@@ -1,5 +1,6 @@
 /**
  * @fileoverview Chains an AsyncResult-returning function on success (monadic bind / flatMap).
+ * Supports interoperability with standard `Promise<IResultOfT>`.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example

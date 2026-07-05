@@ -1,6 +1,6 @@
 /**
- * @fileoverwork Terminal operator — executes the AsyncResult and returns the success value,
- * or a default value on failure.
+ * @fileoverview Terminal operator — executes the AsyncResult and returns the success value,
+ * or a default value on failure. The default value may be sync or a Promise.
  *
  * @example
  * ```ts
@@ -15,14 +15,14 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
 export function unwrapOr<T, E>(
-    defaultValue: T,
+    defaultValue: T | Promise<T>,
 ): (ar: AsyncResult<T, E>) => Promise<T>;
 export function unwrapOr<T, E>(
-    defaultValue: T,
+    defaultValue: T | Promise<T>,
     ar: AsyncResult<T, E>,
 ): Promise<T>;
 export function unwrapOr<T, E>(
-    defaultValue: T,
+    defaultValue: T | Promise<T>,
     ar?: AsyncResult<T, E>,
 ): Promise<T> | ((ar: AsyncResult<T, E>) => Promise<T>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): Promise<T> => unwrapOr(defaultValue, ar);

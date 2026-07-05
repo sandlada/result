@@ -1,5 +1,5 @@
 /**
- * @fileoverwork Terminal operator — executes the AsyncResult and applies either the success
+ * @fileoverview Terminal operator — executes the AsyncResult and applies either the success
  * handler or the error handler. Returns a `Promise<U>`.
  *
  * @example
@@ -17,16 +17,22 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
 export function match<T, E, U>(
-    handlers: { ok: (value: T) => U; err: (error: E) => U },
+    handlers: { ok: (value: T) => U | Promise<U>; err: (error: E) => U | Promise<U> },
 ): (ar: AsyncResult<T, E>) => Promise<U>;
 export function match<T, E, U>(
-    handlers: { ok: (value: T) => U; err: (error: E) => U },
+    handlers: { ok: (value: T) => U | Promise<U>; err: (error: E) => U | Promise<U> },
     ar: AsyncResult<T, E>,
 ): Promise<U>;
 export function match<T, E, U>(
-    handlers: { ok: (value: T) => U; err: (error: E) => U },
+    handlers: { ok: (value: T) => U | Promise<U>; err: (error: E) => U | Promise<U> },
     ar?: AsyncResult<T, E>,
 ): Promise<U> | ((ar: AsyncResult<T, E>) => Promise<U>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): Promise<U> => match(handlers, ar);
-    return ar.run().then(r => r.isSuccess ? handlers.ok(r.value) : handlers.err(r.error));
+    return ar.run().then(async r => {
+        try {
+            return r.isSuccess ? await handlers.ok(r.value) : await handlers.err(r.error);
+        } catch (e) {
+            throw e;
+        }
+    });
 }

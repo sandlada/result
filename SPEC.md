@@ -741,13 +741,13 @@ import { map, mapAsync, mapErr, andThen, orElse, tap, tapErr, combine, combineWi
 
 | Operator               | Signature                                                      | Description                              |
 | ---------------------- | -------------------------------------------------------------- | ---------------------------------------- |
-| `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Sync map over success value              |
-| `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Async map (fn throws → rejection)        |
-| `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Sync map over error                      |
-| `andThen`              | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Monadic bind (fn returns AsyncResult)    |
-| `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery from failure                    |
-| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success                   |
-| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure                   |
+| `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Transform success value (sync)           |
+| `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Transform success value (async)          |
+| `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Transform error (sync)                   |
+| `andThen`              | `andThen<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`   | Chain (supports Promise<IResult> interop)|
+| `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery (supports Promise<IResult> interop)|
+| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success (sync/async)      |
+| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure (sync/async)      |
 | `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
 | `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`     | Combine array, accumulates all errors    |
 
@@ -761,8 +761,8 @@ import { match, unwrapOr } from '@sandlada/result/async-result';
 
 | Operator   | Signature                                                       | Description                   |
 | ---------- | --------------------------------------------------------------- | ----------------------------- |
-| `match`    | `match<T,E,U>(handlers, ar): Promise<U>`                        | Run and pattern-match         |
-| `unwrapOr` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | Run, extract value or default |
+| `match`    | `match<T,E,U>(handlers, ar): Promise<U>`                        | Run and pattern-match (sync/async handlers) |
+| `unwrapOr` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | Run, extract value or default (sync/async) |
 
 ### Example
 
@@ -808,17 +808,17 @@ Execution is deferred until `.run()` is called.
 
 | Operator  | Signature                                              | Description                               |
 | --------- | ------------------------------------------------------ | ----------------------------------------- |
-| `map`     | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Transform value (sync/async)              |
+| `map`     | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Transform value (sync/async callback)     |
 | `andThen` | `andThen<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Chain (supports Promise<IOption> interop) |
-| `orElse`  | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`    | Recovery from None                        |
-| `tap`     | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`       | Side-effect on Some                       |
+| `orElse`  | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`    | Recovery (supports Promise<IOption> interop)|
+| `tap`     | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`       | Side-effect on Some (sync/async callback) |
 
 ### Terminal Operators
 
 | Operator   | Signature                                                   | Description                   |
 | ---------- | ----------------------------------------------------------- | ----------------------------- |
-| `match`    | `match({ some, none }, ao): Promise<U>`                     | Run and pattern-match         |
-| `unwrapOr` | `unwrapOr<T>(defaultValue): (AsyncOption<T>) => Promise<T>` | Run, extract value or default |
+| `match`    | `match({ some, none }, ao): Promise<U>`                     | Run and pattern-match (sync/async handlers) |
+| `unwrapOr` | `unwrapOr<T>(defaultValue): (AsyncOption<T>) => Promise<T>` | Run, extract value or default (sync/async)  |
 
 ## Custom Error Types
 
