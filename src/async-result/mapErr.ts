@@ -31,7 +31,11 @@ export function mapErr<T, E, F>(
         run: async (): Promise<IResultOfT<T, F>> => {
             const r = await ar.run();
             if(r.isSuccess) return r as unknown as IResultOfT<T, F>;
-            return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as IResultOfT<T, F>;
+            try {
+                return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as IResultOfT<T, F>;
+            } catch(e: unknown) {
+                return { isSuccess: false as const, isFailure: true as const, error: e as F } as IResultOfT<T, F>;
+            }
         },
     };
 }

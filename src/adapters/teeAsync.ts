@@ -9,7 +9,7 @@
  * ```
  */
 
-export function teeAsync<A>(f: (a: A) => Promise<void>): (a: A) => Promise<A> {
+export function teeAsync<A>(f: (a: A) => void | Promise<void>): (a: A) => Promise<A> {
     return async (a: A): Promise<A> => {
         await f(a);
         return a;

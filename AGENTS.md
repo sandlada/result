@@ -28,53 +28,15 @@ The library exposes:
 
 ### Error Type Customization (Key Differentiator)
 
-Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter**. Users pass their own error types:
-
-```ts
-type AppError =
-  | { kind: 'NotFound'; id: string }
-  | { kind: 'Validation'; fields: Record<string, string> };
-
-function findUser(id: string): IResultOfT<User, AppError> { /* ... */ }
-```
-
-The **default** `TError` is `Error` when not specified. Users are free to use discriminated unions, classes, or plain objects.
+Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter** — users define their own error types (discriminated unions, classes, or plain objects) and pass them as the type argument. The **default** `TError` is `Error` when not specified.
 
 ### Integration Pattern (Pre-configured Result)
 
 Third-party developers can **bake their error type** into a convenience wrapper so consumers never need to specify the `TError` generic. The library is designed to support two complementary approaches:
 
-**1. Type alias** — lightweight, zero-overhead:
+**1. Type alias** — lightweight, zero-overhead: define a type alias that pins `IResultOfT`'s error generic to the custom error type, e.g. `TrdResult<T> = IResultOfT<T, TrdError>`. The alias keeps function signatures clean without runtime overhead.
 
-```ts
-// trd-result.ts
-import type { IResultOfT } from '@sandlada/result';
-import type { TrdError } from './errors';
-
-export type TrdResult<T = void> = IResultOfT<T, TrdError>;
-```
-
-**2. Convenience factory** — re-exports `ok`/`err` factories with `TrdError` already wired:
-
-```ts
-// trd-result.ts
-import { ok, err } from '@sandlada/result';
-import type { IResultOfT } from '@sandlada/result';
-import type { TrdError } from './errors';
-
-export type TrdResult<T = void> = IResultOfT<T, TrdError>;
-
-export const TrdResult = {
-    Success<T>(value?: T): TrdResult<T> { return (value === undefined ? ok() : ok(value)) as unknown as TrdResult<T>; },
-    Failure(error: TrdError): TrdResult<never>,
-} as const;
-
-// Usage — no TError generic needed:
-function getUser(id: string): TrdResult<User> {
-    if (!id) return TrdResult.Failure(new TrdError('INVALID_ID'));
-    return TrdResult.Success({ id, name: 'Alice' });
-}
-```
+**2. Convenience factory** — create a const object with `Success` and `Failure` methods that wrap `ok`/`err` and return the pinned type directly. The `Success` method handles both void and valued cases; `Failure` wraps the custom error. Consumers then write `TrdResult.Success(value)` / `TrdResult.Failure(error)` without ever spelling the error generic.
 
 > **Note:** Use `IResultOfT<T, E>` (not `IResult<T, E>`) for value-bearing
 > results. Factory casts inside the convenience wrapper use `as unknown as`
@@ -110,15 +72,7 @@ IOption<T>                               = IOptionSome<T> | IOptionNone
 
 ### Narrowing
 
-Access `value` or `error` only after narrowing via `isSuccess`:
-
-```ts
-if (result.isSuccess) {
-    doSomething(result.value);  // ✓ safe
-} else {
-    handleError(result.error);  // ✓ safe
-}
-```
+Access `value` or `error` only after narrowing via `isSuccess` — checking `result.isSuccess` narrows the discriminated union to the success variant (where `.value` exists) or the failure variant (where `.error` exists). Accessing `.value` on a failure or `.error` on a success is a **compile-time type error**.
 
 ## Coding Conventions
 
@@ -145,21 +99,6 @@ src/
 ```
 
 Tests mirror source: `test/` mirrors `src/` structure.
-
-## C# / TypeScript Mapping
-
-| Concern                 | C#                               | TypeScript                                                 |
-| ----------------------- | -------------------------------- | ---------------------------------------------------------- |
-| Base interface          | `IResult`                        | `IResult<TError = Error>` (discriminated union)            |
-| Value-bearing interface | `IResult<out T>`                 | `IResultOfT<TValue, TError = Error>` (discriminated union) |
-| Error type              | `DomainError` (hardcoded)        | `TError` generic (user-defined)                            |
-| Sentinel "none"         | `DomainError.General.None`       | Not needed (no class, no sentinel)                         |
-| Success factory (void)  | `Result.Success()`               | `ok()`                                                     |
-| Failure factory         | `Result.Failure(DomainError)`    | `err(error: TError)`                                       |
-| Success factory (T)     | `Result.Success<T>(T)`           | `ok(value: T)`                                             |
-| Failure factory (T)     | `Result.Failure<T>(DomainError)` | `err<T, E>(error: E)`                                      |
-| Naming                  | PascalCase                       | camelCase (`ok`, `err`, `isSuccess`, `value`)              |
-| Covariance              | `out T` (CLR)                    | Not needed (structural typing)                             |
 
 ## Implementation Notes
 

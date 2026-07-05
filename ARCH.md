@@ -45,6 +45,7 @@
 | `@sandlada/result`              | Core types, factories, sync/async operators      |
 | `@sandlada/result/async`        | Async operators (Promise<IResultOfT>)            |
 | `@sandlada/result/async-result` | AsyncResult lazy thunks                          |
+| `@sandlada/result/async-option` | AsyncOption lazy thunks                          |
 | `@sandlada/result/adapters`     | Wlaschin three-shape adapters                    |
 | `@sandlada/result/combine`      | Parallel combination (short-circuit, all-errors) |
 | `@sandlada/result/composition`  | Kleisli composition, pipe, safeTry               |
@@ -63,6 +64,7 @@ src/
   operators/            — map, bind, match, unwrap, orThrow, separate, etc.
   async/                — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
   async-result/         — AsyncResult lazy thunk operators
+  async-option/         — AsyncOption lazy thunk operators
   composition/          — pipe, composeK, safeTry
   adapters/             — switchFn, liftMap, tee, toOption, fromOption
   combine/              — combine, all, combineWithAllErrors
@@ -94,6 +96,10 @@ IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
 IOptionSome<T>                           (isSome: true, isNone: false, value: T)
 IOptionNone                              (isSome: false, isNone: true)
 IOption<T>                               = IOptionSome<T> | IOptionNone
+
+── AsyncOption ──
+
+AsyncOption<T>                           (run: () => Promise<IOption<T>>)
 ```
 
 **Narrowing:** Access `value` or `error` only after narrowing via `isSuccess`:
@@ -115,6 +121,7 @@ if (result.isSuccess) {
 | `operators/`    | Data-last curried sync operators on `IResultOfT`                 |
 | `async/`        | Data-last curried async operators on `Promise<IResultOfT>`       |
 | `async-result/` | **Lazy** AsyncResult thunks — defers execution until awaited     |
+| `async-option/` | **Lazy** AsyncOption thunks — defers execution until awaited     |
 | `composition/`  | Pipeline helpers: `pipe`, `composeK`, `safeTry`                  |
 | `adapters/`     | Convert between Wlaschin's three function shapes                 |
 | `combine/`      | Parallel result combination (short-circuit, accumulate errors)   |
@@ -183,7 +190,7 @@ Design principles:
 
 ### ADR 6: Two Async Approaches (Eager + Lazy)
 
-**Decision:** Two separate async systems: `async/` for eager `Promise<IResultOfT>` and `async-result/` for lazy AsyncResult thunks.
+**Decision:** Two separate async systems: `async/` for eager `Promise<IResultOfT>` or `Promise<IOption<T>>` and `async-result/` / `async-option/` for lazy thunks.
 
 **Rationale:** Promise-based approaches (eager) are familiar and compose well with existing async code. Lazy thunks enable deferred execution, which is useful for conditional evaluation and resource management. Separating them avoids conflating two different execution models.
 

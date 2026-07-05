@@ -1,6 +1,6 @@
 /**
- * @fileoverwork Side-effect on the error track. Calls `fn` with the error on failure
- * and passes the original result through unchanged.
+ * @fileoverview Side-effect on the error track. Calls `fn` with the error on failure
+ * and passes the original result through unchanged. The callback may be sync or async.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example
@@ -30,7 +30,13 @@ export function tapErr<T, E>(
     return {
         run: async (): Promise<IResultOfT<T, E>> => {
             const r = await ar.run();
-            if(!r.isSuccess) fn(r.error);
+            if(r.isFailure) {
+                try {
+                    fn(r.error);
+                } catch(e: unknown) {
+                    return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
+                }
+            }
             return r;
         },
     };

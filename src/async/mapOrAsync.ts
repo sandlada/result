@@ -29,7 +29,13 @@ export function mapOrAsync<A, B, E>(
 ): Promise<B> | ((r: Promise<IResultOfT<A, E>>) => Promise<B>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<B> => mapOrAsync(defaultValue, fn, r);
     return r.then(async inner => {
-        if(inner.isSuccess) return await fn(inner.value);
+        if(inner.isSuccess) {
+            try {
+                return await fn(inner.value);
+            } catch {
+                return defaultValue;
+            }
+        }
         return defaultValue;
     });
 }

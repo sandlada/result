@@ -23,7 +23,13 @@ export function tapAsync<A, E>(
 ): Promise<IResultOfT<A, E>> | ((r: Promise<IResultOfT<A, E>>) => Promise<IResultOfT<A, E>>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<A, E>> => tapAsync(fn, r);
     return r.then(async inner => {
-        if(inner.isSuccess) await fn(inner.value);
+        if(inner.isSuccess) {
+            try {
+                await fn(inner.value);
+            } catch(e: unknown) {
+                return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<A, E>;
+            }
+        }
         return inner;
     });
 }

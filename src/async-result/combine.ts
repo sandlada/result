@@ -1,5 +1,5 @@
 /**
- * @fileoverwork Combines an array of AsyncResults into a single AsyncResult of an array.
+ * @fileoverview Combines an array of AsyncResults into a single AsyncResult of an array.
  * Short-circuits on the first failure (like `Promise.all`).
  * Lazy — returns a new AsyncResult without executing the inner computations.
  *
