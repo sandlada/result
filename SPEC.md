@@ -181,20 +181,20 @@ double(ok(21)); // Ok(42)
 
 ### Factories
 
-| Function          | Signature                                                    | Description                                           |
-| ----------------- | ------------------------------------------------------------ | ----------------------------------------------------- |
-| `ok()`            | `ok(): IResult<never>`                                       | Void success                                          |
-| `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                      | Success with value                                    |
-| `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                     | Failure with error                                    |
-| `fromPredicate`   | `fromPredicate<T,E>(pred, error, val): IResultOfT<T,E>`      | Direct: `Ok(val)` if pred passes, else `Err(error)`   |
-|                   | `fromPredicate<T,E>(pred, error): (val: T) => IResultOfT<T,E>` | Curried: returns validator function (data-last)       |
-| `fromThrowable`   | `fromThrowable<A,T,E>(fn, errorFn?)`                         | Wrap throwing function into Result                    |
-| `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                | Execute fn, catch throws                              |
-| `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                           | Async fn, catch rejections                            |
-| `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                        | Wrap Promise into Result                              |
-| `fromSafePromise` | `fromSafePromise<T>(promise): Promise<IResultOfT<T, never>>` | Wrap a never-reject Promise                           |
-| `asyncOk`         | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`           | Pre-resolved success Promise                          |
-| `asyncErr`        | `asyncErr<E>(error): Promise<IResultOfT<never, E>>`          | Pre-resolved failure Promise                          |
+| Function          | Signature                                                      | Description                                         |
+| ----------------- | -------------------------------------------------------------- | --------------------------------------------------- |
+| `ok()`            | `ok(): IResult<never>`                                         | Void success                                        |
+| `ok(value)`       | `ok<T>(value: T): IResultOfT<T, never>`                        | Success with value                                  |
+| `err(error)`      | `err<E>(error: E): IResultOfT<never, E>`                       | Failure with error                                  |
+| `fromPredicate`   | `fromPredicate<T,E>(pred, error, val): IResultOfT<T,E>`        | Direct: `Ok(val)` if pred passes, else `Err(error)` |
+|                   | `fromPredicate<T,E>(pred, error): (val: T) => IResultOfT<T,E>` | Curried: returns validator function (data-last)     |
+| `fromThrowable`   | `fromThrowable<A,T,E>(fn, errorFn?)`                           | Wrap throwing function into Result                  |
+| `tryCatch`        | `tryCatch<T,E>(fn, errorFn?)`                                  | Execute fn, catch throws                            |
+| `tryCatchAsync`   | `tryCatchAsync<T,E>(fn, errorFn?)`                             | Async fn, catch rejections                          |
+| `fromPromise`     | `fromPromise<T,E>(promise, errorFn?)`                          | Wrap Promise into Result                            |
+| `fromSafePromise` | `fromSafePromise<T>(promise): Promise<IResultOfT<T, never>>`   | Wrap a never-reject Promise                         |
+| `asyncOk`         | `asyncOk<T>(value): Promise<IResultOfT<T, never>>`             | Pre-resolved success Promise                        |
+| `asyncErr`        | `asyncErr<E>(error): Promise<IResultOfT<never, E>>`            | Pre-resolved failure Promise                        |
 
 ### Sync Operators
 
@@ -226,9 +226,9 @@ double(ok(21)); // Ok(42)
 | `ap`              | `ap<A,B,E>(fnResult, result): IResultOfT<B,E>`            | Apply wrapped fn to wrapped value         |
 | `separate`        | `separate<T,E>(results): { ok: T[]; err: E[] }`           | Partition successes and failures          |
 | `traverseArray`   | `traverseArray<A,B,E>(fn, items): IResultOfT<B[],E>`      | Apply fn to every element, collect        |
-| `andTee`          | `andTee<A,B,F>(fn): <E>(r) => IResultOfT<A,E>`             | Side-effect on success, ignores fn result |
+| `andTee`          | `andTee<A,B,F>(fn): <E>(r) => IResultOfT<A,E>`            | Side-effect on success, ignores fn result |
 | `orTee`           | `orTee<A,E,B,F>(fn): (r) => IResultOfT<A,E>`              | Side-effect on failure, ignores fn result |
-| `andThrough`      | `andThrough<A,B,F>(fn): <E>(r) => IResultOfT<A,E\|F>`      | Side-effect on success, propagates fn err |
+| `andThrough`      | `andThrough<A,B,F>(fn): <E>(r) => IResultOfT<A,E\|F>`     | Side-effect on success, propagates fn err |
 | `unsafeUnwrap`    | `unsafeUnwrap<A,E>(r): A`                                 | Throws raw error on failure               |
 | `unsafeUnwrapErr` | `unsafeUnwrapErr<A,E>(r): E`                              | Throws raw value on success               |
 | `orThrow`         | `orThrow<T, E extends Error>(r): T`                       | Unwrap success or throw the error         |
@@ -238,54 +238,54 @@ double(ok(21)); // Ok(42)
 
 All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync or async.
 
-| Operator            | Signature                                                                       | Description                              |
-| ------------------- | ------------------------------------------------------------------------------- | ---------------------------------------- |
-| `mapAsync`          | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`               | Transform success value                  |
-| `mapErrAsync`       | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>`            | Transform error                          |
-| `mapOrAsync`        | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                                 | Map success or return default            |
-| `mapOrElseAsync`    | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                           | Map success or compute from error        |
-| `bindAsync`         | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`                  | Chain (monadic bind)                     |
-| `orElseAsync`       | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`                | Error recovery                           |
-| `matchAsync`        | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                             | Terminal pattern-match                   |
-| `tapAsync`          | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                           | Side-effect on success                   |
-| `tapErrAsync`       | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`                        | Side-effect on failure                   |
-| `unwrapOrAsync`     | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                   | Extract value or default                 |
-| `unwrapOrElseAsync` | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                                 | Extract value or compute from error      |
-| `asyncMap`          | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`            | Map sync Result with async callback      |
-| `asyncBind`         | `asyncBind<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async fn          |
-| `asyncBindThrough`  | `asyncBindThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`    | Chain sync Result with async side-effect |
-| `bimapAsync`        | `bimapAsync<A,E,B,F>(ok, err): (Promise<...>) => Promise<...>` | Map both variants async |
-| `swapAsync`         | `swapAsync<A,E>(Promise<...>): Promise<...>` | Swap variants async |
-| `flattenAsync`      | `flattenAsync<A,E>(Promise<...>): Promise<...>` | Flatten nested async result |
-| `containsAsync`     | `containsAsync<A>(val): (Promise<...>) => Promise<boolean>` | Contains value async |
-| `existsAsync`       | `existsAsync<A>(pred): (Promise<...>) => Promise<boolean>` | Predicate holds async |
-| `filterOrElseAsync` | `filterOrElseAsync(pred, err): (Promise<...>) => Promise<...>` | Filter success async |
-| `asyncTap`          | `asyncTap(fn): (IResultOfT) => Promise<...>` | Async side-effect on sync success |
-| `asyncTapErr`       | `asyncTapErr(fn): (IResultOfT) => Promise<...>` | Async side-effect on sync failure |
-| `bindThroughAsync`  | `bindThroughAsync(fn): (Promise<...>) => Promise<...>` | Side-effect that can propagate errors async |
-| `mapAsyncOption`     | `mapAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`          | Transform async option                   |
-| `bindAsyncOption`    | `bindAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`         | Chain async option                       |
-| `matchAsyncOption`   | `matchAsyncOption<T,U>(onSome, onNone): (Promise<IOption<T>>) => Promise<U>`    | Match async option                       |
-| `orElseAsyncOption`  | `orElseAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`         | Recover async option                     |
-| `tapAsyncOption`     | `tapAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`            | Side-effect async option                 |
-| `unwrapOrAsyncOption` | `unwrapOrAsyncOption<T>(def): (Promise<IOption<T>>) => Promise<T>`             | Unwrap async option                      |
-| `asyncBindOption`    | `asyncBindOption(fn): (IOption) => Promise<...>` | Chain sync Option with async fn |
-| `asyncTapOption`     | `asyncTapOption(fn): (IOption) => Promise<...>` | Async side-effect on sync Some |
-| `filterAsyncOption`  | `filterAsyncOption(pred): (Promise<...>) => Promise<...>` | Filter async option |
-| `flattenAsyncOption` | `flattenAsyncOption(Promise<...>): Promise<...>` | Flatten nested async option |
-| `containsAsyncOption`| `containsAsyncOption(val): (Promise<...>) => Promise<boolean>` | Contains value async option |
-| `existsAsyncOption`  | `existsAsyncOption(pred): (Promise<...>) => Promise<boolean>` | Predicate holds async option |
+| Operator              | Signature                                                                        | Description                                                         |
+| --------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `mapAsync`            | `mapAsync<A,B>(f): <E>(Promise<...>) => Promise<IResultOfT<B,E>>`                | Transform success value                                             |
+| `mapErrAsync`         | `mapErrAsync<E,F>(f): <A>(Promise<...>) => Promise<IResultOfT<A,F>>`             | Transform error                                                     |
+| `mapOrAsync`          | `mapOrAsync<A,B,E>(def, fn): (r) => Promise<B>`                                  | Map success or return default                                       |
+| `mapOrElseAsync`      | `mapOrElseAsync<A,B,E>(onErr, fn): (r) => Promise<B>`                            | Map success or compute from error                                   |
+| `bindAsync`           | `bindAsync<A,B,F>(f): <E>(...) => Promise<IResultOfT<B,E\|F>>`                   | Chain (monadic bind)                                                |
+| `orElseAsync`         | `orElseAsync<E,B,F>(f): <A>(...) => Promise<IResultOfT<A\|B,F>>`                 | Error recovery                                                      |
+| `matchAsync`          | `matchAsync<A,E,C>(onOk, onErr): (r) => Promise<C>`                              | Terminal pattern-match                                              |
+| `tapAsync`            | `tapAsync<A>(fn): <E>(r) => Promise<IResultOfT<A,E>>`                            | Side-effect on success                                              |
+| `tapErrAsync`         | `tapErrAsync<E>(fn): <A>(r) => Promise<IResultOfT<A,E>>`                         | Side-effect on failure                                              |
+| `unwrapOrAsync`       | `unwrapOrAsync<A>(def): <E>(r) => Promise<A>`                                    | Extract value or default                                            |
+| `unwrapOrElseAsync`   | `unwrapOrElseAsync<A,E>(fn): (r) => Promise<A>`                                  | Extract value or compute from error                                 |
+| `asyncMap`            | `asyncMap<A,B>(f): <E>(IResultOfT<A,E>) => Promise<IResultOfT<B,E>>`             | Map sync Result with async callback                                 |
+| `asyncBind`           | `asyncBind<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<B,E\|F>>`        | Chain sync Result with async fn                                     |
+| `asyncBindThrough`    | `asyncBindThrough<A,B,E,F>(f): (IResultOfT<A,E>) => Promise<IResultOfT<A,E\|F>>` | Chain sync Result with async side-effect (preserves original value) |
+| `bimapAsync`          | `bimapAsync<A,E,B,F>(ok, err): (Promise<...>) => Promise<...>`                   | Map both variants async                                             |
+| `swapAsync`           | `swapAsync<A,E>(Promise<...>): Promise<...>`                                     | Swap variants async                                                 |
+| `flattenAsync`        | `flattenAsync<A,E>(Promise<...>): Promise<...>`                                  | Flatten nested async result                                         |
+| `containsAsync`       | `containsAsync<A>(val): (Promise<...>) => Promise<boolean>`                      | Contains value async                                                |
+| `existsAsync`         | `existsAsync<A>(pred): (Promise<...>) => Promise<boolean>`                       | Predicate holds async                                               |
+| `filterOrElseAsync`   | `filterOrElseAsync(pred, err): (Promise<...>) => Promise<...>`                   | Filter success async                                                |
+| `asyncTap`            | `asyncTap(fn): (IResultOfT) => Promise<...>`                                     | Async side-effect on sync success                                   |
+| `asyncTapErr`         | `asyncTapErr(fn): (IResultOfT) => Promise<...>`                                  | Async side-effect on sync failure                                   |
+| `bindThroughAsync`    | `bindThroughAsync(fn): (Promise<...>) => Promise<...>`                           | Side-effect that can propagate errors async                         |
+| `mapAsyncOption`      | `mapAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`           | Transform async option                                              |
+| `bindAsyncOption`     | `bindAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`          | Chain async option                                                  |
+| `matchAsyncOption`    | `matchAsyncOption<T,U>(onSome, onNone): (Promise<IOption<T>>) => Promise<U>`     | Match async option                                                  |
+| `orElseAsyncOption`   | `orElseAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`          | Recover async option                                                |
+| `tapAsyncOption`      | `tapAsyncOption<T>(f): (Promise<IOption<T>>) => Promise<IOption<T>>`             | Side-effect async option                                            |
+| `unwrapOrAsyncOption` | `unwrapOrAsyncOption<T>(def): (Promise<IOption<T>>) => Promise<T>`               | Unwrap async option                                                 |
+| `asyncBindOption`     | `asyncBindOption(fn): (IOption) => Promise<...>`                                 | Chain sync Option with async fn                                     |
+| `asyncTapOption`      | `asyncTapOption(fn): (IOption) => Promise<...>`                                  | Async side-effect on sync Some                                      |
+| `filterAsyncOption`   | `filterAsyncOption(pred): (Promise<...>) => Promise<...>`                        | Filter async option                                                 |
+| `flattenAsyncOption`  | `flattenAsyncOption(Promise<...>): Promise<...>`                                 | Flatten nested async option                                         |
+| `containsAsyncOption` | `containsAsyncOption(val): (Promise<...>) => Promise<boolean>`                   | Contains value async option                                         |
+| `existsAsyncOption`   | `existsAsyncOption(pred): (Promise<...>) => Promise<boolean>`                    | Predicate holds async option                                        |
 
 ### Composition
 
-| Function        | Signature                                                | Description                                |
-| --------------- | -------------------------------------------------------- | ------------------------------------------ |
-| `pipe`          | `pipe(value, fn1, fn2, ...)` (1–10 overloads)            | Left-to-right function composition         |
-| `pipeAsync`     | `pipeAsync(value, ...fns)` (1–10 overloads)              | Async pipe                                 |
-| `safeTry`       | `safeTry<T,E>(result): Generator<IResultOfT<never,E>,T>`         | Generator yield* for Result pipelines      |
-| `fromSafeTry`   | `fromSafeTry<T,E>(gen: () => Generator<...>): IResultOfT<T,E>`   | Evaluate a safeTry generator               |
-| `composeK`      | `composeK<A,B,C,E>(f1, f2): (a: A) => IResultOfT<C,E>`   | Kleisli composition (`>=>`, 2–6 overloads) |
-| `composeKAsync` | `composeKAsync<A,B,C,E>(f1, f2): (a: A) => Promise<...>` | Async Kleisli composition (2–6)            |
+| Function        | Signature                                                      | Description                                |
+| --------------- | -------------------------------------------------------------- | ------------------------------------------ |
+| `pipe`          | `pipe(value, fn1, fn2, ...)` (1–10 overloads)                  | Left-to-right function composition         |
+| `pipeAsync`     | `pipeAsync(value, ...fns)` (1–10 overloads)                    | Async pipe                                 |
+| `safeTry`       | `safeTry<T,E>(result): Generator<IResultOfT<never,E>,T>`       | Generator yield* for Result pipelines      |
+| `fromSafeTry`   | `fromSafeTry<T,E>(gen: () => Generator<...>): IResultOfT<T,E>` | Evaluate a safeTry generator               |
+| `composeK`      | `composeK<A,B,C,E>(f1, f2): (a: A) => IResultOfT<C,E>`         | Kleisli composition (`>=>`, 2–6 overloads) |
+| `composeKAsync` | `composeKAsync<A,B,C,E>(f1, f2): (a: A) => Promise<...>`       | Async Kleisli composition (2–6)            |
 
 ### Adapters
 
@@ -297,15 +297,15 @@ All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync
 | `tee`           | `tee(f): (a: A) => A`                                            | Dead-end → 1-track (side-effect, returns input)      |
 | `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                              | Async dead-end → 1-track                             |
 | `toOption`      | `toOption(r): IOption<A>`                                        | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
-| `fromOption`    | `fromOption<E>(err, opt): IResultOfT<T,E>`                        | Direct: Option → Result                              |
+| `fromOption`    | `fromOption<E>(err, opt): IResultOfT<T,E>`                       | Direct: Option → Result                              |
 |                 | `fromOption<E>(err): (opt) => IResultOfT<T,E>`                   | Curried: returns a converter (data-last)             |
 
 ### Combine
 
-| Function               | Signature                                    | Behavior                            |
-| ---------------------- | -------------------------------------------- | ----------------------------------- |
-| `combine`              | `combine<A,E>(results[]): IResultOfT<A[],E>` | Short-circuits on first failure     |
-| `all`                  | `all(tuple): IResultOfT<[...tuple], E>`      | Heterogeneous tuple, short-circuits |
+| Function               | Signature                                                 | Behavior                            |
+| ---------------------- | --------------------------------------------------------- | ----------------------------------- |
+| `combine`              | `combine<A,E>(results[]): IResultOfT<A[],E>`              | Short-circuits on first failure     |
+| `all`                  | `all(tuple): IResultOfT<[...tuple], E>`                   | Heterogeneous tuple, short-circuits |
 | `combineWithAllErrors` | `combineWithAllErrors<A,E>(results): IResultOfT<A[],E[]>` | Accumulates **all** errors          |
 
 ### Option Module
@@ -672,38 +672,38 @@ All factories are **lazy** — the computation doesn't start until `.run()`.
 
 Lazy operators return a new `AsyncResult` without executing. Import from `@sandlada/result/async-result` or the main barrel (prefixed with `asyncResult`):
 
-| Operator               | Signature                                                      | Description                              |
-| ---------------------- | -------------------------------------------------------------- | ---------------------------------------- |
-| `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`       | Transform success value (sync)           |
-| `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`  | Transform success value (async)          |
-| `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`    | Transform error (sync)                   |
-| `mapErrAsync`          | `mapErrAsync<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>` | Transform error (async)                  |
-| `bind`                 | `bind<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`      | Chain (supports Promise<IResult> interop)|
-| `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>` | Recovery (supports Promise<IResult> interop)|
-| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`         | Side-effect on success (sync)            |
-| `tapAsync`             | `tapAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`    | Side-effect on success (async)           |
-| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on failure (sync)            |
-| `tapErrAsync`          | `tapErrAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>` | Side-effect on failure (async)           |
-| `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                    | Combine array, short-circuits on failure |
-| `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`     | Combine array, accumulates all errors    |
-| `bimap`                | `bimap(ok, err): (AsyncResult) => AsyncResult` | Map both variants lazy |
-| `swap`                 | `swap(AsyncResult): AsyncResult` | Swap variants lazy |
-| `flatten`              | `flatten(AsyncResult): AsyncResult` | Flatten nested lazy result |
-| `contains`             | `contains(val): (AsyncResult) => Promise<boolean>` | Contains value lazy |
-| `exists`               | `exists(pred): (AsyncResult) => Promise<boolean>` | Predicate holds lazy |
-| `filterOrElse`         | `filterOrElse(pred, err): (AsyncResult) => AsyncResult` | Filter success lazy |
-| `andTee`               | `andTee(fn): (AsyncResult) => AsyncResult` | Success side-effect lazy |
-| `orTee`                | `orTee(fn): (AsyncResult) => AsyncResult` | Failure side-effect lazy |
-| `andThrough`           | `andThrough(fn): (AsyncResult) => AsyncResult` | Propagating side-effect lazy |
+| Operator               | Signature                                                        | Description                                  |
+| ---------------------- | ---------------------------------------------------------------- | -------------------------------------------- |
+| `map`                  | `map<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`         | Transform success value (sync)               |
+| `mapAsync`             | `mapAsync<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`    | Transform success value (async)              |
+| `mapErr`               | `mapErr<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>`      | Transform error (sync)                       |
+| `mapErrAsync`          | `mapErrAsync<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,F>` | Transform error (async)                      |
+| `bind`                 | `bind<T,U,E>(fn): (AsyncResult<T,E>) => AsyncResult<U,E>`        | Chain (supports Promise<IResult> interop)    |
+| `orElse`               | `orElse<T,E,F>(fn): (AsyncResult<T,E>) => AsyncResult<T,E\|F>`   | Recovery (supports Promise<IResult> interop) |
+| `tap`                  | `tap<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`           | Side-effect on success (sync)                |
+| `tapAsync`             | `tapAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`      | Side-effect on success (async)               |
+| `tapErr`               | `tapErr<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`        | Side-effect on failure (sync)                |
+| `tapErrAsync`          | `tapErrAsync<T,E>(fn): (AsyncResult<T,E>) => AsyncResult<T,E>`   | Side-effect on failure (async)               |
+| `combine`              | `combine<T,E>(results): AsyncResult<T[],E>`                      | Combine array, short-circuits on failure     |
+| `combineWithAllErrors` | `combineWithAllErrors<T,E>(results): AsyncResult<T[],E[]>`       | Combine array, accumulates all errors        |
+| `bimap`                | `bimap(ok, err): (AsyncResult) => AsyncResult`                   | Map both variants lazy                       |
+| `swap`                 | `swap(AsyncResult): AsyncResult`                                 | Swap variants lazy                           |
+| `flatten`              | `flatten(AsyncResult): AsyncResult`                              | Flatten nested lazy result                   |
+| `contains`             | `contains(val): (AsyncResult) => Promise<boolean>`               | Contains value lazy                          |
+| `exists`               | `exists(pred): (AsyncResult) => Promise<boolean>`                | Predicate holds lazy                         |
+| `filterOrElse`         | `filterOrElse(pred, err): (AsyncResult) => AsyncResult`          | Filter success lazy                          |
+| `andTee`               | `andTee(fn): (AsyncResult) => AsyncResult`                       | Success side-effect lazy                     |
+| `orTee`                | `orTee(fn): (AsyncResult) => AsyncResult`                        | Failure side-effect lazy                     |
+| `andThrough`           | `andThrough(fn): (AsyncResult) => AsyncResult`                   | Propagating side-effect lazy                 |
 
 ### Terminal Operators
 
 Terminal operators call `.run()` and return `Promise`:
 
-| Operator   | Signature                                                       | Description                   |
-| ---------- | --------------------------------------------------------------- | ----------------------------- |
+| Operator   | Signature                                                       | Description                                 |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------- |
 | `match`    | `match<T,E,U>(handlers, ar): Promise<U>`                        | Run and pattern-match (sync/async handlers) |
-| `unwrapOr` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | Run, extract value or default (sync/async) |
+| `unwrapOr` | `unwrapOr<T,E>(defaultValue): (AsyncResult<T,E>) => Promise<T>` | Run, extract value or default (sync/async)  |
 
 ### Example
 
@@ -736,31 +736,31 @@ Execution is deferred until `.run()` is called.
 
 ### Factories
 
-| Function      | Signature                               | Description                          |
-| ------------- | --------------------------------------- | ------------------------------------ |
-| `from`        | `from<T>(thunk): AsyncOption<T>`        | Wrap a `() => Promise<IOption<T>>`   |
+| Function      | Signature                               | Description                           |
+| ------------- | --------------------------------------- | ------------------------------------- |
+| `from`        | `from<T>(thunk): AsyncOption<T>`        | Wrap a `() => Promise<IOption<T>>`    |
 | `fromPromise` | `fromPromise<T>(thunk): AsyncOption<T>` | Wrap `() => Promise<T>`, catch → None |
-| `fromOption`  | `fromOption<T>(opt): AsyncOption<T>`    | Lift sync `IOption` into AsyncOption |
+| `fromOption`  | `fromOption<T>(opt): AsyncOption<T>`    | Lift sync `IOption` into AsyncOption  |
 
 ### Operators (Lazy)
 
-| Operator  | Signature                                              | Description                               |
-| --------- | ------------------------------------------------------ | ----------------------------------------- |
-| `map`      | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`      | Transform value (sync)                   |
-| `mapAsync` | `mapAsync<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Transform value (async)                  |
-| `bind`     | `bind<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Chain (supports Promise<IOption> interop) |
-| `orElse`   | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`     | Recovery (supports Promise<IOption> interop)|
-| `tap`      | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`        | Side-effect on Some (sync)               |
-| `tapAsync` | `tapAsync<T>(fn): (AsyncOption<T>) => AsyncOption<T>`   | Side-effect on Some (async)              |
-| `filter`   | `filter(pred): (AsyncOption) => AsyncOption` | Filter lazy option |
-| `flatten`  | `flatten(AsyncOption): AsyncOption` | Flatten nested lazy option |
-| `contains` | `contains(val): (AsyncOption) => Promise<boolean>` | Contains value lazy option |
-| `exists`   | `exists(pred): (AsyncOption) => Promise<boolean>` | Predicate holds lazy option |
+| Operator   | Signature                                               | Description                                  |
+| ---------- | ------------------------------------------------------- | -------------------------------------------- |
+| `map`      | `map<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`      | Transform value (sync)                       |
+| `mapAsync` | `mapAsync<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>` | Transform value (async)                      |
+| `bind`     | `bind<T,U>(fn): (AsyncOption<T>) => AsyncOption<U>`     | Chain (supports Promise<IOption> interop)    |
+| `orElse`   | `orElse<T>(fn): (AsyncOption<T>) => AsyncOption<T>`     | Recovery (supports Promise<IOption> interop) |
+| `tap`      | `tap<T>(fn): (AsyncOption<T>) => AsyncOption<T>`        | Side-effect on Some (sync)                   |
+| `tapAsync` | `tapAsync<T>(fn): (AsyncOption<T>) => AsyncOption<T>`   | Side-effect on Some (async)                  |
+| `filter`   | `filter(pred): (AsyncOption) => AsyncOption`            | Filter lazy option                           |
+| `flatten`  | `flatten(AsyncOption): AsyncOption`                     | Flatten nested lazy option                   |
+| `contains` | `contains(val): (AsyncOption) => Promise<boolean>`      | Contains value lazy option                   |
+| `exists`   | `exists(pred): (AsyncOption) => Promise<boolean>`       | Predicate holds lazy option                  |
 
 ### Terminal Operators
 
-| Operator   | Signature                                                   | Description                   |
-| ---------- | ----------------------------------------------------------- | ----------------------------- |
+| Operator   | Signature                                                   | Description                                 |
+| ---------- | ----------------------------------------------------------- | ------------------------------------------- |
 | `match`    | `match({ some, none }, ao): Promise<U>`                     | Run and pattern-match (sync/async handlers) |
 | `unwrapOr` | `unwrapOr<T>(defaultValue): (AsyncOption<T>) => Promise<T>` | Run, extract value or default (sync/async)  |
 
