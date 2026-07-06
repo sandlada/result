@@ -62,13 +62,13 @@ src/
   types/                — IResult, IResultOfT, IOption, AsyncResult interfaces
   factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc.
   operators/            — map, bind, match, unwrap, orThrow, separate, etc.
-  async/                — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
+  async/                — mapAsync, asyncBind, matchAsync, etc. (Promise-based)
   async-result/         — AsyncResult lazy thunk operators
   async-option/         — AsyncOption lazy thunk operators
   composition/          — pipe, composeK, safeTry
   adapters/             — switchFn, liftMap, tee, toOption, fromOption
   combine/              — combine, all, combineWithAllErrors
-  option/               — ofSome, ofNone, map, andThen, match, etc.
+  option/               — ofSome, ofNone, map, bind, match, etc.
 ```
 
 Tests mirror source: `test/` mirrors `src/` structure. Root-level tests cover
@@ -140,7 +140,7 @@ if (result.isSuccess) {
 1. **`interface` for contracts** — Interfaces define the shape of result/option objects. No classes.
 2. **`readonly` properties only** — Result objects are immutable value objects.
 3. **`import type { ... }`** for all type-only imports (enforced by `verbatimModuleSyntax`).
-4. **No barrel / index re-export cycles.** Each module imports its dependencies from the specific source file.
+4. **No barrel / index re-export cycles.** Each module imports dependencies from the specific source file.
 5. **camelCase** for properties (`isSuccess`, `isFailure`, `error`, `value`, `isSome`, `isNone`).
 
 ## Testing Architecture

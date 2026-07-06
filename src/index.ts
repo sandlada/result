@@ -60,26 +60,43 @@ export { unsafeUnwrap } from './operators/unsafeUnwrap.js';
 export { unsafeUnwrapErr } from './operators/unsafeUnwrapErr.js';
 
 // ── Async operators ─────────────────────────────────────────────────────────
-export { mapAsync } from './async/mapAsync.js';
-export { mapErrAsync } from './async/mapErrAsync.js';
-export { mapOrAsync } from './async/mapOrAsync.js';
-export { mapOrElseAsync } from './async/mapOrElseAsync.js';
-export { bindAsync } from './async/bindAsync.js';
-export { orElseAsync } from './async/orElseAsync.js';
-export { matchAsync } from './async/matchAsync.js';
-export { tapAsync } from './async/tapAsync.js';
-export { tapErrAsync } from './async/tapErrAsync.js';
-export { unwrapOrAsync } from './async/unwrapOrAsync.js';
-export { unwrapOrElseAsync } from './async/unwrapOrElseAsync.js';
-export { asyncMap } from './async/asyncMap.js';
-export { asyncAndThen } from './async/asyncAndThen.js';
-export { asyncAndThrough } from './async/asyncAndThrough.js';
-export { mapAsyncOption } from './async/mapAsyncOption.js';
-export { bindAsyncOption } from './async/bindAsyncOption.js';
-export { matchAsyncOption } from './async/matchAsyncOption.js';
-export { orElseAsyncOption } from './async/orElseAsyncOption.js';
-export { tapAsyncOption } from './async/tapAsyncOption.js';
-export { unwrapOrAsyncOption } from './async/unwrapOrAsyncOption.js';
+export {
+    asyncBind,
+    asyncBindThrough,
+    asyncMap,
+    asyncTap,
+    asyncTapErr,
+    bimapAsync,
+    bindAsync,
+    bindThroughAsync,
+    containsAsync,
+    existsAsync,
+    filterOrElseAsync,
+    flattenAsync,
+    mapAsync,
+    mapErrAsync,
+    mapOrAsync,
+    mapOrElseAsync,
+    matchAsync,
+    orElseAsync,
+    swapAsync,
+    tapAsync,
+    tapErrAsync,
+    unwrapOrAsync,
+    unwrapOrElseAsync,
+    asyncBindOption,
+    asyncTapOption,
+    bindAsyncOption,
+    containsAsyncOption,
+    existsAsyncOption,
+    filterAsyncOption,
+    flattenAsyncOption,
+    mapAsyncOption,
+    matchAsyncOption,
+    orElseAsyncOption,
+    tapAsyncOption,
+    unwrapOrAsyncOption,
+} from './async/index.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
@@ -108,20 +125,29 @@ export {
     from,
     fromPromise as asyncResultFromPromise,
     fromResult,
+    andTee as asyncResultAndTee,
+    andThrough as asyncResultAndThrough,
+    bimap as asyncResultBimap,
+    bind as asyncResultBind,
+    combine as asyncResultCombine,
+    combineWithAllErrors as asyncResultCombineWithAllErrors,
+    contains as asyncResultContains,
+    exists as asyncResultExists,
+    filterOrElse as asyncResultFilterOrElse,
+    flatten as asyncResultFlatten,
     map as asyncResultMap,
     mapAsync as asyncResultMapAsync,
     mapErr as asyncResultMapErr,
     mapErrAsync as asyncResultMapErrAsync,
-    andThen as asyncResultAndThen,
-    orElse as asyncResultOrElse,
     match as asyncResultMatch,
+    orElse as asyncResultOrElse,
+    orTee as asyncResultOrTee,
+    swap as asyncResultSwap,
     tap as asyncResultTap,
     tapAsync as asyncResultTapAsync,
     tapErr as asyncResultTapErr,
     tapErrAsync as asyncResultTapErrAsync,
     unwrapOr as asyncResultUnwrapOr,
-    combine as asyncResultCombine,
-    combineWithAllErrors as asyncResultCombineWithAllErrors,
 } from './async-result/index.js';
 
 // ── AsyncOption ─────────────────────────────────────────────────────────────
@@ -129,11 +155,15 @@ export {
     from as asyncOptionFrom,
     fromPromise as asyncOptionFromPromise,
     fromOption as asyncOptionFromOption,
+    bind as asyncOptionBind,
+    contains as asyncOptionContains,
+    exists as asyncOptionExists,
+    filter as asyncOptionFilter,
+    flatten as asyncOptionFlatten,
     map as asyncOptionMap,
     mapAsync as asyncOptionMapAsync,
-    andThen as asyncOptionAndThen,
-    orElse as asyncOptionOrElse,
     match as asyncOptionMatch,
+    orElse as asyncOptionOrElse,
     tap as asyncOptionTap,
     tapAsync as asyncOptionTapAsync,
     unwrapOr as asyncOptionUnwrapOr,
@@ -142,19 +172,18 @@ export {
 // ── Option (re-exported with renamed identifiers) ───────────────────────────
 export { ofSome, ofNone } from './option/index.js';
 export {
-    map as mapOption,
-    andThen,
-    orElse as orElseOption,
-    match as matchOption,
-    tap as tapOption,
-    unwrapOr as unwrapOrOption,
+    all as allOption,
+    bind as bindOption,
+    contains as containsOption,
     filter as filterOption,
     flatten as flattenOption,
-    contains as containsOption,
-    all as allOption,
-    zipWith as zipWithOption,
+    map as mapOption,
+    match as matchOption,
     okOr as okOrOption,
     okOrElse as okOrElseOption,
+    orElse as orElseOption,
+    tap as tapOption,
     transpose as transposeOption,
+    unwrapOr as unwrapOrOption,
+    zipWith as zipWithOption,
 } from './option/index.js';
-

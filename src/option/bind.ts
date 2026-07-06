@@ -3,15 +3,15 @@
  *
  * @example
  * ```ts
- * import { andThen, pipe } from '@sandlada/result';
+ * import { bind, pipe } from '@sandlada/result';
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * pipe(ofSome(21), andThen(n => n > 0 ? ofSome(n * 2) : ofNone()));
+ * pipe(ofSome(21), bind(n => n > 0 ? ofSome(n * 2) : ofNone()));
  * ```
  */
 
 import type { IOption } from '../types/Option.js';
 
-export function andThen<T, U>(
+export function bind<T, U>(
     fn: (value: T) => IOption<U>,
 ): (opt: IOption<T>) => IOption<U> {
     return opt => {
@@ -19,4 +19,3 @@ export function andThen<T, U>(
         return fn(opt.value);
     };
 }
-

@@ -10,24 +10,24 @@ import { ofNone } from '../option/index.js';
  * @example
  * ```ts
  * import { ofSome } from '@sandlada/result/option';
- * import { fromOption, andThen } from '@sandlada/result/async-option';
+ * import { fromOption, bind } from '@sandlada/result/async-option';
  *
- * const ao = andThen((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
+ * const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
  * const result = await ao.run(); // Some(42)
  * ```
  */
-export function andThen<T, U>(
+export function bind<T, U>(
     fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
 ): (ao: AsyncOption<T>) => AsyncOption<U>;
-export function andThen<T, U>(
+export function bind<T, U>(
     fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
     ao: AsyncOption<T>,
 ): AsyncOption<U>;
-export function andThen<T, U>(
+export function bind<T, U>(
     fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
     ao?: AsyncOption<T>,
 ): AsyncOption<U> | ((ao: AsyncOption<T>) => AsyncOption<U>) {
-    if (ao === undefined) return (ao: AsyncOption<T>) => andThen(fn, ao);
+    if (ao === undefined) return (ao: AsyncOption<T>) => bind(fn, ao);
     return {
         run: async (): Promise<IOption<U>> => {
             const opt = await ao.run();

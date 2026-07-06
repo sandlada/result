@@ -6,7 +6,7 @@
  */
 
 export { all } from './all.js';
-export { andThen } from './andThen.js';
+export { bind } from './bind.js';
 export { contains } from './contains.js';
 export { filter } from './filter.js';
 export { flatten } from './flatten.js';
@@ -21,4 +21,3 @@ export { tap } from './tap.js';
 export { transpose } from './transpose.js';
 export { unwrapOr } from './unwrapOr.js';
 export { zipWith } from './zipWith.js';
-

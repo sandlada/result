@@ -3,18 +3,18 @@
  * that **can** propagate errors. If `fn` returns a failure, that failure propagates.
  * If `fn` returns a success, the **original** success value passes through unchanged.
  *
- * The key difference from `asyncAndThen` is that `asyncAndThrough` preserves the
- * **original** success value on success, while `asyncAndThen` replaces it.
+ * The key difference from `asyncBind` is that `asyncBindThrough` preserves the
+ * **original** success value on success, while `asyncBind` replaces it.
  *
  * Bridges from the sync result world to the async world — unlike `bindAsync`
  * which works on `Promise<IResultOfT>`.
  *
  * @example
  * ```ts
- * import { asyncAndThrough, ok, err } from '@sandlada/result';
+ * import { asyncBindThrough, ok, err } from '@sandlada/result';
  *
  * // Validate and preserve original value on success:
- * const r = await asyncAndThrough(async (v) => validate(v), ok('data'));
+ * const r = await asyncBindThrough(async (v) => validate(v), ok('data'));
  * // Ok('data') if valid, Err(validationError) if invalid
  * ```
  */
@@ -22,18 +22,18 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
-export function asyncAndThrough<A, B, F>(
+export function asyncBindThrough<A, B, F>(
     fn: (a: A) => Promise<IResultOfT<B, F>>,
 ): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<A, E | F>>;
-export function asyncAndThrough<A, B, E, F>(
+export function asyncBindThrough<A, B, E, F>(
     fn: (a: A) => Promise<IResultOfT<B, F>>,
     r: IResultOfT<A, E>,
 ): Promise<IResultOfT<A, E | F>>;
-export function asyncAndThrough<A, B, E, F>(
+export function asyncBindThrough<A, B, E, F>(
     fn: (a: A) => Promise<IResultOfT<B, F>>,
     r?: IResultOfT<A, E>,
 ): Promise<IResultOfT<A, E | F>> | (<E>(r: IResultOfT<A, E>) => Promise<IResultOfT<A, E | F>>) {
-    if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<A, E | F>> => asyncAndThrough(fn, r);
+    if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<A, E | F>> => asyncBindThrough(fn, r);
     if(!r.isSuccess) return Promise.resolve(r as unknown as IResultOfT<A, E | F>);
     try {
         return fn(r.value).then(
