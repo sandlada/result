@@ -61,4 +61,20 @@ describe('safeTry / fromSafeTry', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error.code).toBe(404);
     });
+
+    it('closes the generator on short-circuit failure', () => {
+        let closed = false;
+        const gen = function* () {
+            try {
+                yield* safeTry(err('short-circuit'));
+                return 'ok';
+            } finally {
+                closed = true;
+            }
+        };
+
+        const result = fromSafeTry(gen);
+        expect(result.isFailure).toBe(true);
+        expect(closed).toBe(true);
+    });
 });

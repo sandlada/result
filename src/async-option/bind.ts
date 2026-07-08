@@ -34,7 +34,7 @@ export function bind<T, U>(
             if (!opt.isSome) return ofNone();
             try {
                 const next = await fn(opt.value);
-                if (next && 'run' in next && typeof next.run === 'function') {
+                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
                     return next.run();
                 }
                 return next as IOption<U>;

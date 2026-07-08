@@ -34,7 +34,7 @@ export function bind<T, U, E>(
             if(!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             try {
                 const next = await fn(r.value);
-                if (next && 'run' in next && typeof next.run === 'function') {
+                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
                     return next.run();
                 }
                 return next as IResultOfT<U, E>;
