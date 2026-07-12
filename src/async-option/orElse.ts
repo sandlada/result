@@ -33,7 +33,7 @@ export function orElse<T>(
             if (opt.isSome) return opt;
             try {
                 const next = await fn();
-                if (next && 'run' in next && typeof next.run === 'function') {
+                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
                     return next.run();
                 }
                 return next as IOption<T>;

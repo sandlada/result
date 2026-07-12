@@ -33,7 +33,7 @@ export function orElse<T, E, F>(
             if(r.isSuccess) return r as unknown as IResultOfT<T, E | F>;
             try {
                 const next = await fn(r.error);
-                if (next && 'run' in next && typeof next.run === 'function') {
+                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
                     return next.run() as Promise<IResultOfT<T, E | F>>;
                 }
                 return next as IResultOfT<T, E | F>;

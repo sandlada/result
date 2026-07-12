@@ -58,7 +58,24 @@ export function fromSafeTry<T, E>(
     gen: () => Generator<IResultOfT<never, E>, T, unknown>,
 ): IResultOfT<T, E> {
     const iterator = gen();
-    const first = iterator.next();
-    if(first.done) return ok(first.value as T) as unknown as IResultOfT<T, E>;
-    return first.value as unknown as IResultOfT<T, E>;
+    try {
+        const first = iterator.next();
+        if (first.done) return ok(first.value as T) as unknown as IResultOfT<T, E>;
+        // If it yielded, it means a failure occurred via safeTry.
+        // We must ensure the generator is closed to prevent resource leaks.
+        if (typeof iterator.return === 'function') {
+            iterator.return(undefined);
+        }
+        return first.value as unknown as IResultOfT<T, E>;
+    } catch (e) {
+        // In case the generator itself throws, we still try to close it.
+        if (typeof iterator.return === 'function') {
+            try {
+                iterator.return(undefined);
+            } catch {
+                /* ignore */
+            }
+        }
+        throw e;
+    }
 }
