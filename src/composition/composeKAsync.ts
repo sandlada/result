@@ -17,6 +17,11 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bindAsync } from '../async/bindAsync.js';
 
+// 1 function
+export function composeKAsync<A, B, E>(
+    f1: (a: A) => IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+): (a: A) => Promise<IResultOfT<B, E>>;
+
 // 2 functions
 export function composeKAsync<A, B, C, E>(
     f1: (a: A) => IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
@@ -60,6 +65,9 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
 export function composeKAsync(
     ...fns: Array<(arg: any) => IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
 ): (a: any) => Promise<IResultOfT<any, any>> {
+    if (fns.length === 0) {
+        return (_a: any) => Promise.reject(new TypeError('composeKAsync requires at least one function'));
+    }
     return async (a: any) => {
         try {
             let result: Promise<IResultOfT<any, any>> = Promise.resolve(fns[0]!(a));

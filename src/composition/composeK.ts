@@ -61,10 +61,14 @@ export function composeK(
     ...fns: Array<(arg: any) => IResultOfT<any, any>>
 ): (a: any) => IResultOfT<any, any> {
     return (a: any) => {
-        let result: IResultOfT<any, any> = fns[0]!(a);
-        for(let i = 1; i < fns.length; i++)
-            result = (bind(fns[i]!) as (r: IResultOfT<any, any>) => IResultOfT<any, any>)(result);
-        return result;
+        try {
+            let result: IResultOfT<any, any> = fns[0]!(a);
+            for(let i = 1; i < fns.length; i++)
+                result = (bind(fns[i]!) as (r: IResultOfT<any, any>) => IResultOfT<any, any>)(result);
+            return result;
+        } catch (e: unknown) {
+            return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<any, any>;
+        }
     };
 }
 

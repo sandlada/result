@@ -25,6 +25,10 @@ export function bind<A, B, E, F>(
 ): IResultOfT<B, E | F> | (<E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): IResultOfT<B, E | F> => bind(f, r);
     if(!r.isSuccess) return r as unknown as IResultOfT<B, E | F>;
-    return f(r.value) as unknown as IResultOfT<B, E | F>;
+    try {
+        return f(r.value) as unknown as IResultOfT<B, E | F>;
+    } catch (e: unknown) {
+        return { isSuccess: false as const, isFailure: true as const, error: e as (E | F) } as IResultOfT<B, E | F>;
+    }
 }
 
