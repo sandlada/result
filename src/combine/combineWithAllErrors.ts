@@ -20,7 +20,8 @@ export function combineWithAllErrors<A, E>(
 ): IResultOfT<A[], E[]> {
     const values: A[] = [];
     const errors: E[] = [];
-    for(const r of results) {
+    for (let i = 0; i < results.length; i++) {
+        const r = results[i]!;
         if(r.isSuccess) values.push(r.value);
         else errors.push(r.error);
     }
