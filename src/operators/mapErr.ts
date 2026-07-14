@@ -18,6 +18,10 @@ export function mapErr<A, E, F>(f: (e: E) => F, r: IResultOfT<A, E>): IResultOfT
 export function mapErr<A, E, F>(f: (e: E) => F, r?: IResultOfT<A, E>): IResultOfT<A, F> | (<A>(r: IResultOfT<A, E>) => IResultOfT<A, F>) {
     if(r === undefined) return <A>(r: IResultOfT<A, E>): IResultOfT<A, F> => mapErr(f, r);
     if(r.isSuccess) return r as unknown as IResultOfT<A, F>;
-    return err(f(r.error)) as unknown as IResultOfT<A, F>;
+    try {
+        return err(f(r.error)) as unknown as IResultOfT<A, F>;
+    } catch(e: unknown) {
+        return err(e as F) as unknown as IResultOfT<A, F>;
+    }
 }
 

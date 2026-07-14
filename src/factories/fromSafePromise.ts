@@ -1,17 +1,13 @@
 /**
- * @fileoverview Wraps a Promise that is expected to **never reject** into a success Result.
- * The returned type is `Promise<IResultOfT<T, never>>` — the error type is `never`
- * because the promise is assumed to always resolve.
+ * @fileoverview Wraps a Promise into a Result. On resolve returns `ok(value)`;
+ * on reject returns `err(error)`.
  *
- * Unlike `fromPromise`, this function does **not** catch rejections. If the promise
- * does reject, the rejection will propagate as an unhandled promise rejection.
- * Use this only when you are certain the promise will not reject.
+ * Unlike `fromPromise`, this function uses `Error` as the error type by default.
  *
  * @example
  * ```ts
  * import { fromSafePromise, pipe, map } from '@sandlada/result';
  *
- * // For promises that are guaranteed to resolve (e.g. local cache):
  * const data = await fromSafePromise(Promise.resolve(42));
  * // Ok(42)
  * ```
@@ -19,10 +15,15 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from './ok.js';
+import { err } from './err.js';
 
 export async function fromSafePromise<T>(
     promise: Promise<T>,
-): Promise<IResultOfT<T, never>> {
-    const value = await promise;
-    return ok(value) as unknown as IResultOfT<T, never>;
+): Promise<IResultOfT<T, Error>> {
+    try {
+        const value = await promise;
+        return ok(value) as unknown as IResultOfT<T, Error>;
+    } catch (e: unknown) {
+        return err(e instanceof Error ? e : new Error(String(e))) as unknown as IResultOfT<T, Error>;
+    }
 }

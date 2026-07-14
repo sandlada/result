@@ -26,10 +26,6 @@ export function unwrapOrElseAsync<A, E>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<A> => unwrapOrElseAsync(onErr, r);
     return r.then(async inner => {
         if(inner.isSuccess) return inner.value;
-        try {
-            return await onErr(inner.error);
-        } catch(e: unknown) {
-            throw e;
-        }
+        return await onErr(inner.error);
     });
 }

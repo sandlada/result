@@ -61,17 +61,21 @@ export function fromSafeTry<T, E>(
     try {
         const first = iterator.next();
         if (first.done) return ok(first.value as T) as unknown as IResultOfT<T, E>;
-        // If it yielded, it means a failure occurred via safeTry.
-        // We must ensure the generator is closed to prevent resource leaks.
+        // A failure was yielded via safeTry. Ensure the generator is closed.
         if (typeof iterator.return === 'function') {
-            iterator.return(undefined as unknown as T);
+            iterator.return(undefined!);
+        }
+        // Verify the generator doesn't yield again — safeTry should yield at most once.
+        const check = iterator.next();
+        if (!check.done) {
+            throw new Error('safeTry: generator yielded more than once. Each safeTry() call should only yield on failure.');
         }
         return first.value as unknown as IResultOfT<T, E>;
     } catch (e) {
         // In case the generator itself throws, we still try to close it.
         if (typeof iterator.return === 'function') {
             try {
-                iterator.return(undefined as unknown as T);
+                iterator.return(undefined!);
             } catch {
                 /* ignore */
             }

@@ -18,7 +18,7 @@ export function switchFnAsync<A, B>(
 ): (a: A) => Promise<IResultOfT<B, never>> {
     return async (a: A): Promise<IResultOfT<B, never>> => {
         try { return ok(await f(a)) as IResultOfT<B, never>; }
-        catch { return err(undefined as never) as IResultOfT<B, never>; }
+        catch(e: unknown) { return err(e as never) as IResultOfT<B, never>; }
     };
 }
 

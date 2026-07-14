@@ -29,10 +29,6 @@ export function match<T, E, U>(
 ): Promise<U> | ((ar: AsyncResult<T, E>) => Promise<U>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): Promise<U> => match(handlers, ar);
     return ar.run().then(async r => {
-        try {
-            return r.isSuccess ? await handlers.ok(r.value) : await handlers.err(r.error);
-        } catch (e) {
-            throw e;
-        }
+        return r.isSuccess ? await handlers.ok(r.value) : await handlers.err(r.error);
     });
 }

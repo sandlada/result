@@ -11,11 +11,16 @@
 
 import type { IOption } from '../types/Option.js';
 import { ofSome } from './ofSome.js';
+import { ofNone } from './ofNone.js';
 
 export function map<T, U>(fn: (value: T) => U): (opt: IOption<T>) => IOption<U> {
     return opt => {
         if(!opt.isSome) return opt as unknown as IOption<U>;
-        return ofSome(fn(opt.value));
+        try {
+            return ofSome(fn(opt.value));
+        } catch {
+            return ofNone() as unknown as IOption<U>;
+        }
     };
 }
 

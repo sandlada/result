@@ -13,8 +13,15 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 export function switchFn<A, B>(f: (a: A) => B): (a: A) => IResultOfT<B, never> {
-    return (a: A): IResultOfT<B, never> => ok(f(a)) as IResultOfT<B, never>;
+    return (a: A): IResultOfT<B, never> => {
+        try {
+            return ok(f(a)) as IResultOfT<B, never>;
+        } catch(e: unknown) {
+            return err(e as never) as IResultOfT<B, never>;
+        }
+    };
 }
 

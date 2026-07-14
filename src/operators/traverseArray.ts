@@ -14,6 +14,7 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 export function traverseArray<A, B, E>(
     fn: (item: A, index: number) => IResultOfT<B, E>,
@@ -29,8 +30,14 @@ export function traverseArray<A, B, E>(
     if(items === undefined) return (items: readonly A[]): IResultOfT<B[], E> => traverseArray(fn, items);
     const values: B[] = [];
     for(let i = 0; i < items.length; i++) {
+        // items[i] is safe: loop guard ensures i < items.length
         const item = items[i]!;
-        const r = fn(item, i);
+        let r: IResultOfT<B, E>;
+        try {
+            r = fn(item, i);
+        } catch(e: unknown) {
+            return err(e as E) as unknown as IResultOfT<B[], E>;
+        }
         if(!r.isSuccess) return r as unknown as IResultOfT<B[], E>;
         values.push(r.value);
     }

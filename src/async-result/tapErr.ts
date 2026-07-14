@@ -30,7 +30,7 @@ export function tapErr<T, E>(
     return {
         run: async (): Promise<IResultOfT<T, E>> => {
             const r = await ar.run();
-            if(r.isFailure) {
+            if(!r.isSuccess) {
                 try {
                     fn(r.error);
                 } catch(e: unknown) {

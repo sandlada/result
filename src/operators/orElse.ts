@@ -9,6 +9,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function orElse<E, B, F>(
     f: (e: E) => IResultOfT<B, F>,
@@ -23,6 +24,10 @@ export function orElse<A, E, B, F>(
 ): IResultOfT<A | B, F> | (<A>(r: IResultOfT<A, E>) => IResultOfT<A | B, F>) {
     if(r === undefined) return <A>(r: IResultOfT<A, E>): IResultOfT<A | B, F> => orElse(f, r);
     if(r.isSuccess) return r as unknown as IResultOfT<A | B, F>;
-    return f(r.error) as unknown as IResultOfT<A | B, F>;
+    try {
+        return f(r.error) as unknown as IResultOfT<A | B, F>;
+    } catch(e: unknown) {
+        return err(e as F) as unknown as IResultOfT<A | B, F>;
+    }
 }
 

@@ -23,7 +23,7 @@ export function tapErrAsync<A, E>(
 ): Promise<IResultOfT<A, E>> | ((r: Promise<IResultOfT<A, E>>) => Promise<IResultOfT<A, E>>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<A, E>> => tapErrAsync(fn, r);
     return r.then(async inner => {
-        if(inner.isFailure) {
+        if(!inner.isSuccess) {
             try {
                 await fn(inner.error);
             } catch(e: unknown) {

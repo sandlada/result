@@ -10,12 +10,17 @@
  */
 
 import type { IOption } from '../types/Option.js';
+import { ofNone } from './ofNone.js';
 
 export function bind<T, U>(
     fn: (value: T) => IOption<U>,
 ): (opt: IOption<T>) => IOption<U> {
     return opt => {
         if(!opt.isSome) return opt as unknown as IOption<U>;
-        return fn(opt.value);
+        try {
+            return fn(opt.value);
+        } catch {
+            return ofNone() as unknown as IOption<U>;
+        }
     };
 }

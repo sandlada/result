@@ -10,10 +10,17 @@
  */
 
 import type { IOption } from '../types/Option.js';
+import { ofNone } from './ofNone.js';
 
 export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> {
     return opt => {
-        if(opt.isSome) fn(opt.value);
+        if(opt.isSome) {
+            try {
+                fn(opt.value);
+            } catch {
+                return ofNone() as unknown as IOption<T>;
+            }
+        }
         return opt;
     };
 }

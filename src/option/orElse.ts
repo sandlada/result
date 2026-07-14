@@ -10,13 +10,18 @@
  */
 
 import type { IOption } from '../types/Option.js';
+import { ofNone } from './ofNone.js';
 
 export function orElse<T>(
     fn: () => IOption<T>,
 ): (opt: IOption<T>) => IOption<T> {
     return opt => {
         if(opt.isSome) return opt;
-        return fn();
+        try {
+            return fn();
+        } catch {
+            return ofNone() as unknown as IOption<T>;
+        }
     };
 }
 

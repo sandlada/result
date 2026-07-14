@@ -20,6 +20,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function orTee<E, B, F>(
     fn: (e: E) => IResultOfT<B, F>,
@@ -33,6 +34,12 @@ export function orTee<A, E, B, F>(
     r?: IResultOfT<A, E>,
 ): IResultOfT<A, E> | (<A>(r: IResultOfT<A, E>) => IResultOfT<A, E>) {
     if(r === undefined) return <A>(r: IResultOfT<A, E>): IResultOfT<A, E> => orTee(fn, r);
-    if(!r.isSuccess) fn(r.error);
+    if(!r.isSuccess) {
+        try {
+            fn(r.error);
+        } catch(e: unknown) {
+            return err(e as E) as unknown as IResultOfT<A, E>;
+        }
+    }
     return r;
 }

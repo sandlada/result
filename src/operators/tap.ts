@@ -9,12 +9,19 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function tap<A>(fn: (a: A) => void): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E>;
 export function tap<A, E>(fn: (a: A) => void, r: IResultOfT<A, E>): IResultOfT<A, E>;
 export function tap<A, E>(fn: (a: A) => void, r?: IResultOfT<A, E>): IResultOfT<A, E> | (<E>(r: IResultOfT<A, E>) => IResultOfT<A, E>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): IResultOfT<A, E> => tap(fn, r);
-    if(r.isSuccess) fn(r.value);
+    if(r.isSuccess) {
+        try {
+            fn(r.value);
+        } catch(e: unknown) {
+            return err(e as E) as unknown as IResultOfT<A, E>;
+        }
+    }
     return r;
 }
 

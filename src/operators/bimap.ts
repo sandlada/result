@@ -27,7 +27,11 @@ export function bimap<A, E, C, F>(
     r?: IResultOfT<A, E>,
 ): IResultOfT<C, F> | ((r: IResultOfT<A, E>) => IResultOfT<C, F>) {
     if(r === undefined) return (r: IResultOfT<A, E>): IResultOfT<C, F> => bimap(onOk, onErr, r);
-    if(r.isSuccess) return ok(onOk(r.value)) as unknown as IResultOfT<C, F>;
-    return err(onErr(r.error)) as unknown as IResultOfT<C, F>;
+    try {
+        if(r.isSuccess) return ok(onOk(r.value)) as unknown as IResultOfT<C, F>;
+        return err(onErr(r.error)) as unknown as IResultOfT<C, F>;
+    } catch(e: unknown) {
+        return err(e as F) as unknown as IResultOfT<C, F>;
+    }
 }
 

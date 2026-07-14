@@ -18,8 +18,9 @@ describe('fromSafePromise', () => {
         if (r.isSuccess) expect(r.value.name).toBe('Alice');
     });
 
-    it('rejects if the promise rejects (does not catch)', async () => {
-        await expect(fromSafePromise(Promise.reject(new Error('unexpected'))))
-            .rejects.toThrow('unexpected');
+    it('returns err when the promise rejects', async () => {
+        const r = await fromSafePromise(Promise.reject(new Error('unexpected')));
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect((r.error as Error).message).toBe('unexpected');
     });
 });

@@ -30,11 +30,7 @@ export function matchAsync<A, E, C>(
 ): Promise<C> | ((r: Promise<IResultOfT<A, E>>) => Promise<C>) {
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<C> => matchAsync(onOk, onErr, r);
     return r.then(async inner => {
-        try {
-            return inner.isSuccess ? await onOk(inner.value) : await onErr(inner.error);
-        } catch(e: unknown) {
-            throw e;
-        }
+        return inner.isSuccess ? await onOk(inner.value) : await onErr(inner.error);
     });
 }
 

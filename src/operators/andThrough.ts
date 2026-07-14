@@ -26,6 +26,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function andThrough<A, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
@@ -40,7 +41,12 @@ export function andThrough<A, E, B, F>(
 ): IResultOfT<A, E | F> | (<E>(r: IResultOfT<A, E>) => IResultOfT<A, E | F>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): IResultOfT<A, E | F> => andThrough(fn, r);
     if(!r.isSuccess) return r as unknown as IResultOfT<A, E | F>;
-    const inner = fn(r.value);
+    let inner: IResultOfT<B, F>;
+    try {
+        inner = fn(r.value);
+    } catch(e: unknown) {
+        return err(e as (E | F)) as unknown as IResultOfT<A, E | F>;
+    }
     if(!inner.isSuccess) return inner as unknown as IResultOfT<A, E | F>;
     return r as unknown as IResultOfT<A, E | F>;
 }

@@ -13,6 +13,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function ap<A, B, E>(
     fnResult: IResultOfT<(a: A) => B, E>,
@@ -28,5 +29,9 @@ export function ap<A, B, E>(
     if(result === undefined) return (result: IResultOfT<A, E>): IResultOfT<B, E> => ap(fnResult, result);
     if(!fnResult.isSuccess) return fnResult as unknown as IResultOfT<B, E>;
     if(!result.isSuccess) return result as unknown as IResultOfT<B, E>;
-    return { isSuccess: true as const, isFailure: false as const, value: fnResult.value(result.value) } as IResultOfT<B, E>;
+    try {
+        return { isSuccess: true as const, isFailure: false as const, value: fnResult.value(result.value) } as IResultOfT<B, E>;
+    } catch(e: unknown) {
+        return err(e as E) as unknown as IResultOfT<B, E>;
+    }
 }

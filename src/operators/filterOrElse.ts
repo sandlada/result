@@ -32,6 +32,10 @@ export function filterOrElse<A, E>(
 ): IResultOfT<A, E> | ((r: IResultOfT<A, E>) => IResultOfT<A, E>) {
     if(r === undefined) return (r: IResultOfT<A, E>): IResultOfT<A, E> => filterOrElse(predicate, errorFn, r);
     if(!r.isSuccess) return r as unknown as IResultOfT<A, E>;
-    if(predicate(r.value)) return r;
-    return err(errorFn(r.value)) as unknown as IResultOfT<A, E>;
+    try {
+        if(predicate(r.value)) return r;
+        return err(errorFn(r.value)) as unknown as IResultOfT<A, E>;
+    } catch(e: unknown) {
+        return err(e as E) as unknown as IResultOfT<A, E>;
+    }
 }

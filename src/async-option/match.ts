@@ -27,11 +27,6 @@ export function match<T, U>(
 ): Promise<U> | ((ao: AsyncOption<T>) => Promise<U>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => match(handlers, ao);
     return ao.run().then(opt => {
-        try {
-            return opt.isSome ? handlers.some(opt.value) : handlers.none();
-        } catch (e) {
-            // In terminal match, if handler throws, we let it propagate as it's no longer on the railway
-            throw e;
-        }
+        return opt.isSome ? handlers.some(opt.value) : handlers.none();
     });
 }
