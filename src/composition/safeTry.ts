@@ -64,14 +64,14 @@ export function fromSafeTry<T, E>(
         // If it yielded, it means a failure occurred via safeTry.
         // We must ensure the generator is closed to prevent resource leaks.
         if (typeof iterator.return === 'function') {
-            iterator.return(undefined);
+            iterator.return(undefined as unknown as T);
         }
         return first.value as unknown as IResultOfT<T, E>;
     } catch (e) {
         // In case the generator itself throws, we still try to close it.
         if (typeof iterator.return === 'function') {
             try {
-                iterator.return(undefined);
+                iterator.return(undefined as unknown as T);
             } catch {
                 /* ignore */
             }
