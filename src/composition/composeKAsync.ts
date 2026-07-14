@@ -61,9 +61,9 @@ export function composeKAsync(
     ...fns: Array<(arg: any) => IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
 ): (a: any) => Promise<IResultOfT<any, any>> {
     return async (a: any) => {
-        let result: IResultOfT<any, any> | Promise<IResultOfT<any, any>> = fns[0]!(a);
+        let result: Promise<IResultOfT<any, any>> = Promise.resolve(fns[0]!(a));
         for(let i = 1; i < fns.length; i++)
-            result = (bindAsync(fns[i]!) as (r: Promise<IResultOfT<any, any>>) => Promise<IResultOfT<any, any>>)(Promise.resolve(result));
+            result = (bindAsync(fns[i]!) as (r: Promise<IResultOfT<any, any>>) => Promise<IResultOfT<any, any>>)(result);
         return result;
     };
 }
