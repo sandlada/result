@@ -27,8 +27,8 @@ export function combineWithAllErrors<T, E>(
         run: async (): Promise<IResultOfT<T[], E[]>> => {
             const values: T[] = [];
             const errors: E[] = [];
-            for(const ar of results) {
-                const r = await ar.run();
+            const resolvedResults = await Promise.all(results.map(ar => ar.run()));
+            for(const r of resolvedResults) {
                 if(r.isSuccess) values.push(r.value);
                 else errors.push(r.error);
             }
