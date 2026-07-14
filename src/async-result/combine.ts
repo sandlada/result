@@ -21,9 +21,9 @@ export function combine<T, E>(
 ): AsyncResult<T[], E> {
     return {
         run: async (): Promise<IResultOfT<T[], E>> => {
+            const resolved = await Promise.all(results.map((ar) => ar.run()));
             const values: T[] = [];
-            for(const ar of results) {
-                const r = await ar.run();
+            for(const r of resolved) {
                 if(!r.isSuccess) return r as unknown as IResultOfT<T[], E>;
                 values.push(r.value);
             }
