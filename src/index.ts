@@ -100,8 +100,8 @@ export {
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';
-export { pipe } from './composition/pipe.js';
 export { composeKAsync } from './composition/composeKAsync.js';
+export { pipe } from './composition/pipe.js';
 export { safeTry } from './composition/safeTry.js';
 export { fromSafeTry } from './composition/safeTry.js';
 export { pipeAsync } from './composition/pipeAsync.js';

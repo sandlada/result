@@ -17,6 +17,11 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bindAsync } from '../async/bindAsync.js';
 
+// 1 function
+export function composeKAsync<A, B, E>(
+    f1: (a: A) => IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
+): (a: A) => Promise<IResultOfT<B, E>>;
+
 // 2 functions
 export function composeKAsync<A, B, C, E>(
     f1: (a: A) => IResultOfT<B, E> | Promise<IResultOfT<B, E>>,
@@ -60,11 +65,18 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
 export function composeKAsync(
     ...fns: Array<(arg: any) => IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
 ): (a: any) => Promise<IResultOfT<any, any>> {
+    if (fns.length === 0) {
+        return (_a: any) => Promise.reject(new TypeError('composeKAsync requires at least one function'));
+    }
     return async (a: any) => {
-        let result: IResultOfT<any, any> | Promise<IResultOfT<any, any>> = fns[0]!(a);
-        for(let i = 1; i < fns.length; i++)
-            result = (bindAsync(fns[i]!) as (r: Promise<IResultOfT<any, any>>) => Promise<IResultOfT<any, any>>)(Promise.resolve(result));
-        return result;
+        try {
+            let result: Promise<IResultOfT<any, any>> = Promise.resolve(fns[0]!(a));
+            for(let i = 1; i < fns.length; i++)
+                result = bindAsync(fns[i]!)(result);
+            return await result;
+        } catch (e: unknown) {
+            return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<any, any>;
+        }
     };
 }
 
