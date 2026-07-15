@@ -260,8 +260,8 @@ All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync
 | `containsAsync`       | `containsAsync<A>(val): (Promise<...>) => Promise<boolean>`                      | Contains value async                                                |
 | `existsAsync`         | `existsAsync<A>(pred): (Promise<...>) => Promise<boolean>`                       | Predicate holds async                                               |
 | `filterOrElseAsync`   | `filterOrElseAsync(pred, err): (Promise<...>) => Promise<...>`                   | Filter success async                                                |
-| `asyncTap`            | `asyncTap(fn): (IResultOfT) => Promise<...>`                                     | Async side-effect on sync success                                   |
-| `asyncTapErr`         | `asyncTapErr(fn): (IResultOfT) => Promise<...>`                                  | Async side-effect on sync failure                                   |
+| `asyncTap`            | `asyncTap(fn): (IResultOfT) => Promise<...>`                                     | Async side-effect on sync success; callback errors → `Err`          |
+| `asyncTapErr`         | `asyncTapErr(fn): (IResultOfT) => Promise<...>`                                  | Async side-effect on sync failure; callback errors → `Err`          |
 | `bindThroughAsync`    | `bindThroughAsync(fn): (Promise<...>) => Promise<...>`                           | Side-effect that can propagate errors async                         |
 | `mapAsyncOption`      | `mapAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`           | Transform async option                                              |
 | `bindAsyncOption`     | `bindAsyncOption<T,U>(f): (Promise<IOption<T>>) => Promise<IOption<U>>`          | Chain async option                                                  |
@@ -444,6 +444,20 @@ const r2: Promise<IResultOfT<string, Error>> = asyncBind(
     async (x: number) => x > 0 ? ok(`positive: ${x}`) : err('negative'),
     ok(42),
 );
+
+// asyncTap — side-effect on success; callback errors become Err
+const r3: Promise<IResultOfT<number, Error>> = asyncTap(
+    async (x: number) => { await log(x); },
+    ok(42),
+);
+// r3 resolves to Ok(42) if log succeeds, or Err(error) if log throws
+
+// asyncTapErr — side-effect on failure; callback errors become Err
+const r4: Promise<IResultOfT<string, Error>> = asyncTapErr(
+    async (e: string) => { await notify(e); },
+    err('oops'),
+);
+// r4 resolves to Err('oops') if notify succeeds, or Err(error) if notify throws
 ```
 
 ### Unsafe Extraction

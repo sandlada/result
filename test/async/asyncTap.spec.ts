@@ -54,4 +54,36 @@ describe('asyncTap', () => {
         expect(side).toBe(5);
         expect(r).toBe(original);
     });
+
+    it('catches synchronous throw from callback and returns Err', async () => {
+        const error = new Error('sync fail');
+        const throwingFn = vi.fn().mockImplementation(async (_v: number) => {
+            throw error;
+        });
+
+        const original = ok<number, Error>(5);
+        const r = await asyncTap(throwingFn, original);
+
+        expect(throwingFn).toHaveBeenCalledOnce();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) {
+            expect(r.error).toBe(error);
+        }
+    });
+
+    it('catches rejected promise from callback and returns Err', async () => {
+        const error = new Error('async fail');
+        const rejectingFn = vi.fn().mockImplementation(async (_v: number) => {
+            return Promise.reject(error);
+        });
+
+        const original = ok<number, Error>(5);
+        const r = await asyncTap(rejectingFn, original);
+
+        expect(rejectingFn).toHaveBeenCalledOnce();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) {
+            expect(r.error).toBe(error);
+        }
+    });
 });
