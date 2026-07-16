@@ -3,6 +3,8 @@
     "typescript.native-preview.tsdk": "node_modules\\@typescript\\native-preview",
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
-        "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.d.ts.map"
+        "*.ts": "$(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts",
+        "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
+        "*.js": "$(capture).js.map, $(capture).d.ts"
     }
 }
