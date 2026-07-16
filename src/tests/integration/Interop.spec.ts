@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { IResultOfT } from '../src/types/IResultOfT.js';
+import type { IResultOfT } from '../../types/IResultOfT.js';
 import {
     ok,
     err,
@@ -26,7 +26,7 @@ import {
     tapAsync,
     tapErrAsync,
     pipeAsync,
-} from '../src/index.js';
+} from '../../index.js';
 
 // ── Sync FP deep interop ─────────────────────────────────────────────
 
@@ -282,4 +282,3 @@ describe('edge conditions', () => {
         if (!mapped.isSuccess) expect(mapped.error).toEqual({ kind: 'A' });
     });
 });
-

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../src/index.js';
+import { ok, err } from '../../index.js';
 
 describe('Default TError = Error', () => {
     it('omitting TError creates IResult<Error> on failure', () => {

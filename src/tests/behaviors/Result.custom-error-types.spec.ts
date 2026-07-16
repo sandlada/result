@@ -1,12 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../src/index.js';
-import type { IResult } from '../src/types/IResult.js';
-import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { ok, err } from '../../index.js';
+import type { IResult } from '../../types/IResult.js';
+import type { IResultOfT } from '../../types/IResultOfT.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
-    | { kind: 'Validation'; fields: Record<string, string> }
-    | { kind: 'Unauthorized'; reason: string };
+    | { kind: 'Validation'; fields: Record<string, string> };
 
 class DomainError extends Error {
     constructor(
@@ -170,4 +169,3 @@ describe('Plain object error', () => {
         if (r.isFailure) expect(r.error.detail.inner.value).toBe(42);
     });
 });
-

@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { ok, err } from '../src/index.js';
-import type { IResult } from '../src/types/IResult.js';
-import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { ok, err } from '../../index.js';
+import type { IResult } from '../../types/IResult.js';
+import type { IResultOfT } from '../../types/IResultOfT.js';
 
 describe('Return types of FP constructors', () => {
     it('ok() returns IResult', () => {
@@ -98,4 +98,3 @@ describe('Property types', () => {
         }
     });
 });
-

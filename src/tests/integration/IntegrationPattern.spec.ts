@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../src/index.js';
-import type { IResult } from '../src/types/IResult.js';
-import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { ok, err } from '../../index.js';
+import type { IResult } from '../../types/IResult.js';
+import type { IResultOfT } from '../../types/IResultOfT.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
@@ -249,4 +249,3 @@ describe('Integration: Type alias + Factory compose', () => {
         expect(mayFail(false).isSuccess).toBe(true);
     });
 });
-

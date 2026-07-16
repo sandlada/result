@@ -22,7 +22,7 @@ import {
     asyncOptionExists,
     fromResult,
     asyncOptionFromOption
-} from '../src/index.js';
+} from '../../index.js';
 
 describe('API Consistency - New Operators', () => {
     describe('eager async result', () => {

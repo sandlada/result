@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../src/index.js';
+import { ok, err } from '../../index.js';
 import {
     fromResult,
     asyncResultBind as bind,
     asyncResultOrElse as orElse,
     asyncResultMap as map,
     asyncResultTap as tap
-} from '../../src/index.js';
+} from '../../index.js';
 
 describe('AsyncResult hardening and interop', () => {
     it('map should catch callback error', async () => {

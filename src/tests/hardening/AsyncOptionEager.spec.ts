@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ofSome, ofNone } from '../../src/option/index.js';
+import { ofSome, ofNone } from '../../option/index.js';
 import {
     mapAsyncOption,
     bindAsyncOption,
@@ -7,7 +7,7 @@ import {
     orElseAsyncOption,
     tapAsyncOption,
     unwrapOrAsyncOption
-} from '../../src/index.js';
+} from '../../index.js';
 
 describe('eager AsyncOption operators', () => {
     it('mapAsyncOption should transform value', async () => {

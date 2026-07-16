@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ofSome, ofNone } from '../../src/option/index.js';
+import { ofSome, ofNone } from '../../option/index.js';
 import {
     asyncOptionFrom as from,
     asyncOptionFromPromise as fromPromise,
@@ -12,7 +12,7 @@ import {
     asyncOptionTap as tap,
     asyncOptionTapAsync as tapAsync,
     asyncOptionUnwrapOr as unwrapOr
-} from '../../src/index.js';
+} from '../../index.js';
 
 describe('AsyncOption', () => {
     describe('factories', () => {
