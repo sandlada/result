@@ -1,4 +1,8 @@
 {
     "js/ts.experimental.useTsgo": true,
-    "typescript.native-preview.tsdk": "node_modules\\@typescript\\native-preview"
+    "typescript.native-preview.tsdk": "node_modules\\@typescript\\native-preview",
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.d.ts.map"
+    }
 }

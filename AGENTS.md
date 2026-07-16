@@ -98,7 +98,7 @@ src/
   option/               — ofSome, ofNone, map, andThen, match, etc.
 ```
 
-Tests mirror source: `test/` mirrors `src/` structure.
+Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.
 
 ## Implementation Notes
 

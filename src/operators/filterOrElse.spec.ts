@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, filterOrElse, map, pipe, unwrapErr } from '../src/index.js';
-import type { IResultOfT } from '../src/types/IResultOfT.js';
+import { ok, err, filterOrElse, map, pipe, unwrapErr } from '../index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 // ─── filterOrElse ────────────────────────────────────────────────────────────
 

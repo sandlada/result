@@ -1,6 +1,6 @@
 import { bench, describe } from 'vitest';
-import { ok, err, combine, all, combineWithAllErrors } from '../src/index.js';
-import type { IResultOfT } from '../src/index.js';
+import { ok, err, combine, all, combineWithAllErrors, asyncResultCombine } from '../src/index.js';
+import type { IResultOfT, AsyncResult } from '../src/index.js';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function makeResults(n: number, failAt = -1): IResultOfT<number, string>[] {
@@ -65,5 +65,28 @@ describe('combineWithAllErrors (accumulate)', () => {
 describe('all (tuple combine)', () => {
     bench('all — 3-element tuple, all success', () => {
         all([ok(1), ok('hello'), ok(true)] as const);
+    });
+});
+
+// ── Helpers (async) ────────────────────────────────────────────────────────
+function delay<T>(ms: number, value: T): Promise<T> {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+}
+
+function fromPromiseDelay<T, E>(ms: number, value: T): AsyncResult<T, E> {
+    return {
+        run: async (): Promise<IResultOfT<T, E>> => {
+            const val = await delay(ms, value);
+            return { isSuccess: true as const, isFailure: false as const, value: val } as IResultOfT<T, E>;
+        }
+    };
+}
+
+// ── async-result combine ───────────────────────────────────────────────────
+describe('async-result combine', () => {
+    bench('asyncResultCombine — 50 short async results', async () => {
+        const results = Array.from({ length: 50 }, (_, i) => fromPromiseDelay(1, i));
+        const ar = asyncResultCombine(results);
+        await ar.run();
     });
 });
