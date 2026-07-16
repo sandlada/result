@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@sandlada/result — Interactive Demo</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <div id="app">
+        <aside id="sidebar">
+            <header>
+                <h1>@sandlada/result</h1>
+                <p class="subtitle">Interactive Demo</p>
+            </header>
+            <nav id="scenario-nav" role="tablist"></nav>
+            <footer id="sidebar-footer">
+                <p class="footer-note">Powered by free public APIs</p>
+            </footer>
+        </aside>
+        <main id="content">
+            <div id="welcome">
+                <h2>Explore the Result Pattern</h2>
+                <p>
+                    Select a scenario from the sidebar to see how
+                    <code>@sandlada/result</code> handles real-world API interactions —
+                    without throwing a single exception.
+                </p>
+                <div class="welcome-cards">
+                    <div class="welcome-card">
+                        <span class="card-icon">📋</span>
+                        <strong>ROP Pipeline</strong>
+                        <p>Sequential validation + chained API calls</p>
+                    </div>
+                    <div class="welcome-card">
+                        <span class="card-icon">🔄</span>
+                        <strong>Fallback Chain</strong>
+                        <p>Graceful degradation across multiple APIs</p>
+                    </div>
+                    <div class="welcome-card">
+                        <span class="card-icon">⚡</span>
+                        <strong>Parallel Fetch</strong>
+                        <p>Concurrent requests with partial failure handling</p>
+                    </div>
+                    <div class="welcome-card">
+                        <span class="card-icon">🎯</span>
+                        <strong>Result ⇄ Option</strong>
+                        <p>Interop between Result and Option types</p>
+                    </div>
+                </div>
+            </div>
+            <div id="result-area" hidden>
+                <div id="result-header">
+                    <h2 id="result-title"></h2>
+                    <span id="result-status-badge"></span>
+                </div>
+                <div id="result-steps"></div>
+                <div id="result-output"></div>
+                <div id="result-code"></div>
+            </div>
+            <div id="loading" hidden>
+                <div class="spinner"></div>
+                <p>Running scenario…</p>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

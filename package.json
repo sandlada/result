@@ -1,6 +1,6 @@
 {
     "name": "@sandlada/result",
-    "version": "0.0.2-20260704.a",
+    "version": "0.0.3-20260716.a",
     "description": "Type-safe Result Pattern & ROP for TypeScript — Explicit Error Handling without Exceptions",
     "type": "module",
     "main": "./build/index.js",

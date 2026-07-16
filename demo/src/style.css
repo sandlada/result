@@ -1,0 +1,489 @@
+/* ── Reset & Variables ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-hover: #30363d;
+    --border: #30363d;
+    --border-accent: #58a6ff;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #58a6ff;
+    --accent-hover: #79c0ff;
+    --success: #3fb950;
+    --success-bg: rgba(63, 185, 80, 0.1);
+    --failure: #f85149;
+    --failure-bg: rgba(248, 81, 73, 0.1);
+    --warning: #d29922;
+    --warning-bg: rgba(210, 153, 34, 0.1);
+    --running: #58a6ff;
+    --running-bg: rgba(88, 166, 255, 0.1);
+    --code-bg: #1c2128;
+    --sidebar-width: 280px;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Layout ───────────────────────────────────────────────────────── */
+#app {
+    display: flex;
+    height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────── */
+#sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+#sidebar header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+#sidebar h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+#scenario-nav {
+    flex: 1;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.scenario-btn {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.scenario-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.scenario-btn.active {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-accent);
+}
+
+.scenario-btn .step-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.scenario-btn .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.scenario-btn .status-dot.idle {
+    background: var(--text-muted);
+}
+
+.scenario-btn .status-dot.success {
+    background: var(--success);
+}
+
+.scenario-btn .status-dot.failure {
+    background: var(--failure);
+}
+
+#sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+}
+
+.footer-note {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* ── Main Content ─────────────────────────────────────────────────── */
+#content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+}
+
+/* ── Welcome ──────────────────────────────────────────────────────── */
+#welcome h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+#welcome > p {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-bottom: 24px;
+}
+
+#welcome code {
+    background: var(--bg-tertiary);
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+}
+
+.welcome-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.welcome-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color 0.15s;
+}
+
+.welcome-card:hover {
+    border-color: var(--border-accent);
+}
+
+.welcome-card .card-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.welcome-card strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.welcome-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ── Result Area ──────────────────────────────────────────────────── */
+#result-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+#result-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+#result-status-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#result-status-badge.success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+#result-status-badge.failure {
+    background: var(--failure-bg);
+    color: var(--failure);
+    border: 1px solid var(--failure);
+}
+
+/* ── Steps Timeline ───────────────────────────────────────────────── */
+#result-steps {
+    margin-bottom: 20px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    border-left: 3px solid transparent;
+}
+
+.step-item.success {
+    background: var(--success-bg);
+    border-left-color: var(--success);
+}
+
+.step-item.failure {
+    background: var(--failure-bg);
+    border-left-color: var(--failure);
+}
+
+.step-item.skipped {
+    background: var(--bg-tertiary);
+    border-left-color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.step-icon {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.step-name {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.step-detail {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    margin-right: 8px;
+}
+
+.step-duration {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+}
+
+/* ── Output ───────────────────────────────────────────────────────── */
+#result-output {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+#result-output .output-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: block;
+}
+
+#result-output .output-json {
+    color: var(--accent);
+}
+
+/* ── Output Card (dashboard style) ────────────────────────────────── */
+.output-card {
+    font-family: var(--font-sans);
+    line-height: 1.6;
+}
+
+.output-card .card-row {
+    display: flex;
+    gap: 8px;
+    padding: 2px 0;
+}
+
+.output-card .card-label {
+    color: var(--text-muted);
+    min-width: 60px;
+}
+
+.output-card .card-value {
+    color: var(--text-primary);
+}
+
+.output-card .card-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0;
+}
+
+/* ── Code Snippet ─────────────────────────────────────────────────── */
+#result-code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+#result-code .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+#result-code pre {
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    tab-size: 2;
+}
+
+/* ── Key-value grid ───────────────────────────────────────────────── */
+.kv-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    font-size: 0.85rem;
+}
+
+.kv-grid .kv-key {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.kv-grid .kv-val {
+    color: var(--text-primary);
+}
+
+/* ── Loading ──────────────────────────────────────────────────────── */
+#loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 60px;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--bg-tertiary);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Fallback (scenario 2) ────────────────────────────────────────── */
+.fallback-chain {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fallback-attempt {
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+}
+
+.fallback-attempt.tried {
+    background: var(--failure-bg);
+    color: var(--failure);
+}
+
+.fallback-attempt.success {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    #app {
+        flex-direction: column;
+    }
+
+    #sidebar {
+        width: 100%;
+        min-width: unset;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    #scenario-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 4px 8px;
+    }
+
+    .scenario-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    #content {
+        padding: 20px 16px;
+    }
+}
