@@ -18,14 +18,22 @@ import { err } from '../factories/err.js';
 export function combineWithAllErrors<A, E>(
     results: readonly IResultOfT<A, E>[],
 ): IResultOfT<A[], E[]> {
-    const values: A[] = [];
-    const errors: E[] = [];
-    for (let i = 0; i < results.length; i++) {
+    const len = results.length;
+    const values: A[] = new Array(len);
+    const errors: E[] = new Array(len);
+    let vIdx = 0;
+    let eIdx = 0;
+
+    for (let i = 0; i < len; i++) {
         const r = results[i]!;
-        if(r.isSuccess) values.push(r.value);
-        else errors.push(r.error);
+        if(r.isSuccess) values[vIdx++] = r.value;
+        else errors[eIdx++] = r.error;
     }
-    if(errors.length > 0) return err(errors) as unknown as IResultOfT<A[], E[]>;
+
+    values.length = vIdx;
+    errors.length = eIdx;
+
+    if(eIdx > 0) return err(errors) as unknown as IResultOfT<A[], E[]>;
     return ok(values) as unknown as IResultOfT<A[], E[]>;
 }
 
