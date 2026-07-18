@@ -1,0 +1,41 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/app[39m
+
+
+ [32m✓[39m bench/combine.bench.ts[2m > [22mcombine (short-circuit)[33m 11654[2mms[22m[39m
+     [1mname                           [22m  [1m          hz[22m  [1m   min[22m  [1m   max[22m  [1m  mean[22m  [1m   p75[22m  [1m   p99[22m  [1m  p995[22m  [1m  p999[22m  [1m   rme[22m  [1msamples[22m
+   [32m·[39m combine — 10 items, all pass     [34m3,415,370.96[39m  [36m0.0002[39m  [36m1.2254[39m  [36m0.0003[39m  [36m0.0003[39m  [36m0.0004[39m  [36m0.0006[39m  [36m0.0069[39m  [2m±1.52%[22m  [2m1707686[22m
+   [32m·[39m combine — 10 items, first fails  [34m5,741,567.87[39m  [36m0.0001[39m  [36m0.3233[39m  [36m0.0002[39m  [36m0.0002[39m  [36m0.0002[39m  [36m0.0003[39m  [36m0.0006[39m  [2m±0.44%[22m  [2m2870784[22m
+   [32m·[39m combine — 10 items, last fails   [34m3,757,581.98[39m  [36m0.0002[39m  [36m0.5886[39m  [36m0.0003[39m  [36m0.0002[39m  [36m0.0004[39m  [36m0.0005[39m  [36m0.0019[39m  [2m±1.66%[22m  [2m1878792[22m
+   [32m·[39m combine — 100 items, all pass    [34m  854,753.55[39m  [36m0.0008[39m  [36m1.1386[39m  [36m0.0012[39m  [36m0.0011[39m  [36m0.0018[39m  [36m0.0024[39m  [36m0.0368[39m  [2m±1.66%[22m  [2m 427377[22m
+
+ [32m✓[39m bench/combine.bench.ts[2m > [22mcombineWithAllErrors (accumulate)[33m 6876[2mms[22m[39m
+     [1mname                                       [22m  [1m          hz[22m  [1m   min[22m  [1m   max[22m  [1m  mean[22m  [1m   p75[22m  [1m   p99[22m  [1m  p995[22m  [1m  p999[22m  [1m   rme[22m  [1msamples[22m
+   [32m·[39m combineWithAllErrors — 10 items, all pass    [34m3,375,382.24[39m  [36m0.0002[39m  [36m1.6449[39m  [36m0.0003[39m  [36m0.0002[39m  [36m0.0005[39m  [36m0.0006[39m  [36m0.0028[39m  [2m±2.18%[22m  [2m1687818[22m
+   [32m·[39m combineWithAllErrors — 10 items, half fail   [34m2,104,084.77[39m  [36m0.0004[39m  [36m0.7974[39m  [36m0.0005[39m  [36m0.0004[39m  [36m0.0008[39m  [36m0.0009[39m  [36m0.0067[39m  [2m±1.42%[22m  [2m1052043[22m
+   [32m·[39m combineWithAllErrors — 100 items, all pass   [34m  401,337.76[39m  [36m0.0020[39m  [36m0.9971[39m  [36m0.0025[39m  [36m0.0023[39m  [36m0.0035[39m  [36m0.0083[39m  [36m0.0475[39m  [2m±1.26%[22m  [2m 200669[22m
+   [32m·[39m combineWithAllErrors — 100 items, half fail  [34m  364,714.18[39m  [36m0.0023[39m  [36m0.9552[39m  [36m0.0027[39m  [36m0.0025[39m  [36m0.0041[39m  [36m0.0087[39m  [36m0.0532[39m  [2m±1.20%[22m  [2m 182358[22m
+
+ [32m✓[39m bench/combine.bench.ts[2m > [22mall (tuple combine)[33m 1969[2mms[22m[39m
+     [1mname                              [22m  [1m          hz[22m  [1m   min[22m  [1m   max[22m  [1m  mean[22m  [1m   p75[22m  [1m   p99[22m  [1m  p995[22m  [1m  p999[22m  [1m   rme[22m  [1msamples[22m
+   [32m·[39m all — 3-element tuple, all success  [34m2,563,781.50[39m  [36m0.0003[39m  [36m0.9191[39m  [36m0.0004[39m  [36m0.0003[39m  [36m0.0010[39m  [36m0.0010[39m  [36m0.0066[39m  [2m±0.67%[22m  [2m1281891[22m
+
+ [32m✓[39m bench/combine.bench.ts[2m > [22masync-result combine[33m 606[2mms[22m[39m
+     [1mname                                       [22m  [1m    hz[22m  [1m   min[22m  [1m   max[22m  [1m  mean[22m  [1m   p75[22m  [1m   p99[22m  [1m  p995[22m  [1m  p999[22m  [1m   rme[22m  [1msamples[22m
+   [32m·[39m asyncResultCombine — 50 short async results  [34m766.33[39m  [36m0.0924[39m  [36m1.5276[39m  [36m1.3049[39m  [36m1.3442[39m  [36m1.5149[39m  [36m1.5262[39m  [36m1.5276[39m  [2m±0.94%[22m  [2m    384[22m
+
+[1m[30m[46m BENCH [49m[39m[22m [36mSummary
+[39m
+  combine — 10 items, first fails[2m - bench/combine.bench.ts[2m > [22m[2mcombine (short-circuit)[22m
+[32m    1.53x [39m[90mfaster than [39mcombine — 10 items, last fails
+[32m    1.68x [39m[90mfaster than [39mcombine — 10 items, all pass
+[32m    6.72x [39m[90mfaster than [39mcombine — 100 items, all pass
+
+  combineWithAllErrors — 10 items, all pass[2m - bench/combine.bench.ts[2m > [22m[2mcombineWithAllErrors (accumulate)[22m
+[32m    1.60x [39m[90mfaster than [39mcombineWithAllErrors — 10 items, half fail
+[32m    8.41x [39m[90mfaster than [39mcombineWithAllErrors — 100 items, all pass
+[32m    9.25x [39m[90mfaster than [39mcombineWithAllErrors — 100 items, half fail
+
+  all — 3-element tuple, all success[2m - bench/combine.bench.ts[2m > [22m[2mall (tuple combine)[22m
+
+  asyncResultCombine — 50 short async results[2m - bench/combine.bench.ts[2m > [22m[2masync-result combine[22m
