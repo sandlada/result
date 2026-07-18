@@ -3,7 +3,6 @@ import {
     ok,
     err,
     ofSome,
-    ofNone,
     bimapAsync,
     swapAsync,
     flattenAsync,
@@ -13,13 +12,8 @@ import {
     asyncResultBimap,
     asyncResultSwap,
     asyncResultFlatten,
-    asyncResultContains,
-    asyncResultExists,
-    asyncResultFilterOrElse,
     asyncOptionFilter,
     asyncOptionFlatten,
-    asyncOptionContains,
-    asyncOptionExists,
     fromResult,
     asyncOptionFromOption
 } from '../../index.js';
