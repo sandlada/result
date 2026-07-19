@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
 import { mapErrAsync } from '../../src/async-result/mapErrAsync.js';
