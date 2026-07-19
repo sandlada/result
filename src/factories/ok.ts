@@ -8,6 +8,9 @@
  * import { ok } from '@sandlada/result';
  * const r = ok(42); // IResultOfT<number, never>
  * ```
+ *
+ * @note Ready for Product
+ *
  */
 
 import type { IResult } from '../types/IResult.js';
