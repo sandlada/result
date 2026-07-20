@@ -10,6 +10,8 @@ import type { IOption } from '../types/Option.js';
  * await unwrapOrAsyncOption(0, Promise.resolve(ofSome(42))); // 42
  * await unwrapOrAsyncOption(0, Promise.resolve(ofNone())); // 0
  * ```
+ *
+ * @note Ready for Product
  */
 export function unwrapOrAsyncOption<T>(
     defaultValue: T | Promise<T>,
@@ -23,5 +25,5 @@ export function unwrapOrAsyncOption<T>(
     r?: Promise<IOption<T>>,
 ): Promise<T> | ((r: Promise<IOption<T>>) => Promise<T>) {
     if (r === undefined) return (r: Promise<IOption<T>>) => unwrapOrAsyncOption(defaultValue, r);
-    return r.then(inner => inner.isSome ? inner.value : defaultValue);
+    return r.then(async inner => inner.isSome ? inner.value : await defaultValue);
 }

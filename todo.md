@@ -221,7 +221,7 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 
 | Category                   | Files | Description                                                            |
 | -------------------------- | ----- | ---------------------------------------------------------------------- |
-| 1. Bugs                    | 1 ✅  | `unwrapOrAsyncOption` — inconsistency with sibling (fixed)            |
+| 1. Bugs                    | 1 ✅   | `unwrapOrAsyncOption` — inconsistency with sibling (fixed)             |
 | 2. Unresolved comments     | 1     | `async-option/tap` — design uncertainty comments                       |
 | 3. Design ambiguity        | 7     | `tap`/`tee` throw semantics inconsistent across modules                |
 | 4. Missing try/catch       | 10    | Async/Option variants don't catch sync throws                          |
