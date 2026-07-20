@@ -1,8 +1,13 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { ofNone } from '../option/index.js';
 
 /**
- * Side-effect on the success track of an AsyncOption.
+ * @fileoverview Side-effect on the success track of an AsyncOption. Calls `fn`
+ * with the value on Some and passes the original Option through unchanged.
  * Lazy — returns a new AsyncOption without executing the inner computation.
+ *
+ * **Throw policy**: If the side-effect callback throws, the result converts
+ * to `None` (canonical tap/tee policy — see AGENTS.md).
  *
  * @example
  * ```ts
@@ -13,6 +18,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * await ao.run(); // Logs 42, returns Some(42)
  * ```
   *
+ * @note Ready for Product
  */
 export function tap<T>(
     fn: (value: T) => void,
@@ -33,13 +39,8 @@ export function tap<T>(
                 try {
                     fn(opt.value);
                 } catch {
-                    // tap side-effects staying on the railway: ignore errors or should it turn to None?
-                    // Project convention for tap seems to be staying on railway but for async we might want safety.
-                    // If tap fails, we stay on the success track but maybe we shouldn't?
-                    // Actually, if we want to "stay on the railway", we should probably ignore tap failures or turn to None.
-                    // Given the design rule: "must wrap callbacks in try-catch blocks to convert synchronous exceptions into failure states"
-                    // Returning ofNone() is safer.
-                    return { isSome: false as const, isNone: true as const };
+                    // Project policy: tap side-effects that throw convert to None.
+                    return ofNone();
                 }
             }
             return opt;

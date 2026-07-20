@@ -39,4 +39,9 @@ describe('andTee', () => {
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBe('hello');
     });
+    it('converts to err when fn throws', () => {
+        const result = andTee(() => { throw new Error('side-effect failed'); }, ok(42));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+    });
 });

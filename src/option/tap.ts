@@ -1,5 +1,9 @@
 /**
- * @fileoverview Side-effect on the Some track. Calls `fn` with the value and passes the original Option through unchanged.
+ * @fileoverview Side-effect on the Some track. Calls `fn` with the value and passes the
+ * original Option through unchanged.
+ *
+ * **Throw policy**: If `fn` throws, the Option converts to `None`
+ * (canonical tap/tee policy — see AGENTS.md).
  *
  * @example
  * ```ts
@@ -8,6 +12,7 @@
  * pipe(ofSome('hello'), tapOption(v => console.log('got:', v)));
  * ```
   *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

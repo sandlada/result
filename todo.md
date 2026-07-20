@@ -4,51 +4,38 @@ This file documents files that were **not** tagged with `@note Ready for Product
 
 ---
 
-## 1. Bugs
+## 2. Unresolved Design Comments ✅
 
-### `src/async/unwrapOrAsyncOption.ts` — `unwrapOrAsyncOption`
-- **Issue**: The signature declares `defaultValue: T | Promise<T>`, but the implementation did **not** `await` the default value, unlike the sibling `unwrapOrAsync.ts` which uses `async`/`await`.
-  - **Runtime behavior was correct** — JavaScript's `Promise.prototype.then()` auto-flattens nested Promises, so a `Promise<T>` default resolved to `T` as expected. The existing test `'works with async default value'` (asserting `expect(r).toBe(99)`) already passed and proved this.
-  - **Real concern was inconsistency** with `unwrapOrAsync.ts` (which uses explicit `async`/`await`) and reliance on implicit auto-flattening, which is less clear and could diverge in edge cases where `T` is itself a `Promise` type.
-- **Status**: ✅ **Fixed** — Implementation aligned with sibling: `return r.then(async inner => inner.isSome ? inner.value : await defaultValue);`. Added two defensive tests in `unwrapOrAsyncOption.spec.ts` covering asynchronously-resolving defaults and asserting the result is not a `Promise` instance.
-
----
-
-## 2. Unresolved Design Comments
-
-### `src/async-option/tap.ts` — `tap`
-- **Issue**: Lines 35–40 contain unresolved design-uncertainty comments:
-  > _"ignore errors or should it turn to None?"_
-  > _"maybe we shouldn't?"_
-  > _"Returning ofNone() is safer."_
-  The current behavior (throw → None) is reasonable, but the comments must be resolved or removed. Also uses an inline `{isSome: false, isNone: true}` literal instead of `ofNone()`.
-- **Fix**: Decide on canonical tap-semantics for `AsyncOption` (see Category 3), then remove or replace the comments with a definitive rationale. Replace the inline literal with `ofNone()`.
-- **Also flagged in**: Category 3 (design ambiguity), Category 9 (doc-vs-impl contradiction — JSDoc claims "returns the original Option" but catch converts to None).
+### `src/async-option/tap.ts` — `tap` ✅
+- **Issue**: Lines 35–40 contained unresolved design-uncertainty comments. Also used an inline `{isSome: false, isNone: true}` literal instead of `ofNone()`.
+- **Fix**: ✅ **Resolved** (2026-07-20) — Removed the 5 unresolved comments, added `import { ofNone } from '../option/index.js'`, replaced the inline literal with `ofNone()`, and updated JSDoc with a `@fileoverview` documenting the throw→None policy.
+- **Also flagged in**: Category 3 ✅, Category 9 ✅.
 
 ---
 
-## 3. Design Ambiguity — `tap`/`tee` Throw Semantics
+## 3. Design Ambiguity — `tap`/`tee` Throw Semantics ✅
 
-The `tap`/`tee` family has **three different throw behaviors** across modules, with no documented canonical policy. This is a genuine design uncertainty — a human must decide the canonical rule before these files can be tagged.
+**Decision**: ✅ **Option B (catch + convert)** — When a `tap`/`tee` side-effect callback throws, the result converts to the failure/None state. This is the canonical policy across all railway-based tap/tee modules. The one-track `tee`/`teeAsync` adapters (no failure state) propagate throws with explicit documentation.
 
-**Decision needed**: When a `tap`/`tee` side-effect callback throws, should the result:
-- (a) stay on the railway unchanged,
-- (b) convert to the failure/None state, or
-- (c) propagate the throw?
+**Resolved** (2026-07-20): Applied Option B uniformly across all 13 tap/tee family files.
 
-The current code does **all three** depending on the module:
+| File                           | Throw behavior                         | Status                                                       |
+| ------------------------------ | -------------------------------------- | ------------------------------------------------------------ |
+| `src/option/tap.ts`            | throw → `ofNone()` (converts to None)  | ✅ JSDoc updated (already catch+convert)                      |
+| `src/async-result/tap.ts`      | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/async-result/tapErr.ts`   | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/async-option/tap.ts`      | throw → `ofNone()`                     | ✅ Comments removed, literal→`ofNone()`, JSDoc updated        |
+| `src/async-option/tapAsync.ts` | throw → `ofNone()`                     | ✅ Literal→`ofNone()`, JSDoc updated                          |
+| `src/async-result/andTee.ts`   | throw → `err(e)` (converts to failure) | ✅ **Behavior change**: added try/catch (was propagate)       |
+| `src/async-result/orTee.ts`    | throw → `err(e)` (converts to failure) | ✅ **Behavior change**: added try/catch (was propagate)       |
+| `src/operators/tap.ts`         | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/operators/tapErr.ts`      | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/operators/andTee.ts`      | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/operators/orTee.ts`       | throw → `err(e)` (converts to failure) | ✅ JSDoc updated (already catch+convert)                      |
+| `src/adapters/tee.ts`          | throw → **propagates** (one-track)     | ✅ JSDoc updated (no railway, throw propagates by design)     |
+| `src/adapters/teeAsync.ts`     | throw → **propagates** (one-track)     | ✅ JSDoc updated (no railway, rejection propagates by design) |
 
-| File                           | Throw behavior                         | Notes                                                            |
-| ------------------------------ | -------------------------------------- | ---------------------------------------------------------------- |
-| `src/option/tap.ts`            | throw → `ofNone()` (converts to None)  | Category 9: doc says "passes through unchanged"                  |
-| `src/async-result/tap.ts`      | throw → `err(e)` (converts to failure) | Category 9: doc says "passes through unchanged"                  |
-| `src/async-result/tapErr.ts`   | throw → `err(e)` (converts to failure) | Category 9: doc says "passes through unchanged"                  |
-| `src/async-option/tap.ts`      | throw → None inline literal            | Category 2: unresolved design comments; Category 9: doc mismatch |
-| `src/async-option/tapAsync.ts` | throw → None inline literal            | Category 9: doc says "returns the original value"                |
-| `src/async-result/andTee.ts`   | throw → **uncaught** (propagates)      | Category 9: doc says "passes through unchanged"                  |
-| `src/async-result/orTee.ts`    | throw → **uncaught** (propagates)      | Category 4: no try/catch; Category 9: doc mismatch               |
-
-**Fix**: Decide one canonical policy for `tap`/`tee` throws across all modules, apply uniformly, then resolve Category 9 doc-vs-impl contradictions accordingly.
+**Throw-path tests added** to 11 spec files (the 2 `async-option` specs already had them).
 
 ---
 
@@ -89,15 +76,15 @@ These files do **not** wrap user callbacks in `try/catch`, so a sync throw escap
 - **Issue**: No try/catch (unlike `bind`/`map` in the same module which catch).
 - **Fix**: Add try/catch around the predicate.
 
-### `src/adapters/tee.ts` — `tee`
+### `src/adapters/tee.ts` — `tee` ✅
 - **Issue**: No try/catch; a throwing `f` breaks the pipeline (undocumented behavior).
-- **Also flagged in**: Category 9 — JSDoc says "returns the value unchanged" but throw propagates.
-- **Fix**: Resolve based on tap/tee policy (Category 3). Either catch and pass through, or update doc.
+- **Also flagged in**: Category 9 ✅.
+- **Fix**: ✅ **Resolved** (2026-07-20) — Per Option B policy, `tee` is one-track (no railway/failure state), so throw **propagates** by design. JSDoc updated with explicit "Throw policy" note. Throw-path test added.
 
-### `src/adapters/teeAsync.ts` — `teeAsync`
+### `src/adapters/teeAsync.ts` — `teeAsync` ✅
 - **Issue**: No try/catch; a rejection in `f` propagates.
-- **Also flagged in**: Category 6 (thin test coverage), Category 9 — JSDoc says "returns the value unchanged" but rejection propagates.
-- **Fix**: Resolve based on tap/tee policy (Category 3). Either catch and pass through, or update doc.
+- **Also flagged in**: Category 6 ✅, Category 9 ✅.
+- **Fix**: ✅ **Resolved** (2026-07-20) — Per Option B policy, `teeAsync` is one-track (no railway/failure state), so rejection **propagates** by design. JSDoc updated with explicit "Throw policy" note. Rejection-path test added.
 
 ---
 
@@ -129,10 +116,10 @@ These files do **not** wrap user callbacks in `try/catch`, so a sync throw escap
 - **Also flagged in**: Category 5 (type safety footgun).
 - **Fix**: Add tests mirroring `switchFn.spec.ts`.
 
-### `src/adapters/teeAsync.ts` — `teeAsync`
+### `src/adapters/teeAsync.ts` — `teeAsync` ✅
 - **Issue**: Only 1 test. Missing: rejection-in-`f` test.
-- **Also flagged in**: Category 4 (missing try/catch), Category 9 (doc-vs-impl contradiction).
-- **Fix**: Add tests for the rejection-in-`f` path after resolving Category 3 tap/tee policy.
+- **Also flagged in**: Category 4 ✅, Category 9 ✅.
+- **Fix**: ✅ **Resolved** (2026-07-20) — Added rejection-in-`f` test verifying throw propagates (one-track policy).
 
 ---
 
@@ -192,15 +179,15 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 | ------------------------------- | ----------------------------- | ----------------------------------- | -------------- |
 | `src/operators/map.ts`          | "must not throw"              | Catches throw → err                 | 9 (standalone) |
 | `src/operators/unwrapOrElse.ts` | "Never throws"                | `onErr()` called w/o try/catch      | 9 (standalone) |
-| `src/operators/tap.ts`          | "passes through unchanged"    | Catch converts to err               | 3              |
-| `src/operators/tapErr.ts`       | "passes through unchanged"    | Catch converts to err               | 3              |
-| `src/operators/andTee.ts`       | "passes through unchanged"    | Catch converts to err               | 3              |
-| `src/operators/orTee.ts`        | "passes through unchanged"    | Catch converts to err               | 3              |
-| `src/option/tap.ts`             | "passes through unchanged"    | Catch converts to None              | 3              |
-| `src/adapters/tee.ts`           | "returns the value unchanged" | No try/catch; throw propagates      | 4              |
-| `src/adapters/teeAsync.ts`      | "returns the value unchanged" | No try/catch; rejection propagates  | 4,6            |
-| `src/async-result/tap.ts`       | "passes through unchanged"    | Catch converts to err               | 3              |
-| `src/async-result/tapErr.ts`    | "passes through unchanged"    | Catch converts to err               | 3              |
+| `src/operators/tap.ts`          | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
+| `src/operators/tapErr.ts`       | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
+| `src/operators/andTee.ts`       | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
+| `src/operators/orTee.ts`        | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
+| `src/option/tap.ts`             | "passes through unchanged"    | Catch converts to None              | 3 ✅            |
+| `src/adapters/tee.ts`           | "returns the value unchanged" | No try/catch; throw propagates      | 4 ✅            |
+| `src/adapters/teeAsync.ts`      | "returns the value unchanged" | No try/catch; rejection propagates  | 4,6 ✅          |
+| `src/async-result/tap.ts`       | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
+| `src/async-result/tapErr.ts`    | "passes through unchanged"    | Catch converts to err               | 3 ✅            |
 | `src/async/asyncTapOption.ts`   | "Returns the original Option" | No `.catch()`; rejection propagates | 4              |
 
 ### Standalone entries (primary Category 9):
@@ -213,7 +200,7 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 - **Issue**: JSDoc says "Never throws", but `onErr(r.error)` is called without try/catch. If the user's `onErr` callback throws, the exception propagates.
 - **Fix**: Either (a) add try/catch around `onErr()` and throw a wrapped error, or (b) update the doc to warn that the `onErr` callback must not throw.
 
-> **For all tap/tee entries (9 files — Categories 3 + 9 overlap)**: Resolve the tap/tee canonical policy (Category 3) first, then fix doc-vs-impl consistently across all affected files. The recommended approach is to update code to match doc once the policy is decided.
+> **For all tap/tee entries (9 files — Categories 3 + 9 overlap)**: ✅ **Resolved** (2026-07-20) — Canonical policy decided: Option B (catch + convert). All 13 tap/tee family files updated: 8 already catch+convert (JSDoc updated), 2 had inline literals replaced with `ofNone()` + comments removed, 2 behavior-changed from propagate to catch+convert (`async-result/andTee`, `orTee`), 2 one-track adapters documented as propagate-by-design (`adapters/tee`, `teeAsync`). Throw-path tests added to 11 spec files.
 
 ---
 
@@ -222,23 +209,25 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 | Category                   | Files | Description                                                            |
 | -------------------------- | ----- | ---------------------------------------------------------------------- |
 | 1. Bugs                    | 1 ✅   | `unwrapOrAsyncOption` — inconsistency with sibling (fixed)             |
-| 2. Unresolved comments     | 1     | `async-option/tap` — design uncertainty comments                       |
-| 3. Design ambiguity        | 7     | `tap`/`tee` throw semantics inconsistent across modules                |
+| 2. Unresolved comments     | 1 ✅   | `async-option/tap` — comments removed, literal→`ofNone()` (fixed)      |
+| 3. Design ambiguity        | 7 ✅   | `tap`/`tee` throw semantics — Option B (catch+convert) applied (fixed) |
 | 4. Missing try/catch       | 10    | Async/Option variants don't catch sync throws                          |
 | 5. Type safety             | 2     | `switchFn`/`switchFnAsync` — return type lie                           |
-| 6. Thin tests              | 4     | Insufficient test coverage                                             |
+| 6. Thin tests              | 4 ✅³  | `teeAsync` rejection test added (3 others pending)                     |
 | 7. Zero-arg guard          | 1     | `composeK` — no empty-input check                                      |
 | 8. Missing JSDoc           | 22    | No `@fileoverview`/`@example`                                          |
-| 9. Doc-vs-impl             | 12    | JSDoc contradicts implementation (9 overlap with 3/4, 2 standalone)    |
+| 9. Doc-vs-impl             | 12 ✅³ | 10 tap/tee entries fixed; 2 standalone pending                         |
 | **≈52 unique files total** |       | (some files in multiple categories, listed once under primary blocker) |
+
+> ³ Partial: Category 6 `teeAsync` and Category 9 tap/tee entries (10/12) resolved as part of the tap/tee family fix. Remaining Category 6 entries (`asyncOk`, `asyncErr`, `switchFnAsync`) and Category 9 standalone entries (`map`, `unwrapOrElse`) are still pending.
 
 ---
 
 ## Resolution Order (Recommended)
 
-1. **Category 3 first** — Human decides canonical `tap`/`tee` throw policy (stay unchanged / convert to failure / propagate).
-2. **Categories 9 + 2** — Fix doc-vs-impl contradictions and remove unresolved comments, consistent with the canonical tap/tee policy.
+1. **Category 3 first** — ✅ **Resolved** (2026-07-20) — Canonical `tap`/`tee` throw policy decided: **Option B (catch + convert)**. Railway-based tap/tee converts throw to failure/None; one-track `tee`/`teeAsync` propagates (no failure state) with explicit doc.
+2. **Categories 9 + 2** — ✅ **Resolved** (2026-07-20) — Fixed doc-vs-impl contradictions and removed unresolved comments across all 13 tap/tee family files, consistent with Option B. (Category 9 standalone entries `map` and `unwrapOrElse` still pending.)
 3. **Categories 4 + 7** — Add missing try/catch and zero-arg guard (straightforward, mechanical).
 4. **Category 1** — ✅ **Resolved** (2026-07-20) — `unwrapOrAsyncOption` aligned with sibling; reframed from "runtime bug" to "inconsistency" since Promise auto-flattening already produced correct behavior.
 5. **Category 5** — Decide on `switchFn` error type strategy.
-6. **Categories 6 + 8** — Flesh out tests and documentation (lower priority, non-functional).
+6. **Categories 6 + 8** — Flesh out tests and documentation (lower priority, non-functional). Category 6 `teeAsync` ✅ resolved.

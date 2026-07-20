@@ -19,4 +19,9 @@ describe('tapOption', () => {
         expect(called).toBe(false);
         expect(result.isSome).toBe(false);
     });
+
+    it('converts to None when fn throws', () => {
+        const result = tapOption(() => { throw new Error('boom'); })(ofSome('hello'));
+        expect(result.isNone).toBe(true);
+    });
 });

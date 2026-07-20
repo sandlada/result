@@ -48,4 +48,16 @@ describe('AsyncResult andTee', () => {
         await ar.run();
         expect(sideEffects).toEqual([99]);
     });
+    it('converts to err when fn throws', async () => {
+        const ar = andTee(() => { throw new Error('side-effect failed'); }, fromResult(ok(42)));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+    });
+    it('converts to err when async fn rejects', async () => {
+        const ar = andTee(async () => { throw new Error('async side-effect failed'); }, fromResult(ok(42)));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('async side-effect failed');
+    });
 });

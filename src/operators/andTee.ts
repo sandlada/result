@@ -4,6 +4,9 @@
  * (a `IResultOfT`) is **ignored** — even if `fn` returns a failure, the original success
  * is preserved.
  *
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`
+ * (canonical tap/tee policy — see AGENTS.md).
+ *
  * @example
  * ```ts
  * import { andTee, pipe, ok, err } from '@sandlada/result';

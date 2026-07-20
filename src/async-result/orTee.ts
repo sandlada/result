@@ -2,8 +2,14 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
- * Side-effect on failure (sync or async), ignoring the callback's result.
+ * @fileoverview Side-effect on failure (sync or async), ignoring the callback's result.
+ * Calls `fn` with the error on failure and passes the original result through unchanged.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * **Throw policy**: If the side-effect callback throws (or rejects), the result
+ * converts to `err(caughtError)` (canonical tap/tee policy — see AGENTS.md).
   *
+ * @note Ready for Product
  */
 export function orTee<T, E>(
     fn: (error: E) => void | unknown | Promise<void | unknown>,
@@ -20,7 +26,14 @@ export function orTee<T, E>(
     return {
         run: async (): Promise<IResultOfT<T, E>> => {
             const r = await ar.run();
-            if (!r.isSuccess) await fn(r.error);
+            if (!r.isSuccess) {
+                try {
+                    await fn(r.error);
+                } catch (e: unknown) {
+                    // Project policy: tap/tee side-effects that throw convert to err.
+                    return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
+                }
+            }
             return r;
         },
     };

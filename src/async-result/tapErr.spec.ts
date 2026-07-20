@@ -27,4 +27,10 @@ describe('AsyncResult tapErr', () => {
         await ar.run();
         expect(sideEffects).toEqual(['oops']);
     });
+    it('converts to err when fn throws', async () => {
+        const ar = tapErr(() => { throw new Error('side-effect failed'); }, fromResult(err<string>('original')));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+    });
 });

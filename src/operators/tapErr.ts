@@ -1,5 +1,9 @@
 /**
- * @fileoverview Side-effect on the failure track. Calls `fn` with the error on failure and passes the original result through unchanged.
+ * @fileoverview Side-effect on the failure track. Calls `fn` with the error on failure
+ * and passes the original result through unchanged.
+ *
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`
+ * (canonical tap/tee policy — see AGENTS.md).
  *
  * @example
  * ```ts
@@ -7,6 +11,7 @@
  * tapErr(e => console.log('err:', e), err('boom'));
  * ```
   *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

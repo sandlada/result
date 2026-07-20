@@ -1,5 +1,10 @@
 /**
- * @fileoverview Side-effect on the one-track — calls `f` and returns the value unchanged. Unlike `tap` (which operates on the success track of a Result), `tee` operates on a plain value outside the railway.
+ * @fileoverview Side-effect on the one-track — calls `f` and returns the value unchanged.
+ * Unlike `tap` (which operates on the success track of a Result), `tee` operates on a
+ * plain value outside the railway.
+ *
+ * **Throw policy**: Unlike railway `tap`, `tee` operates on a plain value with no failure
+ * state, so a throwing `f` **propagates**. Ensure `f` does not throw.
  *
  * Wlaschin equivalent: `tee` (dead-end function)
  *

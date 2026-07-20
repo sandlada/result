@@ -3,6 +3,9 @@
  * and passes the original result through unchanged. The callback may be sync or async.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
+ * **Throw policy**: If `fn` throws (or rejects), the result converts to `err(caughtError)`
+ * (canonical tap/tee policy — see AGENTS.md).
+ *
  * @example
  * ```ts
  * import { ok } from '@sandlada/result';
@@ -11,6 +14,7 @@
  * const ar = tap((v: number) => console.log('got:', v), fromResult(ok(42)));
  * ```
   *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';
