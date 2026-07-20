@@ -8,6 +8,8 @@
  * import { match, ok, err } from '@sandlada/result';
  * match(v => `success: ${v}`, e => `failure: ${e}`, ok(42)); // "success: 42"
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

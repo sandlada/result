@@ -9,6 +9,8 @@ import type { IOption } from '../types/Option.js';
  * import { ofSome } from '@sandlada/result/option';
  * await tapAsyncOption((v: number) => console.log(v), Promise.resolve(ofSome(42)));
  * ```
+  *
+ * @note Ready for Product
  */
 export function tapAsyncOption<T>(
     fn: (a: T) => void | Promise<void>,

@@ -7,6 +7,8 @@
  * import { ofSome, ofNone } from '@sandlada/result/option';
  * pipe(ofNone(), orElseOption(() => ofSome(42))); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

@@ -7,6 +7,8 @@
  * import { ofSome } from '@sandlada/result/option';
  * pipe(ofSome(5), mapOption(x => x * 2)); // Some(10)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

@@ -8,6 +8,8 @@
  * import { mapErr, err } from '@sandlada/result';
  * mapErr(e => `[wrapped] ${e}`, err('boom')); // Err('[wrapped] boom')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

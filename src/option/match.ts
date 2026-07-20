@@ -7,6 +7,8 @@
  * import { ofSome } from '@sandlada/result/option';
  * pipe(ofSome(42), match(v => `value: ${v}`, () => 'nothing')); // "value: 42"
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

@@ -4,6 +4,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+  *
+ * @note Ready for Product
  */
 export function bimapAsync<A, E, B, F>(
     onOk: (a: A) => B | Promise<B>,

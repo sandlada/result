@@ -17,6 +17,8 @@
  *   andTee(v => err('ignored-error')),
  * ); // Ok('hello') — fn's error is ignored
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

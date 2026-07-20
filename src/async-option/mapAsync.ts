@@ -14,6 +14,8 @@ import { ofSome, ofNone } from '../option/index.js';
  * const ao = mapAsync(async (x: number) => x * 2, fromOption(ofSome(21)));
  * const result = await ao.run(); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 export function mapAsync<T, U>(
     fn: (value: T) => Promise<U>,

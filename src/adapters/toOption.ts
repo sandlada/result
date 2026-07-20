@@ -7,6 +7,8 @@
  * toOption(ok(42)); // Some(42)
  * toOption(err('boom')); // None
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

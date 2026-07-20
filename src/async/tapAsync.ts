@@ -6,6 +6,8 @@
  * import { tapAsync, asyncOk } from '@sandlada/result';
  * await tapAsync((v: string) => console.log('got:', v), asyncOk('hello'));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -9,6 +9,8 @@
  * const safe = switchFn((x: number) => x * 2);
  * safe(21); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -15,6 +15,8 @@
  * ]);
  * const result = await ar.run(); // Err(['a', 'b'])
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

@@ -6,6 +6,8 @@
  * import { orElse, ok, err } from '@sandlada/result';
  * const fallback = orElse((e: string) => ok('default'), err('boom')); // Ok('default')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

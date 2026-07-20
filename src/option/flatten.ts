@@ -7,6 +7,8 @@
  * import { ofSome } from '@sandlada/result/option';
  * flattenOption(ofSome(ofSome(42))); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

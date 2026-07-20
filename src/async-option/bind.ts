@@ -15,6 +15,8 @@ import { ofNone } from '../option/index.js';
  * const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
  * const result = await ao.run(); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 export function bind<T, U>(
     fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,

@@ -8,6 +8,8 @@
  * pipe(ofSome(42), filterOption(n => n > 100)); // None
  * pipe(ofSome(42), filterOption(n => n > 0)); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

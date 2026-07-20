@@ -17,6 +17,8 @@
  * const r = await asyncBindThrough(async (v) => validate(v), ok('data'));
  * // Ok('data') if valid, Err(validationError) if invalid
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

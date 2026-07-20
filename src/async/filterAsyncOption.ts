@@ -3,6 +3,8 @@ import { ofNone } from '../option/ofNone.js';
 
 /**
  * Filters the value of a `Promise<IOption<T>>` with a predicate.
+  *
+ * @note Ready for Product
  */
 export function filterAsyncOption<T>(
     predicate: (a: T) => boolean | Promise<boolean>,

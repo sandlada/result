@@ -8,6 +8,8 @@
  * import { flatten, ok } from '@sandlada/result';
  * flatten(ok(ok(42))); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

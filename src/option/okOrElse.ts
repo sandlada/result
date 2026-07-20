@@ -12,6 +12,8 @@
  * pipe(ofSome(42), okOrElseOption(() => 'missing')); // Ok(42)
  * pipe(ofNone(), okOrElseOption(() => 'missing')); // Err('missing')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

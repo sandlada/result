@@ -6,6 +6,8 @@
  * import { mapAsync, asyncOk } from '@sandlada/result';
  * await mapAsync((x: number) => x * 2, asyncOk(21)); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

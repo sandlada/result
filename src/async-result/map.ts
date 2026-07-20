@@ -10,6 +10,8 @@
  * const ar = map((x: number) => x * 2, fromResult(ok(21)));
  * const result = await ar.run(); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

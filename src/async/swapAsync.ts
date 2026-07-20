@@ -4,6 +4,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Swaps the success and failure variants of a `Promise<IResultOfT<A, E>>`.
+  *
+ * @note Ready for Product
  */
 export function swapAsync<A, E>(
     r: Promise<IResultOfT<A, E>>,

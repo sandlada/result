@@ -23,6 +23,8 @@
  *   andThrough(v => validate(v)), // returns Err on invalid
  * ); // Err(validationError) if invalid, Ok('data') if valid
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

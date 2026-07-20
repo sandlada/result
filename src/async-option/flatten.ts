@@ -3,6 +3,8 @@ import type { IOption } from '../types/Option.js';
 
 /**
  * Flattens a nested AsyncOption.
+  *
+ * @note Ready for Product
  */
 export function flatten<T>(
     ao: AsyncOption<AsyncOption<T>>,

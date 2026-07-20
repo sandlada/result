@@ -12,6 +12,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * const ao = tapAsync(async (v: number) => { await save(v); }, fromOption(ofSome(42)));
  * await ao.run(); // returns Some(42) after saving
  * ```
+  *
  */
 export function tapAsync<T>(
     fn: (value: T) => void | Promise<void>,

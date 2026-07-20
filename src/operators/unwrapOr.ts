@@ -9,6 +9,8 @@
  * pipe(ok(42), unwrapOr(0)); // 42
  * pipe(err('boom'), unwrapOr(0)); // 0
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

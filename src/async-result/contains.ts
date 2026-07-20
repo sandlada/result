@@ -2,6 +2,8 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 
 /**
  * Returns a Promise<boolean> indicating if the AsyncResult is success and contains the given value.
+  *
+ * @note Ready for Product
  */
 export function contains<T>(
     value: T,

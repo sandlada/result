@@ -3,6 +3,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Side-effect on failure (sync or async), ignoring the callback's result.
+  *
  */
 export function orTee<T, E>(
     fn: (error: E) => void | unknown | Promise<void | unknown>,

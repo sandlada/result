@@ -10,6 +10,8 @@
  *   asyncOk(42),
  * ); // "success: 42"
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -11,6 +11,8 @@
  * zipWith((a: number, b: string) => `${a}-${b}`)(ofNone(), ofSome('a'));
  * // None
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

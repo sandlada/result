@@ -9,6 +9,8 @@
  * combine([ok(1), ok(2), ok(3)]); // Ok([1, 2, 3])
  * combine([ok(1), err('fail'), ok(3)]); // Err('fail')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

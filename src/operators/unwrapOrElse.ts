@@ -9,6 +9,7 @@
  * unwrapOrElse((e: Error) => 0, ok(42)); // 42
  * unwrapOrElse((e: Error) => 0, err(new Error('boom'))); // 0
  * ```
+  *
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

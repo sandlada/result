@@ -10,6 +10,8 @@
  * const result = await unwrapOr(0, fromResult(ok(42))); // 42
  * const fallback = await unwrapOr(0, fromResult(err('fail'))); // 0
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

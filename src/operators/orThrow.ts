@@ -14,6 +14,8 @@
  *
  * orThrowWith(e => new Error(`Custom: ${e}`), err('fail')); // throws Error('Custom: fail')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

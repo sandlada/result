@@ -10,6 +10,8 @@
  * const ar: AsyncResult<number, string> = from(() => Promise.resolve(ok(42)));
  * const result = await ar.run(); // IResultOfT<number, string>
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

@@ -4,6 +4,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Side-effect on success that can propagate errors.
+  *
+ * @note Ready for Product
  */
 export function andThrough<T, E, F>(
     fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,

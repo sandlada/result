@@ -9,6 +9,8 @@
  * and(ok(2), ok(1)); // Ok(2)
  * and(err('fail'), ok(1)); // Err('fail')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

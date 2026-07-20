@@ -6,6 +6,8 @@
  * import { fromPromise } from '@sandlada/result';
  * const r = await fromPromise(fetch('/api/data'));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

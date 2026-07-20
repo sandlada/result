@@ -6,6 +6,7 @@
  * import { tap, pipe, ok } from '@sandlada/result';
  * pipe(ok('hello'), tap(v => console.log('got:', v)));
  * ```
+  *
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

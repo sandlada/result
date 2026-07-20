@@ -8,6 +8,8 @@
  * import { unwrapErr, err } from '@sandlada/result';
  * unwrapErr(err('boom')); // 'boom'
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -7,8 +7,10 @@ This file documents files that were **not** tagged with `@note Ready for Product
 ## 1. Bugs
 
 ### `src/async/unwrapOrAsyncOption.ts` — `unwrapOrAsyncOption`
-- **Issue**: The signature declares `defaultValue: T | Promise<T>`, but the implementation does **not** `await` the default value. A `Promise` passed as the default will be returned as-is (still wrapped in a Promise), unlike the sibling `unwrapOrAsync.ts` which correctly awaits.
-- **Fix**: Add `await` to the `defaultValue` in the `isNone` branch: `return r.then(inner => inner.isSome ? inner.value : await defaultValue);`
+- **Issue**: The signature declares `defaultValue: T | Promise<T>`, but the implementation did **not** `await` the default value, unlike the sibling `unwrapOrAsync.ts` which uses `async`/`await`.
+  - **Runtime behavior was correct** — JavaScript's `Promise.prototype.then()` auto-flattens nested Promises, so a `Promise<T>` default resolved to `T` as expected. The existing test `'works with async default value'` (asserting `expect(r).toBe(99)`) already passed and proved this.
+  - **Real concern was inconsistency** with `unwrapOrAsync.ts` (which uses explicit `async`/`await`) and reliance on implicit auto-flattening, which is less clear and could diverge in edge cases where `T` is itself a `Promise` type.
+- **Status**: ✅ **Fixed** — Implementation aligned with sibling: `return r.then(async inner => inner.isSome ? inner.value : await defaultValue);`. Added two defensive tests in `unwrapOrAsyncOption.spec.ts` covering asynchronously-resolving defaults and asserting the result is not a `Promise` instance.
 
 ---
 
@@ -219,7 +221,7 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 
 | Category                   | Files | Description                                                            |
 | -------------------------- | ----- | ---------------------------------------------------------------------- |
-| 1. Bugs                    | 1     | `unwrapOrAsyncOption` — missing `await`                                |
+| 1. Bugs                    | 1 ✅  | `unwrapOrAsyncOption` — inconsistency with sibling (fixed)            |
 | 2. Unresolved comments     | 1     | `async-option/tap` — design uncertainty comments                       |
 | 3. Design ambiguity        | 7     | `tap`/`tee` throw semantics inconsistent across modules                |
 | 4. Missing try/catch       | 10    | Async/Option variants don't catch sync throws                          |
@@ -237,6 +239,6 @@ JSDoc states a behavioral guarantee that the implementation does **not** uphold.
 1. **Category 3 first** — Human decides canonical `tap`/`tee` throw policy (stay unchanged / convert to failure / propagate).
 2. **Categories 9 + 2** — Fix doc-vs-impl contradictions and remove unresolved comments, consistent with the canonical tap/tee policy.
 3. **Categories 4 + 7** — Add missing try/catch and zero-arg guard (straightforward, mechanical).
-4. **Category 1** — Fix the `unwrapOrAsyncOption` bug.
+4. **Category 1** — ✅ **Resolved** (2026-07-20) — `unwrapOrAsyncOption` aligned with sibling; reframed from "runtime bug" to "inconsistency" since Promise auto-flattening already produced correct behavior.
 5. **Category 5** — Decide on `switchFn` error type strategy.
 6. **Categories 6 + 8** — Flesh out tests and documentation (lower priority, non-functional).

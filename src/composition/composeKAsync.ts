@@ -12,6 +12,8 @@
  * );
  * await p(30); // Ok(60)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

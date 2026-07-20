@@ -7,6 +7,8 @@
  * const r = tryCatch(() => JSON.parse('{"a":1}'));
  * // r = Ok({ a: 1 })
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

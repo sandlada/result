@@ -6,6 +6,8 @@
  * import { mapOrElse, ok } from '@sandlada/result';
  * mapOrElse((e: string) => 0, (x: number) => x * 2, ok(5)); // 10
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -12,6 +12,8 @@
  * unsafeUnwrapErr(err('boom')); // 'boom'
  * unsafeUnwrapErr(ok(42)); // throws 42
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

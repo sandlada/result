@@ -2,6 +2,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Returns true if the `Promise<IResultOfT>` is success and contains the given value.
+  *
+ * @note Ready for Product
  */
 export function containsAsync<A>(
     value: A,

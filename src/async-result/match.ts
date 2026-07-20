@@ -12,6 +12,8 @@
  *     err: (e: string) => `error: ${e}`,
  * }, fromResult(ok(42))); // 'got 42'
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

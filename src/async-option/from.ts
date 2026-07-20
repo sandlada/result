@@ -13,6 +13,8 @@ import type { IOption } from '../types/Option.js';
  * const ao = from(() => Promise.resolve(ofSome(42)));
  * const result = await ao.run(); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 export function from<T>(
     thunk: () => Promise<IOption<T>>,

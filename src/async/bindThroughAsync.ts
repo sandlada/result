@@ -3,6 +3,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+  *
+ * @note Ready for Product
  */
 export function bindThroughAsync<A, B, F>(
     fn: (a: A) => IResultOfT<B, F> | Promise<IResultOfT<B, F>>,

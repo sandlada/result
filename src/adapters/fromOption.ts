@@ -8,6 +8,8 @@
  * fromOption('missing', ofSome(42)); // Ok(42)
  * fromOption('missing', ofNone()); // Err('missing')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

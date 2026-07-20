@@ -15,6 +15,8 @@
  * transposeOption(ofSome(err('boom'))); // Err('boom')
  * transposeOption(ofNone()); // Ok(None)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -11,6 +11,8 @@
  * const ar = combine([fromResult(ok(1)), fromResult(ok(2))]);
  * const result = await ar.run(); // Ok([1, 2])
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

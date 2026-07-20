@@ -12,6 +12,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * const ao = tap((v: number) => console.log(v), fromOption(ofSome(42)));
  * await ao.run(); // Logs 42, returns Some(42)
  * ```
+  *
  */
 export function tap<T>(
     fn: (value: T) => void,

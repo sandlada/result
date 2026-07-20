@@ -17,6 +17,8 @@
  *   orTee(e => err('ignored-error')),
  * ); // Err('boom') — fn's error is ignored
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

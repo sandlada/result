@@ -8,6 +8,7 @@
  * import { map, pipe, ok } from '@sandlada/result';
  * pipe(ok(5), map(x => x * 2)); // Ok(10)
  * ```
+  *
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

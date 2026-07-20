@@ -8,6 +8,8 @@
  * await unwrapOrElseAsync((e: string) => 0, asyncOk(42)); // 42
  * await unwrapOrElseAsync((e: string) => 0, asyncErr('boom')); // 0
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -8,6 +8,8 @@
  * pipe(ofSome(42), containsOption(42)); // true
  * pipe(ofSome(42), containsOption(0)); // false
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

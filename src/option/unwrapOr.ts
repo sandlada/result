@@ -8,6 +8,8 @@
  * pipe(ofSome(42), unwrapOrOption(0)); // 42
  * pipe(ofNone(), unwrapOrOption(0)); // 0
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

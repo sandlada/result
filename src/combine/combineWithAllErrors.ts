@@ -9,6 +9,8 @@
  * combineWithAllErrors([ok(1), err('a'), err('b')]);
  * // Err(['a', 'b'])
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

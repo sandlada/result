@@ -10,6 +10,7 @@
  *
  * const ar = tapErr((e: string) => console.log('err:', e), fromResult(err('oops')));
  * ```
+  *
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

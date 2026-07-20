@@ -6,6 +6,8 @@ import { err } from '../factories/err.js';
  * Returns the original Result.
  * If the callback throws or returns a rejected Promise, the error is caught
  * and returned as an `Err` result.
+  *
+ * @note Ready for Product
  */
 export function asyncTapErr<A, E>(
     fn: (e: E) => Promise<void | unknown>,

@@ -6,6 +6,8 @@
  * import { asyncErr } from '@sandlada/result';
  * const r = asyncErr('bad'); // Promise<IResultOfT<never, string>>
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

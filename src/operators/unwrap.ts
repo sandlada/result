@@ -8,6 +8,8 @@
  * import { unwrap, ok } from '@sandlada/result';
  * unwrap(ok(42)); // 42
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

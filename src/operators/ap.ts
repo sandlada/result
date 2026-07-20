@@ -10,6 +10,8 @@
  * ap(ok((x: number) => x * 2), ok(21)); // Ok(42)
  * ap(err<string>('fn failed'), ok(21)); // Err('fn failed')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

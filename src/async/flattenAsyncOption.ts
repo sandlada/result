@@ -2,6 +2,8 @@ import type { IOption } from '../types/Option.js';
 
 /**
  * Flattens a nested `Promise<IOption<IOption<T>>>`.
+  *
+ * @note Ready for Product
  */
 export function flattenAsyncOption<T>(
     r: Promise<IOption<IOption<T>>>,

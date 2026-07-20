@@ -6,6 +6,8 @@
  * import { liftMap, pipe, ok } from '@sandlada/result';
  * pipe(ok(21), liftMap(x => x * 2)); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

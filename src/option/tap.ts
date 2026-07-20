@@ -7,6 +7,7 @@
  * import { ofSome } from '@sandlada/result/option';
  * pipe(ofSome('hello'), tapOption(v => console.log('got:', v)));
  * ```
+  *
  */
 
 import type { IOption } from '../types/Option.js';

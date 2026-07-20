@@ -13,6 +13,8 @@ import { ofNone } from '../option/index.js';
  *   Promise.resolve(ofNone()),
  * );
  * ```
+  *
+ * @note Ready for Product
  */
 export function orElseAsyncOption<T>(
     f: () => IOption<T> | Promise<IOption<T>>,

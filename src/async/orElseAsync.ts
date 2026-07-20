@@ -9,6 +9,8 @@
  *   asyncErr('boom'),
  * );
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

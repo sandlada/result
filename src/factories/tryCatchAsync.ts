@@ -6,6 +6,8 @@
  * import { tryCatchAsync } from '@sandlada/result';
  * const r = await tryCatchAsync(() => fetch('/api/data'), e => new ApiError(e));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

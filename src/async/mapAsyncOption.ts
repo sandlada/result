@@ -10,6 +10,8 @@ import { ofSome, ofNone } from '../option/index.js';
  * import { ofSome } from '@sandlada/result/option';
  * await mapAsyncOption((x: number) => x * 2, Promise.resolve(ofSome(21))); // Some(42)
  * ```
+  *
+ * @note Ready for Product
  */
 export function mapAsyncOption<T, U>(
     f: (a: T) => U | Promise<U>,

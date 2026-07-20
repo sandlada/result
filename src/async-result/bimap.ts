@@ -5,6 +5,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Simultaneously maps both variants of an AsyncResult.
+  *
+ * @note Ready for Product
  */
 export function bimap<T, E, U, F>(
     onOk: (value: T) => U | Promise<U>,

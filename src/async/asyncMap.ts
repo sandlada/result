@@ -17,6 +17,8 @@
  * const doubled = asyncMap(async (x: number) => x * 2);
  * const r2 = await doubled(ok(21));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

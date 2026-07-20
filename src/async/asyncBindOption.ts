@@ -3,6 +3,8 @@ import { ofNone } from '../option/ofNone.js';
 
 /**
  * Chains an async option-returning function over a **sync** `IOption`.
+  *
+ * @note Ready for Product
  */
 export function asyncBindOption<T, U>(
     fn: (value: T) => Promise<IOption<U>>,

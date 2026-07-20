@@ -10,6 +10,7 @@
  *
  * const ar = tap((v: number) => console.log('got:', v), fromResult(ok(42)));
  * ```
+  *
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

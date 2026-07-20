@@ -2,6 +2,8 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 
 /**
  * Returns a Promise<boolean> indicating if the AsyncResult is success and the predicate holds.
+  *
+ * @note Ready for Product
  */
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,

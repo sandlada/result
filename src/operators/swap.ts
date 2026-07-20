@@ -8,6 +8,8 @@
  * import { swap, ok } from '@sandlada/result';
  * swap(ok(42)); // Err(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -12,6 +12,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * const ar = tapErrAsync(async (e: string) => { await log(e); }, fromResult(err('oops')));
  * ```
+  *
+ * @note Ready for Product
  */
 export function tapErrAsync<T, E>(
     fn: (error: E) => void | Promise<void>,

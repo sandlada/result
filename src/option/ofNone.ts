@@ -6,6 +6,8 @@
  * import { ofNone } from '@sandlada/result/option';
  * ofNone(); // { isSome: false, isNone: true }
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

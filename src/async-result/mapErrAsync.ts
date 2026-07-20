@@ -14,6 +14,8 @@ import { err } from '../factories/err.js';
  * const ar = mapErrAsync(async (e: string) => e.toUpperCase(), fromResult(err('oops')));
  * const result = await ar.run(); // Err('OOPS')
  * ```
+  *
+ * @note Ready for Product
  */
 export function mapErrAsync<T, E, F>(
     fn: (error: E) => F | Promise<F>,

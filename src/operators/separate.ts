@@ -9,6 +9,8 @@
  * separate([ok(1), err('a'), ok(2), err('b')]); // { ok: [1, 2], err: ['a', 'b'] }
  * separate([]); // { ok: [], err: [] }
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

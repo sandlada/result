@@ -9,6 +9,8 @@
  * or(ok(2), ok(1)); // Ok(1)
  * or(ok(2), err('fail')); // Ok(2)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -2,6 +2,8 @@ import type { IOption } from '../types/Option.js';
 
 /**
  * Returns true if the `Promise<IOption>` is Some and the predicate holds.
+  *
+ * @note Ready for Product
  */
 export function existsAsyncOption<T>(
     predicate: (a: T) => boolean | Promise<boolean>,

@@ -11,6 +11,8 @@
  *   matchAsync(v => `OK: ${v}`, e => `Error: ${e}`),
  * );
  * ```
+  *
+ * @note Ready for Product
  */
 
 export function pipeAsync<A>(value: A): Promise<A>;

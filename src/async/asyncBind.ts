@@ -17,6 +17,8 @@
  * const process = asyncBind(async (x: number) => x > 0 ? ok(x) : err('negative'));
  * const r2 = await process(ok(5));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

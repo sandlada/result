@@ -7,6 +7,8 @@
  * const safeFetch = switchFnAsync(async (url: string) => fetch(url).then(r => r.json()));
  * await safeFetch('https://api.example.com/data');
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -2,6 +2,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Flattens a nested `Promise<IResultOfT<IResultOfT<A, E>, E>>`.
+  *
+ * @note Ready for Product
  */
 export function flattenAsync<A, E>(
     r: Promise<IResultOfT<IResultOfT<A, E>, E>>,

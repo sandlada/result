@@ -7,6 +7,8 @@
  * mapOr(-1, (x: number) => x * 2, ok(5)); // 10
  * mapOr(-1, (x: number) => x * 2, err('boom')); // -1
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

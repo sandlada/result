@@ -6,6 +6,8 @@
  * import { asyncOk } from '@sandlada/result';
  * const r = asyncOk(42); // Promise<IResultOfT<number, never>>
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

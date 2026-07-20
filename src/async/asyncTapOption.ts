@@ -3,6 +3,8 @@ import type { IOption } from '../types/Option.js';
 /**
  * Side-effect on success for a sync `IOption` using an async callback.
  * Returns the original Option.
+  *
+ * @note Ready for Product
  */
 export function asyncTapOption<T>(
     fn: (a: T) => Promise<void | unknown>,

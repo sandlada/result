@@ -3,6 +3,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Flattens a nested AsyncResult.
+  *
+ * @note Ready for Product
  */
 export function flatten<T, E>(
     ar: AsyncResult<AsyncResult<T, E>, E>,

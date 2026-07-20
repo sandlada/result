@@ -12,6 +12,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * const ar = tapAsync(async (v: number) => { await save(v); }, fromResult(ok(42)));
  * ```
+  *
+ * @note Ready for Product
  */
 export function tapAsync<T, E>(
     fn: (value: T) => void | Promise<void>,

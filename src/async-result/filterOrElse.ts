@@ -4,6 +4,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Filters the success value of an AsyncResult.
+  *
+ * @note Ready for Product
  */
 export function filterOrElse<T, E>(
     predicate: (value: T) => boolean | Promise<boolean>,

@@ -13,6 +13,8 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  *   fromOption(ofSome(42))
  * ); // "success: 42"
  * ```
+  *
+ * @note Ready for Product
  */
 export function match<T, U>(
     handlers: { some: (value: T) => U | Promise<U>; none: () => U | Promise<U> },

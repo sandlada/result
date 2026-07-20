@@ -8,6 +8,8 @@
  * import { exists, pipe, ok } from '@sandlada/result';
  * pipe(ok(42), exists(x => x > 0)); // true
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

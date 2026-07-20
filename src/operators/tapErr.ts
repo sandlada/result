@@ -6,6 +6,7 @@
  * import { tapErr, err } from '@sandlada/result';
  * tapErr(e => console.log('err:', e), err('boom'));
  * ```
+  *
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

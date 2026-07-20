@@ -7,6 +7,8 @@
  * const logged = teeAsync(async (x: number) => { await save(x); });
  * await logged(42); // returns 42 after saving
  * ```
+  *
+ * @note Ready for Product
  */
 
 export function teeAsync<A>(f: (a: A) => void | Promise<void>): (a: A) => Promise<A> {

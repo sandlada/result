@@ -11,6 +11,8 @@
  * all([ofSome(1), ofNone(), ofSome(true)]);
  * // None
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IOption } from '../types/Option.js';

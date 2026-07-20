@@ -8,6 +8,8 @@
  * import { bind, pipe, ok, err } from '@sandlada/result';
  * pipe(ok('Alice'), bind(name => name.length > 0 ? ok(name) : err('required')));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

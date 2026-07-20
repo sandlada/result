@@ -10,6 +10,8 @@
  * const ar = orElse((e: string) => fromResult(ok(0)), fromResult(err('fail')));
  * const result = await ar.run(); // Ok(0)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

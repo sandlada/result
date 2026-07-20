@@ -6,6 +6,8 @@
  * import { mapErrAsync, asyncErr } from '@sandlada/result';
  * await mapErrAsync((e: string) => `[wrapped] ${e}`, asyncErr('boom'));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

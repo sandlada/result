@@ -13,6 +13,8 @@ import type { IOption } from '../types/Option.js';
  *   Promise.resolve(ofSome(42)),
  * ); // "some: 42"
  * ```
+  *
+ * @note Ready for Product
  */
 export function matchAsyncOption<T, U>(
     onSome: (a: T) => U | Promise<U>,

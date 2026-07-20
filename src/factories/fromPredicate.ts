@@ -16,6 +16,8 @@
  * const r2 = isPositive(5);
  * // r2 = Ok(5)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

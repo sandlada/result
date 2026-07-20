@@ -6,6 +6,8 @@
  * import { tapErrAsync, asyncErr } from '@sandlada/result';
  * await tapErrAsync((e: string) => console.log('err:', e), asyncErr('boom'));
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

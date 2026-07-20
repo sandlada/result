@@ -9,6 +9,8 @@
  * await mapOrAsync(-1, (x: number) => x * 2, asyncOk(5)); // 10
  * await mapOrAsync(-1, (x: number) => x * 2, asyncErr('boom')); // -1
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -9,6 +9,8 @@
  * all([ok(1), ok('hi'), ok(true)]);
  * // Ok([1, 'hi', true])
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

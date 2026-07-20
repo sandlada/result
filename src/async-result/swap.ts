@@ -5,6 +5,8 @@ import { err } from '../factories/err.js';
 
 /**
  * Swaps the Ok and Err variants of an AsyncResult.
+  *
+ * @note Ready for Product
  */
 export function swap<T, E>(
     ar: AsyncResult<T, E>,

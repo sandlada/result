@@ -6,6 +6,8 @@
  * import { bimap, ok } from '@sandlada/result';
  * bimap(x => x * 2, e => `!${e}`, ok(21)); // Ok(42)
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

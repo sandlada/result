@@ -10,6 +10,8 @@
  * const ar = mapErr((e: string) => e.toUpperCase(), fromResult(err('oops')));
  * const result = await ar.run(); // Err('OOPS')
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

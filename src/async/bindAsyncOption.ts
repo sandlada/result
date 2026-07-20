@@ -13,6 +13,8 @@ import { ofNone } from '../option/index.js';
  *   Promise.resolve(ofSome(21)),
  * );
  * ```
+  *
+ * @note Ready for Product
  */
 export function bindAsyncOption<T, U>(
     f: (a: T) => IOption<U> | Promise<IOption<U>>,

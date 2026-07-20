@@ -8,6 +8,8 @@
  * import { err } from '@sandlada/result';
  * const r = err('something went wrong'); // IResultOfT<never, string>
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

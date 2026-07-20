@@ -9,6 +9,8 @@
  * const ar = fromPromise(() => fetch('/api/data').then(r => r.json()));
  * const result = await ar.run();
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { AsyncResult } from '../types/AsyncResult.js';

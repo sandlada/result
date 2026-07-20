@@ -4,6 +4,8 @@ import { ofNone } from '../option/index.js';
 
 /**
  * Filters the value of an AsyncOption.
+  *
+ * @note Ready for Product
  */
 export function filter<T>(
     predicate: (value: T) => boolean | Promise<boolean>,

@@ -13,6 +13,8 @@
  *   match(v => `OK: ${v}`, e => `Error: ${e}`),
  * ); // "OK: 84"
  * ```
+  *
+ * @note Ready for Product
  */
 
 export function pipe<A>(value: A): A;

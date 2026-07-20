@@ -3,6 +3,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Side-effect on success (sync or async), ignoring the callback's result.
+  *
  */
 export function andTee<T, E>(
     fn: (value: T) => void | unknown | Promise<void | unknown>,

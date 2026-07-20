@@ -8,6 +8,8 @@
  * import { expect, ok } from '@sandlada/result';
  * expect('should not fail', ok(42)); // 42
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

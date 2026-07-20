@@ -8,6 +8,8 @@
  * import { contains, pipe, ok } from '@sandlada/result';
  * pipe(ok(42), contains(42)); // true
  * ```
+  *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

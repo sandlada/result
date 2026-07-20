@@ -14,6 +14,8 @@ import { ofNone } from '../option/index.js';
  * const ao = orElse(() => fromOption(ofSome(0)), fromOption(ofNone()));
  * const result = await ao.run(); // Some(0)
  * ```
+  *
+ * @note Ready for Product
  */
 export function orElse<T>(
     fn: () => AsyncOption<T> | Promise<IOption<T>>,

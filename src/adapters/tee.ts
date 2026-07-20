@@ -9,6 +9,8 @@
  * const logged = tee((x: number) => console.log('got:', x));
  * logged(42); // logs "got: 42", returns 42
  * ```
+  *
+ * @note Ready for Product
  */
 
 export function tee<A>(f: (a: A) => void): (a: A) => A {

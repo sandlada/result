@@ -4,6 +4,8 @@ import { err } from '../factories/err.js';
 /**
  * Filters the success value of a `Promise<IResultOfT<A, E>>` with a predicate.
  * If the predicate fails, returns a failure with the result of `errorFn`.
+  *
+ * @note Ready for Product
  */
 export function filterOrElseAsync<A, E>(
     predicate: (a: A) => boolean | Promise<boolean>,

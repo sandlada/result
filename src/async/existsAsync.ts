@@ -2,6 +2,8 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
  * Returns true if the `Promise<IResultOfT>` is success and the predicate holds.
+  *
+ * @note Ready for Product
  */
 export function existsAsync<A>(
     predicate: (a: A) => boolean | Promise<boolean>,
