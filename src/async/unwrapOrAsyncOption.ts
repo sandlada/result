@@ -1,7 +1,7 @@
 import type { IOption } from '../types/Option.js';
 
 /**
- * Extracts the value on success from an async option, or returns a default on failure.
+ * @fileoverview Extracts the value on success from an async option, or returns a default on failure.
  *
  * @example
  * ```ts

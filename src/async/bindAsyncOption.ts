@@ -2,7 +2,7 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 
 /**
- * Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
+ * @fileoverview Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
  *
  * @example
  * ```ts

@@ -3,7 +3,13 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 /**
- * Swaps the success and failure variants of a `Promise<IResultOfT<A, E>>`.
+ * @fileoverview Swaps the success and failure variants of a `Promise<IResultOfT<A, E>>`.
+ *
+ * @example
+ * ```ts
+ * import { swapAsync, ok } from '@sandlada/result';
+ * const r = await swapAsync(Promise.resolve(ok(5))); // Err(5)
+ * ```
   *
  * @note Ready for Product
  */

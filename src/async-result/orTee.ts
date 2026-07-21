@@ -8,6 +8,15 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * **Throw policy**: If the side-effect callback throws (or rejects), the result
  * converts to `err(caughtError)` (canonical tap/tee policy — see AGENTS.md).
+ *
+ * @example
+ * ```ts
+ * import { err } from '@sandlada/result';
+ * import { fromResult, orTee } from '@sandlada/result/async-result';
+ *
+ * const ar = orTee((e: string) => { console.error(e); }, fromResult(err('oops')));
+ * const result = await ar.run(); // Err('oops')
+ * ```
   *
  * @note Ready for Product
  */

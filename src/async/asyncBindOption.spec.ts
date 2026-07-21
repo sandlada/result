@@ -25,8 +25,21 @@ describe('asyncBindOption', () => {
         expect(r.isNone).toBe(true);
     });
 
-    it('propagates callback exceptions natively', async () => {
+    it('converts async callback rejection to None (catch+convert policy)', async () => {
         const chain = asyncBindOption(async () => { throw new Error('callback exception'); });
-        await expect(chain(ofSome(21))).rejects.toThrow('callback exception');
+        const r = await chain(ofSome(21));
+        expect(r.isNone).toBe(true);
+    });
+
+    it('converts sync throw of callback to None (catch+convert policy)', async () => {
+        const chain = asyncBindOption(() => { throw new Error('sync throw'); });
+        const r = await chain(ofSome(21));
+        expect(r.isNone).toBe(true);
+    });
+
+    it('converts rejected Promise from callback to None (catch+convert policy)', async () => {
+        const chain = asyncBindOption(async () => Promise.reject(new Error('rejected')));
+        const r = await chain(ofSome(21));
+        expect(r.isNone).toBe(true);
     });
 });

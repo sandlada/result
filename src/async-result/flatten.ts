@@ -2,7 +2,16 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
- * Flattens a nested AsyncResult.
+ * @fileoverview Flattens a nested AsyncResult.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, flatten } from '@sandlada/result/async-result';
+ *
+ * const ar = flatten(fromResult(fromResult(ok(42))));
+ * const result = await ar.run(); // Ok(42)
+ * ```
   *
  * @note Ready for Product
  */

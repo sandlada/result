@@ -1,7 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
 /**
- * Returns a Promise<boolean> indicating if the AsyncResult is success and the predicate holds.
+ * @fileoverview Returns a Promise<boolean> indicating if the AsyncResult is success and the predicate holds.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, exists } from '@sandlada/result/async-result';
+ *
+ * const r = await exists((v: number) => v > 0, fromResult(ok(42))); // true
+ * ```
   *
  * @note Ready for Product
  */

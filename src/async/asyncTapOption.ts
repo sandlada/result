@@ -1,8 +1,15 @@
 import type { IOption } from '../types/Option.js';
 
 /**
- * Side-effect on success for a sync `IOption` using an async callback.
+ * @fileoverview Side-effect on success for a sync `IOption` using an async callback.
  * Returns the original Option.
+ *
+ * @example
+ * ```ts
+ * import { ofSome, asyncTapOption } from '@sandlada/result';
+ * const log = asyncTapOption(async (x: number) => { console.log(x); });
+ * await log(ofSome(42)); // Some(42) — side-effect only
+ * ```
   *
  * @note Ready for Product
  */

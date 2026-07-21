@@ -1,7 +1,13 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
- * Flattens a nested `Promise<IResultOfT<IResultOfT<A, E>, E>>`.
+ * @fileoverview Flattens a nested `Promise<IResultOfT<IResultOfT<A, E>, E>>`.
+ *
+ * @example
+ * ```ts
+ * import { flattenAsync, ok } from '@sandlada/result';
+ * const r = await flattenAsync(Promise.resolve(ok(ok(42)))); // Ok(42)
+ * ```
   *
  * @note Ready for Product
  */

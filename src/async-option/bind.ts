@@ -3,7 +3,7 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 
 /**
- * Chains an AsyncOption-returning function on success (monadic bind / flatMap).
+ * @fileoverview Chains an AsyncOption-returning function on success (monadic bind / flatMap).
  * Supports interoperability by also accepting a function that returns `Promise<IOption<U>>`.
  * Lazy — returns a new AsyncOption without executing the inner computation.
  *

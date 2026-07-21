@@ -1,7 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
 /**
- * Returns a Promise<boolean> indicating if the AsyncResult is success and contains the given value.
+ * @fileoverview Returns a Promise<boolean> indicating if the AsyncResult is success and contains the given value.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, contains } from '@sandlada/result/async-result';
+ *
+ * const r = await contains(42, fromResult(ok(42))); // true
+ * ```
   *
  * @note Ready for Product
  */

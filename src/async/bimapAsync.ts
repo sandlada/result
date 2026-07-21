@@ -3,7 +3,17 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 /**
- * Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+ * @fileoverview Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+ *
+ * @example
+ * ```ts
+ * import { bimapAsync, ok } from '@sandlada/result';
+ * const r = await bimapAsync(
+ *   (x: number) => x.toString(),
+ *   (e: number) => e * 2,
+ *   Promise.resolve(ok(5)),
+ * ); // Ok('5')
+ * ```
   *
  * @note Ready for Product
  */

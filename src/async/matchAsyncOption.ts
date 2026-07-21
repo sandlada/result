@@ -1,7 +1,7 @@
 import type { IOption } from '../types/Option.js';
 
 /**
- * Terminal — pattern-matches on both cases of an async option.
+ * @fileoverview Terminal — pattern-matches on both cases of an async option.
  *
  * @example
  * ```ts

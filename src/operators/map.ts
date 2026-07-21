@@ -1,5 +1,5 @@
 /**
- * @fileoverview Transforms the success value. If the result is a failure, it is passed through unchanged. The mapping function must not throw.
+ * @fileoverview Transforms the success value. If the result is a failure, it is passed through unchanged. If the mapping function throws, the thrown value is caught and converted to `err(caughtError)`.
  *
  * F# equivalent: `Result.map f r`
  *
@@ -9,6 +9,7 @@
  * pipe(ok(5), map(x => x * 2)); // Ok(10)
  * ```
   *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

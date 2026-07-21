@@ -4,7 +4,16 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 /**
- * Swaps the Ok and Err variants of an AsyncResult.
+ * @fileoverview Swaps the Ok and Err variants of an AsyncResult.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, swap } from '@sandlada/result/async-result';
+ *
+ * const ar = swap(fromResult(ok(5)));
+ * const result = await ar.run(); // Err(5)
+ * ```
   *
  * @note Ready for Product
  */

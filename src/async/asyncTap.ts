@@ -2,10 +2,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
 /**
- * Side-effect on success for a sync `IResultOfT` using an async callback.
+ * @fileoverview Side-effect on success for a sync `IResultOfT` using an async callback.
  * Returns the original Result.
  * If the callback throws or returns a rejected Promise, the error is caught
  * and returned as an `Err` result.
+ *
+ * @example
+ * ```ts
+ * import { ok, asyncTap } from '@sandlada/result';
+ * const log = asyncTap(async (x: number) => { console.log(x); });
+ * await log(ok(42)); // Ok(42) — side-effect only
+ * ```
   *
  * @note Ready for Product
  */

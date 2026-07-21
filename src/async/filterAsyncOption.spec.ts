@@ -32,4 +32,14 @@ describe('filterAsyncOption', () => {
         expect(r.isSome).toBe(true);
         if (r.isSome) expect(r.value).toBe(42);
     });
+
+    it('converts sync throw to None (catch+convert policy)', async () => {
+        const r = await filterAsyncOption(() => { throw new Error('boom'); }, Promise.resolve(ofSome(42)));
+        expect(r.isNone).toBe(true);
+    });
+
+    it('converts async rejection to None (catch+convert policy)', async () => {
+        const r = await filterAsyncOption(async () => { throw new Error('boom'); }, Promise.resolve(ofSome(42)));
+        expect(r.isNone).toBe(true);
+    });
 });

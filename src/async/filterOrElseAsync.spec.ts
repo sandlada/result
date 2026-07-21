@@ -39,4 +39,34 @@ describe('filterOrElseAsync', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('too small: 5');
     });
+
+    it('converts sync predicate throw to err(caughtError) (catch+convert policy)', async () => {
+        const r = await filterOrElseAsync(
+            () => { throw new Error('predicate boom'); },
+            (x: number) => `too small: ${x}`,
+            Promise.resolve(ok(5)),
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('predicate boom');
+    });
+
+    it('converts async predicate rejection to err(caughtError) (catch+convert policy)', async () => {
+        const r = await filterOrElseAsync(
+            async () => { throw new Error('predicate boom'); },
+            (x: number) => `too small: ${x}`,
+            Promise.resolve(ok(5)),
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('predicate boom');
+    });
+
+    it('converts errorFn throw to err(caughtError) (catch+convert policy)', async () => {
+        const r = await filterOrElseAsync(
+            (x: number) => x > 10,
+            () => { throw new Error('errorFn boom'); },
+            Promise.resolve(ok(5)),
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('errorFn boom');
+    });
 });

@@ -8,6 +8,15 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * **Throw policy**: If the side-effect callback throws (or rejects), the result
  * converts to `err(caughtError)` (canonical tap/tee policy — see AGENTS.md).
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, andTee } from '@sandlada/result/async-result';
+ *
+ * const ar = andTee((v: number) => { console.log(v); }, fromResult(ok(42)));
+ * const result = await ar.run(); // Ok(42)
+ * ```
   *
  * @note Ready for Product
  */

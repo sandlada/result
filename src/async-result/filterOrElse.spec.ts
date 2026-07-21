@@ -68,4 +68,37 @@ describe('AsyncResult filterOrElse', () => {
         expect(result.isSuccess).toBe(true);
         if(result.isSuccess) expect(result.value).toBe(42);
     });
+
+    it('converts sync predicate throw to err(caughtError) (catch+convert policy)', async () => {
+        const ar = filterOrElse(
+            () => { throw new Error('predicate boom'); },
+            (x: number) => `neg: ${x}`,
+            fromResult(ok(42)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if(!result.isSuccess) expect((result.error as Error).message).toBe('predicate boom');
+    });
+
+    it('converts async predicate rejection to err(caughtError) (catch+convert policy)', async () => {
+        const ar = filterOrElse(
+            async () => { throw new Error('predicate boom'); },
+            (x: number) => `neg: ${x}`,
+            fromResult(ok(42)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if(!result.isSuccess) expect((result.error as Error).message).toBe('predicate boom');
+    });
+
+    it('converts errorFn throw to err(caughtError) (catch+convert policy)', async () => {
+        const ar = filterOrElse(
+            (x: number) => x > 0,
+            () => { throw new Error('errorFn boom'); },
+            fromResult(ok(-5)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if(!result.isSuccess) expect((result.error as Error).message).toBe('errorFn boom');
+    });
 });

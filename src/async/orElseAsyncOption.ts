@@ -2,7 +2,7 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 
 /**
- * Error recovery for async options.
+ * @fileoverview Error recovery for async options.
  *
  * @example
  * ```ts

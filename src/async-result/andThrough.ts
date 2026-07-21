@@ -3,7 +3,19 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
 /**
- * Side-effect on success that can propagate errors.
+ * @fileoverview Side-effect on success that can propagate errors. Calls `fn` with the value on success; if `fn` fails the failure widens into the original error type.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, andThrough } from '@sandlada/result/async-result';
+ *
+ * const validate = andThrough(
+ *   (v: number) => v > 0 ? fromResult(ok(undefined)) : Promise.reject(new Error('non-positive')),
+ *   fromResult(ok(42)),
+ * );
+ * const result = await validate.run(); // Ok(42)
+ * ```
   *
  * @note Ready for Product
  */

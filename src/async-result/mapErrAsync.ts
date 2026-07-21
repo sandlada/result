@@ -3,7 +3,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
 /**
- * Maps the error of an AsyncResult using an async function.
+ * @fileoverview Maps the error of an AsyncResult using an async function.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example

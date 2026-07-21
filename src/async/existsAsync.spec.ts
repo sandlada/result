@@ -29,4 +29,14 @@ describe('existsAsync', () => {
         const r = await existsAsync((x: number) => x > 10, Promise.resolve(ok(42)));
         expect(r).toBe(true);
     });
+
+    it('returns false when sync predicate throws (catch+convert policy)', async () => {
+        const r = await existsAsync(() => { throw new Error('boom'); }, Promise.resolve(ok(42)));
+        expect(r).toBe(false);
+    });
+
+    it('returns false when async predicate rejects (catch+convert policy)', async () => {
+        const r = await existsAsync(async () => { throw new Error('boom'); }, Promise.resolve(ok(42)));
+        expect(r).toBe(false);
+    });
 });

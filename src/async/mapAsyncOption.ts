@@ -2,7 +2,7 @@ import type { IOption } from '../types/Option.js';
 import { ofSome, ofNone } from '../option/index.js';
 
 /**
- * Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
+ * @fileoverview Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
  *
  * @example
  * ```ts

@@ -2,7 +2,16 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
 /**
- * Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+ * @fileoverview Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+ *
+ * @example
+ * ```ts
+ * import { bindThroughAsync, ok } from '@sandlada/result';
+ * const validate = bindThroughAsync(async (x: number) =>
+ *   x > 0 ? ok(x) : Promise.reject(new Error('non-positive')),
+ * );
+ * const r = await validate(Promise.resolve(ok(5))); // Ok(5)
+ * ```
   *
  * @note Ready for Product
  */

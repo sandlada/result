@@ -1,7 +1,13 @@
 import type { IOption } from '../types/Option.js';
 
 /**
- * Flattens a nested `Promise<IOption<IOption<T>>>`.
+ * @fileoverview Flattens a nested `Promise<IOption<IOption<T>>>`.
+ *
+ * @example
+ * ```ts
+ * import { flattenAsyncOption, ofSome } from '@sandlada/result';
+ * const r = await flattenAsyncOption(Promise.resolve(ofSome(ofSome(42)))); // Some(42)
+ * ```
   *
  * @note Ready for Product
  */

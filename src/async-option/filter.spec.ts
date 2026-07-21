@@ -57,4 +57,16 @@ describe('AsyncOption filter', () => {
             expect(result.value).toBe(21);
         }
     });
+
+    it('converts sync predicate throw to None (catch+convert policy)', async () => {
+        const ao = filter(() => { throw new Error('boom'); }, fromOption(ofSome(21)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
+
+    it('converts async predicate rejection to None (catch+convert policy)', async () => {
+        const ao = filter(async () => { throw new Error('boom'); }, fromOption(ofSome(21)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
 });

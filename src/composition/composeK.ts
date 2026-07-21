@@ -62,6 +62,7 @@ export function composeK<A, B, C, D, F, G, H, E>(
 export function composeK(
     ...fns: Array<(arg: any) => IResultOfT<any, any>>
 ): (a: any) => IResultOfT<any, any> {
+    if (fns.length === 0) throw new TypeError('composeK requires at least one function');
     return (a: any) => {
         try {
             let result: IResultOfT<any, any> = fns[0]!(a);

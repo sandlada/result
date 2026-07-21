@@ -4,7 +4,20 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 /**
- * Simultaneously maps both variants of an AsyncResult.
+ * @fileoverview Simultaneously maps both variants of an AsyncResult.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result';
+ * import { fromResult, bimap } from '@sandlada/result/async-result';
+ *
+ * const ar = bimap(
+ *   (v: number) => v.toString(),
+ *   (e: number) => e * 2,
+ *   fromResult(ok(5)),
+ * );
+ * const result = await ar.run(); // Ok('5')
+ * ```
   *
  * @note Ready for Product
  */

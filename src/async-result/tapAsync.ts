@@ -2,7 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
- * Side-effect on the success track using an async function.
+ * @fileoverview Side-effect on the success track using an async function.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * @example

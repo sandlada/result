@@ -1,7 +1,7 @@
 import type { IOption } from '../types/Option.js';
 
 /**
- * Side-effect on the success track of an async option.
+ * @fileoverview Side-effect on the success track of an async option.
  *
  * @example
  * ```ts
