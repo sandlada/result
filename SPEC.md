@@ -289,16 +289,16 @@ All async operators work with `Promise<IResultOfT<A, E>>`. Callbacks can be sync
 
 ### Adapters
 
-| Function        | Signature                                                        | Description                                          |
-| --------------- | ---------------------------------------------------------------- | ---------------------------------------------------- |
-| `switchFn`      | `switchFn(f): (a: A) => IResultOfT<B, never>`                    | 1-track → switch (value → Result)                    |
-| `switchFnAsync` | `switchFnAsync<A,B>(f): (a: A) => Promise<IResultOfT<B, never>>` | Async 1-track → async switch                         |
-| `liftMap`       | `liftMap(f): IResultOfT<A,E> => IResultOfT<B,E>`                 | 1-track → 2-track (alias for `map`)                  |
-| `tee`           | `tee(f): (a: A) => A`                                            | Dead-end → 1-track (side-effect, returns input)      |
-| `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                              | Async dead-end → 1-track                             |
-| `toOption`      | `toOption(r): IOption<A>`                                        | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
-| `fromOption`    | `fromOption<E>(err, opt): IResultOfT<T,E>`                       | Direct: Option → Result                              |
-|                 | `fromOption<E>(err): (opt) => IResultOfT<T,E>`                   | Curried: returns a converter (data-last)             |
+| Function        | Signature                                                                      | Description                                          |
+| --------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| `switchFn`      | `switchFn<A,B,E=Error>(f, errorFn?): (a: A) => IResultOfT<B, E>`               | 1-track → switch (value → Result)                    |
+| `switchFnAsync` | `switchFnAsync<A,B,E=Error>(f, errorFn?): (a: A) => Promise<IResultOfT<B, E>>` | Async 1-track → async switch                         |
+| `liftMap`       | `liftMap(f): IResultOfT<A,E> => IResultOfT<B,E>`                               | 1-track → 2-track (alias for `map`)                  |
+| `tee`           | `tee(f): (a: A) => A`                                                          | Dead-end → 1-track (side-effect, returns input)      |
+| `teeAsync`      | `teeAsync(f): (a: A) => Promise<A>`                                            | Async dead-end → 1-track                             |
+| `toOption`      | `toOption(r): IOption<A>`                                                      | Result → Option (`Ok(v) → Some(v)`, `Err(_) → None`) |
+| `fromOption`    | `fromOption<E>(err, opt): IResultOfT<T,E>`                                     | Direct: Option → Result                              |
+|                 | `fromOption<E>(err): (opt) => IResultOfT<T,E>`                                 | Curried: returns a converter (data-last)             |
 
 ### Combine
 
@@ -642,7 +642,7 @@ const validate = composeK(parseInput, checkBusinessRules);
 ```ts
 // switchFn: plain function → switch function
 const safeParse = switchFn(JSON.parse);
-// safeParse: (text: string) => IResultOfT<unknown, never>
+// safeParse: (text: string) => IResultOfT<unknown, Error>
 
 // tee: dead-end side-effect on plain value
 const log = tee((x: unknown) => console.log('Got:', x));
