@@ -22,7 +22,7 @@ describe('switchFnAsync', () => {
         });
         const r = await badFn('anything');
         expect(r.isSuccess).toBe(false);
-        if (!r.isSuccess) expect((r.error as Error).message).toBe('unexpected');
+        if (!r.isSuccess) expect(r.error.message).toBe('unexpected');
     });
 
     it('catches rejected Promise and returns err', async () => {
@@ -31,7 +31,7 @@ describe('switchFnAsync', () => {
         });
         const r = await rejectFn('anything');
         expect(r.isSuccess).toBe(false);
-        if (!r.isSuccess) expect((r.error as Error).message).toBe('async boom');
+        if (!r.isSuccess) expect(r.error.message).toBe('async boom');
     });
 
     it('preserves falsy return values', async () => {
@@ -46,5 +46,17 @@ describe('switchFnAsync', () => {
         const r = await returnNull(undefined);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBeNull();
+    });
+
+    it('uses the supplied errorFn to map caught exceptions', async () => {
+        const mappedFn = switchFnAsync(
+            async (_s: string) => { throw new Error('raw async'); },
+            (e: unknown) => new Error(`mapped: ${(e as Error).message}`),
+        );
+        const r = await mappedFn('anything');
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) {
+            expect(r.error.message).toBe('mapped: raw async');
+        }
     });
 });

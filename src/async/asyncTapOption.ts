@@ -1,8 +1,12 @@
 import type { IOption } from '../types/Option.js';
+import { ofNone } from '../option/ofNone.js';
 
 /**
  * @fileoverview Side-effect on success for a sync `IOption` using an async callback.
- * Returns the original Option.
+ *
+ * Side-effect only. If the callback throws synchronously or returns a rejected
+ * Promise, the side-effect is silently dropped and `None` is returned — matches
+ * the `asyncBindOption` policy (Cat 4 reference).
  *
  * @example
  * ```ts
@@ -26,5 +30,12 @@ export function asyncTapOption<T>(
 ): Promise<IOption<T>> | ((opt: IOption<T>) => Promise<IOption<T>>) {
     if (opt === undefined) return (opt: IOption<T>) => asyncTapOption(fn, opt);
     if (!opt.isSome) return Promise.resolve(opt);
-    return fn(opt.value).then(() => opt);
+    try {
+        return fn(opt.value).then(
+            () => opt,
+            () => ofNone() as unknown as IOption<T>,
+        );
+    } catch {
+        return Promise.resolve(ofNone() as unknown as IOption<T>);
+    }
 }

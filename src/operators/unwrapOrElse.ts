@@ -1,5 +1,9 @@
 /**
- * @fileoverview Extracts the value on success, or computes a default from the error on failure (lazy). Never throws.
+ * @fileoverview Extracts the value on success, or computes a default from the error on failure (lazy).
+ *
+ * **Throw policy**: Like `match`, exceptions thrown by `onErr` **propagate** to the
+ * caller. Ensure `onErr` does not throw, or wrap it with `tryCatch` first if you need a
+ * recoverable fallback.
  *
  * F# equivalent: `Result.defaultWith f r`
  *
@@ -10,6 +14,7 @@
  * unwrapOrElse((e: Error) => 0, err(new Error('boom'))); // 0
  * ```
   *
+ * @note Ready for Product
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';

@@ -55,4 +55,18 @@ describe('asyncTapOption', () => {
             expect(r.value).toBe(10);
         }
     });
+
+    it('converts to None when the callback throws synchronously', async () => {
+        const badFn: (a: number) => Promise<void | unknown> = () => {
+            throw new Error('sync boom');
+        };
+        const r = await asyncTapOption(badFn, ofSome<number>(5));
+        expect(r.isSome).toBe(false);
+    });
+
+    it('converts to None when the callback returns a rejected Promise', async () => {
+        const rejectFn = async (_a: number) => { throw new Error('async boom'); };
+        const r = await asyncTapOption(rejectFn, ofSome<number>(7));
+        expect(r.isSome).toBe(false);
+    });
 });
