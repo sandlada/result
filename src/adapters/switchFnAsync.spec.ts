@@ -59,4 +59,20 @@ describe('switchFnAsync', () => {
             expect(r.error.message).toBe('mapped: raw async');
         }
     });
+
+    it('catches direct Promise rejections', async () => {
+        const directReject = switchFnAsync((_s: string) => Promise.reject(new Error('direct reject')));
+        const r = await directReject('anything');
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect((r.error as Error).message).toBe('direct reject');
+    });
+
+    it('handles primitive exceptions without errorFn fallback', async () => {
+        const primitiveReject = switchFnAsync((_s: string) => {
+            throw 'string error';
+        });
+        const r = await primitiveReject('anything');
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect(r.error).toBe('string error');
+    });
 });
