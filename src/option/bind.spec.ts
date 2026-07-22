@@ -41,4 +41,11 @@ describe('bindOption', () => {
         expect(result.isSome).toBe(false);
         expect(called).toBe(false);
     });
+
+    it('returns None if the chained function throws an error', () => {
+        const result = bindOption(() => {
+            throw new Error('test error');
+        })(ofSome(5));
+        expect(result.isSome).toBe(false);
+    });
 });
