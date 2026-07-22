@@ -1,4 +1,4 @@
-﻿# ARCH.md — `@sandlada/result` Architecture
+# ARCH.md — `@sandlada/result` Architecture
 
 > **Authoritative record of the project's architecture.** This document must be updated whenever source code, interfaces, or module structure change.
 
@@ -25,21 +25,21 @@
 | --------------- | ------------------------------------------------------------ |
 | Language        | TypeScript (strict mode)                                     |
 | Build tool      | `tsgo` (TypeScript Native, via `@typescript/native-preview`) |
-| Module system   | `nodenext` (ESM, `.js` extensions in relative imports)       |
+| Module system   | `esnext` (ESM, `.js` extensions in relative imports)         |
 | Module syntax   | `verbatimModuleSyntax` — `import type` for type-only imports |
 | Test runner     | Vitest v4                                                    |
 | Stricter checks | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`     |
 
 ## Scripts
 
-| Command               | Purpose                                                   |
-| --------------------- | --------------------------------------------------------- |
-| `npm run build`       | Compile TypeScript via `tsgo`                             |
-| `npm test`            | Run Vitest v4 test suite (single-run, CI mode)            |
-| `npm run test:watch`  | Run Vitest in interactive watch mode                      |
-| `npm run bench`       | Run benchmarks via Vitest bench (interactive)             |
-| `npm run bench:json`  | Run benchmarks and serialize results to `bench/results.json` |
-| `npm run bench:ui`    | Run benchmarks with the `@vitest/ui` inspector            |
+| Command              | Purpose                                                      |
+| -------------------- | ------------------------------------------------------------ |
+| `npm run build`      | Compile TypeScript via `tsgo`                                |
+| `npm test`           | Run Vitest v4 test suite (single-run, CI mode)               |
+| `npm run test:watch` | Run Vitest in interactive watch mode                         |
+| `npm run bench`      | Run benchmarks via Vitest bench (interactive)                |
+| `npm run bench:json` | Run benchmarks and serialize results to `bench/results.json` |
+| `npm run bench:ui`   | Run benchmarks with the `@vitest/ui` inspector               |
 
 ## Package Exports
 
@@ -166,18 +166,18 @@ Tests live in two distinct layers:
 matching `<name>.spec.ts` directly beside it. There are 14 module directories
 with one `.spec.ts` per source file:
 
-| Directory              | spec count |
-| ---------------------- | ----------: |
-| `src/factories/`       |         10 |
-| `src/adapters/`        |          7 |
-| `src/combine/`         |          3 |
-| `src/composition/`     |          5 |
-| `src/operators/`       |         32 |
-| `src/option/`          |         16 |
-| `src/async/`           |         35 |
-| `src/async-result/`    |         26 |
-| `src/async-option/`    |         15 |
-| `src/types/`           |          5 |
+| Directory           | spec count |
+| ------------------- | ---------: |
+| `src/factories/`    |         10 |
+| `src/adapters/`     |          7 |
+| `src/combine/`      |          3 |
+| `src/composition/`  |          5 |
+| `src/operators/`    |         32 |
+| `src/option/`       |         16 |
+| `src/async/`        |         35 |
+| `src/async-result/` |         26 |
+| `src/async-option/` |         15 |
+| `src/types/`        |          5 |
 
 **Layer 2 — Cross-module tests** under `src/tests/`:
 
@@ -222,7 +222,7 @@ Design principles:
 
 **Decision:** Package uses ES modules exclusively with explicit `.js` extensions in relative imports.
 
-**Rationale:** Required by `nodenext` module resolution. Ensures compatibility with native ESM runtimes and bundlers. Dropping CJS support simplifies the build pipeline and aligns with the TypeScript ecosystem direction.
+**Rationale:** Required for native Node.js ESM (`package.json` `"type": "module"`). Ensures compatibility with native ESM runtimes and bundlers. Dropping CJS support simplifies the build pipeline and aligns with the TypeScript ecosystem direction.
 
 ### ADR 5: Independent Option Module
 
@@ -248,15 +248,15 @@ Design principles:
 
 Production-grade helpers for ROP pipelines that need transient-failure tolerance, timeout ceilings, and concurrency primitives.
 
-| Operator        | Signature                                            | Notes                                                         |
-| --------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
-| `retry`         | `(fn, opts?) => Promise<IResultOfT<T,E>>`            | Eager; bounded by `opts.times`; honors `shouldRetry` + `signal`. |
-| `retryLazy`     | `(ar, opts?) => AsyncResult<T,E>`                    | Lazy thunk wrap of `retry`. Triggers no work until `.run()`.  |
-| `timeout`       | `(ms, ar, onTimeout?) => AsyncResult<T, E\|TOE>`     | Lazy; race against `setTimeout`; configurable error factory.  |
-| `timeoutEager`  | `(ms, () => Promise<IResultOfT<T,E>>, onTimeout?)`   | Eager counterpart for callers already in `Promise` land.      |
-| `race`          | `(ars[]) => AsyncResult<T,E>`                        | First `Ok` wins; on all-fail returns the first `Err`.         |
-| `any`           | `(ars[]) => AsyncResult<T[], E[]>`                   | Collects **all** successes / all errors; never short-circuits. |
-| `allSettled`    | `(ars[]) => AsyncResult<Settled<T,E>[], never>`      | Always `Ok`; emits per-thunk outcome in input order.          |
+| Operator       | Signature                                          | Notes                                                            |
+| -------------- | -------------------------------------------------- | ---------------------------------------------------------------- |
+| `retry`        | `(fn, opts?) => Promise<IResultOfT<T,E>>`          | Eager; bounded by `opts.times`; honors `shouldRetry` + `signal`. |
+| `retryLazy`    | `(ar, opts?) => AsyncResult<T,E>`                  | Lazy thunk wrap of `retry`. Triggers no work until `.run()`.     |
+| `timeout`      | `(ms, ar, onTimeout?) => AsyncResult<T, E\|TOE>`   | Lazy; race against `setTimeout`; configurable error factory.     |
+| `timeoutEager` | `(ms, () => Promise<IResultOfT<T,E>>, onTimeout?)` | Eager counterpart for callers already in `Promise` land.         |
+| `race`         | `(ars[]) => AsyncResult<T,E>`                      | First `Ok` wins; on all-fail returns the first `Err`.            |
+| `any`          | `(ars[]) => AsyncResult<T[], E[]>`                 | Collects **all** successes / all errors; never short-circuits.   |
+| `allSettled`   | `(ars[]) => AsyncResult<Settled<T,E>[], never>`    | Always `Ok`; emits per-thunk outcome in input order.             |
 
 **Design notes**
 
@@ -268,16 +268,16 @@ Production-grade helpers for ROP pipelines that need transient-failure tolerance
 
 Structured-logging primitives built around a tiny synchronous frame stack. **Not** based on `AsyncLocalStorage`, so it composes with the existing sync and lazy-async operators without runtime surprises.
 
-| API                 | Purpose                                                                |
-| ------------------- | ---------------------------------------------------------------------- |
-| `ctx.run(fn)`       | Push/pop a frame around `fn`.                                          |
-| `withPath(seg, r?)` | Push a path segment (must be inside `ctx.run`); pass-through on the result. |
-| `getPath()`         | Snapshot the current path.                                              |
-| `tapErrContext(fn)` | On failure, invokes `fn(error, { path })`. Supports sync/async callbacks. |
-| `format(r)`         | Human-readable `Ok(...)` / `Err(...)` rendering for logs.                |
-| `inspect(r)`        | Structured `{kind, value\|error}` view for log frameworks.               |
-| `observe(r)`        | Pass-through hook that fires the installed observer.                     |
-| `installObserver(h)`| Install a process-wide observer; returns a disposer.                     |
+| API                  | Purpose                                                                     |
+| -------------------- | --------------------------------------------------------------------------- |
+| `ctx.run(fn)`        | Push/pop a frame around `fn`.                                               |
+| `withPath(seg, r?)`  | Push a path segment (must be inside `ctx.run`); pass-through on the result. |
+| `getPath()`          | Snapshot the current path.                                                  |
+| `tapErrContext(fn)`  | On failure, invokes `fn(error, { path })`. Supports sync/async callbacks.   |
+| `format(r)`          | Human-readable `Ok(...)` / `Err(...)` rendering for logs.                   |
+| `inspect(r)`         | Structured `{kind, value\|error}` view for log frameworks.                  |
+| `observe(r)`         | Pass-through hook that fires the installed observer.                        |
+| `installObserver(h)` | Install a process-wide observer; returns a disposer.                        |
 
 **Design notes**
 
@@ -289,15 +289,15 @@ Structured-logging primitives built around a tiny synchronous frame stack. **Not
 
 High-frequency but commonly-missing helpers. Most are value-level functions that wrap existing factories.
 
-| API                  | Behaviour                                                              |
-| -------------------- | ----------------------------------------------------------------------- |
-| `cond(pred, err, v)` | `Ok(v)` if `pred(v)` else `Err(err)`; carries the value through.        |
-| `condErr(pred, ok, err)` | Inverse: `Ok(ok)` if `!pred(ok)` else `Err(err)`.                    |
-| `sequence(rs)`       | Alias of `combine`; pick the name that matches your codebase.            |
-| `sequenceAsyncResult(ars)` | Lazy `AsyncResult<T[], E>`; no inner `run()` triggers.            |
-| `reduce(fn, init, rs)` | Left-fold; short-circuits on first source or reducer failure.         |
-| `partitionOption(opts)` | `{ some, noneIndices }` — preserves positions of `None`s.           |
-| `lift(fn, errorFn?)` | Wrap a (possibly throwing) function into a `Result`-returning one.      |
+| API                        | Behaviour                                                          |
+| -------------------------- | ------------------------------------------------------------------ |
+| `cond(pred, err, v)`       | `Ok(v)` if `pred(v)` else `Err(err)`; carries the value through.   |
+| `condErr(pred, ok, err)`   | Inverse: `Ok(ok)` if `!pred(ok)` else `Err(err)`.                  |
+| `sequence(rs)`             | Alias of `combine`; pick the name that matches your codebase.      |
+| `sequenceAsyncResult(ars)` | Lazy `AsyncResult<T[], E>`; no inner `run()` triggers.             |
+| `reduce(fn, init, rs)`     | Left-fold; short-circuits on first source or reducer failure.      |
+| `partitionOption(opts)`    | `{ some, noneIndices }` — preserves positions of `None`s.          |
+| `lift(fn, errorFn?)`       | Wrap a (possibly throwing) function into a `Result`-returning one. |
 
 **Design notes**
 

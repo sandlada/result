@@ -17,7 +17,7 @@ The library exposes:
 | --------------- | ----------------------------------------------------------------------- |
 | Language        | TypeScript (strict mode)                                                |
 | Build tool      | `tsgo` (TypeScript Native, via `@typescript/native-preview`)            |
-| Module system   | `nodenext` (ESM, `.js` extensions in relative imports)                  |
+| Module system   | `esnext` (ESM, `.js` extensions in relative imports)                    |
 | Module syntax   | `verbatimModuleSyntax` — always use `import type` for type-only imports |
 | Target          | ESNext                                                                  |
 | Package type    | `module` (`package.json` `"type": "module"`)                            |
