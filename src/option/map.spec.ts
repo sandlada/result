@@ -28,4 +28,11 @@ describe('mapOption', () => {
         const result = mapOption((x: number) => x * 2)(ofSome(5));
         if (result.isSome) expect(result.value).toBe(10);
     });
+
+    it('returns None when mapping function throws an error', () => {
+        const result = mapOption((x: number) => {
+            throw new Error('Mapping error');
+        })(ofSome(5));
+        expect(result.isSome).toBe(false);
+    });
 });
