@@ -71,7 +71,7 @@
         "SECURITY.md"
     ],
     "scripts": {
-        "build": "tsgo --project tsconfig.json",
+        "build": "tsc --project tsconfig.json",
         "test": "vitest run",
         "test:watch": "vitest",
         "bench": "vitest bench",
