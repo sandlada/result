@@ -49,6 +49,18 @@
         "./async-option": {
             "types": "./build/async-option/index.d.ts",
             "default": "./build/async-option/index.js"
+        },
+        "./reliability": {
+            "types": "./build/reliability/index.d.ts",
+            "default": "./build/reliability/index.js"
+        },
+        "./observability": {
+            "types": "./build/observability/index.d.ts",
+            "default": "./build/observability/index.js"
+        },
+        "./primitives": {
+            "types": "./build/primitives/index.d.ts",
+            "default": "./build/primitives/index.js"
         }
     },
     "files": [
@@ -73,16 +85,20 @@
     "bugs": {
         "url": "https://github.com/sandlada/result/issues"
     },
-    "homepage": "https://github.com/sandlada/result#readme",
+    "homepage": "https://github.com/sandlada/result",
     "keywords": [
         "result",
         "result-pattern",
         "rop",
+        "railway-oriented",
         "option",
         "async",
         "async-result",
         "either",
         "error-handling",
+        "retry",
+        "timeout",
+        "observability",
         "functional",
         "typescript"
     ],

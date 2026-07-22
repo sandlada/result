@@ -187,3 +187,48 @@ export {
     unwrapOr as unwrapOrOption,
     zipWith as zipWithOption,
 } from './option/index.js';
+// ── Reliability ────────────────────────────────────────────────────────────
+export {
+    retry,
+    retryLazy,
+    timeout,
+    timeoutEager,
+    race,
+    any as anyAsyncResult,
+    allSettled,
+    type RetryOptions,
+    type TimeoutError,
+    type Settled,
+} from './reliability/index.js';
+
+// ── Observability ──────────────────────────────────────────────────────────
+export {
+    ctx,
+    getPath,
+    withPath,
+    tapErrContext,
+    format,
+    inspect,
+    observe,
+    installObserver,
+    getActiveObserver,
+    type PathSegment,
+    type PathStack,
+    type ErrContext,
+    type FormatOptions,
+    type Inspected,
+    type Observer,
+    type ObserveEvent,
+} from './observability/index.js';
+
+// ── Primitives ─────────────────────────────────────────────────────────────
+export {
+    cond,
+    condErr,
+    sequence as sequenceResults,
+    sequenceAsyncResult,
+    reduce,
+    partitionOption,
+    lift,
+    type Partitioned,
+} from './primitives/index.js';
