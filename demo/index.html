@@ -1,69 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@sandlada/result — Interactive Demo</title>
+    <meta name="description" content="Interactive module examples for @sandlada/result" />
+    <title>@sandlada/result examples</title>
     <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
-    <div id="app">
-        <aside id="sidebar">
-            <header>
-                <h1>@sandlada/result</h1>
-                <p class="subtitle">Interactive Demo</p>
-            </header>
-            <nav id="scenario-nav" role="tablist"></nav>
-            <footer id="sidebar-footer">
-                <p class="footer-note">Powered by free public APIs</p>
-            </footer>
-        </aside>
-        <main id="content">
-            <div id="welcome">
-                <h2>Explore the Result Pattern</h2>
-                <p>
-                    Select a scenario from the sidebar to see how
-                    <code>@sandlada/result</code> handles real-world API interactions —
-                    without throwing a single exception.
-                </p>
-                <div class="welcome-cards">
-                    <div class="welcome-card">
-                        <span class="card-icon">📋</span>
-                        <strong>ROP Pipeline</strong>
-                        <p>Sequential validation + chained API calls</p>
-                    </div>
-                    <div class="welcome-card">
-                        <span class="card-icon">🔄</span>
-                        <strong>Fallback Chain</strong>
-                        <p>Graceful degradation across multiple APIs</p>
-                    </div>
-                    <div class="welcome-card">
-                        <span class="card-icon">⚡</span>
-                        <strong>Parallel Fetch</strong>
-                        <p>Concurrent requests with partial failure handling</p>
-                    </div>
-                    <div class="welcome-card">
-                        <span class="card-icon">🎯</span>
-                        <strong>Result ⇄ Option</strong>
-                        <p>Interop between Result and Option types</p>
-                    </div>
-                </div>
-            </div>
-            <div id="result-area" hidden>
-                <div id="result-header">
-                    <h2 id="result-title"></h2>
-                    <span id="result-status-badge"></span>
-                </div>
-                <div id="result-steps"></div>
-                <div id="result-output"></div>
-                <div id="result-code"></div>
-            </div>
-            <div id="loading" hidden>
-                <div class="spinner"></div>
-                <p>Running scenario…</p>
-            </div>
-        </main>
-    </div>
+    <header class="site-header">
+        <a class="brand" href="/">@sandlada/result</a>
+        <span class="header-note">Type-safe error flows for TypeScript</span>
+    </header>
+    <main class="home">
+        <section class="intro">
+            <p class="eyebrow">Interactive examples</p>
+            <h1>Explore Result workflows by module</h1>
+            <p>Each page explains a practical checkout scenario. Run an example to inspect the same structured result on the page and in the browser console.</p>
+        </section>
+        <nav class="module-grid" aria-label="Demo modules">
+            <a class="module-card" href="/core.html">
+                <span class="module-index">01</span>
+                <h2>Core Result</h2>
+                <p>Validate input, transform successful values, short-circuit failures, and finish with pattern matching.</p>
+                <span class="api-list">ok · err · pipe · map · bind · match</span>
+                <span class="module-link">Open module <span aria-hidden="true">→</span></span>
+            </a>
+            <a class="module-card" href="/async.html">
+                <span class="module-index">02</span>
+                <h2>Async &amp; Combine</h2>
+                <p>Compose sequential service calls and aggregate independent requests without throw/catch branching.</p>
+                <span class="api-list">tryCatchAsync · bindAsync · all</span>
+                <span class="module-link">Open module <span aria-hidden="true">→</span></span>
+            </a>
+            <a class="module-card" href="/option.html">
+                <span class="module-index">03</span>
+                <h2>Option &amp; Adapters</h2>
+                <p>Represent missing profile data explicitly and move between Option and Result when error context matters.</p>
+                <span class="api-list">ofSome · ofNone · fromOption · toOption</span>
+                <span class="module-link">Open module <span aria-hidden="true">→</span></span>
+            </a>
+            <a class="module-card" href="/reliability.html">
+                <span class="module-index">04</span>
+                <h2>Reliability</h2>
+                <p>Recover from transient inventory failures, use cached values, and bound slow operations.</p>
+                <span class="api-list">retry · orElse · timeout</span>
+                <span class="module-link">Open module <span aria-hidden="true">→</span></span>
+            </a>
+        </nav>
+        <p class="console-note">Tip: keep DevTools open while running examples to follow each operation in the console.</p>
+    </main>
     <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "@sandlada/result": "latest"
+        "@sandlada/result": "0.0.4-20260722.a"
     },
     "devDependencies": {
         "typescript": "^5.7.0",

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Option and adapter examples" />
+    <title>Option &amp; Adapters | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header"><a class="brand" href="/">@sandlada/result</a><nav class="top-nav" aria-label="Modules"><a href="/core.html">Core</a><a href="/async.html">Async</a><a class="active" href="/option.html">Option</a><a href="/reliability.html">Reliability</a></nav></header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro"><p class="eyebrow">Option &amp; Adapters</p><h1>Handle optional contact details</h1><p>Option represents expected absence without null checks. Convert it to Result when the next operation needs a meaningful error, or discard Result errors when only presence matters.</p><div class="api-chips"><code>ofSome</code><code>ofNone</code><code>map</code><code>bind</code><code>fromOption</code><code>toOption</code></div></section>
+        <section class="examples" aria-label="Option examples">
+            <article class="example" id="phone-present"><div class="example-copy"><h2>Normalize a supplied phone</h2><p>Start with <code>Some</code>, remove spaces, and keep the value only when it includes an international prefix.</p><button type="button" data-run>Run Some path</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The normalized Option will appear here.</pre></div></article>
+            <article class="example" id="phone-missing"><div class="example-copy"><h2>Adapt missing data</h2><p>The stored customer has no phone. Observe <code>None</code>, its typed Result error, and the round trip back to Option.</p><button type="button" data-run>Run None path</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The Option and Result forms will appear here.</pre></div></article>
+        </section>
+    </main>
+    <script type="module" src="/src/option-demo.ts"></script>
+</body>
+</html>

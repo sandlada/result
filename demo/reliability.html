@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Reliability examples" />
+    <title>Reliability | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header"><a class="brand" href="/">@sandlada/result</a><nav class="top-nav" aria-label="Modules"><a href="/core.html">Core</a><a href="/async.html">Async</a><a href="/option.html">Option</a><a class="active" href="/reliability.html">Reliability</a></nav></header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro"><p class="eyebrow">Reliability</p><h1>Keep checkout responsive</h1><p>Production calls fail and slow down. Retry transient failures, recover with known values, and convert slow operations into explicit timeout errors.</p><div class="api-chips"><code>retry</code><code>orElse</code><code>timeout</code><code>AsyncResult</code></div></section>
+        <section class="examples" aria-label="Reliability examples">
+            <article class="example" id="retry-inventory"><div class="example-copy"><h2>Retry transient inventory errors</h2><p>The simulated service fails twice and succeeds on the third attempt. The event log makes every attempt visible.</p><button type="button" data-run>Run retry policy</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">Retry events will appear here.</pre></div></article>
+            <article class="example" id="cached-price"><div class="example-copy"><h2>Fall back to cached pricing</h2><p>When live pricing returns <code>Err</code>, <code>orElse</code> replaces it with the last known price.</p><button type="button" data-run>Use fallback price</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The recovered price will appear here.</pre></div></article>
+            <article class="example" id="shipping-timeout"><div class="example-copy"><h2>Bound a slow shipping quote</h2><p>A 300 ms operation is wrapped with a 120 ms limit, producing a typed timeout instead of waiting indefinitely.</p><button type="button" data-run>Run timeout example</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The timeout Result will appear here.</pre></div></article>
+        </section>
+    </main>
+    <script type="module" src="/src/reliability-demo.ts"></script>
+</body>
+</html>

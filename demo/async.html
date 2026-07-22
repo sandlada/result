@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Async Result and combine examples" />
+    <title>Async &amp; Combine | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header"><a class="brand" href="/">@sandlada/result</a><nav class="top-nav" aria-label="Modules"><a href="/core.html">Core</a><a class="active" href="/async.html">Async</a><a href="/option.html">Option</a><a href="/reliability.html">Reliability</a></nav></header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro"><p class="eyebrow">Async &amp; Combine</p><h1>Coordinate checkout services</h1><p>Wrap rejecting promises as Results, chain dependent work in order, and combine independent service responses without losing typed failures.</p><div class="api-chips"><code>tryCatchAsync</code><code>pipeAsync</code><code>bindAsync</code><code>mapAsync</code><code>all</code></div></section>
+        <section class="examples" aria-label="Async examples">
+            <article class="example" id="place-order"><div class="example-copy"><h2>Place an order sequentially</h2><p>Load the product first, pass it to the order service, then format the accepted order.</p><button type="button" data-run>Place simulated order</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The order response will appear here.</pre></div></article>
+            <article class="example" id="parallel-summary"><div class="example-copy"><h2>Build a summary in parallel</h2><p>Fetch product, customer, and shipping data concurrently, then require all three Results to succeed.</p><button type="button" data-run>Load checkout summary</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">The combined response will appear here.</pre></div></article>
+        </section>
+    </main>
+    <script type="module" src="/src/async-demo.ts"></script>
+</body>
+</html>

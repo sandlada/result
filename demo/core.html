@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Core Result examples" />
+    <title>Core Result | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header"><a class="brand" href="/">@sandlada/result</a><nav class="top-nav" aria-label="Modules"><a class="active" href="/core.html">Core</a><a href="/async.html">Async</a><a href="/option.html">Option</a><a href="/reliability.html">Reliability</a></nav></header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro"><p class="eyebrow">Core Result</p><h1>Validate a checkout request</h1><p>A Result keeps validation failures in the return type. Successful values continue through <code>map</code> and <code>bind</code>; failures skip the remaining transformations.</p><div class="api-chips"><code>fromPredicate</code><code>map</code><code>bind</code><code>tap</code><code>match</code></div></section>
+        <section class="examples" aria-label="Core examples">
+            <article class="example" id="valid-product"><div class="example-copy"><h2>Accept a catalog product</h2><p>Normalize <code>keyboard-01</code>, confirm it exists, then return a checkout-ready value.</p><button type="button" data-run>Run success path</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the Result value.</pre></div></article>
+            <article class="example" id="missing-product"><div class="example-copy"><h2>Reject an unknown product</h2><p>Try <code>camera-99</code>. The pipeline stops at <code>bind</code> and preserves a typed <code>NotFound</code> error.</p><button type="button" data-run>Run failure path</button></div><div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the typed error.</pre></div></article>
+        </section>
+    </main>
+    <script type="module" src="/src/core.ts"></script>
+</body>
+</html>
