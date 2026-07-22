@@ -1124,3 +1124,156 @@ const r = combineWithAllErrors([
 - **No method chaining** — because results are plain objects, operators are standalone functions with data-last signatures: `map(fn)(result)`. Compose with `pipe` for left-to-right reading.
 - **`camelCase` throughout** — all function names (`ok`, `err`, `isSuccess`, `map`, `bind`) use camelCase. The C# convention (`Result.Success`) is not followed in this library.
 - **Minimal runtime overhead** — no classes, no getters, no `Proxy`, no prototype lookups. Every result is a `{ isSuccess, value }` or `{ isSuccess, error }` object literal.
+
+---
+
+## Reliability (`@sandlada/result/reliability`)
+
+Retry/timeout/concurrency helpers for production pipelines.
+
+### `retry(fn, options?) → Promise<IResultOfT<T, E>>`
+
+Bounded retry. Supports both sync and async `fn`.
+
+```ts
+const r = await retry(() => tryFetch(`/api/users/${id}`), {
+    times: 3,
+    delayMs: n => 50 * (n + 1),          // linear backoff
+    shouldRetry: e => e.kind === 'Transient',
+    onRetry: (e, n) => logger.warn({ attempt: n, error: e }),
+});
+```
+
+### `retryLazy(ar, options?) → AsyncResult<T, E>`
+
+Lazy counterpart. Building a pipeline does not invoke any inner `run()`.
+
+### `timeout(ms, ar, onTimeout?) → AsyncResult<T, E | TimeoutError>`
+
+Race against a `setTimeout`. Default `onTimeout` yields `{ kind: 'Timeout', ms }`.
+
+### `timeoutEager(ms, fn, onTimeout?) → Promise<IResultOfT<T, E | TimeoutError>>`
+
+Eager counterpart for callers already in `Promise` land.
+
+### `race(ars) → AsyncResult<T, E>`
+
+First-success-wins.
+
+### `any(ars) → AsyncResult<T[], E[]>`
+
+Promise.any-style: collects all successes (or every error if none succeeded).
+
+### `allSettled(ars) → AsyncResult<Settled<T, E>[], never>`
+
+Always `Ok`, with per-thunk outcomes in input order. Rejections are captured as `{ok: false, error: rejection}`.
+
+```ts
+type Settled<T, E> =
+  | { ok: true; value: T }
+  | { ok: false; error: E };
+```
+
+---
+
+## Observability (`@sandlada/result/observability`)
+
+Structured-logging primitives built around a synchronous frame stack.
+
+### Path breadcrumbs
+
+```ts
+import { ctx, getPath, withPath, tapErrContext } from '@sandlada/result/observability';
+
+ctx.run(() => {
+  withPath('fetchUser');        // pushes 'fetchUser'
+  withPath(`id:${id}`);         // pushes 'id:42'
+
+  const r = fetchUser(id);
+  pipe(
+    r,
+    tapErrContext((error, { path }) => {
+      logger.error({ path, error });   // path: ['fetchUser', 'id:42']
+    }),
+  );
+});
+```
+
+### Formatters
+
+```ts
+import { format, inspect } from '@sandlada/result/observability';
+
+format(ok(42));                          // 'Ok(42)'
+format(err(new Error('boom')));          // 'Err(Error: boom)'
+format(err(new Error('boom')), { includeStack: true });
+                                        // 'Err(Error: boom)\n<stack>'
+inspect(err('boom'));                    // { kind: 'err', error: 'boom' }
+```
+
+### Process-wide observer
+
+```ts
+import { observe, installObserver } from '@sandlada/result/observability';
+
+const cancel = installObserver(event => reporter.send(event));
+
+const r = pipe(getUser(id), observe, match(onValue, onError));
+cancel();
+```
+
+---
+
+## Primitives (`@sandlada/result/primitives`)
+
+High-frequency helpers that round out the FP surface.
+
+### `cond`
+
+```ts
+import { cond } from '@sandlada/result/primitives';
+
+const r = cond(n => n > 0, 'must be positive', 5); // Ok(5)
+```
+
+### `condErr`
+
+Inverse of `cond`: returns `Err` when the predicate is true.
+
+### `sequence` / `sequenceAsyncResult`
+
+Rust/Haskell-flavoured aliases for `combine` (eager) and lazy batch processing.
+
+### `reduce`
+
+```ts
+import { reduce } from '@sandlada/result/primitives';
+
+const r = reduce(
+  (sum, n) => n === 0 ? err('zero') : ok(sum + n),
+  0,
+  [ok(1), ok(2), ok(3), ok(0), ok(5)],
+);
+// Err('zero')
+```
+
+### `partitionOption`
+
+```ts
+import { partitionOption } from '@sandlada/result/primitives';
+import { ofSome, ofNone } from '@sandlada/result/option';
+
+partitionOption([ofSome(1), ofNone(), ofSome(3), ofNone()]);
+// { some: [1, 3], noneIndices: [1, 3] }
+```
+
+### `lift`
+
+```ts
+import { lift } from '@sandlada/result/primitives';
+
+const parseInt = lift((s: string) => Number.parseInt(s, 10),
+                       e => new Error(String(e)));
+parseInt('42');   // Ok(42)
+parseInt('xx');   // Err(Error('xx'))
+```

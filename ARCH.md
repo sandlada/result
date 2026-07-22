@@ -243,3 +243,74 @@ Design principles:
 2. **SPEC.md teaches consumers.** Update when adding new exports or changing public API behavior.
 
 3. **AGENTS.md guides AI agents.** Update when project conventions or workflow change.
+
+## Reliability Module (`src/reliability/`)
+
+Production-grade helpers for ROP pipelines that need transient-failure tolerance, timeout ceilings, and concurrency primitives.
+
+| Operator        | Signature                                            | Notes                                                         |
+| --------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
+| `retry`         | `(fn, opts?) => Promise<IResultOfT<T,E>>`            | Eager; bounded by `opts.times`; honors `shouldRetry` + `signal`. |
+| `retryLazy`     | `(ar, opts?) => AsyncResult<T,E>`                    | Lazy thunk wrap of `retry`. Triggers no work until `.run()`.  |
+| `timeout`       | `(ms, ar, onTimeout?) => AsyncResult<T, E\|TOE>`     | Lazy; race against `setTimeout`; configurable error factory.  |
+| `timeoutEager`  | `(ms, () => Promise<IResultOfT<T,E>>, onTimeout?)`   | Eager counterpart for callers already in `Promise` land.      |
+| `race`          | `(ars[]) => AsyncResult<T,E>`                        | First `Ok` wins; on all-fail returns the first `Err`.         |
+| `any`           | `(ars[]) => AsyncResult<T[], E[]>`                   | Collects **all** successes / all errors; never short-circuits. |
+| `allSettled`    | `(ars[]) => AsyncResult<Settled<T,E>[], never>`      | Always `Ok`; emits per-thunk outcome in input order.          |
+
+**Design notes**
+
+- Zero runtime dependencies. `setTimeout`, `clearTimeout`, `AbortController` come from platform globals (declared in `src/types/globals.d.ts`).
+- All failures are surfaced as `Err`; nothing throws on the happy or sad path.
+- `retryLazy` never invokes `ar.run()` until the returned thunk is `run()` — `src/tests/hardening/RetryLeak.spec.ts` (TBD) hardens this contract.
+
+## Observability Module (`src/observability/`)
+
+Structured-logging primitives built around a tiny synchronous frame stack. **Not** based on `AsyncLocalStorage`, so it composes with the existing sync and lazy-async operators without runtime surprises.
+
+| API                 | Purpose                                                                |
+| ------------------- | ---------------------------------------------------------------------- |
+| `ctx.run(fn)`       | Push/pop a frame around `fn`.                                          |
+| `withPath(seg, r?)` | Push a path segment (must be inside `ctx.run`); pass-through on the result. |
+| `getPath()`         | Snapshot the current path.                                              |
+| `tapErrContext(fn)` | On failure, invokes `fn(error, { path })`. Supports sync/async callbacks. |
+| `format(r)`         | Human-readable `Ok(...)` / `Err(...)` rendering for logs.                |
+| `inspect(r)`        | Structured `{kind, value\|error}` view for log frameworks.               |
+| `observe(r)`        | Pass-through hook that fires the installed observer.                     |
+| `installObserver(h)`| Install a process-wide observer; returns a disposer.                     |
+
+**Design notes**
+
+- `withPath(segment, r)` always pushes **synchronously** on call; the optional `r` lets it slot into `pipe` without changing semantics. `withPath(segment)` returns `void` and exists for "tag a region" usage.
+- `installObserver` is global but additive — the rest of the pipeline is untouched. Observer errors are swallowed so a misbehaving reporter never breaks the chain.
+- All entries are re-exported from the main barrel under their natural names plus a `anyAsyncResult` re-export to avoid clashing with the future `(value: T) => any` of the same name coming from the async operators.
+
+## Primitives Module (`src/primitives/`)
+
+High-frequency but commonly-missing helpers. Most are value-level functions that wrap existing factories.
+
+| API                  | Behaviour                                                              |
+| -------------------- | ----------------------------------------------------------------------- |
+| `cond(pred, err, v)` | `Ok(v)` if `pred(v)` else `Err(err)`; carries the value through.        |
+| `condErr(pred, ok, err)` | Inverse: `Ok(ok)` if `!pred(ok)` else `Err(err)`.                    |
+| `sequence(rs)`       | Alias of `combine`; pick the name that matches your codebase.            |
+| `sequenceAsyncResult(ars)` | Lazy `AsyncResult<T[], E>`; no inner `run()` triggers.            |
+| `reduce(fn, init, rs)` | Left-fold; short-circuits on first source or reducer failure.         |
+| `partitionOption(opts)` | `{ some, noneIndices }` — preserves positions of `None`s.           |
+| `lift(fn, errorFn?)` | Wrap a (possibly throwing) function into a `Result`-returning one.      |
+
+**Design notes**
+
+- All helpers are zero-overhead wrappers around the existing primitives (`ok`/`err`/`combine`) to keep the surface consistent.
+- `lift` propagates thrown errors when no `errorFn` is supplied (mirrors the documented throw policy for `unwrapOrElse` and friends).
+- `partitionOption` retains the original indices because validating a fixed-shape schema (request body, form input) often needs the position to compose a useful error message.
+
+## Source Layout (Updated)
+
+```
+src/
+  reliability/        — retry, timeout, race, any, allSettled (8 source files)
+  observability/      — format, inspect, ctx, withPath, observe (7 source files)
+  primitives/         — cond, reduce, partitionOption, lift, sequence (8 source files)
+  ... existing modules
+```
