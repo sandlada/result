@@ -27,4 +27,11 @@ describe('orElseOption', () => {
         expect(called).toBe(false);
         if (result.isSome) expect(result.value).toBe(5);
     });
+
+    it('returns None if the fallback throws an error', () => {
+        const result = orElseOption(() => {
+            throw new Error('Fallback failed');
+        })(ofNone());
+        expect(result.isSome).toBe(false);
+    });
 });
