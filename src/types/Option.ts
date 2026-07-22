@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @fileoverview Option — the optional value discriminated union.
  *
  * An optional value is **either** a Some ({@link IOptionSome}, carrying
@@ -15,6 +15,8 @@
  * ```
  *
  * @typeParam T — The contained value type.
+ *
+ * @note Ready for Product
  */
 
 /**
@@ -38,6 +40,8 @@ export interface IOptionNone {
  * IOption — optional value contract as a **discriminated union**.
  *
  * @typeParam T — The contained value type.
+ *
+ * @note Ready for Product
  */
 export type IOption<T> = IOptionSome<T> | IOptionNone;
 

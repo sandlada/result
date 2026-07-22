@@ -1,10 +1,12 @@
-/**
+﻿/**
  * @fileoverview AsyncOption — a lazy asynchronous option.
  *
  * Represents a computation that will produce a `IOption<T>` when `.run()` is called.
  * This enables deferred/lazy composition of optional operations without executing them eagerly.
  *
  * @typeParam T — The value type.
+ *
+ * @note Ready for Product
  */
 
 import type { IOption } from './Option.js';

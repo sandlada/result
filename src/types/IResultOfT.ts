@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @fileoverview IResultOfT — the value-bearing result discriminated union.
  *
  * A value-bearing result is **either** a success ({@link IResultOfTSuccess},
@@ -17,6 +17,8 @@
  *
  * @typeParam TValue — The success value type.
  * @typeParam TError  — The error type. Defaults to `Error`.
+ *
+ * @note Ready for Product
  */
 
 /**
@@ -42,6 +44,8 @@ export interface IResultOfTFailure<TError = Error> {
  *
  * @typeParam TValue — The success value type.
  * @typeParam TError  — The error type. Defaults to `Error`.
+ *
+ * @note Ready for Product
  */
 export type IResultOfT<TValue, TError = Error> =
     | IResultOfTSuccess<TValue>

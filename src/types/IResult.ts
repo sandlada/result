@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @fileoverview IResult — the void result discriminated union.
  *
  * A result is **either** a success ({@link IResultSuccess}, no error)
@@ -15,6 +15,8 @@
  * ```
  *
  * @typeParam TError — The error type. Defaults to `Error`.
+ *
+ * @note Ready for Product
  */
 
 /**
@@ -44,5 +46,7 @@ export interface IResultFailure<TError = Error> {
  * IResult — base result contract as a **discriminated union**.
  *
  * @typeParam TError — The error type. Defaults to `Error`.
+ *
+ * @note Ready for Product
  */
 export type IResult<TError = Error> = IResultSuccess | IResultFailure<TError>;
