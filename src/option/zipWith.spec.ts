@@ -51,4 +51,12 @@ describe('Option — zipWith', () => {
         expect(result.isSome).toBe(true);
         if (result.isSome) expect(result.value).toBe(30);
     });
+
+    it('returns None if the zip function throws', () => {
+        const zipped = zipWith((a: number, b: number) => {
+            throw new Error('Test error');
+        });
+        const result = zipped(ofSome(1), ofSome(2));
+        expect(result.isSome).toBe(false);
+    });
 });
