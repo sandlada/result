@@ -44,6 +44,22 @@ describe('observe / installObserver', () => {
         expect(getActiveObserver()).toBeNull();
     });
 
+    it('cancel is a no-op when a different observer was installed since', () => {
+        const first = vi.fn();
+        const second = vi.fn();
+        const cancelFirst = installObserver(first);
+        installObserver(second);
+        cancelFirst();
+        expect(getActiveObserver()).toBe(second);
+    });
+
+    it('passing null to installObserver clears the active observer', () => {
+        const fn = vi.fn();
+        installObserver(fn);
+        installObserver(null);
+        expect(getActiveObserver()).toBeNull();
+    });
+
     it('swallows observer errors so they do not break the pipeline', () => {
         const fn = vi.fn(() => { throw new Error('observer boom'); });
         const cancel = installObserver(fn);

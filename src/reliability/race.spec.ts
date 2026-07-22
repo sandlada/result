@@ -46,8 +46,6 @@ describe('race', () => {
     });
 
     it('captures a rejected run() and reports its rejection as Err', async () => {
-        // Per the AsyncResult contract, .run() should never reject, but the
-        // implementation must defend against an upstream bug.
         const rejectedAr = {
             run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)),
         };
@@ -57,5 +55,17 @@ describe('race', () => {
         const r = await race([rejectedAr, otherRejectedAr]).run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+    });
+
+    it('a late rejection after the race has settled is a no-op', async () => {
+        // The OK resolves immediately, settling the race. The slow rejection
+        // arrives later but the `if (settled) return;` guard drops it.
+        const fast = arFrom(0, ok(1));
+        const slowRejected = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('late')), 10)),
+        };
+        const r = await race([fast, slowRejected]).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(1);
     });
 });

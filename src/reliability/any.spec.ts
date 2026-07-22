@@ -32,4 +32,25 @@ describe('any', () => {
         const wrapped = any([ar]);
         expect(typeof wrapped.run).toBe('function');
     });
+
+    it('captures a rejected promise as an error', async () => {
+        // Per the AsyncResult contract, .run() should never reject, but the
+        // implementation must defend against an upstream bug.
+        const rejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)) };
+        const good = { run: () => new Promise<typeof ok<number, string>>((resolve) => setTimeout(() => resolve(ok(7)), 10)) };
+        const r = await any([rejected, good]).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toEqual([7]);
+    });
+
+    it('captures rejections even when every thunk rejects', async () => {
+        const rejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom1')), 5)) };
+        const otherRejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 10)) };
+        const r = await any([rejected, otherRejected]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error.length).toBe(2);
+            expect(r.error.map((e: Error) => e.message).sort()).toEqual(['boom1', 'boom2']);
+        }
+    });
 });

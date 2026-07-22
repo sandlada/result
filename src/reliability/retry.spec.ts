@@ -102,11 +102,39 @@ describe('retry', () => {
         if (r.isFailure) expect(r.error).toBe('rejected');
     });
 
+    it('uses constructor.name when an Error with empty message is thrown', async () => {
+        class CustomBoom extends Error {}
+        const fn = vi.fn(() => { throw new CustomBoom(); });
+        const r = await retry(fn, { times: 0 });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('CustomBoom');
+    });
+
+    it('wraps a non-Error throw value via String()', async () => {
+        const fn = vi.fn(() => { throw 'plain string'; });
+        const r = await retry(fn, { times: 0 });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('plain string');
+    });
+
     it('does not invoke fn when signal is already aborted', async () => {
         const fn = vi.fn(() => ok(1));
         const controller = new AbortController();
         controller.abort();
         await retry(fn, { times: 3, signal: controller.signal });
         expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('aborts during the delay window — fn is not retried', async () => {
+        const fn = vi.fn(() => err<string>('try'));
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 5);
+        const r = await retry(fn, {
+            times: 5,
+            delayMs: 50,
+            signal: controller.signal,
+        });
+        expect(fn.mock.calls.length).toBeLessThanOrEqual(2);
+        expect(r.isFailure).toBe(true);
     });
 });

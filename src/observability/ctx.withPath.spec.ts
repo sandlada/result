@@ -104,7 +104,6 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
                     throw new Error('sync boom');
                 }),
             ).toThrow('sync boom');
-            // stack must be restored to the parent scope's depth
             expect(getPath()).toEqual(['before']);
         });
         expect(getPath()).toEqual([]);
@@ -121,6 +120,18 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
             ).rejects.toThrow('async boom');
             expect(getPath()).toEqual(['outer-async']);
         });
+        expect(getPath()).toEqual([]);
+    });
+
+    it('ctx.run awaits a function-shaped thenable', async () => {
+        // Function with a `.then` method — exercises the `typeof v === 'function'`
+        // branch in isThenable (objects/Object is the typical case).
+        const fn = () => 'irrelevant';
+        (fn as unknown as { then: (resolve: (v: string) => void) => void }).then = (resolve) => {
+            resolve('from-callable-thenable');
+        };
+        const result = await ctx.run(() => fn);
+        expect(result).toBe('from-callable-thenable');
         expect(getPath()).toEqual([]);
     });
 });

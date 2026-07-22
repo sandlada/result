@@ -45,7 +45,6 @@ describe('timeout (lazy)', () => {
             run: () => new Promise<never>(() => {}),
         };
         const wrapped = timeout(5, ar);
-        // Nothing should have happened yet; if it had, a setTimeout would have been set.
         expect(typeof wrapped.run).toBe('function');
     });
 
@@ -59,14 +58,38 @@ describe('timeout (lazy)', () => {
     });
 
     it('captures a rejected promise from run() as Err(rejection)', async () => {
-        // Per the AsyncResult contract, .run() should never reject, but the
-        // implementation must still defend against an upstream bug.
         const ar = {
             run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('rejected')), 5)),
         };
         const r = await timeout(50, ar).run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('rejected');
+    });
+
+    it('a late timer after the upstream rejected is a no-op', async () => {
+        // The upstream rejects quickly; the timer would fire later but the
+        // `if (settled) return;` guard drops it.
+        const ar = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('quick-reject')), 5)),
+        };
+        const r = await timeout(50, ar).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('quick-reject');
+    });
+
+    it('a late rejection after the timer fired is a no-op', async () => {
+        // The inner promise never settles; the timer fires first and yields Err(Timeout).
+        // A subsequent rejection from the inner would hit the `if (settled)` guard.
+        let rejectFn: (e: Error) => void;
+        const ar = {
+            run: () => new Promise<never>((_, reject) => { rejectFn = reject; }),
+        };
+        const promise = timeout(10, ar).run();
+        // Fire a late rejection to exercise the rejection-handler race guard.
+        setTimeout(() => rejectFn(new Error('late-reject')), 30);
+        const r = await promise;
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error.kind).toBe('Timeout');
     });
 });
 

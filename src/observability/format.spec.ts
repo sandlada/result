@@ -33,9 +33,7 @@ describe('format', () => {
 
     it('truncates nested values at maxDepth', () => {
         const r = ok({ a: 1, b: { c: 2 } });
-        // maxDepth=1 means depth-0 still renders but its object children are summarized.
         expect(format(r, { maxDepth: 1 })).toBe('Ok({"a": 1, "b": {...}})');
-        // maxDepth=0 collapses the root immediately.
         expect(format(r, { maxDepth: 0 })).toBe('Ok({...})');
     });
 
@@ -58,5 +56,36 @@ describe('format', () => {
         const a: Cycle = { name: 'root' };
         a.self = a;
         expect(format(ok(a)).includes('Unserializable') || format(ok(a)).includes('name')).toBe(true);
+    });
+
+    it('renders symbol values', () => {
+        const s = Symbol('tag');
+        expect(format(ok(s))).toBe(`Ok(${String(s)})`);
+    });
+
+    it('renders function values', () => {
+        expect(format(ok(() => 1))).toBe('Ok([Function])');
+    });
+
+    it('renders Error without message', () => {
+        const e = new Error('');
+        expect(format(err(e))).toBe('Err(Error)');
+    });
+
+    it('truncates nested array at maxDepth', () => {
+        expect(format(ok([[1]]), { maxDepth: 1 })).toBe('Ok([[...]])');
+    });
+
+    it('renders empty object', () => {
+        expect(format(ok({}))).toBe('Ok({})');
+    });
+
+    it('falls back to [Unserializable] when keys cannot be enumerated', () => {
+        const hostile = new Proxy({ name: 'hidden' }, {
+            ownKeys() {
+                throw new TypeError('cannot list keys');
+            },
+        });
+        expect(format(ok(hostile), { maxDepth: 5 })).toBe('Ok([Unserializable])');
     });
 });
