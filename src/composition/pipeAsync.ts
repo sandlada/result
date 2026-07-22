@@ -49,8 +49,8 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
 ): Promise<K>;
 export async function pipeAsync(value: unknown, ...fns: Array<(arg: unknown) => unknown>): Promise<unknown> {
     let acc = value;
-    for (const fn of fns) {
-        acc = fn(acc);
+    for (let i = 0; i < fns.length; i++) {
+        acc = fns[i]!(acc);
     }
     return acc;
 }
