@@ -1,27 +1,24 @@
 /**
  * @fileoverview Tiny stack-backed context — drives `withPath` breadcrumbs and
- * {@link tapErrContext} structured logging. The implementation uses an internal
- * module-level stack; `ctx.run(fn)` returns the result of `fn` after pushing/popping
- * a new frame. `getPath()` returns a frozen snapshot of the current path for read-only
- * consumers.
+ * {@link tapErrContext} structured logging.
  *
- * This is intentionally **not** `AsyncLocalStorage` based — it stays a pure
- * synchronous, function-pushdown style, which composes cleanly with our other
- * synchronous and async operators.
+ * The model is a **single** stack: `ctx.run(fn)` saves the current depth,
+ * runs `fn`, then restores the previous depth in a `finally` block. When
+ * `fn` returns a thenable, the cleanup is chained onto it so the scope
+ * stays open across `await` boundaries.
+ *
+ * This is intentionally **not** `AsyncLocalStorage`-based. It works the
+ * same on the main thread and isolates well inside promises.
  *
  * @example
  * ```ts
- * import { ctx, getPath } from '@sandlada/result/observability';
- * import { withPath, tapErrContext } from '@sandlada/result/observability';
+ * import { ctx, getPath, withPath, tapErrContext } from '@sandlada/result/observability';
+ * import { err } from '@sandlada/result';
  *
- * const result = ctx.run(() =>
- *   pipe(
- *     err('boom'),
- *     withPath('fetchUser'),
- *     withPath('id:42'),
- *     tapErrContext((e, { path }) => console.error({ path, error: e })),
- *   ),
- * );
+ * await ctx.run(async () => {
+ *   withPath('fetchUser');
+ *   tapErrContext((e, { path }) => logger.error({ path, error: e }), err('boom'));
+ * });
  * ```
  *
  * @note Ready for Product
@@ -33,32 +30,49 @@ export type PathSegment = string | number;
 /** Read-only snapshot of the current breadcrumb stack. */
 export type PathStack = ReadonlyArray<PathSegment>;
 
-// The stack is intentionally *not* exposed for mutation. Tests can use `ctx.run`
-// to push/pop frames in a controlled way.
-const stack: PathSegment[][] = [[]];
+// Module-level path stack. Mutated only via `ctx.run` / `ctx.push` below.
+const stack: PathSegment[] = [];
 
-const freeze = <T>(arr: T[]): ReadonlyArray<T> => Object.freeze([...arr]) as ReadonlyArray<T>;
+const freeze = (arr: PathSegment[]): PathStack => Object.freeze([...arr]) as PathStack;
+
+const isThenable = <T>(v: unknown): v is PromiseLike<T> =>
+    !!v && (typeof v === 'object' || typeof v === 'function') && typeof (v as { then?: unknown }).then === 'function';
 
 /**
- * Push the current frame onto the stack, run `fn`, then pop it. Any value
- * (including promise) returned by `fn` is forwarded unchanged.
+ * Synchronous + async scope: `ctx.run(fn)` saves the stack length, runs `fn`,
+ * and restores the previous depth in `finally`. When `fn` returns a thenable
+ * the cleanup is chained onto it so the scope survives `await`.
  */
 export const ctx = {
     run<T>(fn: () => T): T {
-        stack.push([]);
+        const savedLength = stack.length;
+        let result: T;
         try {
-            return fn();
-        } finally {
-            stack.pop();
+            result = fn();
+        } catch (e) {
+            stack.length = savedLength;
+            throw e;
         }
+        if (isThenable<T>(result)) {
+            return Promise.resolve(result).then(
+                (v: T) => {
+                    stack.length = savedLength;
+                    return v;
+                },
+                (e: unknown) => {
+                    stack.length = savedLength;
+                    throw e;
+                },
+            ) as unknown as T;
+        }
+        stack.length = savedLength;
+        return result;
     },
     /**
-     * Append a segment to the current frame. Returns `void`. Internal use by
-     * `withPath` and friends.
+     * Append a segment to the current stack. Called from `withPath` and friends.
      */
     push(segment: PathSegment): void {
-        const top = stack[stack.length - 1];
-        if (top) top.push(segment);
+        stack.push(segment);
     },
 };
 
@@ -66,9 +80,4 @@ export const ctx = {
  * Snapshot the current path. Useful in callbacks invoked outside of `withPath`'s
  * lexical frame to enrich the recorded path stack on the fly.
  */
-export const getPath = (): PathStack => {
-    const frames = stack.slice(1);
-    const merged: PathSegment[] = [];
-    for (const f of frames) merged.push(...f);
-    return freeze(merged);
-};
+export const getPath = (): PathStack => freeze(stack);

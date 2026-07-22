@@ -41,9 +41,12 @@ const formatValue = (v: unknown, depth: number, opts: Required<FormatOptions>): 
     if (t === 'number' || t === 'boolean' || t === 'bigint' || t === 'symbol') return String(v);
     if (t === 'function') return '[Function]';
     if (v instanceof Error) {
-        const msg = v.message ? `: ${v.message}` : '';
-        const stack = opts.includeStack && v.stack ? `\n${v.stack}` : '';
-        return `${v.name || 'Error'}${msg}${stack}`;
+        const msg = v.message ? ': ' + v.message : '';
+        if (opts.includeStack && v.stack) {
+            // Emits `<Name>: <msg>\n<stack>` so the stack is emitted on a fresh line.
+            return v.name + msg + '\n' + v.stack;
+        }
+        return v.name + msg;
     }
     if (depth >= opts.maxDepth) return Array.isArray(v) ? '[...]' : '{...}';
     try {
@@ -61,7 +64,8 @@ const formatValue = (v: unknown, depth: number, opts: Required<FormatOptions>): 
 };
 
 /**
- * Render a result as a one-line `Ok(...)` / `Err(...)` string. Suitable for logs.
+ * Render a result as `Ok(...)` / `Err(...)`. Stack traces (when requested)
+ * appear on subsequent lines after the closing parenthesis.
  */
 export function format<T, E>(
     r: IResultOfT<T, E>,
@@ -72,6 +76,11 @@ export function format<T, E>(
         includeStack: options.includeStack ?? STACK_DEFAULT,
         maxDepth: options.maxDepth ?? MAX_DEPTH_DEFAULT,
     };
-    if (r.isSuccess) return 'Ok(' + formatValue(r.value, 0, opts) + ')';
-    return 'Err(' + formatValue(r.error, 0, opts) + ')';
+    const tag = r.isSuccess ? 'Ok(' : 'Err(';
+    const body = formatValue(r.isSuccess ? r.value : r.error, 0, opts);
+    // When `body` contains a newline (e.g. an Error stack), close parens *before*
+    // the newline so the trace starts cleanly on its own line.
+    const nl = body.indexOf('\n');
+    if (nl < 0) return tag + body + ')';
+    return tag + body.slice(0, nl) + ')' + body.slice(nl);
 }
