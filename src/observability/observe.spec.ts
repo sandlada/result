@@ -56,11 +56,10 @@ describe('observe / installObserver', () => {
         }
     });
 
-    it('records path from ctx frame', () => {
+    it('records the current path on every event', () => {
         const seen: unknown[] = [];
         const cancel = installObserver((e) => seen.push(e));
         try {
-            // Push a path via ctx / withPath before observe.
             const r = err('boom');
             const observed = observe(r);
             expect(observed).toBe(r);
