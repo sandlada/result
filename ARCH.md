@@ -1,4 +1,4 @@
-# ARCH.md — `@sandlada/result` Architecture
+﻿# ARCH.md — `@sandlada/result` Architecture
 
 > **Authoritative record of the project's architecture.** This document must be updated whenever source code, interfaces, or module structure change.
 
@@ -32,11 +32,14 @@
 
 ## Scripts
 
-| Command         | Purpose                         |
-| --------------- | ------------------------------- |
-| `npm run build` | Compile TypeScript via `tsgo`   |
-| `npm test`      | Run Vitest v4 test suite        |
-| `npm run bench` | Run benchmarks via Vitest bench |
+| Command               | Purpose                                                   |
+| --------------------- | --------------------------------------------------------- |
+| `npm run build`       | Compile TypeScript via `tsgo`                             |
+| `npm test`            | Run Vitest v4 test suite (single-run, CI mode)            |
+| `npm run test:watch`  | Run Vitest in interactive watch mode                      |
+| `npm run bench`       | Run benchmarks via Vitest bench (interactive)             |
+| `npm run bench:json`  | Run benchmarks and serialize results to `bench/results.json` |
+| `npm run bench:ui`    | Run benchmarks with the `@vitest/ui` inspector            |
 
 ## Package Exports
 
@@ -59,20 +62,32 @@
 ```
 src/
   index.ts              — Public barrel
-  types/                — IResult, IResultOfT, IOption, AsyncResult interfaces
-  factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc.
-  operators/            — map, bind, match, unwrap, orThrow, separate, etc.
-  async/                — mapAsync, asyncBind, matchAsync, etc. (Promise-based)
-  async-result/         — AsyncResult lazy thunk operators
-  async-option/         — AsyncOption lazy thunk operators
-  composition/          — pipe, composeK, safeTry
-  adapters/             — switchFn, liftMap, tee, toOption, fromOption
-  combine/              — combine, all, combineWithAllErrors
-  option/               — ofSome, ofNone, map, bind, match, etc.
+  types/                — IResult, IResultOfT, IOption, AsyncResult, AsyncOption interfaces (5 files)
+  factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc. (10 files)
+  operators/            — map, bind, match, unwrap, orThrow, separate, etc. (32 files)
+  async/                — mapAsync, asyncBind, matchAsync, etc. (35 files, Promise-based)
+  async-result/         — AsyncResult lazy thunk operators (26 files)
+  async-option/         — AsyncOption lazy thunk operators (15 files)
+  composition/          — pipe, composeK, safeTry, pipeAsync, composeKAsync (5 files)
+  adapters/             — switchFn, liftMap, tee, toOption, fromOption (7 files)
+  combine/              — combine, all, combineWithAllErrors (3 files)
+  option/               — ofSome, ofNone, map, bind, match, etc. (16 files)
+  tests/                — Cross-module integration, behaviors, hardening, type-level tests
+    behaviors/          — custom-error-types, default-error-type, toJSON, value (4 files)
+    hardening/          — AsyncOptionEager, AsyncResultHardening, ResultAsyncHardening (3 files)
+    integration/        — api-consistency, AsyncOption, ComplexIntegration, ConsumptionPatterns, IntegrationPattern, Interop (6 files)
+    type-tests/         — Result.type-tests (1 file)
 ```
 
-Tests mirror source: `test/` mirrors `src/` structure. Root-level tests cover
-integration scenarios, interop, JSON serialization, and type-level validation.
+**Unit-level tests** live alongside their subjects as `<name>.spec.ts` next to every
+`src/<dir>/*.ts` source file (the co-located style). **Cross-module** tests under
+`src/tests/{behaviors,hardening,integration,type-tests}/` cover scenarios that
+cross module boundaries or harden against sentinel incidents recorded in
+`.jules/sentinel.md`.
+
+`tsconfig.json` excludes `*.spec.ts` from build output and `vitest.config.ts` uses
+the same glob in `test.include`, so the two layers stay in sync without a separate
+`test/` directory.
 
 ## Discriminated Union Types
 
@@ -145,16 +160,43 @@ if (result.isSuccess) {
 
 ## Testing Architecture
 
-Test files in `test/`, mirroring `src/` structure:
+Tests live in two distinct layers:
 
-- **Root-level** (12): ComplexIntegration, ConsumptionPatterns, IntegrationPattern, Interop, Result.* (custom-error-types, default-error-type, filterOrElse, fromPredicate, toJSON, type-tests, unwrapOrElse, value)
-- **Sub-directories** mirror `src/` modules: `test/async/`, `test/async-result/`, `test/adapters/`, `test/combine/`, `test/composition/`, `test/factories/`, `test/operators/`, `test/option/`, `test/types/`
+**Layer 1 — Co-located unit tests.** Every public source file in `src/` has a
+matching `<name>.spec.ts` directly beside it. There are 14 module directories
+with one `.spec.ts` per source file:
+
+| Directory              | spec count |
+| ---------------------- | ----------: |
+| `src/factories/`       |         10 |
+| `src/adapters/`        |          7 |
+| `src/combine/`         |          3 |
+| `src/composition/`     |          5 |
+| `src/operators/`       |         32 |
+| `src/option/`          |         16 |
+| `src/async/`           |         35 |
+| `src/async-result/`    |         26 |
+| `src/async-option/`    |         15 |
+| `src/types/`           |          5 |
+
+**Layer 2 — Cross-module tests** under `src/tests/`:
+
+- `behaviors/` (4): `Result.custom-error-types`, `Result.default-error-type`, `Result.toJSON`, `Result.value`
+- `hardening/` (3): `AsyncOptionEager`, `AsyncResultHardening`, `ResultAsyncHardening` — defend against the two incidents catalogued in `.jules/sentinel.md` (the `safeTry` generator cleanup and the `in`-operator `TypeError` on non-objects in async interop)
+- `integration/` (6): `api-consistency`, `AsyncOption`, `ComplexIntegration`, `ConsumptionPatterns`, `IntegrationPattern`, `Interop`
+- `type-tests/` (1): `Result.type-tests` — compile-time narrowing validation
+
+There is **no top-level `test/` directory**. The co-located style is enforced by
+both `tsconfig.json` (excludes `*.spec.ts` from build output) and
+`vitest.config.ts` (`test.include: ['src/**/*.spec.ts']`).
 
 Design principles:
 1. **Success path + failure path** — Every operator tests both branches
 2. **Curried + direct** — Tests verify both invocation forms
-3. **Edge cases** — `never` type propagation, empty arrays, nested results
+3. **Edge cases** — `never` type propagation, empty arrays, nested results, lazy await (`unwrapOrAsyncOption` against `setTimeout`)
 4. **Type tests** — `Result.type-tests.spec.ts` verifies compile-time behavior
+5. **Hardening tests** — sentinel incidents are encoded as long-lived regression
+   tests under `src/tests/hardening/`
 
 ## Architectural Decisions
 

@@ -1,4 +1,4 @@
-# SPEC
+﻿# SPEC
 
 ## Overview
 
@@ -1120,7 +1120,7 @@ const r = combineWithAllErrors([
 - **`value` and `error` are variant-exclusive** — `value` only exists when `isSuccess === true`, `error` only exists when `isFailure === true`. This is enforced at the type level via discriminated union, not at runtime. Access without narrowing is a type error.
 - **`null` and `undefined` are valid values** — `ok<number | null>(null)` and `ok<number | undefined>(undefined)` are supported. The `ok` factory uses `arguments.length` to distinguish void-success (`ok()`) from explicit-undefined-success (`ok(undefined)`).
 - **`isSuccess`/`isFailure` are own properties** — unlike a getter-based implementation, these are plain `boolean` properties on the object. This simplifies serialization and structured cloning.
-- **Sentinel `error` on success** — a success result's `error` property is `undefined` (not a sentinel symbol). The `IResult` union type ensures you only access `error` after narrowing.
+- **No `error`/`value` field on the wrong variant** — the success literal `{ isSuccess: true, isFailure: false, value }` carries no `error` field at all, and the failure literal `{ isSuccess: false, isFailure: true, error }` carries no `value` field. TypeScript narrows the union on `isSuccess`/`isFailure` so the other variants field is statically unavailable; at runtime, accessing a non-existent own property yields `undefined` (not a sentinel value).
 - **No method chaining** — because results are plain objects, operators are standalone functions with data-last signatures: `map(fn)(result)`. Compose with `pipe` for left-to-right reading.
 - **`camelCase` throughout** — all function names (`ok`, `err`, `isSuccess`, `map`, `bind`) use camelCase. The C# convention (`Result.Success`) is not followed in this library.
 - **Minimal runtime overhead** — no classes, no getters, no `Proxy`, no prototype lookups. Every result is a `{ isSuccess, value }` or `{ isSuccess, error }` object literal.
