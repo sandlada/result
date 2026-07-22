@@ -2,9 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { ok, err, pipe } from '../index.js';
 import { ctx, getPath, withPath, tapErrContext } from './index.js';
 
-// IMPORTANT: every test runs inside ctx.run so any segments added by `withPath`
-// are scoped to that run and removed afterward. Without this wrapper the path
-// stack would leak across tests since `withPath` pushes synchronously.
 const inScope = <T>(fn: () => T): T => ctx.run(fn);
 
 describe('ctx / getPath / withPath / tapErrContext', () => {
@@ -96,5 +93,34 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
             ),
         );
         expect(r.isFailure).toBe(true);
+    });
+
+    it('ctx.run restores stack when fn throws synchronously', () => {
+        inScope(() => {
+            withPath('before');
+            expect(() =>
+                ctx.run(() => {
+                    withPath('thrown');
+                    throw new Error('sync boom');
+                }),
+            ).toThrow('sync boom');
+            // stack must be restored to the parent scope's depth
+            expect(getPath()).toEqual(['before']);
+        });
+        expect(getPath()).toEqual([]);
+    });
+
+    it('ctx.run restores stack when async fn rejects', async () => {
+        await inScope(async () => {
+            withPath('outer-async');
+            await expect(
+                ctx.run(async () => {
+                    withPath('inner-async');
+                    throw new Error('async boom');
+                }),
+            ).rejects.toThrow('async boom');
+            expect(getPath()).toEqual(['outer-async']);
+        });
+        expect(getPath()).toEqual([]);
     });
 });

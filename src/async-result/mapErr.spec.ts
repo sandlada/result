@@ -24,4 +24,11 @@ describe('AsyncResult mapErr', () => {
         const result = await ar.run();
         if(!result.isSuccess) expect(result.error).toBe('FAIL');
     });
+
+    it('catches fn throw and converts to Err', async () => {
+        const ar = mapErr<string, string, Error>(() => { throw new Error('fn-boom'); }, fromResult(err('oops')));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
 });

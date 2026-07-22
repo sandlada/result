@@ -23,10 +23,25 @@ describe('AsyncResult tapErrAsync', () => {
         if (result.isFailure) expect((result.error as Error).message).toBe('boom');
     });
 
+    it('catches sync throw and overrides failure', async () => {
+        const ar = tapErrAsync((() => { throw new Error('sync'); }) as (e: string) => void, fromResult(err('oops')));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('sync');
+    });
+
     it('does not call fn on success', async () => {
         const fn = vi.fn();
         const ar = tapErrAsync(fn, fromResult(ok(42)));
         await ar.run();
         expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('curried: returns a function to apply later', async () => {
+        const fn = tapErrAsync<string, string>(async () => {});
+        const ar = fn(fromResult(err('curried')));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('curried');
     });
 });

@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err, filterOrElse, map, pipe } from '../index.js';
 
-// ─── filterOrElse ────────────────────────────────────────────────────────────
-
 describe('filterOrElse', () => {
     it('passes through success when predicate holds (curried)', () => {
         const positive = filterOrElse(
@@ -62,6 +60,16 @@ describe('filterOrElse', () => {
         );
         expect(r.isFailure).toBe(true);
         if(r.isFailure) expect(r.error).toBe('down');
+    });
+
+    it('catches errorFn throw and converts to Err', () => {
+        const r = filterOrElse<number, never, Error>(
+            () => false,
+            () => { throw new Error('errFn-boom'); },
+            ok(7),
+        );
+        expect(r.isFailure).toBe(true);
+        if(r.isFailure) expect((r.error as Error).message).toBe('errFn-boom');
     });
 
     it('errorFn can transform to a different error type', () => {

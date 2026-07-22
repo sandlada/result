@@ -24,4 +24,24 @@ describe('AsyncResult orElse', () => {
         const result = await ar.run();
         if(result.isSuccess) expect(result.value).toBe(0);
     });
+
+    it('recovers with Promise<IResultOfT> directly (no AsyncResult wrapper)', async () => {
+        const ar = orElse(
+            (e: string) => Promise.resolve(ok(`promised: ${e}`)),
+            fromResult(err('fail')),
+        );
+        const result = await ar.run();
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe('promised: fail');
+    });
+
+    it('catches fn throw and converts to Err', async () => {
+        const ar = orElse(
+            (() => { throw new Error('fn-boom'); }) as (e: string) => Promise<never>,
+            fromResult(err('original')),
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
 });

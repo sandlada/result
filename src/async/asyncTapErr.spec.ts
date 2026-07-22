@@ -55,8 +55,8 @@ describe('asyncTapErr', () => {
         expect(r).toBe(original);
     });
 
-    it('catches synchronous throw from callback and returns Err', async () => {
-        const error = new Error('sync fail');
+    it('catches async throw from callback and returns Err', async () => {
+        const error = new Error('async fail');
         const throwingFn = vi.fn().mockImplementation(async (_e: string) => {
             throw error;
         });
@@ -85,5 +85,12 @@ describe('asyncTapErr', () => {
         if (!r.isSuccess) {
             expect(r.error).toBe(error);
         }
+    });
+
+    it('catches sync throw from callback', async () => {
+        const fn = (() => { throw new Error('sync-boom'); }) as unknown as (e: string) => Promise<void>;
+        const r = await asyncTapErr(fn, err<string, Error>('oops'));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
     });
 });

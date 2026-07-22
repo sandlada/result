@@ -44,4 +44,18 @@ describe('race', () => {
         const wrapped = race([ar1, ar2]);
         expect(typeof wrapped.run).toBe('function');
     });
+
+    it('captures a rejected run() and reports its rejection as Err', async () => {
+        // Per the AsyncResult contract, .run() should never reject, but the
+        // implementation must defend against an upstream bug.
+        const rejectedAr = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)),
+        };
+        const otherRejectedAr = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 20)),
+        };
+        const r = await race([rejectedAr, otherRejectedAr]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+    });
 });

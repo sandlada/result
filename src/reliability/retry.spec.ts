@@ -85,4 +85,28 @@ describe('retry', () => {
         expect(fn).toHaveBeenCalledTimes(1);
         expect(r.isFailure).toBe(true);
     });
+
+    it('catches sync throw from fn and converts to Err', async () => {
+        const fn = vi.fn(() => { throw new Error('sync-throw'); });
+        const r = await retry(fn, { times: 1 });
+        expect(fn).toHaveBeenCalledTimes(2);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('sync-throw');
+    });
+
+    it('catches promise rejection from fn and converts to Err', async () => {
+        const fn = vi.fn(async () => { throw new Error('rejected'); });
+        const r = await retry(fn, { times: 1 });
+        expect(fn).toHaveBeenCalledTimes(2);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('rejected');
+    });
+
+    it('does not invoke fn when signal is already aborted', async () => {
+        const fn = vi.fn(() => ok(1));
+        const controller = new AbortController();
+        controller.abort();
+        await retry(fn, { times: 3, signal: controller.signal });
+        expect(fn).not.toHaveBeenCalled();
+    });
 });

@@ -22,10 +22,23 @@ describe('AsyncOption tapAsync', () => {
         expect(result.isNone).toBe(true);
     });
 
+    it('catches sync throw and turns to None', async () => {
+        const ao = tapAsync((() => { throw new Error('sync'); }) as (v: number) => void, fromOption(ofSome(7)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
+
     it('does not call fn on None', async () => {
         const fn = vi.fn();
         const ao = tapAsync(fn, fromOption(ofNone()));
         await ao.run();
         expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('curried: returns a function to apply later', async () => {
+        const fn = tapAsync<number>(async (v) => { await Promise.resolve(); });
+        const result = await fn(fromOption(ofSome(99))).run();
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(99);
     });
 });

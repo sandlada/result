@@ -57,6 +57,17 @@ describe('timeout (lazy)', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('boom');
     });
+
+    it('captures a rejected promise from run() as Err(rejection)', async () => {
+        // Per the AsyncResult contract, .run() should never reject, but the
+        // implementation must still defend against an upstream bug.
+        const ar = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('rejected')), 5)),
+        };
+        const r = await timeout(50, ar).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('rejected');
+    });
 });
 
 describe('timeoutEager', () => {

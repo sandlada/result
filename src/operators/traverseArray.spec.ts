@@ -40,4 +40,13 @@ describe('traverseArray', () => {
         }, [10, 20, 30]);
         expect(indices).toEqual([0, 1, 2]);
     });
+
+    it('catches callback throw and converts to Err', () => {
+        const result = traverseArray(
+            ((() => { throw new Error('cb-boom'); }) as (x: number) => IResultOfT<number, string>),
+            [1, 2, 3],
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('cb-boom');
+    });
 });

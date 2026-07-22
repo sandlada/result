@@ -7,7 +7,7 @@ describe('asyncBindThrough', () => {
     it('preserves original value when callback succeeds', async () => {
         const result = await asyncBindThrough(async (x: number) => ok(x * 2), ok(21));
         expect(result.isSuccess).toBe(true);
-        if(result.isSuccess) expect(result.value).toBe(21); // original, not 42
+        if(result.isSuccess) expect(result.value).toBe(21);
     });
 
     it('propagates callback error when callback returns failure', async () => {
@@ -21,7 +21,7 @@ describe('asyncBindThrough', () => {
         const result = await asyncBindThrough(async (x: number) => { called = true; return ok(x * 2); }, err<string>('input error'));
         expect(result.isSuccess).toBe(false);
         if(!result.isSuccess) expect(result.error).toBe('input error');
-        expect(called).toBe(false); // callback not called
+        expect(called).toBe(false);
     });
 
     it('preserves original value for void success', async () => {
@@ -46,6 +46,13 @@ describe('asyncBindThrough', () => {
         expect(result.isSuccess).toBe(false);
         if(!result.isSuccess) expect(result.error).toBeInstanceOf(Error);
         if(!result.isSuccess && result.error instanceof Error) expect(result.error.message).toBe('rejected');
+    });
+
+    it('catches sync throw from callback and converts to Err', async () => {
+        const fn = (() => { throw new Error('sync-boom'); }) as unknown as (x: number) => Promise<IResultOfT<number, string>>;
+        const result = await asyncBindThrough(fn, ok(5));
+        expect(result.isSuccess).toBe(false);
+        if(!result.isSuccess) expect((result.error as Error).message).toBe('sync-boom');
     });
 
     it('propagates callback error with different error type (union widening)', async () => {

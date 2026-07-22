@@ -18,9 +18,18 @@ describe('fromSafePromise', () => {
         if (r.isSuccess) expect(r.value.name).toBe('Alice');
     });
 
-    it('returns err when the promise rejects', async () => {
+    it('returns err when the promise rejects with an Error', async () => {
         const r = await fromSafePromise(Promise.reject(new Error('unexpected')));
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect((r.error as Error).message).toBe('unexpected');
+    });
+
+    it('wraps a non-Error rejection value in an Error', async () => {
+        const r = await fromSafePromise(Promise.reject('plain string'));
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect((r.error as Error).message).toBe('plain string');
+        }
     });
 });

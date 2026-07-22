@@ -3,8 +3,6 @@ import { ok, err } from '../../src/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { expect as expectOp } from '../../src/index.js';
 
-// ─── Void result ───────────────────────────────────────────────────────────
-
 describe('expect (void result)', () => {
     it('succeeds on a success result (no return)', () => {
         const r = ok() as IResultOfT<void, never>;
@@ -22,8 +20,6 @@ describe('expect (void result)', () => {
         }
     });
 });
-
-// ─── Value result ──────────────────────────────────────────────────────────
 
 describe('expect (value result)', () => {
     it('returns the value on success', () => {
@@ -54,9 +50,7 @@ describe('expect (value result)', () => {
     });
 });
 
-// ─── FP operator form ──────────────────────────────────────────────────────
-
-describe('expect (FP operator)', () => {
+describe('expect (FP operator / curried)', () => {
     it('returns value on success', () => {
         const r: IResultOfT<number> = ok(42);
         expect(expectOp('not needed', r)).toBe(42);
@@ -65,5 +59,11 @@ describe('expect (FP operator)', () => {
     it('throws on failure', () => {
         const r: IResultOfT<number> = err(new Error('op fail'));
         expect(() => expectOp('should not happen', r)).toThrow(TypeError);
+    });
+
+    it('curried: returns a function that takes the result later', () => {
+        const fn = expectOp<number, Error>('must work');
+        expect(fn(ok(5))).toBe(5);
+        expect(() => fn(err(new Error('nope')))).toThrow(TypeError);
     });
 });

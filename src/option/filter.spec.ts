@@ -29,4 +29,10 @@ describe('Option — filter', () => {
         expect(positive(ofSome(-1)).isSome).toBe(false);
         expect(positive(ofNone() as IOption<number>).isSome).toBe(false);
     });
+
+    it('catches predicate throw and converts to None', () => {
+        const predicate = (() => { throw new Error('pred-boom'); }) as (n: number) => boolean;
+        const result = filter(predicate)(ofSome(5));
+        expect(result.isNone).toBe(true);
+    });
 });

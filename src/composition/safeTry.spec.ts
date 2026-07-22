@@ -14,7 +14,7 @@ describe('safeTry / fromSafeTry', () => {
     it('fromSafeTry returns err on failure path', () => {
         const result = fromSafeTry(function* () {
             const a: number = yield* safeTry(err<string>('boom'));
-            return a * 2; // Should not execute
+            return a * 2;
         });
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('boom');
@@ -75,6 +75,28 @@ describe('safeTry / fromSafeTry', () => {
 
         const result = fromSafeTry(gen);
         expect(result.isFailure).toBe(true);
+        expect(closed).toBe(true);
+    });
+
+    it('rethrows synchronous errors from the generator body', () => {
+        const gen = function* () {
+            yield* safeTry(ok(1));
+            throw new Error('gen-throw');
+        };
+        expect(() => fromSafeTry(gen)).toThrow('gen-throw');
+    });
+
+    it('closes the generator when the body throws', () => {
+        let closed = false;
+        const gen = function* () {
+            try {
+                yield* safeTry(ok(1));
+                throw new Error('gen-throw');
+            } finally {
+                closed = true;
+            }
+        };
+        expect(() => fromSafeTry(gen)).toThrow('gen-throw');
         expect(closed).toBe(true);
     });
 });

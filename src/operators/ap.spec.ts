@@ -49,4 +49,11 @@ describe('ap', () => {
         expect(result.isSuccess).toBe(true);
         if(result.isSuccess) expect(result.value).toBe('HELLO');
     });
+
+    it('converts fn throw to Err(caught)', () => {
+        const fnResult = ok<() => number>(() => { throw new Error('fn-boom'); });
+        const result = ap(fnResult, ok(0));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
 });

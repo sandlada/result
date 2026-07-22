@@ -29,4 +29,12 @@ describe('Option — okOrElse', () => {
         expect(called).toBe(true);
         expect(result.isFailure).toBe(true);
     });
+
+    it('catches errorFn throw and converts to Err', () => {
+        const result = okOrElse<number, Error>(
+            () => { throw new Error('errFn-boom'); },
+        )(ofNone() as IOption<number>);
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errFn-boom');
+    });
 });

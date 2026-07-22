@@ -23,10 +23,25 @@ describe('AsyncResult tapAsync', () => {
         if (result.isFailure) expect((result.error as Error).message).toBe('boom');
     });
 
+    it('catches sync throw and turns to failure', async () => {
+        const ar = tapAsync((() => { throw new Error('sync'); }) as (v: number) => void, fromResult(ok(7)));
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('sync');
+    });
+
     it('does not call fn on failure', async () => {
         const fn = vi.fn();
         const ar = tapAsync(fn, fromResult(err<string>('fail')));
         await ar.run();
         expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('curried: returns a function to apply later', async () => {
+        const fn = tapAsync<number, string>(async () => {});
+        const ar = fn(fromResult(ok(123)));
+        const result = await ar.run();
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(123);
     });
 });

@@ -41,4 +41,13 @@ describe('andThrough', () => {
         expect(r2.isFailure).toBe(true);
         if (r2.isFailure) expect(r2.error).toBe('e1');
     });
+
+    it('catches sync throw from fn and converts to Err', () => {
+        const result = andThrough<number, string, Error>(
+            (() => { throw new Error('fn-boom'); }) as (v: number) => { isSuccess: true; isFailure: false; value: string },
+            ok(7),
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
 });
