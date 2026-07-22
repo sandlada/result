@@ -2,9 +2,8 @@
  * @fileoverview Retries a fallible function with configurable attempts, backoff, and predicate gating.
  *
  * `retry` is **eager**: it returns `Promise<IResultOfT<T, E>>` and runs the supplied
- * function up to `times + 1` times. It complements the lazy `retryLazy` for callers that
- * already work with promises. Use `shouldRetry` to filter transient errors (timeouts,
- * network blips) and `signal` to abort the retry loop.
+ * function up to `times + 1` times. Use `shouldRetry` to filter transient errors
+ * (timeouts, network blips) and `signal` to abort the retry loop.
  *
  * @example
  * ```ts
@@ -21,6 +20,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 /**
  * Options for {@link retry} and {@link retryLazy}.
@@ -82,11 +82,34 @@ const computeDelay = <E>(
 };
 
 /**
+ * Convert any value rejected or thrown by the user function into an `Err`.
+ * Default message is `String(thrown)` so the wrapper preserves the error type
+ * `TError` as cheaply as possible while still capturing the original.
+ */
+const toErrFailure = <E>(thrown: unknown): IResultOfT<never, E> => {
+    const wrapped = thrown instanceof Error ? thrown.message || thrown.constructor.name : String(thrown);
+    return err(wrapped as unknown as E) as IResultOfT<never, E>;
+};
+
+const safeInvoke = async <T, E>(
+    fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
+): Promise<IResultOfT<T, E>> => {
+    try {
+        return await fn();
+    } catch (thrown) {
+        return toErrFailure<E>(thrown);
+    }
+};
+
+/**
  * Runs a fallible function, retrying on failure up to `options.times` times.
  *
- * The function may be synchronous or async — `retry` awaits both transparently.
- * The retry loop respects `AbortSignal` between attempts only; it cannot interrupt
- * an in-flight invocation.
+ * Synchronous throws AND promise rejections from `fn` are both converted to
+ * `Err` so the returned promise never rejects — matching the AsyncResult
+ * contract used elsewhere in the library.
+ *
+ * The retry loop respects `AbortSignal` between attempts only; it cannot
+ * interrupt an in-flight invocation.
  */
 export async function retry<T, E>(
     fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
@@ -97,7 +120,7 @@ export async function retry<T, E>(
     let lastResult: IResultOfT<T, E> | undefined;
     for (let attempt = 0; attempt <= times; attempt++) {
         if (options.signal?.aborted) break;
-        lastResult = await fn();
+        lastResult = await safeInvoke(fn);
         if (lastResult.isSuccess) return lastResult;
         if (attempt === times) break;
         if (!shouldRetry(lastResult.error, attempt)) break;
