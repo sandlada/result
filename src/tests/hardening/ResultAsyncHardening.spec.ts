@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, asyncOk, asyncErr, bindAsync, orElseAsync, tapAsync, tapErrAsync } from '../../index.js';
+import { asyncOk, asyncErr, bindAsync, orElseAsync, tapAsync, tapErrAsync } from '../../index.js';
 
 describe('Result async hardening', () => {
     describe('eager operators', () => {
