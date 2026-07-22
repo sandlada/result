@@ -99,4 +99,43 @@ describe('safeTry / fromSafeTry', () => {
         expect(() => fromSafeTry(gen)).toThrow('gen-throw');
         expect(closed).toBe(true);
     });
+
+    it('throws when an iterator yields more than once', () => {
+        // Fake iterator with no `return` method that yields twice — exercises
+        // both the `typeof iterator.return === 'function'` false branch and
+        // the `if (!check.done)` true branch.
+        let calls = 0;
+        const fakeIterator: unknown = {
+            next: () => {
+                calls++;
+                return calls === 1
+                    ? { value: 'first', done: false }
+                    : { value: 'second', done: false };
+            },
+            // No `return` method on purpose.
+        };
+        expect(() => fromSafeTry(() => fakeIterator as never)).toThrow(
+            'safeTry: generator yielded more than once',
+        );
+    });
+
+    it('swallows iterator.return() that throws inside the cleanup path', () => {
+        // Iterator whose body throws AND whose .return() throws — exercises
+        // the inner `try { iterator.return } catch { /* ignore */ }` branch.
+        const fakeIterator: unknown = {
+            next: () => { throw new Error('body-throw'); },
+            return: () => { throw new Error('return-throw'); },
+        };
+        expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
+    });
+
+    it('handles an iterator without .return() that throws', () => {
+        // Iterator with no `return` method and a body that throws — exercises
+        // the `typeof iterator.return === 'function'` false branch inside
+        // the catch block.
+        const fakeIterator: unknown = {
+            next: () => { throw new Error('body-throw'); },
+        };
+        expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
+    });
 });

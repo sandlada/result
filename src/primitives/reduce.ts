@@ -36,7 +36,6 @@ export function reduce<T, E, Acc>(
     for (let i = 0; i < items.length; i++) {
         const item = items[i]!;
         if (!item.isSuccess) return item as unknown as IResultOfT<Acc, E>;
-        if (!accResult.isSuccess) return accResult;
         const next = reducer(accResult.value, item.value, i);
         if (!next.isSuccess) return next;
         accResult = next;

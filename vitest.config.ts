@@ -13,15 +13,16 @@ export default defineConfig({
                 'src/types/globals.d.ts',
             ],
             reporter: ['text', 'lcov', 'json-summary'],
-            // Per-glob thresholds. Modules with defensive/dead code paths
-            // (composition, primitives, reliability) carry relaxed branch
-            // thresholds; everything else holds the 100% / 95% floor.
+            // Per-glob thresholds. observability holds a strict 100% gate.
+            // reliability keeps a relaxed branches threshold because two
+            // genuinely-unreachable defensive guards remain (race.ts:55
+            // `firstError ?? r` fallback and timeout.ts:51 timer race guard).
             thresholds: {
                 'src/composition/**': {
-                    statements: 95,
-                    branches: 75,
-                    functions: 95,
-                    lines: 95,
+                    statements: 100,
+                    branches: 100,
+                    functions: 100,
+                    lines: 100,
                 },
                 'src/observability/**': {
                     statements: 100,
@@ -30,16 +31,16 @@ export default defineConfig({
                     lines: 100,
                 },
                 'src/primitives/**': {
-                    statements: 95,
-                    branches: 90,
+                    statements: 100,
+                    branches: 100,
                     functions: 100,
                     lines: 100,
                 },
                 'src/reliability/**': {
-                    statements: 95,
+                    statements: 99,
                     branches: 95,
-                    functions: 95,
-                    lines: 95,
+                    functions: 100,
+                    lines: 100,
                 },
                 '**': {
                     statements: 95,
