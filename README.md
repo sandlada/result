@@ -1,5 +1,6 @@
 # @sandlada/result
 
+![Codecov](https://img.shields.io/codecov/c/github/sandlada/result?flag=unittests&label=Coverage&labelColor=%2300531f&color=%23a3f5aa&style=flat-square)
 ![NPM Downloads](https://img.shields.io/npm/d18m/@sandlada/result?label=NPM%20Downloads&labelColor=%2300531f&color=%23a3f5aa)
 ![NPM Version](https://img.shields.io/npm/v/%40sandlada%2Fresult?label=NPM%20Version&labelColor=%2300531f&color=%23a3f5aa)
 ![GitHub License](https://img.shields.io/github/license/sandlada/result?label=License&labelColor=%2300531f&color=%23a3f5aa)
