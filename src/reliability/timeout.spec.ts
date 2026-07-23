@@ -91,6 +91,21 @@ describe('timeout (lazy)', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error.kind).toBe('Timeout');
     });
+
+    it('a late success after the timer fired is a no-op (coverage for line 51)', async () => {
+        let resolveFn: (v: any) => void;
+        const ar = {
+            run: () => new Promise<any>((resolve) => { resolveFn = resolve; }),
+        };
+        const promise = timeout(10, ar).run();
+
+        setTimeout(() => resolveFn({ isSuccess: true, isFailure: false, value: 1 }), 30);
+
+        const r = await promise;
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error.kind).toBe('Timeout');
+    });
+
 });
 
 describe('timeoutEager', () => {

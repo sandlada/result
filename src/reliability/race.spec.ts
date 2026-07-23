@@ -68,4 +68,55 @@ describe('race', () => {
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(1);
     });
+
+    it('a late upstream error after the race has settled is a no-op (coverage for line 61)', async () => {
+        const arFrom = <T, E>(ms: number, value: { isSuccess: true; isFailure: false; value: T } | { isSuccess: false; isFailure: true; error: E }) => ({
+            run: () => new Promise<typeof value>((resolve) => setTimeout(() => resolve(value), ms)),
+        });
+        const fast = arFrom(0, ok(1));
+        let rejectFn: (e: any) => void;
+        const slowError = {
+            run: () => new Promise<never>((_, reject) => { rejectFn = reject; }),
+        };
+        const r = race([fast, slowError]).run();
+
+        setTimeout(() => rejectFn(new Error('late')), 10);
+        const result = await r;
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(1);
+    });
+
+    it('handles multiple rejections correctly (coverage for lines 63-68)', async () => {
+        const ar1 = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom1')), 10)),
+        };
+        const ar2 = {
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 5)),
+        };
+        const r = await race([ar1, ar2]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('boom2'); // fastest reject wins if all reject
+    });
+
+    it('handles all errors where first failure is not index 0 (coverage for line 55 branch idx === 0 tracking)', async () => {
+        const arFrom = <T, E>(ms: number, value: { isSuccess: true; isFailure: false; value: T } | { isSuccess: false; isFailure: true; error: E }) => ({
+            run: () => new Promise<typeof value>((resolve) => setTimeout(() => resolve(value), ms)),
+        });
+        const ar1 = arFrom(20, err('err1'));
+        const ar2 = arFrom(5, err('err2'));
+        const r = await race([ar1, ar2]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('err1'); // index 0 takes precedence in tracking if both fail
+    });
+
+    it('handles all errors where first failure IS index 0 (coverage for line 55 fallback)', async () => {
+        const arFrom = <T, E>(ms: number, value: { isSuccess: true; isFailure: false; value: T } | { isSuccess: false; isFailure: true; error: E }) => ({
+            run: () => new Promise<typeof value>((resolve) => setTimeout(() => resolve(value), ms)),
+        });
+        const ar1 = arFrom(5, err('err1'));
+        const ar2 = arFrom(20, err('err2'));
+        const r = await race([ar1, ar2]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('err1');
+    });
 });
