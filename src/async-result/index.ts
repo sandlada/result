@@ -10,6 +10,7 @@ export { fromPromise } from './fromPromise.js';
 export { fromResult } from './fromResult.js';
 
 // ── Operators ───────────────────────────────────────────────────────────────
+export { ap } from './ap.js';
 export { andTee } from './andTee.js';
 export { andThrough } from './andThrough.js';
 export { bimap } from './bimap.js';
@@ -27,7 +28,7 @@ export { mapErrAsync } from './mapErrAsync.js';
 export { match } from './match.js';
 export { orElse } from './orElse.js';
 export { orTee } from './orTee.js';
-export { swap } from './swap.js';
+export { swapAsync } from './swapAsync.js';
 export { tap } from './tap.js';
 export { tapAsync } from './tapAsync.js';
 export { tapErr } from './tapErr.js';
