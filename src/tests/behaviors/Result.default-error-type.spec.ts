@@ -1,25 +1,25 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../index.js';
 
-describe('Default TError = Error', () => {
-    it('omitting TError creates IResult<Error> on failure', () => {
+describe('Default TError = unknown', () => {
+    it('omitting TError creates IResult<unknown> on failure', () => {
         const r = err(new Error('fail'));
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBeInstanceOf(Error);
     });
 
-    it('omitting TError on success creates IResult<T, Error>', () => {
+    it('omitting TError on success creates IResult<T, unknown>', () => {
         const r = ok('hello');
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe('hello');
     });
 
-    it('Error properties accessible without explicit TError', () => {
+    it('Error properties accessible via instanceof narrowing', () => {
         const r = err(new Error('message'));
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
-            expect(r.error.message).toBe('message');
-            expect(r.error.name).toBe('Error');
+            expect((r.error as Error).message).toBe('message');
+            expect((r.error as Error).name).toBe('Error');
         }
     });
 
@@ -37,12 +37,12 @@ describe('Default TError = Error', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
             expect(r.error).toBeInstanceOf(CustomError);
-            expect((r.error as CustomError).code).toBe(500);
+            expect((r.error as unknown as CustomError).code).toBe(500);
         }
     });
 });
 
-describe('Structural typing with default Error', () => {
+describe('Structural typing with default unknown', () => {
     it('plain object works as error (structural match)', () => {
         const r = err({ message: 'plain error' });
         expect(r.isFailure).toBe(true);

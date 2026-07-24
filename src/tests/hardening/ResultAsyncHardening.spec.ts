@@ -3,16 +3,12 @@ import { asyncOk, asyncErr, bindAsync, orElseAsync, tapAsync, tapErrAsync } from
 
 describe('Result async hardening', () => {
     describe('eager operators', () => {
-        it('bindAsync should catch callback error', async () => {
-            const r = await bindAsync(() => { throw new Error('boom'); }, asyncOk(42));
-            expect(r.isFailure).toBe(true);
-            if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+        it('bindAsync propagates callback error (does not catch)', async () => {
+            await expect(bindAsync(() => { throw new Error('boom'); }, asyncOk(42))).rejects.toThrow('boom');
         });
 
-        it('orElseAsync should catch callback error', async () => {
-            const r = await orElseAsync(() => { throw new Error('boom'); }, asyncErr('error'));
-            expect(r.isFailure).toBe(true);
-            if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+        it('orElseAsync propagates callback error (does not catch)', async () => {
+            await expect(orElseAsync(() => { throw new Error('boom'); }, asyncErr('error'))).rejects.toThrow('boom');
         });
 
         it('tapAsync should catch callback error and turn to failure', async () => {
