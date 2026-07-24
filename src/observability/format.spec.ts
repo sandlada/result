@@ -55,7 +55,25 @@ describe('format', () => {
         type Cycle = { name: string; self?: Cycle };
         const a: Cycle = { name: 'root' };
         a.self = a;
-        expect(format(ok(a)).includes('Unserializable') || format(ok(a)).includes('name')).toBe(true);
+        const out = format(ok(a), { maxDepth: 5 });
+        // The first occurrence of `a.self` should reach `name: "root"`; the
+        // second should be detected as a cycle and rendered as `[Circular]`.
+        expect(out.includes('"root"')).toBe(true);
+        expect(out.includes('[Circular]')).toBe(true);
+    });
+
+    it('handles mutual references between two objects', () => {
+        type Pair = { name: string; peer?: Pair };
+        const a: Pair = { name: 'A' };
+        const b: Pair = { name: 'B' };
+        a.peer = b;
+        b.peer = a;
+        const out = format(ok(a), { maxDepth: 5 });
+        expect(out.includes('"A"')).toBe(true);
+        expect(out.includes('"B"')).toBe(true);
+        // The cycle must be detected somewhere — either at a.peer.peer.peer... or
+        // at b.peer.peer.peer...
+        expect(out.includes('[Circular]')).toBe(true);
     });
 
     it('renders symbol values', () => {

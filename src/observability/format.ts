@@ -33,7 +33,12 @@ const QUOTE_DEFAULT = true;
 const STACK_DEFAULT = false;
 const MAX_DEPTH_DEFAULT = 3;
 
-const formatValue = (v: unknown, depth: number, opts: Required<FormatOptions>): string => {
+const formatValue = (
+    v: unknown,
+    depth: number,
+    opts: Required<FormatOptions>,
+    visited: WeakSet<object>,
+): string => {
     if (v === null) return 'null';
     if (v === undefined) return 'undefined';
     const t = typeof v;
@@ -48,16 +53,30 @@ const formatValue = (v: unknown, depth: number, opts: Required<FormatOptions>): 
         }
         return v.name + msg;
     }
+    // Object types need cycle detection. Use a WeakSet keyed by reference so we
+    // can identify back-references without serializing the object graph.
+    if (typeof v === 'object') {
+        if (visited.has(v)) return '[Circular]';
+        visited.add(v);
+    }
     if (depth >= opts.maxDepth) return Array.isArray(v) ? '[...]' : '{...}';
     try {
         if (Array.isArray(v)) {
             if (v.length === 0) return '[]';
-            return '[' + v.map((x) => formatValue(x, depth + 1, opts)).join(', ') + ']';
+            const parts: string[] = [];
+            for (let i = 0; i < v.length; i++) {
+                parts.push(formatValue(v[i], depth + 1, opts, visited));
+            }
+            return '[' + parts.join(', ') + ']';
         }
         const obj = v as Record<string, unknown>;
         const keys = Object.keys(obj);
         if (keys.length === 0) return '{}';
-        return '{' + keys.map((k) => JSON.stringify(k) + ': ' + formatValue(obj[k], depth + 1, opts)).join(', ') + '}';
+        const parts: string[] = [];
+        for (const k of keys) {
+            parts.push(JSON.stringify(k) + ': ' + formatValue(obj[k], depth + 1, opts, visited));
+        }
+        return '{' + parts.join(', ') + '}';
     } catch {
         return '[Unserializable]';
     }
@@ -77,7 +96,7 @@ export function format<T, E>(
         maxDepth: options.maxDepth ?? MAX_DEPTH_DEFAULT,
     };
     const tag = r.isSuccess ? 'Ok(' : 'Err(';
-    const body = formatValue(r.isSuccess ? r.value : r.error, 0, opts);
+    const body = formatValue(r.isSuccess ? r.value : r.error, 0, opts, new WeakSet());
     // When `body` contains a newline (e.g. an Error stack), close parens *before*
     // the newline so the trace starts cleanly on its own line.
     const nl = body.indexOf('\n');
