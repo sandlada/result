@@ -8,7 +8,7 @@
  * captured as the result `error`. The function signature accepts a synchronous
  * `() => E`; passing an async function is **not supported** — any returned
  * Promise will be coerced via `err(Promise)` (you almost certainly want
- * `okOrElseAsync` from `@sandlada/result/async` instead).
+ * `okOrElseAsync` from `@sandlada/result/promise-result` instead).
  *
  * @example
  * ```ts

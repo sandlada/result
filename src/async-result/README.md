@@ -1,6 +1,6 @@
 # async-result
 
-`async-result` 模块是 `AsyncResult<T, E>` 惰性 thunk 形态的**全部算子与工厂**集合。`AsyncResult<T, E>` 是一个 `{ run: () => Promise<IResultOfT<T, E>> }` 的纯字面量,而本目录的所有算子都返回一个**新的 thunk**,不立刻执行——直到调用方显式 `await ar.run()` 或经终态算子(`match` / `unwrapOr`)求值。本目录与 `async/`(eager `Promise<IResultOfT>`)的差别在于:**把"何时执行"的控制权完全交还给调用方**。
+`async-result` 模块是 `AsyncResult<T, E>` 惰性 thunk 形态的**全部算子与工厂**集合。`AsyncResult<T, E>` 是一个 `{ run: () => Promise<IResultOfT<T, E>> }` 的纯字面量,而本目录的所有算子都返回一个**新的 thunk**,不立刻执行——直到调用方显式 `await ar.run()` 或经终态算子(`match` / `unwrapOr`)求值。本目录与 `promise-result/`(eager `Promise<IResultOfT>`)的差别在于:**把"何时执行"的控制权完全交还给调用方**。
 
 ## 文件清单与作用
 

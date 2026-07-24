@@ -1,5 +1,5 @@
 import { err, ok, orElse, pipe, retry, timeout } from '@sandlada/result';
-import { from as asyncResultFrom } from '@sandlada/result/async-result';
+import { from as promiseResultFrom } from '@sandlada/result/async-result';
 import type { IResultOfT } from '@sandlada/result';
 import { wireExample } from './demo-ui.js';
 import { wait } from './mock-api.js';
@@ -47,7 +47,7 @@ function useCachedPrice(): object {
 }
 
 async function enforceTimeout(): Promise<object> {
-    const slowQuote = asyncResultFrom(async () => {
+    const slowQuote = promiseResultFrom(async () => {
         await wait(300);
         return ok(8.5) as IResultOfT<number, DemoError>;
     });

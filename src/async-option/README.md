@@ -58,7 +58,7 @@ None 轨道兜底。`fn()` 既可以返回 `AsyncOption<T>` 也可以返回 `Pro
 
 ## 模块的设计原则
 
-- **惰性 vs 立即求值的语法分离**:所有算子都返回新的 `AsyncOption` thunk,调用方只在调用 `match` / `unwrapOr` / `.run()` 等终态算子时才真正求值。这是与 `async/`(eager `Promise<IResultOfT>`)的关键区分。
+- **惰性 vs 立即求值的语法分离**:所有算子都返回新的 `AsyncOption` thunk,调用方只在调用 `match` / `unwrapOr` / `.run()` 等终态算子时才真正求值。这是与 `promise-result/`(eager `Promise<IResultOfT>`)的关键区分。
 - **interop 防御采用 sentinel-safe 模式**:`bind` / `orElse` 等需要动态判别回调形态的算子,在使用 `in` 操作符之前**先**做 `next !== null && typeof next === 'object'` 的双重守卫,固化 `.jules/sentinel.md` 第二条提到的 `TypeError` 风险。
 - **错误归约方向与 Option / Result 保持一致**:`try / catch` 的 catch 兜底一律把 throw / reject 转成 `None`,与 `option/` 模块的 tap/bind/map 策略统一,使跨类型组合时心智模型一致。
 - **`vi.fn()` 不被调用的合约**:`map` / `bind` / `filter` / `tap` / `orElse` 都用 `vi.fn()` 在 None 路径上断言"不应被调用",固化"短路 + 懒"的双合约。

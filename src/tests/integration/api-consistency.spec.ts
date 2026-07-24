@@ -9,10 +9,10 @@ import {
     containsAsync,
     existsAsync,
     filterOrElseAsync,
-    asyncResultBimap,
-    asyncResultAp,
-    asyncResultSwap,
-    asyncResultFlatten,
+    promiseResultBimap,
+    promiseResultAp,
+    promiseResultSwap,
+    promiseResultFlatten,
     asyncOptionFilter,
     asyncOptionFlatten,
     fromResult,
@@ -57,26 +57,26 @@ describe('API Consistency - New Operators', () => {
     });
 
     describe('lazy async result', () => {
-        it('asyncResultBimap', async () => {
-            const ar = asyncResultBimap(x => x * 2, e => e + '!', fromResult(ok(21)));
+        it('promiseResultBimap', async () => {
+            const ar = promiseResultBimap(x => x * 2, e => e + '!', fromResult(ok(21)));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });
 
-        it('asyncResultSwap', async () => {
-            const ar = asyncResultSwap(fromResult(ok(42)));
+        it('promiseResultSwap', async () => {
+            const ar = promiseResultSwap(fromResult(ok(42)));
             const r = await ar.run();
             expect(r.isFailure).toBe(true);
         });
 
-        it('asyncResultAp', async () => {
-            const ar = asyncResultAp(fromResult(ok((x: number) => x * 2)), fromResult(ok(21)));
+        it('promiseResultAp', async () => {
+            const ar = promiseResultAp(fromResult(ok((x: number) => x * 2)), fromResult(ok(21)));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });
 
-        it('asyncResultFlatten', async () => {
-            const ar = asyncResultFlatten(fromResult(ok(fromResult(ok(42)))));
+        it('promiseResultFlatten', async () => {
+            const ar = promiseResultFlatten(fromResult(ok(fromResult(ok(42)))));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });

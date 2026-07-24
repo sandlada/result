@@ -21,7 +21,7 @@ against `package.json` v0.0.4-20260722.a.
 
 ### 1.1 `unwrapOrAsync` propagates a rejected `defaultValue` instead of catching it
 
-File: [src/async/unwrapOrAsync.ts:18-22](src/async/unwrapOrAsync.ts:18-22)
+File: [src/promise-result/unwrapOrAsync.ts:18-22](src/promise-result/unwrapOrAsync.ts:18-22)
 
 ```ts
 return r.then(async inner => inner.isSuccess ? inner.value : await defaultValue);
@@ -37,7 +37,7 @@ synthetic `Err`, mirroring `mapErrAsync` / `unwrapOrElseAsync`.
 
 ### 1.2 `unwrapOrElseAsync` propagates a rejected `onErr` callback result
 
-File: [src/async/unwrapOrElseAsync.ts:16-21](src/async/unwrapOrElseAsync.ts:16-21)
+File: [src/promise-result/unwrapOrElseAsync.ts:16-21](src/promise-result/unwrapOrElseAsync.ts:16-21)
 
 ```ts
 return r.then(async inner => {
@@ -52,7 +52,7 @@ rejection on the composed `Promise<A>`.
 
 ### 1.3 `mapOrAsync` swallows mapping errors into `defaultValue` — undocumented
 
-File: [src/async/mapOrAsync.ts:19-30](src/async/mapOrAsync.ts:19-30)
+File: [src/promise-result/mapOrAsync.ts:19-30](src/promise-result/mapOrAsync.ts:19-30)
 
 ```ts
 return r.then(async inner => {
@@ -68,7 +68,7 @@ return r.then(async inner => {
 ```
 
 The "swallow → defaultValue" behaviour is **tested** in
-[src/async/mapOrAsync.spec.ts:38-50](src/async/mapOrAsync.spec.ts:38-50)
+[src/promise-result/mapOrAsync.spec.ts:38-50](src/promise-result/mapOrAsync.spec.ts:38-50)
 ("returns default when sync mapper throws" and "...when async mapper
 rejects"), so the intent is clear, but:
 
@@ -80,7 +80,7 @@ rejects"), so the intent is clear, but:
    `onErr`. Both operators are "compute a default on failure"; only one
    guards the mapping branch.
 
-The `[src/async/README.md](src/async/README.md)` mentions catch+convert in
+The `[src/promise-result/README.md](src/promise-result/README.md)` mentions catch+convert in
 general but does not single out `mapOrAsync`. Add a JSDoc line stating
 that a thrown mapper becomes `defaultValue`.
 
@@ -88,20 +88,20 @@ that a thrown mapper becomes `defaultValue`.
 ### 1.4 Async `*Option` family silently swallows rejections into `None` / `false` — undocumented error loss
 
 Files:
-- [src/async/bindAsyncOption.ts:23-32](src/async/bindAsyncOption.ts:23-32)
-- [src/async/orElseAsyncOption.ts:21-30](src/async/orElseAsyncOption.ts:21-30)
-- [src/async/mapAsyncOption.ts:22-31](src/async/mapAsyncOption.ts:22-31)
-- [src/async/tapAsyncOption.ts:21-30](src/async/tapAsyncOption.ts:21-30)
-- [src/async/filterAsyncOption.ts:23-33](src/async/filterAsyncOption.ts:23-33)
-- [src/async/existsAsyncOption.ts:21-31](src/async/existsAsyncOption.ts:21-31)
+- [src/promise-result/bindAsyncOption.ts:23-32](src/promise-result/bindAsyncOption.ts:23-32)
+- [src/promise-result/orElseAsyncOption.ts:21-30](src/promise-result/orElseAsyncOption.ts:21-30)
+- [src/promise-result/mapAsyncOption.ts:22-31](src/promise-result/mapAsyncOption.ts:22-31)
+- [src/promise-result/tapAsyncOption.ts:21-30](src/promise-result/tapAsyncOption.ts:21-30)
+- [src/promise-result/filterAsyncOption.ts:23-33](src/promise-result/filterAsyncOption.ts:23-33)
+- [src/promise-result/existsAsyncOption.ts:21-31](src/promise-result/existsAsyncOption.ts:21-31)
 
 Each one uses a bare `catch {}` to convert a thrown / rejected callback into
 `None` / `false`. The Option world has no error channel, so this is the only
 choice, and the JSDoc on each function does say "predicate throws /
 rejects → `None`" (e.g.
-[src/async/mapAsyncOption.ts:14-21](src/async/mapAsyncOption.ts:14-21)).
+[src/promise-result/mapAsyncOption.ts:14-21](src/promise-result/mapAsyncOption.ts:14-21)).
 The behaviour is **tested** in
-[src/async/async-bind-option-and-map-async-option.spec.ts](src/tests/hardening/AsyncOptionEager.spec.ts).
+[src/promise-result/async-bind-option-and-map-async-option.spec.ts](src/tests/hardening/AsyncOptionEager.spec.ts).
 
 The remaining issues:
 
@@ -277,9 +277,9 @@ than bugs so future maintainers do not "fix" them by accident.
 
 ### 1A.1 `mapOrAsync` mapper throws → `defaultValue` (undocumented)
 
-File: src/async/mapOrAsync.ts (lines 19-30)
+File: src/promise-result/mapOrAsync.ts (lines 19-30)
 
-Asserted by src/async/mapOrAsync.spec.ts (lines 38-50)
+Asserted by src/promise-result/mapOrAsync.spec.ts (lines 38-50)
 ("returns default when sync mapper throws" and "...when async mapper
 rejects"). The JSDoc does not mention this; consumers who expect a
 mapper exception to flow to the `Err` channel will be surprised. Same
@@ -512,7 +512,7 @@ different shapes — refactor risk.
 
 ### 2.11 `asyncTapOption` returns inline None literal instead of `ofNone()`
 
-File: src/async/tapAsyncOption.ts (lines 21-30)
+File: src/promise-result/tapAsyncOption.ts (lines 21-30)
 
 ```
 } catch {
@@ -571,8 +571,8 @@ will not flatten. JSDoc does not mention the depth limit.
 ### 2.17 `flattenAsync` and `flattenAsyncOption` are also one-level
 
 Files:
-- src/async/flattenAsync.ts (lines 17-22)
-- src/async/flattenAsyncOption.ts (lines 18-22)
+- src/promise-result/flattenAsync.ts (lines 17-22)
+- src/promise-result/flattenAsyncOption.ts (lines 18-22)
 - src/async-result/flatten.ts (lines 17-24)
 - src/async-option/flatten.ts (lines 17-24)
 
@@ -600,7 +600,7 @@ semantics in async pipelines have to roll their own `map + sequence`.
 ### 2.20 `swapAsync` is duplicated in `async-result/swap.ts` and `async/swapAsync.ts`
 
 Files:
-- src/async/swapAsync.ts (lines 18-30)
+- src/promise-result/swapAsync.ts (lines 18-30)
 - src/async-result/swap.ts (lines 18-29)
 
 Same implementation, two copies. Not a bug but a maintenance hazard — any
@@ -609,8 +609,8 @@ fix has to be applied in both places.
 ### 2.21 `bindAsync` and `asyncBind` both exist with subtly different shapes
 
 Files:
-- src/async/bindAsync.ts
-- src/async/asyncBind.ts
+- src/promise-result/bindAsync.ts
+- src/promise-result/asyncBind.ts
 
 `bindAsync` works on `Promise<IResultOfT>`, `asyncBind` works on
 `IResultOfT` and returns `Promise<IResultOfT>`. The names are easy to swap,
@@ -620,7 +620,7 @@ callback. Worth a doc note.
 ### 2.22 `mapAsync` exists in both `async/mapAsync.ts` and `async-result/mapAsync.ts`
 
 Files:
-- src/async/mapAsync.ts (lines 23-27) — accepts `B | Promise<B>`
+- src/promise-result/mapAsync.ts (lines 23-27) — accepts `B | Promise<B>`
 - src/async-result/mapAsync.ts (lines 25-34) — accepts `Promise<U>` only
 
 The two `mapAsync` functions have different parameter types. Library
@@ -629,7 +629,7 @@ read each module to discover the difference.
 
 ### 2.23 `existsAsync` swallows predicate errors
 
-File: src/async/existsAsync.ts (lines 22-32)
+File: src/promise-result/existsAsync.ts (lines 22-32)
 
 ```
 try {
@@ -643,7 +643,7 @@ Same issue as 1.4 — bare `catch` discards the reason.
 
 ### 2.24 `filterOrElseAsync` discards the captured error identity
 
-File: src/async/filterOrElseAsync.ts (lines 30-40)
+File: src/promise-result/filterOrElseAsync.ts (lines 30-40)
 
 ```
 } catch (e: unknown) {
@@ -697,7 +697,7 @@ can become runtime bugs after a refactor.
 
 ### 3.1 Widespread `as unknown as IResultOfT<...>` in factories
 
-Files: every operator under `src/operators/`, `src/async/`, and
+Files: every operator under `src/operators/`, `src/promise-result/`, and
 `src/async-result/`, plus `src/option/okOr.ts`, `src/option/okOrElse.ts`,
 `src/adapters/fromOption.ts`, `src/adapters/toOption.ts`, etc.
 
@@ -852,9 +852,9 @@ Not bugs but worth noting for the maintainers.
 
 Files:
 - src/operators/match.ts (lines 21-30) — positional `(onOk, onErr, r?)`
-- src/async/matchAsync.ts (lines 21-32) — positional `(onOk, onErr, r?)`
+- src/promise-result/matchAsync.ts (lines 21-32) — positional `(onOk, onErr, r?)`
 - src/option/match.ts (lines 20-28) — positional `(onSome, onNone)` curried
-- src/async/option/matchAsyncOption.ts (lines 21-32) — positional `(onSome, onNone, r?)`
+- src/promise-result/option/matchAsyncOption.ts (lines 21-32) — positional `(onSome, onNone, r?)`
 - src/async-result/match.ts (lines 23-35) — **object** `{ok, err}` pattern
 - src/async-option/match.ts (lines 21-33) — **object** `{some, none}` pattern
 
@@ -865,7 +865,7 @@ on object handlers everywhere or on positional arguments everywhere.
 
 ### 4.2 `unwrapOrAsync` signature accepts `A | Promise<A>` but does not document async default
 
-File: src/async/unwrapOrAsync.ts (lines 21-23)
+File: src/promise-result/unwrapOrAsync.ts (lines 21-23)
 
 ```
 return r.then(async inner => inner.isSuccess ? inner.value : await defaultValue);
@@ -888,7 +888,7 @@ default. If async support is desired, the signature is incomplete.
 
 Files:
 - src/operators/bind.ts (lines 9-13) — `IResultOfT<B, E | F>`
-- src/async/bindAsync.ts (lines 9-13) — `IResultOfT<B, E | F>`
+- src/promise-result/bindAsync.ts (lines 9-13) — `IResultOfT<B, E | F>`
 
 The signatures match, but in the catch path:
 - sync `bind`: `return { ... error: e as (E | F) }` — `E | F`
@@ -946,8 +946,8 @@ are easy to misimport.
 ### 4.11 `bindAsync` and `bindAsyncOption` accept differently shaped fallback
 
 Files:
-- src/async/bindAsync.ts (lines 9-13)
-- src/async/bindAsyncOption.ts (lines 9-13)
+- src/promise-result/bindAsync.ts (lines 9-13)
+- src/promise-result/bindAsyncOption.ts (lines 9-13)
 
 `bindAsync` is `Result-returning`, `bindAsyncOption` is `Option-returning`.
 Both are bind-family, both are async. The naming is fine but the async
@@ -1077,41 +1077,41 @@ section numbers above.)
 | src/operators/unwrapOr.ts | — | — | — | 4.3 |
 | src/operators/unwrapOrElse.ts | — | — | — | — |
 | src/operators/orThrow.ts | — | — | — | — |
-| src/async/mapAsync.ts | — | — | — | 2.22 |
-| src/async/bindAsync.ts | — | — | 3.4 | — |
-| src/async/tapAsync.ts | — | — | — | — |
-| src/async/tapErrAsync.ts | — | — | — | — |
-| src/async/matchAsync.ts | — | — | — | 4.1 |
-| src/async/bimapAsync.ts | — | — | — | — |
-| src/async/mapErrAsync.ts | — | — | — | — |
-| src/async/mapOrAsync.ts | 1.3 | 1.3 | — | — |
-| src/async/mapOrElseAsync.ts | — | — | — | — |
-| src/async/orElseAsync.ts | — | — | — | — |
-| src/async/swapAsync.ts | — | — | — | 2.20 |
-| src/async/unwrapOrAsync.ts | 1.1 | — | — | — |
-| src/async/unwrapOrElseAsync.ts | 1.2 | — | — | — |
-| src/async/asyncBind.ts | — | — | — | 2.21 |
-| src/async/asyncBindThrough.ts | — | — | — | — |
-| src/async/asyncBindOption.ts | — | — | — | — |
-| src/async/asyncMap.ts | — | — | — | — |
-| src/async/asyncTap.ts | — | — | — | — |
-| src/async/asyncTapErr.ts | — | — | — | — |
-| src/async/asyncTapOption.ts | — | — | — | 2.11 |
-| src/async/bindAsyncOption.ts | 1.4 | 1.4 | — | — |
-| src/async/bindThroughAsync.ts | — | — | — | — |
-| src/async/containsAsync.ts | — | — | — | — |
-| src/async/containsAsyncOption.ts | — | — | — | — |
-| src/async/existsAsync.ts | — | 2.23 | — | — |
-| src/async/existsAsyncOption.ts | 1.4 | 1.4 | — | — |
-| src/async/filterAsyncOption.ts | 1.4 | 1.4 | — | — |
-| src/async/filterOrElseAsync.ts | — | 2.24 | — | — |
-| src/async/flattenAsync.ts | — | — | — | 2.17 |
-| src/async/flattenAsyncOption.ts | — | — | — | 2.17 |
-| src/async/mapAsyncOption.ts | 1.4 | 1.4 | — | — |
-| src/async/matchAsyncOption.ts | — | — | — | 4.1 |
-| src/async/orElseAsyncOption.ts | 1.4 | 1.4 | — | — |
-| src/async/tapAsyncOption.ts | 1.4 | 1.4 | — | 2.11 |
-| src/async/unwrapOrAsyncOption.ts | — | — | — | — |
+| src/promise-result/mapAsync.ts | — | — | — | 2.22 |
+| src/promise-result/bindAsync.ts | — | — | 3.4 | — |
+| src/promise-result/tapAsync.ts | — | — | — | — |
+| src/promise-result/tapErrAsync.ts | — | — | — | — |
+| src/promise-result/matchAsync.ts | — | — | — | 4.1 |
+| src/promise-result/bimapAsync.ts | — | — | — | — |
+| src/promise-result/mapErrAsync.ts | — | — | — | — |
+| src/promise-result/mapOrAsync.ts | 1.3 | 1.3 | — | — |
+| src/promise-result/mapOrElseAsync.ts | — | — | — | — |
+| src/promise-result/orElseAsync.ts | — | — | — | — |
+| src/promise-result/swapAsync.ts | — | — | — | 2.20 |
+| src/promise-result/unwrapOrAsync.ts | 1.1 | — | — | — |
+| src/promise-result/unwrapOrElseAsync.ts | 1.2 | — | — | — |
+| src/promise-result/asyncBind.ts | — | — | — | 2.21 |
+| src/promise-result/asyncBindThrough.ts | — | — | — | — |
+| src/promise-result/asyncBindOption.ts | — | — | — | — |
+| src/promise-result/asyncMap.ts | — | — | — | — |
+| src/promise-result/asyncTap.ts | — | — | — | — |
+| src/promise-result/asyncTapErr.ts | — | — | — | — |
+| src/promise-result/asyncTapOption.ts | — | — | — | 2.11 |
+| src/promise-result/bindAsyncOption.ts | 1.4 | 1.4 | — | — |
+| src/promise-result/bindThroughAsync.ts | — | — | — | — |
+| src/promise-result/containsAsync.ts | — | — | — | — |
+| src/promise-result/containsAsyncOption.ts | — | — | — | — |
+| src/promise-result/existsAsync.ts | — | 2.23 | — | — |
+| src/promise-result/existsAsyncOption.ts | 1.4 | 1.4 | — | — |
+| src/promise-result/filterAsyncOption.ts | 1.4 | 1.4 | — | — |
+| src/promise-result/filterOrElseAsync.ts | — | 2.24 | — | — |
+| src/promise-result/flattenAsync.ts | — | — | — | 2.17 |
+| src/promise-result/flattenAsyncOption.ts | — | — | — | 2.17 |
+| src/promise-result/mapAsyncOption.ts | 1.4 | 1.4 | — | — |
+| src/promise-result/matchAsyncOption.ts | — | — | — | 4.1 |
+| src/promise-result/orElseAsyncOption.ts | 1.4 | 1.4 | — | — |
+| src/promise-result/tapAsyncOption.ts | 1.4 | 1.4 | — | 2.11 |
+| src/promise-result/unwrapOrAsyncOption.ts | — | — | — | — |
 | src/async-result/bind.ts | — | 2.10 | — | — |
 | src/async-result/andTee.ts | — | — | — | — |
 | src/async-result/andThrough.ts | — | 2.10 | — | — |

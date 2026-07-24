@@ -20,7 +20,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 
 /**
- * Lazy sequence for AsyncResults — equivalent to `asyncResultCombine` but exposed
+ * Lazy sequence for AsyncResults — equivalent to `promiseResultCombine` but exposed
  * under a name familiar to ROP practitioners.
  */
 export function sequenceAsyncResult<T, E>(

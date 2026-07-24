@@ -90,7 +90,7 @@ src/
   types/                — IResult, IResultOfT, IOption, AsyncResult interfaces
   factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc.
   operators/            — map, bind, match, unwrap, orThrow, separate, etc.
-  async/                — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
+  promise-result/       — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
   async-result/         — AsyncResult lazy thunk operators
   composition/          — pipe, composeK, safeTry
   adapters/             — switchFn, liftMap, tee, toOption, fromOption

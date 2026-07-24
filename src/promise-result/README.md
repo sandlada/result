@@ -1,6 +1,6 @@
-# async
+# promise-result
 
-`async` 模块是 `Promise<IResultOfT<A, E>>` 上的**全部 eager async 算子**。与 `async-result/`(惰性 thunk)不同,本目录的算子在调用时直接接收 `Promise` 并返回 `Promise`,**不**维护一个独立的 thunk 形态;与 `async-option/` 平行的双胞胎在本目录以 `*Option` 后缀命名,作用于 `Promise<IOption<T>>`。这一层是项目里最厚的一组算子(35 个函数),覆盖了从同步 → Promise 的全部桥梁与终态消费。
+`promise-result` 模块是 `Promise<IResultOfT<A, E>>` 上的**全部 eager async 算子**。与 `async-result/`(惰性 thunk)不同,本目录的算子在调用时直接接收 `Promise` 并返回 `Promise`,**不**维护一个独立的 thunk 形态;与 `async-option/` 平行的双胞胎在本目录以 `*Option` 后缀命名,作用于 `Promise<IOption<T>>`。这一层是项目里最厚的一组算子(35 个函数),覆盖了从同步 → Promise 的全部桥梁与终态消费。
 
 ## 文件清单与作用
 
@@ -51,7 +51,7 @@
 - `unwrapOrElseAsync` 在错误侧计算 default,支持 async 错误处理器。
 - `orElseAsync` / `orElseAsyncOption` 在失败 / None 侧走 recovery 路径。
 
-特别地 `unwrapOrAsyncOption` 的 [lazy await 测试](</abs/path/E:/projects/sandlada/result/src/async/unwrapOrAsyncOption.ts:35>) 用 `setTimeout(10)` 验证了 `await defaultValue` 真的会 await,而非 `return defaultValue` 漏了 await——这是防回归的高质量测试。
+特别地 `unwrapOrAsyncOption` 的 [lazy await 测试](</abs/path/E:/projects/sandlada/result/src/promise-result/unwrapOrAsyncOption.ts:35>) 用 `setTimeout(10)` 验证了 `await defaultValue` 真的会 await,而非 `return defaultValue` 漏了 await——这是防回归的高质量测试。
 
 ## 模块的设计原则
 

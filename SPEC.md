@@ -24,19 +24,19 @@ npm install @sandlada/result
 
 ## Import Paths
 
-| Entry point      | Import                                                     | Description               |
-| ---------------- | ---------------------------------------------------------- | ------------------------- |
-| `.` (default)    | `import { ok, pipe, map } from '@sandlada/result'`         | All exports (main barrel) |
-| `./types`        | `import type { IResultOfT } from '@sandlada/result/types'` | Type definitions only     |
-| `./factories`    | `import { ok, err } from '@sandlada/result/factories'`     | Core constructors         |
-| `./operators`    | `import { map, bind } from '@sandlada/result/operators'`   | Sync operators            |
-| `./async`        | `import { mapAsync } from '@sandlada/result/async'`        | Async operators           |
-| `./composition`  | `import { pipe } from '@sandlada/result/composition'`      | Composition utilities     |
-| `./adapters`     | `import { toOption } from '@sandlada/result/adapters'`     | Adapter functions         |
-| `./combine`      | `import { combine } from '@sandlada/result/combine'`       | Parallel combination      |
-| `./option`       | `import { ofSome, map } from '@sandlada/result/option'`    | Option sub-module         |
-| `./async-result` | `import { from } from '@sandlada/result/async-result'`     | Lazy AsyncResult thunk    |
-| `./async-option` | `import { from } from '@sandlada/result/async-option'`     | Lazy AsyncOption thunk    |
+| Entry point       | Import                                                       | Description               |
+| ----------------- | ------------------------------------------------------------ | ------------------------- |
+| `.` (default)     | `import { ok, pipe, map } from '@sandlada/result'`           | All exports (main barrel) |
+| `./types`         | `import type { IResultOfT } from '@sandlada/result/types'`   | Type definitions only     |
+| `./factories`     | `import { ok, err } from '@sandlada/result/factories'`       | Core constructors         |
+| `./operators`     | `import { map, bind } from '@sandlada/result/operators'`     | Sync operators            |
+| `./promise-result` | `import { mapAsync } from '@sandlada/result/promise-result'` | Async operators           |
+| `./composition`   | `import { pipe } from '@sandlada/result/composition'`        | Composition utilities     |
+| `./adapters`      | `import { toOption } from '@sandlada/result/adapters'`       | Adapter functions         |
+| `./combine`       | `import { combine } from '@sandlada/result/combine'`         | Parallel combination      |
+| `./option`        | `import { ofSome, map } from '@sandlada/result/option'`      | Option sub-module         |
+| `./async-result`  | `import { from } from '@sandlada/result/async-result'`       | Lazy AsyncResult thunk    |
+| `./async-option`  | `import { from } from '@sandlada/result/async-option'`       | Lazy AsyncOption thunk    |
 
 ## Core Types
 

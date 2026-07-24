@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { ok, err, combine, all, combineWithAllErrors, asyncResultCombine } from '../src/index.js';
+import { ok, err, combine, all, combineWithAllErrors, promiseResultCombine } from '../src/index.js';
 import type { IResultOfT, AsyncResult } from '../src/index.js';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -84,9 +84,9 @@ function fromPromiseDelay<T, E>(ms: number, value: T): AsyncResult<T, E> {
 
 // ── async-result combine ───────────────────────────────────────────────────
 describe('async-result combine', () => {
-    bench('asyncResultCombine — 50 short async results', async () => {
+    bench('promiseResultCombine — 50 short async results', async () => {
         const results = Array.from({ length: 50 }, (_, i) => fromPromiseDelay(1, i));
-        const ar = asyncResultCombine(results);
+        const ar = promiseResultCombine(results);
         await ar.run();
     });
 });

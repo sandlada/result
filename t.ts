@@ -47,14 +47,14 @@ import {
     combine as combineResults, all, combineWithAllErrors,
 
     // — AsyncResult (renamed as exported from main barrel) —
-    from as asyncResultFrom,
-    asyncResultFromPromise,
-    fromResult as asyncResultFromResult,
-    asyncResultMap, asyncResultMapAsync, asyncResultMapErr,
-    asyncResultAndThen, asyncResultOrElse,
-    asyncResultMatch, asyncResultTap, asyncResultTapErr,
-    asyncResultUnwrapOr,
-    asyncResultCombine,
+    from as promiseResultFrom,
+    promiseResultFromPromise,
+    fromResult as promiseResultFromResult,
+    promiseResultMap, promiseResultMapAsync, promiseResultMapErr,
+    promiseResultAndThen, promiseResultOrElse,
+    promiseResultMatch, promiseResultTap, promiseResultTapErr,
+    promiseResultUnwrapOr,
+    promiseResultCombine,
 
     // — Option (from main barrel) —
     ofSome, ofNone,
@@ -549,82 +549,82 @@ async function main(): Promise<void> {
     console.log('\n\u2500\u2500\u2500 Section 6: AsyncResult (Lazy Thunk) \u2500\u2500\u2500');
 
     // from \u2014 wrap a thunk returning Promise<IResultOfT>
-    const arFrom = asyncResultFrom(() => Promise.resolve(ok(42) as IResultOfT<number, string>));
+    const arFrom = promiseResultFrom(() => Promise.resolve(ok(42) as IResultOfT<number, string>));
     console.log('  asyncResult.from:', unwrapOr(0, await arFrom.run())); // 42
 
-    // asyncResultFromPromise \u2014 wrap lazy Promise<T>
-    const arFetch = asyncResultFromPromise(
+    // promiseResultFromPromise \u2014 wrap lazy Promise<T>
+    const arFetch = promiseResultFromPromise(
         () => apiFetchUser('u1'),
         (e: unknown) => ({ kind: 'NetworkError' as const, message: String(e) }),
     );
 
-    // asyncResultMap \u2014 sync map over success
-    const arMapped = asyncResultMap((u: User) => u.name, arFetch);
-    console.log('  asyncResultMap:', unwrapOr('?', await arMapped.run())); // "Alice"
+    // promiseResultMap \u2014 sync map over success
+    const arMapped = promiseResultMap((u: User) => u.name, arFetch);
+    console.log('  promiseResultMap:', unwrapOr('?', await arMapped.run())); // "Alice"
 
-    // asyncResultMapAsync \u2014 async map
-    const arMappedAsync = asyncResultMapAsync(
+    // promiseResultMapAsync \u2014 async map
+    const arMappedAsync = promiseResultMapAsync(
         async (name: string) => { await delay(10); return name.toUpperCase(); },
         arMapped,
     );
-    console.log('  asyncResultMapAsync:', unwrapOr('?', await arMappedAsync.run())); // "ALICE"
+    console.log('  promiseResultMapAsync:', unwrapOr('?', await arMappedAsync.run())); // "ALICE"
 
-    // asyncResultMapErr \u2014 transform error
-    const arMapErrRes = asyncResultMapErr(
+    // promiseResultMapErr \u2014 transform error
+    const arMapErrRes = promiseResultMapErr(
         (e: AppError) => `[${e.kind}] ${'message' in e ? (e as { message: string }).message : ''}`,
         arFetch,
     );
     await arMapErrRes.run(); // just running to show no error for valid user
 
-    // asyncResultAndThen \u2014 monadic chain on AsyncResult
-    const arChained = asyncResultAndThen(
-        (user: User) => asyncResultFromPromise(
+    // promiseResultAndThen \u2014 monadic chain on AsyncResult
+    const arChained = promiseResultAndThen(
+        (user: User) => promiseResultFromPromise(
             () => apiFetchPosts(user.id),
             (e: unknown) => ({ kind: 'NetworkError' as const, message: String(e) }),
         ),
         arFetch,
     );
-    console.log('  asyncResultAndThen:', match(
+    console.log('  promiseResultAndThen:', match(
         (posts: Post[]) => `Ok(${posts.length} posts)`,
         (e: AppError) => `Err(${e.kind})`,
         await arChained.run(),
     )); // "Ok(2 posts)"
 
-    // asyncResultOrElse \u2014 recovery on AsyncResult
-    const arRecovered = asyncResultOrElse(
-        () => asyncResultFromResult(ok<User>({ id: 'guest', name: 'Guest', email: '', age: 0 })),
+    // promiseResultOrElse \u2014 recovery on AsyncResult
+    const arRecovered = promiseResultOrElse(
+        () => promiseResultFromResult(ok<User>({ id: 'guest', name: 'Guest', email: '', age: 0 })),
         arFetch,
     );
     await arRecovered.run();
 
-    // asyncResultTap / asyncResultTapErr \u2014 side effects
+    // promiseResultTap / promiseResultTapErr \u2014 side effects
     let tapLog = '';
-    const arTapped = asyncResultTap(
+    const arTapped = promiseResultTap(
         (u: User) => { tapLog = `tapped: ${u.name}`; },
         arFetch,
     );
     await arTapped.run();
-    console.log('  asyncResultTap:', tapLog);
+    console.log('  promiseResultTap:', tapLog);
 
-    // asyncResultMatch \u2014 terminal pattern match
-    const arMatchResult = await asyncResultMatch<number, AppError, string>(
+    // promiseResultMatch \u2014 terminal pattern match
+    const arMatchResult = await promiseResultMatch<number, AppError, string>(
         { ok: (v: number) => `value: ${v}`, err: (e: AppError) => `error: ${e.kind}` },
-        asyncResultFromResult(ok(42) as IResultOfT<number, AppError>),
+        promiseResultFromResult(ok(42) as IResultOfT<number, AppError>),
     );
-    console.log('  asyncResultMatch:', arMatchResult); // "value: 42"
+    console.log('  promiseResultMatch:', arMatchResult); // "value: 42"
 
-    // asyncResultUnwrapOr \u2014 terminal extraction
-    const arUnwrapped = await asyncResultUnwrapOr<string, AppError>(
+    // promiseResultUnwrapOr \u2014 terminal extraction
+    const arUnwrapped = await promiseResultUnwrapOr<string, AppError>(
         'default',
-        asyncResultFromResult(ok('hi') as IResultOfT<string, AppError>),
+        promiseResultFromResult(ok('hi') as IResultOfT<string, AppError>),
     );
-    console.log('  asyncResultUnwrapOr:', arUnwrapped); // "hi"
+    console.log('  promiseResultUnwrapOr:', arUnwrapped); // "hi"
 
-    // asyncResultCombine \u2014 combine array of AsyncResults
-    const ar1 = asyncResultFromResult(ok(10) as IResultOfT<number, AppError>);
-    const ar2 = asyncResultFromResult(ok(20) as IResultOfT<number, AppError>);
-    const arCombined = asyncResultCombine([ar1, ar2]);
-    console.log('  asyncResultCombine:', unwrapOr([], await arCombined.run())); // [10, 20]
+    // promiseResultCombine \u2014 combine array of AsyncResults
+    const ar1 = promiseResultFromResult(ok(10) as IResultOfT<number, AppError>);
+    const ar2 = promiseResultFromResult(ok(20) as IResultOfT<number, AppError>);
+    const arCombined = promiseResultCombine([ar1, ar2]);
+    console.log('  promiseResultCombine:', unwrapOr([], await arCombined.run())); // [10, 20]
 
 
     // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -708,20 +708,20 @@ async function main(): Promise<void> {
 
     // Approach A: AsyncResult pipeline (lazy, composable)
     const pipeline = pipe(
-        asyncResultFromPromise(
+        promiseResultFromPromise(
             () => apiFetchUser('u1'),
             (e: unknown) => ({ kind: 'NetworkError' as const, message: String(e) }),
         ),
-        asyncResultTap((user: User) => console.log('  [A] Fetched user:', user.name)),
-        asyncResultAndThen((user: User) =>
-            asyncResultFromPromise(
+        promiseResultTap((user: User) => console.log('  [A] Fetched user:', user.name)),
+        promiseResultAndThen((user: User) =>
+            promiseResultFromPromise(
                 () => apiFetchPosts(user.id),
                 (e: unknown) => ({ kind: 'NetworkError' as const, message: String(e) }),
             ),
         ),
-        asyncResultMap((posts: Post[]) => posts.map(p => p.title)),
+        promiseResultMap((posts: Post[]) => posts.map(p => p.title)),
     );
-    const titles = await asyncResultMatch(
+    const titles = await promiseResultMatch(
         { ok: (t: string[]) => `Posts: ${t.join(', ')}`, err: (e: AppError) => `Failed: ${e.kind}` },
         pipeline,
     );

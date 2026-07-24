@@ -17,7 +17,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { bindAsync } from '../async/bindAsync.js';
+import { bindAsync } from '../promise-result/bindAsync.js';
 
 // 1 function
 export function composeKAsync<A, B, E>(

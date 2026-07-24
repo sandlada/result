@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ok, err, pipe } from '../../index.js';
 import { retryLazy, timeout, allSettled } from '../../reliability/index.js';
 import { sequenceAsyncResult } from '../../primitives/index.js';
-import { fromResult, match as asyncResultMatch } from '../../async-result/index.js';
+import { fromResult, match as promiseResultMatch } from '../../async-result/index.js';
 import { ctx, withPath, tapErrContext } from '../../observability/index.js';
 
 describe('Reliability × Observability integration', () => {
@@ -52,12 +52,12 @@ describe('Reliability × Observability integration', () => {
         expect(seen[0]!.err).toBe('try again');
     });
 
-    it('terminal asyncResultMatch on a retry pipeline returns the success value', async () => {
+    it('terminal promiseResultMatch on a retry pipeline returns the success value', async () => {
         let calls = 0;
         const flaky = {
             run: () => Promise.resolve(calls++ < 2 ? err<string>('not yet') : ok('done')),
         };
-        const result = await asyncResultMatch(
+        const result = await promiseResultMatch(
             { ok: (v: string) => v.toUpperCase(), err: () => 'failed' },
             retryLazy(flaky, { times: 4 }),
         );

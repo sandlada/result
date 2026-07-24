@@ -1,6 +1,6 @@
 # operators
 
-`operators` 是本项目**最厚**的一层——`IResultOfT<A, E>` 上的全部纯函数式变换与终态算子。本目录与 `async/`(eager `Promise<IResultOfT>`)、`async-result/`(lazy `AsyncResult`)、`option/`(`IOption` 上的同名算子)是平行结构,共同遵守"data-last currying + plain-object 字面量"的家族公约。本目录不引入任何新类型——所有函数都在 `IResultOfT` 上操作。
+`operators` 是本项目**最厚**的一层——`IResultOfT<A, E>` 上的全部纯函数式变换与终态算子。本目录与 `promise-result/`(eager `Promise<IResultOfT>`)、`async-result/`(lazy `AsyncResult`)、`option/`(`IOption` 上的同名算子)是平行结构,共同遵守"data-last currying + plain-object 字面量"的家族公约。本目录不引入任何新类型——所有函数都在 `IResultOfT` 上操作。
 
 ## 文件清单与作用
 
@@ -47,4 +47,4 @@
 - **`uwrappedEr` v2(`unsafeUnwrap*`)作为 escape hatch**:`unsafeUnwrap` / `unsafeUnwrapErr` 直接 throw 原值,不做包装。这是测试场景与边角互操作场景的应急工具;正常路径请使用 `unwrap` / `unwrapErr`,后者语义明确且 panic 文案带可观察信息。
 - **`readonly` 全覆盖**:`IResultOfT<A, E>` 的所有实例属性都是 readonly,本目录里的算子不引入任何可变中间态。
 - **Data-last + 双 overload**:几乎所有算子都有 curried + direct 两形态,数据在最后一个参数,支持 `pipe`。
-- **lazy-by-default**:`operators/` 的算子在**同步**路径上运行,不引入 `await`——这一点与 `async/` 的 eager `Promise<IResultOfT>` 与 `async-result/` 的 lazy `AsyncResult` 形成清晰界限。
+- **lazy-by-default**:`operators/` 的算子在**同步**路径上运行,不引入 `await`——这一点与 `promise-result/` 的 eager `Promise<IResultOfT>` 与 `async-result/` 的 lazy `AsyncResult` 形成清晰界限。

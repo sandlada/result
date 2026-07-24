@@ -1,6 +1,6 @@
 {
     "name": "@sandlada/result",
-    "version": "0.0.4-20260722.a",
+    "version": "0.1.0-20260724.a",
     "description": "Type-safe Result Pattern & ROP for TypeScript — Explicit Error Handling without Exceptions",
     "type": "module",
     "main": "./build/index.js",
@@ -26,9 +26,9 @@
             "types": "./build/operators/index.d.ts",
             "default": "./build/operators/index.js"
         },
-        "./async": {
-            "types": "./build/async/index.d.ts",
-            "default": "./build/async/index.js"
+        "./promise-result": {
+            "types": "./build/promise-result/index.d.ts",
+            "default": "./build/promise-result/index.js"
         },
         "./composition": {
             "types": "./build/composition/index.d.ts",
@@ -92,8 +92,8 @@
         "rop",
         "railway-oriented",
         "option",
-        "async",
         "async-result",
+        "promise-result",
         "either",
         "error-handling",
         "retry",

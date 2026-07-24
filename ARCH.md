@@ -46,7 +46,7 @@
 | Entry point                     | Description                                      |
 | ------------------------------- | ------------------------------------------------ |
 | `@sandlada/result`              | Core types, factories, sync/async operators      |
-| `@sandlada/result/async`        | Async operators (Promise<IResultOfT>)            |
+| `@sandlada/result/promise-result` | Async operators (Promise<IResultOfT>)           |
 | `@sandlada/result/async-result` | AsyncResult lazy thunks                          |
 | `@sandlada/result/async-option` | AsyncOption lazy thunks                          |
 | `@sandlada/result/adapters`     | Wlaschin three-shape adapters                    |
@@ -65,7 +65,7 @@ src/
   types/                — IResult, IResultOfT, IOption, AsyncResult, AsyncOption interfaces (5 files)
   factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc. (10 files)
   operators/            — map, bind, match, unwrap, orThrow, separate, etc. (32 files)
-  async/                — mapAsync, asyncBind, matchAsync, etc. (35 files, Promise-based)
+  promise-result/       — mapAsync, asyncBind, matchAsync, etc. (35 files, Promise-based)
   async-result/         — AsyncResult lazy thunk operators (26 files)
   async-option/         — AsyncOption lazy thunk operators (15 files)
   composition/          — pipe, composeK, safeTry, pipeAsync, composeKAsync (5 files)
@@ -134,7 +134,7 @@ if (result.isSuccess) {
 | `types/`        | Discriminated union type definitions (interfaces + type aliases) |
 | `factories/`    | Standalone functions that produce Result/Option objects          |
 | `operators/`    | Data-last curried sync operators on `IResultOfT`                 |
-| `async/`        | Data-last curried async operators on `Promise<IResultOfT>`       |
+| `promise-result/` | Data-last curried async operators on `Promise<IResultOfT>`       |
 | `async-result/` | **Lazy** AsyncResult thunks — defers execution until awaited     |
 | `async-option/` | **Lazy** AsyncOption thunks — defers execution until awaited     |
 | `composition/`  | Pipeline helpers: `pipe`, `composeK`, `safeTry`                  |
@@ -146,7 +146,7 @@ if (result.isSuccess) {
 1. **Data-last currying** — Every operator accepts the data (Result/Option/Promise) as the final argument, enabling partial application and `pipe` composition.
 2. **Plain objects** — No classes, no prototype methods, no sentinel values. Results are pure discriminated union objects with a string discriminant property.
 3. **Factory purity** — Factories produce the narrowest possible type (`IResultOfT<T, never>` for `ok`, `IResultOfT<never, E>` for `err`).
-4. **Two async approaches** — `async/` operators work with `Promise<IResultOfT>` (eager, standard promises); `async-result/` uses **lazy thunks** that defer execution.
+4. **Two async approaches** — `promise-result/` operators work with `Promise<IResultOfT>` (eager, standard promises); `async-result/` uses **lazy thunks** that defer execution.
 5. **No barrel cycles** — Each module imports dependencies from specific source files, not barrel indexes, avoiding circular dependencies.
 6. **Option is standalone** — Option module has no dependency on Result types. Conversion between Result and Option happens in `adapters/`.
 
@@ -174,7 +174,7 @@ with one `.spec.ts` per source file:
 | `src/composition/`  |          5 |
 | `src/operators/`    |         32 |
 | `src/option/`       |         16 |
-| `src/async/`        |         35 |
+| `src/promise-result/` |         35 |
 | `src/async-result/` |         26 |
 | `src/async-option/` |         15 |
 | `src/types/`        |          5 |
@@ -232,7 +232,7 @@ Design principles:
 
 ### ADR 6: Two Async Approaches (Eager + Lazy)
 
-**Decision:** Two separate async systems: `async/` for eager `Promise<IResultOfT>` or `Promise<IOption<T>>` and `async-result/` / `async-option/` for lazy thunks.
+**Decision:** Two separate async systems: `promise-result/` for eager `Promise<IResultOfT>` or `Promise<IOption<T>>` and `async-result/` / `async-option/` for lazy thunks.
 
 **Rationale:** Promise-based approaches (eager) are familiar and compose well with existing async code. Lazy thunks enable deferred execution, which is useful for conditional evaluation and resource management. Separating them avoids conflating two different execution models.
 
