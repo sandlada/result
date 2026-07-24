@@ -10,6 +10,7 @@ import {
     existsAsync,
     filterOrElseAsync,
     asyncResultBimap,
+    asyncResultAp,
     asyncResultSwap,
     asyncResultFlatten,
     asyncOptionFilter,
@@ -66,6 +67,12 @@ describe('API Consistency - New Operators', () => {
             const ar = asyncResultSwap(fromResult(ok(42)));
             const r = await ar.run();
             expect(r.isFailure).toBe(true);
+        });
+
+        it('asyncResultAp', async () => {
+            const ar = asyncResultAp(fromResult(ok((x: number) => x * 2)), fromResult(ok(21)));
+            const r = await ar.run();
+            if (r.isSuccess) expect(r.value).toBe(42);
         });
 
         it('asyncResultFlatten', async () => {
