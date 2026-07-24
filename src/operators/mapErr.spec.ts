@@ -30,12 +30,10 @@ describe('mapErr', () => {
         if (result.isSuccess) expect(result.value).toBe(42);
     });
 
-    it('catches fn throw and converts to Err', () => {
-        const result = mapErr<string, string, Error>(
+    it('propagates fn throw (does not catch)', () => {
+        expect(() => mapErr<string, string, never>(
             () => { throw new Error('fn-boom'); },
             err('original'),
-        );
-        expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+        )).toThrow('fn-boom');
     });
 });

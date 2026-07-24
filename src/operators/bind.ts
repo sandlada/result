@@ -1,6 +1,11 @@
 /**
  * @fileoverview Chains a result-producing function (monadic bind). On success, calls `f` with the value and returns its result. On failure, short-circuits. The error type widens to `E | F`.
  *
+ * **Throw policy**: a synchronous throw from `f` propagates to the caller — it is
+ * NOT caught and converted to `Err`. Matches the canonical Result throw policy
+ * ("sync throws propagate, async rejections are caught"). Use `bindAsync` or
+ * wrap the call site with `tryCatch` if you need different semantics.
+ *
  * F# equivalent: `Result.bind f r`
  *
  * @example
@@ -27,10 +32,6 @@ export function bind<A, B, E, F>(
 ): IResultOfT<B, E | F> | (<E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): IResultOfT<B, E | F> => bind(f, r);
     if(!r.isSuccess) return r as unknown as IResultOfT<B, E | F>;
-    try {
-        return f(r.value) as unknown as IResultOfT<B, E | F>;
-    } catch (e: unknown) {
-        return { isSuccess: false as const, isFailure: true as const, error: e as (E | F) } as IResultOfT<B, E | F>;
-    }
+    return f(r.value) as unknown as IResultOfT<B, E | F>;
 }
 
