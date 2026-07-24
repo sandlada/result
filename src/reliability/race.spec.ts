@@ -33,9 +33,13 @@ describe('race', () => {
         expect(r.isSuccess).toBe(true);
     });
 
-    it('handles empty input (returns Err of undefined)', async () => {
+    it('handles empty input (returns Err with sentinel Error)', async () => {
         const r = await race([]).run();
         expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect((r.error as Error).message).toBe('race: no inputs');
+        }
     });
 
     it('does not run any thunk until .run()', () => {
@@ -87,11 +91,13 @@ describe('race', () => {
     });
 
     it('handles multiple rejections correctly (coverage for lines 63-68)', async () => {
+        // Use timings above the Windows default timer resolution (~15ms) so
+        // the rejection order is deterministic across all platforms.
         const ar1 = {
-            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom1')), 10)),
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom1')), 80)),
         };
         const ar2 = {
-            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 5)),
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 30)),
         };
         const r = await race([ar1, ar2]).run();
         expect(r.isFailure).toBe(true);
