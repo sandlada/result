@@ -18,11 +18,16 @@ describe('AsyncResult mapAsync', () => {
         if(!result.isSuccess) expect(result.error).toBe('fail');
     });
 
-    it('catches callback exceptions and returns Failure', async () => {
+    it('propagates async callback rejection (does not catch)', async () => {
         const ar = mapAsync(async (_: number) => { throw new Error('async err'); }, fromResult(ok(1)));
+        await expect(ar.run()).rejects.toThrow('async err');
+    });
+
+    it('accepts a sync callback and awaits it as a Promise', async () => {
+        const ar = mapAsync((x: number) => x * 2, fromResult(ok(7)));
         const result = await ar.run();
-        expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('async err');
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(14);
     });
 
     it('is curried', async () => {
