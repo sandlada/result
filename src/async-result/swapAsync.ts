@@ -4,20 +4,22 @@ import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
 /**
- * @fileoverview Swaps the Ok and Err variants of an AsyncResult.
+ * @fileoverview AsyncResult analogue of {@link swap}. Swaps the Ok and Err
+ * variants of an AsyncResult. Renamed from `swap` to align with `mapAsync` and
+ * other async-result operators.
  *
  * @example
  * ```ts
  * import { ok } from '@sandlada/result';
- * import { fromResult, swap } from '@sandlada/result/async-result';
+ * import { fromResult, swapAsync } from '@sandlada/result/async-result';
  *
- * const ar = swap(fromResult(ok(5)));
+ * const ar = swapAsync(fromResult(ok(5)));
  * const result = await ar.run(); // Err(5)
  * ```
-  *
+ *
  * @note Ready for Product
  */
-export function swap<T, E>(
+export function swapAsync<T, E>(
     ar: AsyncResult<T, E>,
 ): AsyncResult<E, T> {
     return {
