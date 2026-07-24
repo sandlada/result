@@ -14,7 +14,10 @@
 
 import type { IOption } from '../types/Option.js';
 
-export function unwrapOr<T>(defaultValue: T): (opt: IOption<T>) => T {
-    return opt => opt.isSome ? opt.value : defaultValue;
+export function unwrapOr<T>(defaultValue: T): (opt: IOption<T>) => T;
+export function unwrapOr<T>(defaultValue: T, opt: IOption<T>): T;
+export function unwrapOr<T>(defaultValue: T, opt?: IOption<T>): T | ((opt: IOption<T>) => T) {
+    if (opt === undefined) return (o: IOption<T>): T => unwrapOr(defaultValue, o);
+    return opt.isSome ? opt.value : defaultValue;
 }
 

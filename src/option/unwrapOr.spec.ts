@@ -17,4 +17,12 @@ describe('unwrapOrOption', () => {
         const val = unwrapOrOption(defaultUser)(ofNone());
         expect(val).toBe(defaultUser);
     });
+
+    it('direct form: extracts the value on Some', () => {
+        expect(unwrapOrOption(0, ofSome(42))).toBe(42);
+    });
+
+    it('direct form: returns the default on None', () => {
+        expect(unwrapOrOption(0, ofNone())).toBe(0);
+    });
 });
