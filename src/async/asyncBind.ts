@@ -4,7 +4,12 @@
  * into a `Promise<IResultOfT<B, E | F>>`.
  *
  * Bridges from the sync result world to the async world — unlike `bindAsync`
- * which works on `Promise<IResultOfT>`.
+ * which works on `Promise<IResultOfT>`. Where `bindAsync` accepts callbacks that
+ * may return sync or async results, `asyncBind` requires an async callback.
+ *
+ * **Throw policy**: a synchronous throw from `f` propagates via the outer promise
+ * rejection. A rejected Promise from `f` propagates as a rejection. Matches
+ * the canonical AsyncResult throw policy.
  *
  * @example
  * ```ts
@@ -22,7 +27,6 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
 
 export function asyncBind<A, B, F>(
     f: (a: A) => Promise<IResultOfT<B, F>>,
@@ -37,12 +41,8 @@ export function asyncBind<A, B, E, F>(
 ): Promise<IResultOfT<B, E | F>> | (<E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, E | F>>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<B, E | F>> => asyncBind(f, r);
     if(!r.isSuccess) return Promise.resolve(r as unknown as IResultOfT<B, E | F>);
-    try {
-        return f(r.value).then(
-            inner => inner as unknown as IResultOfT<B, E | F>,
-            e => err(e as E | F) as unknown as IResultOfT<B, E | F>,
-        );
-    } catch(e: unknown) {
-        return Promise.resolve(err(e as E | F) as unknown as IResultOfT<B, E | F>);
-    }
+    // Use `Promise.resolve().then(...)` so a synchronous throw from `f` is
+    // converted to a Promise rejection rather than escaping `asyncBind`
+    // synchronously — preserving the Promise contract.
+    return Promise.resolve().then(() => f(r.value)) as unknown as Promise<IResultOfT<B, E | F>>;
 }

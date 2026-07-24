@@ -1,6 +1,15 @@
 /**
  * @fileoverview Chains an async result-returning function. `fn` can return `IResultOfT` or `Promise<IResultOfT>`. The error type widens to `E | F`.
  *
+ * **Throw policy**: a synchronous throw from `f` propagates to the caller via
+ * the outer promise rejection (the `.then` handler re-throws). A rejected
+ * Promise from `f` propagates as a rejection. This matches the canonical
+ * AsyncResult throw policy ("sync throws and async rejections propagate").
+ *
+ * **Compared to `asyncBind`**: `bindAsync` works on a `Promise<IResultOfT>` (the
+ * source is async). `asyncBind` is the inverse — it works on a sync `IResultOfT`
+ * and lifts it into a `Promise<IResultOfT>` (the callback is async).
+ *
  * @example
  * ```ts
  * import { bindAsync, asyncOk, asyncErr } from '@sandlada/result';
@@ -29,11 +38,7 @@ export function bindAsync<A, B, E, F>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<B, E | F>> => bindAsync(f, r);
     return r.then(async inner => {
         if(!inner.isSuccess) return inner as unknown as IResultOfT<B, E | F>;
-        try {
-            return (await f(inner.value)) as IResultOfT<B, E | F>;
-        } catch(e: unknown) {
-            return { isSuccess: false as const, isFailure: true as const, error: e as (E | F) } as IResultOfT<B, E | F>;
-        }
+        return (await f(inner.value)) as IResultOfT<B, E | F>;
     });
 }
 

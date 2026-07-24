@@ -27,16 +27,12 @@ describe('asyncBind', () => {
         if (r.isFailure) expect(r.error).toBe('inner');
     });
 
-    it('catches async callback rejection', async () => {
-        const r = await asyncBind(async () => { throw 'cb err'; }, ok(21));
-        expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('cb err');
+    it('propagates async callback rejection (does not catch)', async () => {
+        await expect(asyncBind(async () => { throw 'cb err'; }, ok(21))).rejects.toBe('cb err');
     });
 
-    it('catches sync throw from callback', async () => {
+    it('propagates sync throw from callback', async () => {
         const fn = (() => { throw new Error('sync-boom'); }) as unknown as (x: number) => Promise<never>;
-        const r = await asyncBind(fn, ok(1));
-        expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
+        await expect(asyncBind(fn, ok(1))).rejects.toThrow('sync-boom');
     });
 });

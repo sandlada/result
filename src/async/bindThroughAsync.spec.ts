@@ -36,12 +36,10 @@ describe('bindThroughAsync', () => {
         if (r.isFailure) expect(r.error).toBe('outer');
     });
 
-    it('catches callback exceptions', async () => {
-        const r = await bindThroughAsync(
+    it('propagates callback exceptions (does not catch)', async () => {
+        await expect(bindThroughAsync(
             async () => { throw 'cb err'; },
             Promise.resolve(ok<number, string>(21)),
-        );
-        expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('cb err');
+        )).rejects.toBe('cb err');
     });
 });

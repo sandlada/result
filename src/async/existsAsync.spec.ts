@@ -30,13 +30,11 @@ describe('existsAsync', () => {
         expect(r).toBe(true);
     });
 
-    it('returns false when sync predicate throws (catch+convert policy)', async () => {
-        const r = await existsAsync(() => { throw new Error('boom'); }, Promise.resolve(ok(42)));
-        expect(r).toBe(false);
+    it('propagates sync predicate throw (does not catch)', async () => {
+        await expect(existsAsync(() => { throw new Error('boom'); }, Promise.resolve(ok(42)))).rejects.toThrow('boom');
     });
 
-    it('returns false when async predicate rejects (catch+convert policy)', async () => {
-        const r = await existsAsync(async () => { throw new Error('boom'); }, Promise.resolve(ok(42)));
-        expect(r).toBe(false);
+    it('propagates async predicate rejection (does not catch)', async () => {
+        await expect(existsAsync(async () => { throw new Error('boom'); }, Promise.resolve(ok(42)))).rejects.toThrow('boom');
     });
 });

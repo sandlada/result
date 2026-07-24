@@ -5,8 +5,9 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  * Returns false on failure or when the predicate does not hold.
  *
  * **Throw policy**: If the predicate throws synchronously or returns a rejected
- * Promise, the error is caught and the result converts to `false`
- * (canonical catch+convert policy — see AGENTS.md).
+ * Promise, the rejection propagates to the outer Promise (matches the canonical
+ * AsyncResult throw policy — "sync throws and async rejections propagate").
+ * Use `existsAsyncOption` if you want predicate errors to convert to `false`.
  *
  * @example
  * ```ts
@@ -31,10 +32,6 @@ export function existsAsync<A, E>(
     if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => existsAsync(predicate, r);
     return r.then(async inner => {
         if (!inner.isSuccess) return false;
-        try {
-            return await predicate(inner.value);
-        } catch {
-            return false;
-        }
+        return await predicate(inner.value);
     });
 }

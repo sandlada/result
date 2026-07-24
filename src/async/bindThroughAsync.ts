@@ -1,8 +1,11 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
 
 /**
  * @fileoverview Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+ *
+ * **Throw policy**: a synchronous throw from `fn` propagates via the outer promise
+ * rejection. A rejected Promise from `fn` propagates as a rejection. Matches
+ * the canonical AsyncResult throw policy.
  *
  * @example
  * ```ts
@@ -29,13 +32,9 @@ export function bindThroughAsync<A, B, E, F>(
     if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => bindThroughAsync(fn, r);
     return r.then(async inner => {
         if (!inner.isSuccess) return inner as unknown as IResultOfT<A, E | F>;
-        try {
-            const next = await fn(inner.value);
-            return next.isSuccess
-                ? (inner as unknown as IResultOfT<A, E | F>)
-                : (next as unknown as IResultOfT<A, E | F>);
-        } catch (e: unknown) {
-            return err(e as E | F) as unknown as IResultOfT<A, E | F>;
-        }
+        const next = await fn(inner.value);
+        return next.isSuccess
+            ? (inner as unknown as IResultOfT<A, E | F>)
+            : (next as unknown as IResultOfT<A, E | F>);
     });
 }

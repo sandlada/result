@@ -1,6 +1,10 @@
 /**
  * @fileoverview Error recovery for async results. The success type widens to `A | B`.
  *
+ * **Throw policy**: a synchronous throw from `f` propagates via the outer promise
+ * rejection (the `.then` handler re-throws). A rejected Promise from `f`
+ * propagates as a rejection. Matches the canonical AsyncResult throw policy.
+ *
  * @example
  * ```ts
  * import { orElseAsync, asyncOk, asyncErr } from '@sandlada/result';
@@ -29,11 +33,7 @@ export function orElseAsync<A, E, B, F>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<A | B, F>> => orElseAsync(f, r);
     return r.then(async inner => {
         if(inner.isSuccess) return inner as unknown as IResultOfT<A | B, F>;
-        try {
-            return (await f(inner.error)) as IResultOfT<A | B, F>;
-        } catch(e: unknown) {
-            return { isSuccess: false as const, isFailure: true as const, error: e as F } as IResultOfT<A | B, F>;
-        }
+        return (await f(inner.error)) as IResultOfT<A | B, F>;
     });
 }
 
