@@ -5,7 +5,7 @@
  * This enables deferred/lazy composition of async operations without executing them eagerly.
  *
  * @typeParam T — The success value type.
- * @typeParam E — The error type. Defaults to `Error`.
+ * @typeParam E — The error type. Defaults to `unknown` (matches `IResultOfT`).
  *
  * @note Ready for Product
  */
@@ -17,6 +17,6 @@ import type { IResultOfT } from './IResultOfT.js';
  *
  * Call `run()` to execute the computation.
  */
-export interface AsyncResult<T, E = Error> {
+export interface AsyncResult<T, E = unknown> {
     readonly run: () => Promise<IResultOfT<T, E>>;
 }

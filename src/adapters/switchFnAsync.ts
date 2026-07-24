@@ -2,7 +2,7 @@
  * @fileoverview Converts a one-track async function into an async switch function — lifts it to return a `Promise<IResultOfT>`.
  *
  * Optional `errorFn` (when supplied) maps the caught exception to a typed error;
- * without it the error type defaults to `Error` — mirrors `tryCatchAsync`/`fromPromise`.
+ * without it the error type defaults to `unknown` — mirrors `tryCatchAsync`/`fromPromise`.
  *
  * @example
  * ```ts
@@ -18,7 +18,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
-export function switchFnAsync<A, B, E = Error>(
+export function switchFnAsync<A, B, E = unknown>(
     f: (a: A) => B | Promise<B>,
     errorFn?: (error: unknown) => E,
 ): (a: A) => Promise<IResultOfT<B, E>> {
@@ -26,7 +26,9 @@ export function switchFnAsync<A, B, E = Error>(
         try {
             return ok(await f(a)) as IResultOfT<B, E>;
         } catch (e: unknown) {
-            const caught = errorFn ? errorFn(e) : (e as E);
+            // No `errorFn`: pass through the raw rejection. The cast goes
+            // through `unknown` to make the type honesty visible.
+            const caught = errorFn ? errorFn(e) : (e as unknown as E);
             return err(caught) as IResultOfT<B, E>;
         }
     };

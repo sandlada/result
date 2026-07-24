@@ -9,7 +9,8 @@
  * ```ts
  * import { condErr } from '@sandlada/result/primitives';
  *
- * const r = condErr(s => s.includes('@'), 'invalid email', 'alice@x'); // Err('invalid email')
+ * const r1 = condErr(s => s.includes('@'), 'alice@x', 'invalid email'); // Err('invalid email')
+ * const r2 = condErr(s => s.includes('@'), 'no-at',    'invalid email'); // Ok('no-at')
  * ```
  *
  * @note Ready for Product
@@ -19,12 +20,12 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
-export function condErr<T, E, F>(
+export function condErr<T, E>(
     predicate: (value: T) => boolean,
     okValue: T,
     errorOnTrue: E,
-): IResultOfT<T, F> {
+): IResultOfT<T, E> {
     return predicate(okValue)
-        ? (err(errorOnTrue) as unknown as IResultOfT<T, F>)
-        : (ok(okValue) as unknown as IResultOfT<T, F>);
+        ? (err(errorOnTrue) as IResultOfT<T, E>)
+        : (ok(okValue) as IResultOfT<T, E>);
 }

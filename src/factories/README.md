@@ -22,7 +22,7 @@
 
 **`fromPromise.ts`**
 
-把一个 `Promise<T>` 包成 `Promise<IResultOfT<T, E>>`。在异步等待完成后,成功路径固定走 `Ok`,失败(rejected)路径经可选的 `errorFn` 映射后走 `Err`。`errorFn` 缺位时直接把拒绝值原样作为错误透传,因此默认 `E = Error` 在调用方未指定时是合理默认值。
+把一个 `Promise<T>` 包成 `Promise<IResultOfT<T, E>>`。在异步等待完成后,成功路径固定走 `Ok`,失败(rejected)路径经可选的 `errorFn` 映射后走 `Err`。`errorFn` 缺位时直接把拒绝值原样作为错误透传,因此默认 `E = unknown` 在调用方未指定时是诚实的默认值——调用方必须自己处理类型,或通过 `errorFn` 提供具体类型。
 
 **`fromSafePromise.ts`**
 

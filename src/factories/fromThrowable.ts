@@ -18,14 +18,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
-export function fromThrowable<A extends unknown[], T, E = Error>(
+export function fromThrowable<A extends unknown[], T, E = unknown>(
     fn: (...args: A) => T,
     errorFn?: (error: unknown) => E,
 ): (...args: A) => IResultOfT<T, E> {
     return (...args: A): IResultOfT<T, E> => {
         try { return ok<T>(fn(...args)) as IResultOfT<T, E>; }
         catch(e: unknown) {
-            const innerError = errorFn ? errorFn(e) : (e as E);
+            // No `errorFn`: pass through the raw rejection. The cast goes through
+            // `unknown` to make the type honesty visible — we don't claim `e` is
+            // already an `E`, we just bridge it across the type parameter.
+            const innerError = errorFn ? errorFn(e) : (e as unknown as E);
             return err(innerError) as IResultOfT<T, E>;
         }
     };

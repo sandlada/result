@@ -35,8 +35,12 @@ export interface IResultSuccess {
  *
  * Carries the `error`. The `isSuccess: false` literal discriminates this
  * variant within the {@link IResult} union, enabling TypeScript narrowing.
+ *
+ * @typeParam TError — The error type. Defaults to `unknown` because the library
+ * never silently coerces an unknown thrown value to a specific shape — callers
+ * must narrow or supply an `errorFn` to take responsibility for the type.
  */
-export interface IResultFailure<TError = Error> {
+export interface IResultFailure<TError = unknown> {
     readonly isSuccess: false;
     readonly isFailure: true;
     readonly error: TError;
@@ -45,8 +49,8 @@ export interface IResultFailure<TError = Error> {
 /**
  * IResult — base result contract as a **discriminated union**.
  *
- * @typeParam TError — The error type. Defaults to `Error`.
+ * @typeParam TError — The error type. Defaults to `unknown`.
  *
  * @note Ready for Product
  */
-export type IResult<TError = Error> = IResultSuccess | IResultFailure<TError>;
+export type IResult<TError = unknown> = IResultSuccess | IResultFailure<TError>;

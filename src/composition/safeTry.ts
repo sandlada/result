@@ -36,8 +36,9 @@ import { ok } from '../factories/ok.js';
 export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
 ): Generator<IResultOfT<never, E>, T, unknown> {
-    if(result.isSuccess) return result.value as T;
-    return (yield result as unknown as IResultOfT<never, E>) as unknown as T;
+    if(result.isSuccess) return result.value;
+    yield result as IResultOfT<never, E>;
+    return undefined as unknown as T;
 }
 
 /**
@@ -72,7 +73,7 @@ export function fromSafeTry<T, E>(
         if (!check.done) {
             throw new Error('safeTry: generator yielded more than once. Each safeTry() call should only yield on failure.');
         }
-        return first.value as unknown as IResultOfT<T, E>;
+        return first.value as IResultOfT<T, E>;
     } catch (e) {
         // In case the generator itself throws, we still try to close it.
         if (typeof iterator.return === 'function') {

@@ -16,7 +16,7 @@
 
 import type { AsyncResult } from '../types/AsyncResult.js';
 
-export function from<T, E = Error>(
+export function from<T, E = unknown>(
     thunk: () => Promise<import('../types/IResultOfT.js').IResultOfT<T, E>>,
 ): AsyncResult<T, E> {
     return { run: thunk };

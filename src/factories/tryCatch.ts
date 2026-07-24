@@ -15,13 +15,16 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
-export function tryCatch<T, E = Error>(
+export function tryCatch<T, E = unknown>(
     fn: () => T,
     errorFn?: (error: unknown) => E,
 ): IResultOfT<T, E> {
     try { return ok<T>(fn()) as IResultOfT<T, E>; }
     catch(e: unknown) {
-        const innerError = errorFn ? errorFn(e) : (e as E);
+        // No `errorFn`: pass through the raw rejection. The cast goes through
+        // `unknown` to make the type honesty visible — we don't claim `e` is
+        // already an `E`, we just bridge it across the type parameter.
+        const innerError = errorFn ? errorFn(e) : (e as unknown as E);
         return err(innerError) as IResultOfT<T, E>;
     }
 }

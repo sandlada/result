@@ -32,8 +32,11 @@ export interface IResultOfTSuccess<TValue> {
 
 /**
  * IResultOfTFailure — the failure variant of {@link IResultOfT}.
+ *
+ * @typeParam TError — The error type. Defaults to `unknown` because the library
+ * never silently coerces an unknown thrown value to a specific shape.
  */
-export interface IResultOfTFailure<TError = Error> {
+export interface IResultOfTFailure<TError = unknown> {
     readonly isSuccess: false;
     readonly isFailure: true;
     readonly error: TError;
@@ -43,10 +46,10 @@ export interface IResultOfTFailure<TError = Error> {
  * IResultOfT — value-bearing result contract as a **discriminated union**.
  *
  * @typeParam TValue — The success value type.
- * @typeParam TError  — The error type. Defaults to `Error`.
+ * @typeParam TError  — The error type. Defaults to `unknown`.
  *
  * @note Ready for Product
  */
-export type IResultOfT<TValue, TError = Error> =
+export type IResultOfT<TValue, TError = unknown> =
     | IResultOfTSuccess<TValue>
     | IResultOfTFailure<TError>;

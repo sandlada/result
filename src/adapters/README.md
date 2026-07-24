@@ -14,7 +14,7 @@
 
 **`switchFn.ts`**
 
-把"普通同步函数"包装为"返回 Result 的开关函数"——即 Wlaschin 所说的 `succeed ∘ f`。调用时若原函数正常返回,被包装版本返回 `Ok`;若原函数抛错,经可选 `errorFn` 映射后返回 `Err`。错误侧沿用 `tryCatch` / `fromPromise` 的缺省约定:无 `errorFn` 时,`errorFn ? errorFn(e) : (e as E)`,默认 `E = Error`。
+把"普通同步函数"包装为"返回 Result 的开关函数"——即 Wlaschin 所说的 `succeed ∘ f`。调用时若原函数正常返回,被包装版本返回 `Ok`;若原函数抛错,经可选 `errorFn` 映射后返回 `Err`。错误侧沿用 `tryCatch` / `fromPromise` 的缺省约定:无 `errorFn` 时,`errorFn ? errorFn(e) : (e as E)`,默认 `E = unknown`。
 
 **`switchFnAsync.ts`**
 

@@ -14,13 +14,16 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
-export async function tryCatchAsync<T, E = Error>(
+export async function tryCatchAsync<T, E = unknown>(
     fn: () => Promise<T>,
     errorFn?: (error: unknown) => E,
 ): Promise<IResultOfT<T, E>> {
     try { return ok<T>(await fn()) as IResultOfT<T, E>; }
     catch(e: unknown) {
-        const innerError = errorFn ? errorFn(e) : (e as E);
+        // No `errorFn`: pass through the raw rejection. The cast goes through
+        // `unknown` to make the type honesty visible — we don't claim `e` is
+        // already an `E`, we just bridge it across the type parameter.
+        const innerError = errorFn ? errorFn(e) : (e as unknown as E);
         return err(innerError) as IResultOfT<T, E>;
     }
 }

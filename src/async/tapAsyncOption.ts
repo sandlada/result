@@ -1,7 +1,11 @@
 import type { IOption } from '../types/Option.js';
+import { ofNone } from '../option/ofNone.js';
 
 /**
  * @fileoverview Side-effect on the success track of an async option.
+ *
+ * **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
  *
  * @example
  * ```ts
@@ -29,7 +33,7 @@ export function tapAsyncOption<T>(
             try {
                 await fn(inner.value);
             } catch {
-                return { isSome: false as const, isNone: true as const };
+                return ofNone();
             }
         }
         return inner;

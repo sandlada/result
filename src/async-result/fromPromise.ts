@@ -16,7 +16,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function fromPromise<T, E = Error>(
+export function fromPromise<T, E = unknown>(
     thunk: () => Promise<T>,
     errorFn?: (error: unknown) => E,
 ): AsyncResult<T, E> {
@@ -26,7 +26,11 @@ export function fromPromise<T, E = Error>(
                 const value = await thunk();
                 return { isSuccess: true as const, isFailure: false as const, value } as IResultOfT<T, E>;
             } catch(e: unknown) {
-                const innerError = errorFn ? errorFn(e) : (e as E);
+                // No `errorFn`: pass through the raw rejection. The cast goes
+                // through `unknown` to make the type honesty visible — we
+                // don't claim `e` is already an `E`, we just bridge it across
+                // the type parameter.
+                const innerError = errorFn ? errorFn(e) : (e as unknown as E);
                 return { isSuccess: false as const, isFailure: true as const, error: innerError } as IResultOfT<T, E>;
             }
         },

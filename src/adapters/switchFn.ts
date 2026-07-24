@@ -2,7 +2,7 @@
  * @fileoverview Converts a one-track (plain) function into a switch function — lifts it to return a Result.
  *
  * Optional `errorFn` (when supplied) maps the caught exception to a typed error;
- * without it the error type defaults to `Error` — mirrors `tryCatch`/`fromPromise`.
+ * without it the error type defaults to `unknown` — mirrors `tryCatch`/`fromPromise`.
  *
  * Wlaschin equivalent: `succeed ∘ f`
  *
@@ -20,7 +20,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
-export function switchFn<A, B, E = Error>(
+export function switchFn<A, B, E = unknown>(
     f: (a: A) => B,
     errorFn?: (error: unknown) => E,
 ): (a: A) => IResultOfT<B, E> {
@@ -28,7 +28,9 @@ export function switchFn<A, B, E = Error>(
         try {
             return ok(f(a)) as IResultOfT<B, E>;
         } catch (e: unknown) {
-            const caught = errorFn ? errorFn(e) : (e as E);
+            // No `errorFn`: pass through the raw rejection. The cast goes
+            // through `unknown` to make the type honesty visible.
+            const caught = errorFn ? errorFn(e) : (e as unknown as E);
             return err(caught) as IResultOfT<B, E>;
         }
     };
