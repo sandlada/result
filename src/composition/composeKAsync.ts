@@ -68,14 +68,21 @@ export function composeKAsync(
     ...fns: Array<(arg: any) => IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
 ): (a: any) => Promise<IResultOfT<any, any>> {
     if (fns.length === 0) {
-        return (_a: any) => Promise.reject(new TypeError('composeKAsync requires at least one function'));
+        throw new TypeError('composeKAsync requires at least one function');
     }
+    // Pre-compose at construction time via reduce. The first fn seeds the chain;
+    // the remaining fns are wrapped in `bindAsync` so each invocation threads the
+    // value through the pre-built pipeline instead of re-walking it. Each step
+    // wraps its awaited result in `Promise.resolve` so `bindAsync`'s signature
+    // (`Promise<IResultOfT>`) is honored even when an upstream fn is sync.
+    const [head, ...rest] = fns;
+    const composed = rest.reduce(
+        (acc, fn) => async (a: any) => bindAsync(fn, Promise.resolve(await acc(a))),
+        async (a: any) => head!(a),
+    );
     return async (a: any) => {
         try {
-            let result: Promise<IResultOfT<any, any>> = Promise.resolve(fns[0]!(a));
-            for(let i = 1; i < fns.length; i++)
-                result = bindAsync(fns[i]!)(result);
-            return await result;
+            return await composed(a);
         } catch (e: unknown) {
             return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<any, any>;
         }

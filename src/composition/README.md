@@ -10,7 +10,7 @@
 
 **`composeKAsync.ts`**
 
-`composeK` 的异步版本,允许每个内部函数返回 `IResultOfT` 或 `Promise<IResultOfT>` 二者之一并在同一链中混用。同步抛错与异步拒绝在外层 `try / catch` + `await` 处统一收敛,产出 `Promise<IResultOfT>`。0 参数时,组合体返回一个被 `Promise.reject(TypeError)` 的 Promise——也就是说,**不会**在同步阶段 throw,而是落到异步 reject 上,这与整体"一切皆 Promise"的契约一致。
+`composeK` 的异步版本,允许每个内部函数返回 `IResultOfT` 或 `Promise<IResultOfT>` 二者之一并在同一链中混用。同步抛错与异步拒绝在外层 `try / catch` + `await` 处统一收敛,产出 `Promise<IResultOfT>`。0 参数时**在构造阶段同步 throw `TypeError("composeKAsync requires at least one function")`**——与 `composeK` 的前置合约保持一致,便于调用方在链式组装阶段立即发现错误而不是延迟到异步 reject。
 
 **`pipe.ts`**
 
@@ -27,7 +27,7 @@
 ## 模块的设计原则
 
 - **重载优先于实现签名**:`pipe` / `pipeAsync` / `composeK` / `composeKAsync` 都以 1-N 重载暴露浅层精确签名,实现版本退化为 `any` 重载,避免深层调用时签名爆炸。
-- **错误出口唯一**:每个组合体的"失败出口"都是最终返回值的 `IResultOfT.error` 通道,而非同步抛错。`composeK` 的 0 参数 guard 是唯一的同步 throw 例外,且 throw 信息明文写在 spec 测试里。
+- **错误出口唯一**:每个组合体的"失败出口"都是最终返回值的 `IResultOfT.error` 通道,而非同步抛错。`composeK` 与 `composeKAsync` 的 0 参数 guard 是统一的同步 throw 例外,且 throw 信息明文写在 spec 测试里。
 - **`safeTry` 的资源纪律**:`fromSafeTry` 内部对生成器调用 `iterator.return()`,即使在 `try / catch` 捕获路径中也嵌套二次关闭,杜绝 `finally` 跳过。
 - **不缓存状态**:本目录所有函数都不维护 `let` 状态或闭包外的可变引用,任何调用顺序与并发都得到一致结果。
 - **不引入新的判别联合类型**:本模块只操作 `IResultOfT` / `Promise<IResultOfT>` / Generator 这三种宿主类型,不创造任何新的判别结构,避免与 `types/` 协议冲突。

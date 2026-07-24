@@ -37,9 +37,9 @@ describe('composeKAsync', () => {
         if (r.isFailure) expect(r.error).toBeInstanceOf(Error);
     });
 
-    it('rejects when no functions provided', async () => {
-        const composed = composeKAsync();
-        await expect(composed(42)).rejects.toThrow('composeKAsync requires at least one function');
+    it('throws TypeError at construction when no functions provided', () => {
+        expect(() => composeKAsync()).toThrow(TypeError);
+        expect(() => composeKAsync()).toThrow(/at least one function/);
     });
 
     it('chains mixed sync and async functions', async () => {

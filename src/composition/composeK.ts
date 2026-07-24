@@ -3,6 +3,14 @@
  *
  * F# equivalent: `f1 >=> f2 >=> f3`
  *
+ * **Compared to `composeKAsync`**: this is the **sync** variant — each function
+ * must return `IResultOfT` synchronously. For async-compatible composition
+ * (callbacks may return `Promise<IResultOfT>`), use `composeKAsync` from
+ * `@sandlada/result/composition`.
+ *
+ * **Empty input guard**: calling `composeK()` with zero functions throws
+ * `TypeError` at construction time. The async variant has the same policy.
+ *
  * @example
  * ```ts
  * import { composeK, ok, err } from '@sandlada/result';
@@ -63,12 +71,17 @@ export function composeK(
     ...fns: Array<(arg: any) => IResultOfT<any, any>>
 ): (a: any) => IResultOfT<any, any> {
     if (fns.length === 0) throw new TypeError('composeK requires at least one function');
+    // Pre-compose at construction time via reduce. The first fn seeds the chain;
+    // the remaining fns are wrapped in `bind` so each invocation threads the
+    // value through the pre-built pipeline instead of re-walking it.
+    const [head, ...rest] = fns;
+    const composed = rest.reduce(
+        (acc, fn) => (a: any) => bind(fn, acc(a)),
+        (a: any) => head!(a),
+    );
     return (a: any) => {
         try {
-            let result: IResultOfT<any, any> = fns[0]!(a);
-            for(let i = 1; i < fns.length; i++)
-                result = (bind(fns[i]!) as (r: IResultOfT<any, any>) => IResultOfT<any, any>)(result);
-            return result;
+            return composed(a);
         } catch (e: unknown) {
             return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<any, any>;
         }
