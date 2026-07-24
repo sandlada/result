@@ -120,4 +120,22 @@ describe('timeoutEager', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error.kind).toBe('Timeout');
     });
+
+    it('converts a sync throw from fn into Err (no rejection escapes)', async () => {
+        const r = await timeoutEager(50, () => { throw new Error('sync-throw'); });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect((r.error as Error).message).toBe('sync-throw');
+        }
+    });
+
+    it('captures a rejected promise from fn as Err', async () => {
+        const r = await timeoutEager(50, () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('rejected')), 5)));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect((r.error as Error).message).toBe('rejected');
+        }
+    });
 });

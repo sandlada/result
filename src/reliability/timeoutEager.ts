@@ -23,6 +23,11 @@ import { timeout, type TimeoutError } from './timeout.js';
  * against the configured timeout window.
  *
  * Reuses the same default `TimeoutError` shape as `timeout`.
+ *
+ * **Sync-throw safety**: a synchronous throw from `fn` is converted to a
+ * rejecting Promise via `Promise.resolve().then(fn)`, which `timeout`'s
+ * rejection handler then converts to `Err(thrown)` — preserving the
+ * AsyncResult no-rejection contract.
  */
 export function timeoutEager<T, E, TOE = TimeoutError>(
     ms: number,
@@ -31,9 +36,11 @@ export function timeoutEager<T, E, TOE = TimeoutError>(
 ): Promise<IResultOfT<T, E | TOE>> {
     // We deliberately avoid importing `fromPromise` to keep this module free of
     // cross-module coupling. Instead we wrap the eager fn into a tiny local
-    // AsyncResult-shaped thunk.
+    // AsyncResult-shaped thunk. `Promise.resolve().then(fn)` defers `fn` so a
+    // synchronous throw becomes a Promise rejection rather than escaping
+    // through `timeout.run()`'s executor.
     const ar = {
-        run: fn,
+        run: () => Promise.resolve().then(fn),
     };
     return timeout(ms, ar, onTimeout).run();
 }
