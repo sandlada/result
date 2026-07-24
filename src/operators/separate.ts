@@ -16,14 +16,21 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function separate<T, E>(results: readonly IResultOfT<T, E>[]): { ok: T[]; err: E[] } {
-    const okValues: T[] = [];
-    const errValues: E[] = [];
+    // Pre-size both arrays to `results.length`. Worst-case: one side holds all
+    // elements, the other is sliced down to empty. This avoids dynamic resizing
+    // for large inputs.
+    const okValues: T[] = new Array(results.length);
+    const errValues: E[] = new Array(results.length);
+    let okCount = 0;
+    let errCount = 0;
     for(const r of results) {
         if(r.isSuccess) {
-            okValues.push(r.value);
+            okValues[okCount++] = r.value;
         } else {
-            errValues.push(r.error);
+            errValues[errCount++] = r.error;
         }
     }
+    okValues.length = okCount;
+    errValues.length = errCount;
     return { ok: okValues, err: errValues };
 }
