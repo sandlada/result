@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * @fileoverview Side-effect on success that can propagate errors. Calls `fn` with the value on success; if `fn` fails the failure widens into the original error type.
@@ -37,8 +38,8 @@ export function andThrough<T, E, F>(
             if (!r.isSuccess) return r as unknown as IResultOfT<T, E | F>;
             try {
                 const next = await fn(r.value);
-                const nextResult = (next && 'run' in next && typeof next.run === 'function')
-                    ? await next.run()
+                const nextResult = isAsyncCarrier(next)
+                    ? await (next as AsyncResult<unknown, F>).run()
                     : (next as IResultOfT<unknown, F>);
 
                 if (nextResult.isSuccess) return r as unknown as IResultOfT<T, E | F>;

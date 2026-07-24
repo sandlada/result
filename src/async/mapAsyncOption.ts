@@ -4,6 +4,9 @@ import { ofSome, ofNone } from '../option/index.js';
 /**
  * @fileoverview Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
  *
+ * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
  * @example
  * ```ts
  * import { mapAsyncOption } from '@sandlada/result';

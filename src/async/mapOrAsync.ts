@@ -3,6 +3,10 @@
  * The mapping function may be sync or async. Equivalent to `mapAsync(fn).then(unwrapOrAsync(defaultValue))`
  * but more efficient.
  *
+ * **Throw policy**: if `fn` throws synchronously or its returned `Promise<B>` rejects,
+ * the result is `defaultValue` (not an `Err`). The thrown reason is discarded —
+ * use `mapAsync(fn).then(unwrapOrElse(err))` if you need the reason.
+ *
  * @example
  * ```ts
  * import { mapOrAsync, asyncOk, asyncErr } from '@sandlada/result';

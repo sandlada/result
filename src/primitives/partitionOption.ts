@@ -3,6 +3,11 @@
  * values and the **indices** of `None`s. The index array is preserved so callers
  * can match the original list (useful when validating a fixed-shape schema).
  *
+ * Unlike {@link separate}, which partitions `IResultOfT` into `Ok`/`Err` values,
+ * `partitionOption` returns only `Some` values plus the **indices** of `None`s
+ * (because `None` carries no payload to preserve). If you need the `None`
+ * indices for `IResultOfT`, use `combineWithAllErrors` instead.
+ *
  * @example
  * ```ts
  * import { partitionOption } from '@sandlada/result/primitives';
@@ -29,6 +34,8 @@ export function partitionOption<T>(opts: readonly IOption<T>[]): Partitioned<T> 
     const some: T[] = [];
     const noneIndices: number[] = [];
     for (let i = 0; i < opts.length; i++) {
+        // Loop guard `i < opts.length` ensures `opts[i]` is defined; the
+        // non-null assertion is safe under `noUncheckedIndexedAccess`.
         const o = opts[i]!;
         if (o.isSome) some.push(o.value);
         else noneIndices.push(i);

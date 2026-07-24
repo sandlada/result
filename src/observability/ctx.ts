@@ -10,6 +10,12 @@
  * This is intentionally **not** `AsyncLocalStorage`-based. It works the
  * same on the main thread and isolates well inside promises.
  *
+ * **Concurrency caveat**: the path stack is **process-global** and not async-safe.
+ * Two `ctx.run` invocations that overlap on the event loop (e.g. inside
+ * `Promise.all([ctx.run(...), ctx.run(...)])`) will see each other's segments
+ * and may corrupt each other's breadcrumb paths. Use sequential `await`
+ * boundaries, or wrap each scope with `ctx.run` and avoid concurrent access.
+ *
  * @example
  * ```ts
  * import { ctx, getPath, withPath, tapErrContext } from '@sandlada/result/observability';

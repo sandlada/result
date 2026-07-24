@@ -4,6 +4,9 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 /**
  * @fileoverview Flattens a nested AsyncResult.
  *
+ * **Single-step only**: unwraps exactly one layer. Call `flatten` repeatedly
+ * to flatten deeper nests.
+ *
  * @example
  * ```ts
  * import { ok } from '@sandlada/result';

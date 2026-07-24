@@ -4,6 +4,12 @@
  *
  * The error is computed lazily — `errorFn` is only called when the option is None.
  *
+ * **Throw policy**: if `errorFn()` throws synchronously, the thrown value is
+ * captured as the result `error`. The function signature accepts a synchronous
+ * `() => E`; passing an async function is **not supported** — any returned
+ * Promise will be coerced via `err(Promise)` (you almost certainly want
+ * `okOrElseAsync` from `@sandlada/result/async` instead).
+ *
  * @example
  * ```ts
  * import { okOrElseOption, pipe } from '@sandlada/result';

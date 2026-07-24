@@ -38,6 +38,12 @@ export function fromPredicate<T, E>(
     errorOnFalse: E,
     value?: T,
 ): IResultOfT<T, E> | ((value: T) => IResultOfT<T, E>) {
+    // Use `arguments.length` to distinguish the 2-argument curried form
+    // (`fromPredicate(p, err)`) from the 3-argument direct form
+    // (`fromPredicate(p, err, value)`). This works even when `T` includes
+    // `undefined` (e.g. `fromPredicate(p, err, undefined)`) because we count
+    // arguments, not whether they are defined. The pattern matches the
+    // canonical "data + function" curried overload used throughout the library.
     if(arguments.length < 3) return (value: T): IResultOfT<T, E> => fromPredicate(predicate, errorOnFalse, value);
     if(predicate(value!)) return ok(value!) as IResultOfT<T, E>;
     return err(errorOnFalse) as IResultOfT<T, E>;

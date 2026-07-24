@@ -17,6 +17,7 @@
 
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 export function bind<T, U, E>(
     fn: (value: T) => AsyncResult<U, E> | Promise<IResultOfT<U, E>>,
@@ -36,8 +37,8 @@ export function bind<T, U, E>(
             if(!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             try {
                 const next = await fn(r.value);
-                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
-                    return next.run();
+                if (isAsyncCarrier(next)) {
+                    return (next as AsyncResult<U, E>).run();
                 }
                 return next as IResultOfT<U, E>;
             } catch(e: unknown) {

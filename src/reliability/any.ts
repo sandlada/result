@@ -7,6 +7,10 @@
  *
  * `any` is **lazy** and does **not** short-circuit — all thunks are guaranteed to run.
  *
+ * **Order**: `successes` and `errors` are populated in the order their underlying
+ * runs settle (microtask scheduling), not input order. Use `allSettled` if input
+ * order matters.
+ *
  * @example
  * ```ts
  * import { any } from '@sandlada/result/reliability';

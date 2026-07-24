@@ -6,6 +6,15 @@
  *
  * `timeout` is **lazy** — it never triggers `ar.run()` until `.run()` is invoked.
  *
+ * **Cancellation caveat**: JavaScript Promises cannot be forcibly cancelled.
+ * When the timer fires first, `timeout` returns `Err(onTimeout(ms))` but the
+ * inner `ar.run()` **continues executing** in the background — its eventual
+ * settlement is discarded. For long-running or resource-heavy inner work
+ * (network I/O, file I/O, large computations), this is a resource leak. If
+ * cooperative cancellation is required, wrap the inner work in a cancellable
+ * primitive (e.g. one that listens to an `AbortSignal`) before passing it to
+ * `timeout`.
+ *
  * @example
  * ```ts
  * import { timeout } from '@sandlada/result/reliability';

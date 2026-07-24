@@ -4,6 +4,9 @@ import { ofNone } from '../option/index.js';
 /**
  * @fileoverview Error recovery for async options.
  *
+ * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
  * @example
  * ```ts
  * import { orElseAsyncOption } from '@sandlada/result';

@@ -8,6 +8,11 @@
  * called; you do not need to invoke a returned curried function. Combine with
  * `ctx.run(fn)` for lexically scoped paths.
  *
+ * **Leak warning**: calling `withPath(segment)` outside of a `ctx.run(fn)` scope
+ * permanently appends `segment` to the process-global path stack. There is no
+ * automatic cleanup for standalone use — in long-running services this leaks.
+ * Always wrap standalone calls in `ctx.run`.
+ *
  * @example
  * ```ts
  * import { withPath } from '@sandlada/result/observability';

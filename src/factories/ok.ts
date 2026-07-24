@@ -19,6 +19,10 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 export function ok(): IResult<never>;
 export function ok<T>(value: T): IResultOfT<T, never>;
 export function ok<T>(value?: T): IResult<never> | IResultOfT<T, never> {
+    // Use `arguments.length` to distinguish the no-argument form (`ok()`) from
+    // the value-carrying form (`ok(value)`). This works even when `T` includes
+    // `undefined` (e.g. `ok(undefined)`) because we count arguments, not whether
+    // they are defined.
     if(arguments.length === 0) return { isSuccess: true as const, isFailure: false as const };
     return { isSuccess: true as const, isFailure: false as const, value: value! } as IResultOfT<T, never>;
 }

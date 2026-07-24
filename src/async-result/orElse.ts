@@ -16,6 +16,7 @@
 
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 export function orElse<T, E, F>(
     fn: (error: E) => AsyncResult<T, F> | Promise<IResultOfT<T, F>>,
@@ -35,8 +36,8 @@ export function orElse<T, E, F>(
             if(r.isSuccess) return r as unknown as IResultOfT<T, E | F>;
             try {
                 const next = await fn(r.error);
-                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
-                    return next.run() as Promise<IResultOfT<T, E | F>>;
+                if (isAsyncCarrier(next)) {
+                    return (next as AsyncResult<T, F>).run() as Promise<IResultOfT<T, E | F>>;
                 }
                 return next as IResultOfT<T, E | F>;
             } catch(e: unknown) {

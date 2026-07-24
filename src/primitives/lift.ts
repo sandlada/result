@@ -8,6 +8,13 @@
  * `errorFn` is given, thrown errors propagate out of `lift(...)` itself (matching
  * `unwrapOr`'s documented throw policy).
  *
+ * **Note on `E = never`**: the single-argument overload has default error type
+ * `never`. This reflects the **type-level** guarantee that the function never
+ * produces an `Err` when no `errorFn` is supplied — but the function itself can
+ * still throw at runtime, in which case the throw propagates synchronously to
+ * the caller. If you want all errors funneled into the `Err` channel, supply
+ * an `errorFn`.
+ *
  * @example
  * ```ts
  * import { lift } from '@sandlada/result/primitives';
@@ -15,6 +22,9 @@
  * const parseInt = lift((s: string) => parseInt(s, 10), (e) => new Error(String(e)));
  * parseInt('21');   // Ok(21)
  * parseInt('xx');   // Err(Error('...'))
+ *
+ * const total = lift((n: number) => n * 2); // E = never; cannot produce Err.
+ * total(21); // Ok(42) — but if the function throws, the throw escapes.
  * ```
  *
  * @note Ready for Product

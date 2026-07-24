@@ -1,6 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * @fileoverview Chains an AsyncOption-returning function on success (monadic bind / flatMap).
@@ -36,8 +37,8 @@ export function bind<T, U>(
             if (!opt.isSome) return ofNone();
             try {
                 const next = await fn(opt.value);
-                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
-                    return next.run();
+                if (isAsyncCarrier(next)) {
+                    return (next as AsyncOption<U>).run();
                 }
                 return next as IOption<U>;
             } catch {

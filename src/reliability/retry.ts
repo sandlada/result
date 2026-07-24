@@ -5,6 +5,12 @@
  * function up to `times + 1` times. Use `shouldRetry` to filter transient errors
  * (timeouts, network blips) and `signal` to abort the retry loop.
  *
+ * **Error identity**: thrown `Error` instances are converted to their `.message`
+ * (or `.constructor.name` when the message is empty). Non-Error throws are
+ * stringified via `String(thrown)`. The original `Error` object, stack, and
+ * `cause` are **discarded**. If you need to preserve the original, wrap your
+ * function with `tryCatch` and pass the result through.
+ *
  * @example
  * ```ts
  * import { retry } from '@sandlada/result/reliability';
@@ -83,8 +89,8 @@ const computeDelay = <E>(
 
 /**
  * Convert any value rejected or thrown by the user function into an `Err`.
- * Default message is `String(thrown)` so the wrapper preserves the error type
- * `TError` as cheaply as possible while still capturing the original.
+ * Note: this **strips** `Error` identity — see the `@fileoverview` note about
+ * error identity. The thrown value is converted to a `string` and cast to `E`.
  */
 const toErrFailure = <E>(thrown: unknown): IResultOfT<never, E> => {
     const wrapped = thrown instanceof Error ? thrown.message || thrown.constructor.name : String(thrown);

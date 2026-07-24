@@ -4,6 +4,9 @@ import { ofNone } from '../option/index.js';
 /**
  * @fileoverview Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
  *
+ * **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
  * @example
  * ```ts
  * import { bindAsyncOption } from '@sandlada/result';

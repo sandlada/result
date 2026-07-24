@@ -1,6 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Recovers from None by chaining to an alternative AsyncOption or Promise<IOption>.
@@ -35,8 +36,8 @@ export function orElse<T>(
             if (opt.isSome) return opt;
             try {
                 const next = await fn();
-                if (next !== null && typeof next === 'object' && 'run' in next && typeof next.run === 'function') {
-                    return next.run();
+                if (isAsyncCarrier(next)) {
+                    return (next as AsyncOption<T>).run();
                 }
                 return next as IOption<T>;
             } catch {

@@ -33,6 +33,8 @@ export function reduce<T, E, Acc>(
 ): IResultOfT<Acc, E> {
     let acc: Acc = initial;
     for (let i = 0; i < items.length; i++) {
+        // Loop guard `i < items.length` ensures `items[i]` is defined; the
+        // non-null assertion is safe under `noUncheckedIndexedAccess`.
         const item = items[i]!;
         if (!item.isSuccess) return item as unknown as IResultOfT<Acc, E>;
         const next = reducer(acc, item.value, i);

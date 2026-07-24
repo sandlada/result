@@ -42,6 +42,12 @@ let active: Observer | null = null;
  * Install a process-wide observer. Returns a disposer. Multiple observers are
  * not supported; the most recently installed one replaces any previous. Pass
  * `null` to remove.
+ *
+ * **Disposal semantics**: the returned disposer follows restoration-stack
+ * behavior — when called, it restores the previously installed observer. If
+ * observer A is installed, then B, then A's disposer is called while B is
+ * still active, the call is a no-op (B remains active). Disposers must be
+ * called in **LIFO** order to clean up correctly.
  */
 export function installObserver(handler: Observer | null): () => void {
     const previous = active;
@@ -59,6 +65,11 @@ export const getActiveObserver = (): Observer | null => active;
 /**
  * Side-effecting pass-through. If an observer is installed, fires it with the
  * result and the current breadcrumb path; otherwise this is a no-op.
+ *
+ * **Observer errors are intentionally swallowed** so that a misbehaving reporter
+ * cannot blow up an otherwise healthy Result pipeline. If you need telemetry on
+ * a broken observer, wrap your handler with a `try / catch` that emits to a
+ * secondary channel.
  */
 export function observe<T, E>(r: IResultOfT<T, E>): IResultOfT<T, E> {
     const handler = active;

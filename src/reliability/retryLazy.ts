@@ -3,6 +3,14 @@
  * execution until the returned thunk is `run()`. Use when an existing AsyncResult
  * pipeline should retry transparently without changing upstream code.
  *
+ * **Error identity stripping**: like {@link retry}, thrown `Error` instances are
+ * converted to their `.message` (or `.constructor.name`) and non-Error throws
+ * are stringified. The original `Error` object, stack, and `cause` are discarded.
+ *
+ * **Attempt numbering**: the `attempt` parameter passed to `shouldRetry` and
+ * `onRetry` is **zero-based** (0 = first retry attempt after the initial call).
+ * The total number of invocations is `options.times + 1` (initial + retries).
+ *
  * @example
  * ```ts
  * import { retryLazy } from '@sandlada/result/reliability';
