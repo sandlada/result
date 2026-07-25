@@ -129,6 +129,93 @@ Beyond the core ROP operators, three additional concern-specific modules exist:
 
 Each module reuses the existing `IResultOfT` and `AsyncResult` types without inventing new abstractions, so consumers can pick a module without learning a separate mental model. All three are tree-shakeable via dedicated export paths in `package.json`.
 
+### ADR 8: Async Subpath Naming (`async-result`, `async-option`, `promise-result`, `promise-option`)
+
+**Decision:** Keep the current `async-*` / `promise-*` subpath names. Do **not** rename to `lazy-*` / `eager-*`.
+
+**Context considered:**
+
+- `async-result` operates on `AsyncResult<T,E>` — a lazy thunk wrapping `() => Promise<IResultOfT>`. The `async` prefix denotes the type name, not the `async/await` keyword.
+- `async-option` is parallel to `async-result`.
+- `promise-result` operates on `Promise<IResultOfT>` — an eager Promise already in flight.
+- `promise-option` is the parallel Option-flavored package (recently extracted from `promise-result/`).
+
+**Why not `lazy-*` / `eager-*`?**
+
+1. **Type names don't change.** `AsyncResult<T,E>` and `AsyncOption<T>` are well-established identifiers in the codebase; renaming the types would be a much larger breaking change than renaming the subpath.
+2. **Symmetry with `async/await` is intentional.** `async-result` reads naturally as "Result for async contexts" — even though the mechanism (lazy thunk) is more specific. `promise-result` reads as "Result on Promise". Both names are immediately searchable and self-documenting.
+3. **Avoids type/subpath divergence.** Renaming only the subpath would create confusion: type `AsyncResult` ≠ subpath `lazy-result`.
+4. **Migration cost.** Every existing user import would need updating. The current names already shipped to npm; renaming is a major-version bump with limited upside.
+
+**Documentation responsibilities:** All `async-*` and `promise-*` modules must clearly distinguish "lazy thunk" vs "eager Promise" in their README and JSDoc, since the `async` prefix is ambiguous on its own.
+
+### ADR 9: Main Barrel Aliasing for Async Variants — Rejected
+
+**Decision:** Main barrel `@sandlada/result` does **not** re-export `async-result` / `async-option` / `promise-result` / `promise-option` operators under aliased names (`promiseResultMap`, `asyncOptionBind`, etc.). Subpath imports are the only way to reach these operators.
+
+**Context considered:** Earlier, `src/index.ts` re-exported every async-result operator under a `promiseResult*` alias and every async-option operator under an `asyncOption*` alias to surface them at the top-level barrel without name collisions.
+
+**Why rejected?**
+
+1. **TS symbol table bloat.** Each alias adds an entry to the barrel's exported-symbol list, increasing IDE autocomplete latency and TypeScript resolution work — particularly because each `map` / `bind` / `tap` exists 2–4 times under different names and TS must do duplicate-name detection.
+2. **Awkward public names.** `promiseResultMap` / `asyncOptionBind` are not mnemonic — they expose the package layout instead of describing the operation. Users have no reason to see these.
+3. **Two-step type navigation.** Hovering or jumping on an aliased export lands on `index.d.ts`'s alias line first, then requires a second jump to the real definition.
+4. **Tree-shaking obstruction.** Every alias pulls in the *entire* aliased module's type graph even when the consumer only wants the synchronous layer.
+5. **Subpath imports are equally cheap.** `package.json` `exports` is O(1) and cached; `import { map } from '@sandlada/result/async-result'` resolves with no measurable overhead vs. `import { promiseResultMap } from '@sandlada/result'`.
+
+**Result:** Users needing async variants import explicitly:
+
+```ts
+import { map, bind } from '@sandlada/result/operators';           // sync
+import { map as mapAsync } from '@sandlada/result/promise-result'; // eager async
+import { from, bind } from '@sandlada/result/async-result';     // lazy async
+```
+
+Or compose via `pipe` / `pipeAsync` so the import style stays neutral.
+
+### ADR 10: Main Barrel — Type-Only
+
+**Decision:** The main barrel `@sandlada/result` (`src/index.ts` and its build output) exports **only the type contracts** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Every runtime value (factories, operators, composition helpers, etc.) is reachable **only** via dedicated subpath imports.
+
+**Context considered:** ADR 9 stopped short of removing re-exports for sync operators and helpers. The result was a ~50-name top-level barrel. Users still hit subtle collisions (`map` for Result vs Option, `pipe` vs `pipeAsync`, etc.) and IDE autocomplete lists remained cluttered.
+
+**Why go further?**
+
+1. **Resolve name collisions at the import site, not the barrel.** `map` means different things on `IResultOfT` and `IOption`. The compiler can't disambiguate; the package layout can. Subpath imports (`@sandlada/result/operators/map` vs `@sandlada/result/option/map`) make the type explicit at the call site.
+2. **Tree-shaking becomes total.** With no runtime re-exports in the main barrel, the only way to drag a function into a bundle is to explicitly import it. There is no incidental inclusion.
+3. **TypeScript symbol table collapses to ~5 entries.** IDE autocomplete, `go-to-definition`, and project-wide symbol search operate on the barrel's export list. Smaller list = faster.
+4. **No "main barrel" knowledge to maintain.** `package.json` `exports` continues to point at the file for backward compatibility — it just contains type re-exports and a no-op `export {}` at runtime.
+
+**Trade-offs accepted:**
+
+- Users who currently do `import { ok, map, pipe } from '@sandlada/result'` need to import from subpaths. This is the breaking change. Documented in `README.md` and `SPEC.md`.
+- Some ergonomic short-hands are gone (e.g. `import { ok, err } from '@sandlada/result'`). The two-import replacement (`from '@sandlada/result/factories'`) is short enough to be a non-issue.
+
+**Result:** The barrel is now:
+
+```ts
+// src/index.ts — and its .d.ts counterpart
+export type { IResult, IResultSuccess, IResultFailure } from './types/IResult.js';
+export type { IResultOfT, IResultOfTSuccess, IResultOfTFailure } from './types/IResultOfT.js';
+export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
+export type { AsyncResult } from './types/AsyncResult.js';
+export type { AsyncOption } from './types/AsyncOption.js';
+```
+
+The runtime counterpart is `export {};` — a valid no-op module.
+
+**Migration path:**
+
+```ts
+// Before
+import { ok, map, bind, pipe } from '@sandlada/result';
+
+// After
+import { ok } from '@sandlada/result/factories';
+import { map, bind } from '@sandlada/result/operators';
+import { pipe } from '@sandlada/result/composition';
+```
+
 ## Document Responsibilities
 
 | Document | Role |

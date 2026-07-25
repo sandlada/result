@@ -35,11 +35,13 @@ npm i @sandlada/result
 
 ## :ship: Quick Start
 
+The main barrel `@sandlada/result` is **type-only**. Runtime values come from dedicated subpath packages — pick the one that matches your shape.
+
 ```ts
-import { ok, err, pipe, map, bind, unwrapOr } from '@sandlada/result';
-import type { IResultOfT } from '@sandlada/result';
-
-
+import type { IResultOfT } from '@sandlada/result';              // type contracts
+import { ok, err } from '@sandlada/result/factories';             // core constructors
+import { map, unwrapOr } from '@sandlada/result/operators';       // sync operators
+import { pipe } from '@sandlada/result/composition';              // pipe / composeK / safeTry
 
 // Define your error type (discriminated union recommended)
 type AppError =
@@ -65,27 +67,29 @@ const name = pipe(
 );
 ```
 
+> **Why subpath imports?** `@sandlada/result` exposes many types — `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Names like `map`, `bind`, `match` exist for both `IResultOfT` and `IOption`. The compiler can't disambiguate; the package layout does. Subpath imports make the type explicit at the call site and keep tree-shaking total. See `ARCH.md` ADR 10.
+
 ## :ledger: API Overview
 
 All exports are listed in [SPEC.md](./SPEC.md) with links to their source files. Full type signatures and JSDoc live in the source.
 
 | Export path | Contents |
 | --- | --- |
-| `@sandlada/result` | Core types, factories, sync + async operators, adapters, composition, combine (everything) |
-| `@sandlada/result/promise-result` | Async operators on `Promise<IResultOfT>` |
-| `@sandlada/result/promise-option` | Async operators on `Promise<IOption>` |
-| `@sandlada/result/async-result` | Lazy AsyncResult thunks |
-| `@sandlada/result/async-option` | Lazy AsyncOption thunks |
-| `@sandlada/result/adapters` | Wlaschin three-shape adapters |
-| `@sandlada/result/combine` | Parallel combination |
-| `@sandlada/result/composition` | Composition helpers |
-| `@sandlada/result/factories` | Core constructors |
-| `@sandlada/result/operators` | Sync operators |
-| `@sandlada/result/option` | `IOption<T>` operators |
-| `@sandlada/result/reliability` | Retry / timeout / concurrency |
-| `@sandlada/result/observability` | Breadcrumbs + formatters + observer hooks |
-| `@sandlada/result/primitives` | High-frequency helpers |
-| `@sandlada/result/types` | Type definitions only |
+| `@sandlada/result` | **Type-only barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Runtime values must use a subpath. |
+| `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, …). |
+| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe`, …). |
+| `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). |
+| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. |
+| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. |
+| `@sandlada/result/promise-result` | Eager async operators on `Promise<IResultOfT>`. |
+| `@sandlada/result/promise-option` | Eager async operators on `Promise<IOption>`. |
+| `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. |
+| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … |
+| `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. |
+| `@sandlada/result/reliability` | `retry`, `retryLazy`, `timeout`, `race`, `any`, `allSettled`. |
+| `@sandlada/result/observability` | `ctx`, `withPath`, `format`, `inspect`, `installObserver`, … |
+| `@sandlada/result/primitives` | `cond`, `condErr`, `sequence`, `reduce`, `partitionOption`, `lift`. |
+| `@sandlada/result/types` | Same as the main barrel — type contracts only. Kept for backward compatibility. |
 
 ## :package: Integration Pattern
 
@@ -93,7 +97,7 @@ Bind your error type once and eliminate generic boilerplate:
 
 ```ts
 // app-result.ts
-import { ok, err } from '@sandlada/result';
+import { ok, err } from '@sandlada/result/factories';
 import type { IResultOfT } from '@sandlada/result';
 import type { AppError } from './errors.js';
 

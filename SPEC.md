@@ -28,20 +28,21 @@ npm install @sandlada/result
 
 | Entry point | Contents |
 | --- | --- |
-| `@sandlada/result` | Main barrel — all exports. |
-| `@sandlada/result/types` | Type definitions only. |
-| `@sandlada/result/factories` | Core constructors. |
-| `@sandlada/result/operators` | Sync operators. |
-| `@sandlada/result/promise-result` | Async operators (eager `Promise<...>`). |
-| `@sandlada/result/composition` | Composition helpers. |
-| `@sandlada/result/adapters` | Result / Option / shape adapters. |
-| `@sandlada/result/combine` | Parallel combination. |
-| `@sandlada/result/option` | `IOption<T>` operators. |
-| `@sandlada/result/async-result` | Lazy AsyncResult thunks. |
-| `@sandlada/result/async-option` | Lazy AsyncOption thunks. |
+| `@sandlada/result` | **Type-only barrel.** Re-exports `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption` only. Runtime values must come from a subpath. |
+| `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `fromPredicate`, `tryCatch`, etc.). |
+| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe` companions, …). |
+| `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). |
+| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. |
+| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. |
+| `@sandlada/result/promise-result` | Eager async operators on `Promise<IResultOfT<T, E>>`. |
+| `@sandlada/result/promise-option` | Eager async operators on `Promise<IOption<T>>`. |
+| `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, etc. |
+| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `tee`, etc. |
+| `@sandlada/result/combine` | Parallel combination (`combine`, `combineWithAllErrors`). |
 | `@sandlada/result/reliability` | Retry / timeout / concurrency. |
 | `@sandlada/result/observability` | Breadcrumbs + formatters + observer hooks. |
-| `@sandlada/result/primitives` | High-frequency helpers. |
+| `@sandlada/result/primitives` | High-frequency helpers (`cond`, `reduce`, `partitionOption`, `lift`). |
+| `@sandlada/result/types` | Re-exports the same type contracts as `@sandlada/result` — kept for backward compatibility. |
 
 ## Core Types
 
@@ -126,22 +127,47 @@ All result and option values are plain discriminated union objects with `readonl
 
 ### Async Operators — `src/promise-result/`
 
-Apply to `Promise<IResultOfT<T, E>>`. Callbacks may be sync or async.
+Apply to `Promise<IResultOfT<T, E>>` and `Promise<IOption<T>>`. Callbacks may be sync or async.
 
 | Export | Description | Source |
 | --- | --- | --- |
+| **Sync input / sync fn (operate on `Promise<IResultOfT>`, strictly sync fn)** | | |
+| `map` / `mapErr` | Transform success / error. | [src/promise-result/map.ts](./src/promise-result/map.ts), [src/promise-result/mapErr.ts](./src/promise-result/mapErr.ts) |
+| `unwrapOr` / `unwrapOrElse` | Extract value with default / lazy default. | [src/promise-result/unwrapOr.ts](./src/promise-result/unwrapOr.ts), [src/promise-result/unwrapOrElse.ts](./src/promise-result/unwrapOrElse.ts) |
+| `flatten` | Flatten nested `Promise<IResultOfT>`. | [src/promise-result/flatten.ts](./src/promise-result/flatten.ts) |
+| **Async fn on `Promise<IResultOfT>`** | | |
 | `mapAsync` / `mapErrAsync` | Transform success / error. | [src/promise-result/mapAsync.ts](./src/promise-result/mapAsync.ts), [src/promise-result/mapErrAsync.ts](./src/promise-result/mapErrAsync.ts) |
 | `mapOrAsync` / `mapOrElseAsync` | Map success or fall back. | [src/promise-result/mapOrAsync.ts](./src/promise-result/mapOrAsync.ts), [src/promise-result/mapOrElseAsync.ts](./src/promise-result/mapOrElseAsync.ts) |
 | `bindAsync` / `orElseAsync` | Monadic chain / recovery. | [src/promise-result/bindAsync.ts](./src/promise-result/bindAsync.ts), [src/promise-result/orElseAsync.ts](./src/promise-result/orElseAsync.ts) |
+| `bindThroughAsync` | Side-effect that propagates errors. | [src/promise-result/bindThroughAsync.ts](./src/promise-result/bindThroughAsync.ts) |
 | `matchAsync` | Terminal pattern-match. | [src/promise-result/matchAsync.ts](./src/promise-result/matchAsync.ts) |
 | `tapAsync` / `tapErrAsync` | Side-effects on success / failure. | [src/promise-result/tapAsync.ts](./src/promise-result/tapAsync.ts), [src/promise-result/tapErrAsync.ts](./src/promise-result/tapErrAsync.ts) |
-| `unwrapOrAsync` / `unwrapOrElseAsync` | Extract value with default. | [src/promise-result/unwrapOrAsync.ts](./src/promise-result/unwrapOrAsync.ts), [src/promise-result/unwrapOrElseAsync.ts](./src/promise-result/unwrapOrElseAsync.ts) |
-| `asyncMap` / `asyncBind` / `asyncBindThrough` | Bridge sync Result → async. | [src/promise-result/asyncMap.ts](./src/promise-result/asyncMap.ts), [src/promise-result/asyncBind.ts](./src/promise-result/asyncBind.ts), [src/promise-result/asyncBindThrough.ts](./src/promise-result/asyncBindThrough.ts) |
-| `asyncTap` / `asyncTapErr` | Async side-effect on sync Result. | [src/promise-result/asyncTap.ts](./src/promise-result/asyncTap.ts), [src/promise-result/asyncTapErr.ts](./src/promise-result/asyncTapErr.ts) |
-| `bindThroughAsync` | Side-effect that propagates errors. | [src/promise-result/bindThroughAsync.ts](./src/promise-result/bindThroughAsync.ts) |
+| `unwrapOrAsync` / `unwrapOrElseAsync` | Extract value with default. Returns `Promise<A>` (bare value). | [src/promise-result/unwrapOrAsync.ts](./src/promise-result/unwrapOrAsync.ts), [src/promise-result/unwrapOrElseAsync.ts](./src/promise-result/unwrapOrElseAsync.ts) |
 | `bimapAsync` / `swapAsync` / `flattenAsync` | Variant transforms async. | [src/promise-result/bimapAsync.ts](./src/promise-result/bimapAsync.ts), [src/promise-result/swapAsync.ts](./src/promise-result/swapAsync.ts), [src/promise-result/flattenAsync.ts](./src/promise-result/flattenAsync.ts) |
 | `containsAsync` / `existsAsync` / `filterOrElseAsync` | Predicate queries. | [src/promise-result/containsAsync.ts](./src/promise-result/containsAsync.ts), [src/promise-result/existsAsync.ts](./src/promise-result/existsAsync.ts), [src/promise-result/filterOrElseAsync.ts](./src/promise-result/filterOrElseAsync.ts) |
-| Async option variants | `mapAsyncOption`, `bindAsyncOption`, `matchAsyncOption`, `orElseAsyncOption`, `tapAsyncOption`, `unwrapOrAsyncOption`, `asyncBindOption`, `asyncTapOption`, `filterAsyncOption`, `flattenAsyncOption`, `containsAsyncOption`, `existsAsyncOption`. | [src/promise-result/](./src/promise-result/) |
+| **Lift sync Result → async** | | |
+| `asyncMap` / `asyncBind` / `asyncBindThrough` | Bridge sync Result → async. | [src/promise-result/asyncMap.ts](./src/promise-result/asyncMap.ts), [src/promise-result/asyncBind.ts](./src/promise-result/asyncBind.ts), [src/promise-result/asyncBindThrough.ts](./src/promise-result/asyncBindThrough.ts) |
+| `asyncOrElse` / `asyncMatch` | Async recovery / pattern-match on sync Result. | [src/promise-result/asyncOrElse.ts](./src/promise-result/asyncOrElse.ts), [src/promise-result/asyncMatch.ts](./src/promise-result/asyncMatch.ts) |
+| `asyncTap` / `asyncTapErr` | Async side-effect on sync Result. | [src/promise-result/asyncTap.ts](./src/promise-result/asyncTap.ts), [src/promise-result/asyncTapErr.ts](./src/promise-result/asyncTapErr.ts) |
+| **Applicative & combinators** | | |
+| `ap` | Apply wrapped function to wrapped value. | [src/promise-result/ap.ts](./src/promise-result/ap.ts) |
+| `combine` / `combineWithAllErrors` | Parallel combination (short-circuit / accumulate). | [src/promise-result/combine.ts](./src/promise-result/combine.ts), [src/promise-result/combineWithAllErrors.ts](./src/promise-result/combineWithAllErrors.ts) |
+
+### AsyncOption (eager `Promise<IOption<T>>`) — `src/promise-option/`
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `mapAsyncOption` / `bindAsyncOption` / `orElseAsyncOption` / `matchAsyncOption` | Map / chain / recover / match on `Promise<IOption>`. | [src/promise-option/mapAsyncOption.ts](./src/promise-option/mapAsyncOption.ts), [src/promise-option/bindAsyncOption.ts](./src/promise-option/bindAsyncOption.ts), [src/promise-option/orElseAsyncOption.ts](./src/promise-option/orElseAsyncOption.ts), [src/promise-option/matchAsyncOption.ts](./src/promise-option/matchAsyncOption.ts) |
+| `mapOrAsyncOption` / `mapOrElseAsyncOption` | Map or fall back. | [src/promise-option/mapOrAsyncOption.ts](./src/promise-option/mapOrAsyncOption.ts), [src/promise-option/mapOrElseAsyncOption.ts](./src/promise-option/mapOrElseAsyncOption.ts) |
+| `tapAsyncOption` / `tapErrAsyncOption` | Side-effects. | [src/promise-option/tapAsyncOption.ts](./src/promise-option/tapAsyncOption.ts), [src/promise-option/tapErrAsyncOption.ts](./src/promise-option/tapErrAsyncOption.ts) |
+| `unwrapOrAsyncOption` / `unwrapOrElseAsyncOption` | Extract value with default. | [src/promise-option/unwrapOrAsyncOption.ts](./src/promise-option/unwrapOrAsyncOption.ts), [src/promise-option/unwrapOrElseAsyncOption.ts](./src/promise-option/unwrapOrElseAsyncOption.ts) |
+| `containsAsyncOption` / `existsAsyncOption` / `filterAsyncOption` | Predicate queries. | [src/promise-option/containsAsyncOption.ts](./src/promise-option/containsAsyncOption.ts), [src/promise-option/existsAsyncOption.ts](./src/promise-option/existsAsyncOption.ts), [src/promise-option/filterAsyncOption.ts](./src/promise-option/filterAsyncOption.ts) |
+| `flattenAsyncOption` | Flatten `Promise<IOption<IOption>>`. | [src/promise-option/flattenAsyncOption.ts](./src/promise-option/flattenAsyncOption.ts) |
+| **Lift sync `IOption` → async** | | |
+| `asyncBindOption` / `asyncTapOption` | Bridge sync Option → async. | [src/promise-option/asyncBindOption.ts](./src/promise-option/asyncBindOption.ts), [src/promise-option/asyncTapOption.ts](./src/promise-option/asyncTapOption.ts) |
+| `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption` | Async lift on sync Option. | [src/promise-option/asyncMapOption.ts](./src/promise-option/asyncMapOption.ts), [src/promise-option/asyncOrElseOption.ts](./src/promise-option/asyncOrElseOption.ts), [src/promise-option/asyncMatchOption.ts](./src/promise-option/asyncMatchOption.ts) |
+
+> **Note:** `unwrapOrAsync` / `unwrapOrElseAsync` previously returned `Promise<IResultOfT<A, unknown>>`; they now return `Promise<A>` (the bare unwrapped value), matching the Rust-style semantics implied by the name. Default values or error-handler rejections now propagate via the outer Promise's rejection channel rather than being wrapped as `Err`.
 
 ### AsyncResult (lazy thunks) — `src/async-result/`
 
@@ -151,25 +177,33 @@ Operators return a new `AsyncResult` without executing. Terminal operators (`mat
 | --- | --- | --- |
 | `from` / `fromPromise` / `fromResult` | Factories. | [src/async-result/from.ts](./src/async-result/from.ts), [src/async-result/fromPromise.ts](./src/async-result/fromPromise.ts), [src/async-result/fromResult.ts](./src/async-result/fromResult.ts) |
 | `map` / `mapAsync` / `mapErr` / `mapErrAsync` | Transform success / error. | [src/async-result/map.ts](./src/async-result/map.ts), [src/async-result/mapAsync.ts](./src/async-result/mapAsync.ts), [src/async-result/mapErr.ts](./src/async-result/mapErr.ts), [src/async-result/mapErrAsync.ts](./src/async-result/mapErrAsync.ts) |
+| `mapOr` / `mapOrElse` | Map success or fall back. | [src/async-result/mapOr.ts](./src/async-result/mapOr.ts), [src/async-result/mapOrElse.ts](./src/async-result/mapOrElse.ts) |
 | `bind` / `orElse` | Monadic chain / recovery. | [src/async-result/bind.ts](./src/async-result/bind.ts), [src/async-result/orElse.ts](./src/async-result/orElse.ts) |
+| `and` / `or` | Logical AND / OR (short-circuit, lazy on the right). | [src/async-result/and.ts](./src/async-result/and.ts), [src/async-result/or.ts](./src/async-result/or.ts) |
 | `tap` / `tapAsync` / `tapErr` / `tapErrAsync` | Side-effects. | [src/async-result/tap.ts](./src/async-result/tap.ts), [src/async-result/tapAsync.ts](./src/async-result/tapAsync.ts), [src/async-result/tapErr.ts](./src/async-result/tapErr.ts), [src/async-result/tapErrAsync.ts](./src/async-result/tapErrAsync.ts) |
 | `combine` / `combineWithAllErrors` | Parallel combination. | [src/async-result/combine.ts](./src/async-result/combine.ts), [src/async-result/combineWithAllErrors.ts](./src/async-result/combineWithAllErrors.ts) |
 | `bimap` / `swapAsync` / `flatten` | Variant transforms. | [src/async-result/bimap.ts](./src/async-result/bimap.ts), [src/async-result/swapAsync.ts](./src/async-result/swapAsync.ts), [src/async-result/flatten.ts](./src/async-result/flatten.ts) |
-| `contains` / `exists` / `filterOrElse` | Predicate queries. | [src/async-result/contains.ts](./src/async-result/contains.ts), [src/async-result/exists.ts](./src/async-result/exists.ts), [src/async-result/filterOrElse.ts](./src/async-result/filterOrElse.ts) |
+| `contains` / `containsErr` / `exists` / `filterOrElse` | Predicate queries. | [src/async-result/contains.ts](./src/async-result/contains.ts), [src/async-result/containsErr.ts](./src/async-result/containsErr.ts), [src/async-result/exists.ts](./src/async-result/exists.ts), [src/async-result/filterOrElse.ts](./src/async-result/filterOrElse.ts) |
+| `isOk` / `isErr` | Standalone boolean predicates. | [src/async-result/isOk.ts](./src/async-result/isOk.ts), [src/async-result/isErr.ts](./src/async-result/isErr.ts) |
 | `andTee` / `orTee` / `andThrough` | Side-effects (ignoring / propagating). | [src/async-result/andTee.ts](./src/async-result/andTee.ts), [src/async-result/orTee.ts](./src/async-result/orTee.ts), [src/async-result/andThrough.ts](./src/async-result/andThrough.ts) |
 | `ap` | Apply wrapped function to wrapped value. | [src/async-result/ap.ts](./src/async-result/ap.ts) |
-| `match` / `unwrapOr` | Terminal operators. | [src/async-result/match.ts](./src/async-result/match.ts), [src/async-result/unwrapOr.ts](./src/async-result/unwrapOr.ts) |
+| `match` / `unwrap` / `unwrapErr` / `expect` / `expectErr` / `unwrapOr` / `unwrapOrElse` | Terminal operators. | [src/async-result/match.ts](./src/async-result/match.ts), [src/async-result/unwrap.ts](./src/async-result/unwrap.ts), [src/async-result/unwrapErr.ts](./src/async-result/unwrapErr.ts), [src/async-result/expect.ts](./src/async-result/expect.ts), [src/async-result/expectErr.ts](./src/async-result/expectErr.ts), [src/async-result/unwrapOr.ts](./src/async-result/unwrapOr.ts), [src/async-result/unwrapOrElse.ts](./src/async-result/unwrapOrElse.ts) |
 
 ### AsyncOption (lazy thunks) — `src/async-option/`
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `from` / `fromPromise` / `fromOption` | Factories. | [src/async-option/from.ts](./src/async-option/from.ts), [src/async-option/fromPromise.ts](./src/async-option/fromPromise.ts), [src/async-option/fromOption.ts](./src/async-option/fromOption.ts) |
-| `map` / `mapAsync` / `bind` / `orElse` | Transform / chain. | [src/async-option/map.ts](./src/async-option/map.ts), [src/async-option/mapAsync.ts](./src/async-option/mapAsync.ts), [src/async-option/bind.ts](./src/async-option/bind.ts), [src/async-option/orElse.ts](./src/async-option/orElse.ts) |
+| `from` / `fromPromise` / `fromOption` | Factories from thunk / Promise / sync Option. | [src/async-option/from.ts](./src/async-option/from.ts), [src/async-option/fromPromise.ts](./src/async-option/fromPromise.ts), [src/async-option/fromOption.ts](./src/async-option/fromOption.ts) |
+| `ofSome` / `ofNone` | Direct constructors (Some / None). | [src/async-option/ofSome.ts](./src/async-option/ofSome.ts), [src/async-option/ofNone.ts](./src/async-option/ofNone.ts) |
+| `map` / `mapAsync` / `mapOr` / `mapOrElse` | Transform Some / fall back on None. | [src/async-option/map.ts](./src/async-option/map.ts), [src/async-option/mapAsync.ts](./src/async-option/mapAsync.ts), [src/async-option/mapOr.ts](./src/async-option/mapOr.ts), [src/async-option/mapOrElse.ts](./src/async-option/mapOrElse.ts) |
+| `bind` / `orElse` | Monadic chain / recovery. | [src/async-option/bind.ts](./src/async-option/bind.ts), [src/async-option/orElse.ts](./src/async-option/orElse.ts) |
 | `tap` / `tapAsync` | Side-effects on Some. | [src/async-option/tap.ts](./src/async-option/tap.ts), [src/async-option/tapAsync.ts](./src/async-option/tapAsync.ts) |
 | `filter` / `flatten` | Filter / flatten. | [src/async-option/filter.ts](./src/async-option/filter.ts), [src/async-option/flatten.ts](./src/async-option/flatten.ts) |
-| `contains` / `exists` | Predicate queries. | [src/async-option/contains.ts](./src/async-option/contains.ts), [src/async-option/exists.ts](./src/async-option/exists.ts) |
-| `match` / `unwrapOr` | Terminal operators. | [src/async-option/match.ts](./src/async-option/match.ts), [src/async-option/unwrapOr.ts](./src/async-option/unwrapOr.ts) |
+| `zipWith` / `all` | Combine two / many AsyncOptions. | [src/async-option/zipWith.ts](./src/async-option/zipWith.ts), [src/async-option/all.ts](./src/async-option/all.ts) |
+| `okOr` / `okOrElse` | AsyncOption → AsyncResult bridge. | [src/async-option/okOr.ts](./src/async-option/okOr.ts), [src/async-option/okOrElse.ts](./src/async-option/okOrElse.ts) |
+| `transpose` | Swap `AsyncOption<AsyncResult>` ↔ `AsyncResult<AsyncOption>`. | [src/async-option/transpose.ts](./src/async-option/transpose.ts) |
+| `contains` / `exists` / `isSome` / `isNone` | Predicate queries. | [src/async-option/contains.ts](./src/async-option/contains.ts), [src/async-option/exists.ts](./src/async-option/exists.ts), [src/async-option/isSome.ts](./src/async-option/isSome.ts), [src/async-option/isNone.ts](./src/async-option/isNone.ts) |
+| `match` / `unwrap` / `unwrapOr` / `unwrapOrElse` | Terminal operators. | [src/async-option/match.ts](./src/async-option/match.ts), [src/async-option/unwrap.ts](./src/async-option/unwrap.ts), [src/async-option/unwrapOr.ts](./src/async-option/unwrapOr.ts), [src/async-option/unwrapOrElse.ts](./src/async-option/unwrapOrElse.ts) |
 
 ### Option Module — `src/option/`
 
@@ -235,8 +269,10 @@ High-frequency helpers — most are thin wrappers around existing factories.
 ## Quick Start
 
 ```ts
-import { ok, err, pipe, map, unwrapOr } from '@sandlada/result';
-import type { IResultOfT } from '@sandlada/result';
+import type { IResultOfT } from '@sandlada/result';           // type-only
+import { ok, err } from '@sandlada/result/factories';          // core constructors
+import { map, unwrapOr } from '@sandlada/result/operators';    // sync operators
+import { pipe } from '@sandlada/result/composition';           // pipe / composeK / safeTry
 
 type AppError =
   | { kind: 'NotFound'; id: string }
@@ -255,6 +291,8 @@ const name = pipe(
   unwrapOr('Unknown'),
 );
 ```
+
+> **Note:** The main barrel `@sandlada/result` exports types only. All runtime values come from a dedicated subpath. See ADR 10 in `ARCH.md` for the rationale.
 
 ## JSON Serialization
 
