@@ -1,6 +1,8 @@
 # promise-result
 
-`promise-result` 模块是 `Promise<IResultOfT<A, E>>` 上的**全部 eager async 算子**。与 `async-result/`(惰性 thunk)不同,本目录的算子在调用时直接接收 `Promise` 并返回 `Promise`,**不**维护一个独立的 thunk 形态;与 `async-option/` 平行的双胞胎在本目录以 `*Option` 后缀命名,作用于 `Promise<IOption<T>>`。这一层是项目里最厚的一组算子(53 个函数),覆盖了从同步 → Promise 的全部桥梁与终态消费。
+`promise-result` 模块是 `Promise<IResultOfT<A, E>>` 上的**全部 eager async 算子**。与 `async-result/`(惰性 thunk)不同,本目录的算子在调用时直接接收 `Promise` 并返回 `Promise`,**不**维护一个独立的 thunk 形态。本目录**只**操作 `Promise<IResultOfT>`;与本目录对应的、作用于 `Promise<IOption>` 的双胞胎已经拆分到 [`../promise-option/`](../promise-option/) 子包,作为独立 import 路径 `@sandlada/result/promise-option` 暴露。
+
+本目录包含 35 个函数,覆盖了从同步 → Promise 的全部桥梁与终态消费。
 
 > **⚠️ 行为变更(破坏性):** `unwrapOrAsync` 与 `unwrapOrElseAsync` 现在返回 `Promise<A>`(裸值),**不再**是 `Promise<IResultOfT<A, unknown>>`。先前的签名与 `unwrapOr` 的"提取"语义不符。默认值 / 错误处理器 reject / throw 时,异常沿 Promise reject 路径向上抛出,不再被包装为 `err(reason)`。测试已同步更新以反映新语义。
 
@@ -15,36 +17,33 @@
 ### 链式 / bind 系列(6 个)
 
 - `asyncBind` 把同步 `IResultOfT` 接进异步世界:在 sync result 上调用 `f(value): Promise<IResultOfT<B, F>>`,失败短路。错误类型扩到 `E | F`,回调同步 throw + reject 双归约。
-- `asyncBindOption` 同形,目标为 `IOption<T>`,回调 throw / reject 归约 `None`。
 - `asyncBindThrough` 是 `asyncBind` 的"保留原值"变体:回调成功时**保留**原 success value,失败时把回调错误传播到 `E | F`——典型用例是"先验证,再决定是短路还是续行"。
 - `bindAsync` 反向:接 `Promise<IResultOfT>`,回调可返回同步 `IResultOfT` 或 `Promise<IResultOfT>`——把同步结果混进纯异步链路。
-- `bindAsyncOption` 是 Option 版。
 - `bindThroughAsync` 是 `bindAsync` 的保留值变体。
 
 ### 映射族(8 个)
 
 - `asyncMap` 把 sync result 接进 async 回调。
 - `mapAsync` 把 `Promise<IResultOfT>` 的 success 值通过同步 / 异步回调映射——这里显式支持 `B | Promise<B>` 双形态。
-- `mapAsyncOption` 是 `mapAsync` 的 Option 版。
 - `mapErrAsync` 失败轨道对偶。
 - `mapOrAsync` / `mapOrElseAsync` 是异步版的"success 映射或失败 default"——失败侧的 default 取自给定值,后者在错误上计算。
 - `bimapAsync` 同时映射两条轨道,callback 同时接受 sync / Promise 回值。
 
-### Lift 系列(operate on sync `IResultOfT` / `IOption`,async fn)(7 个)
+### Lift 系列(operate on sync `IResultOfT`,async fn)(5 个)
 
 - `asyncMap` / `asyncBind` / `asyncBindThrough` / `asyncTap` / `asyncTapErr` — Result 端把 sync Result 升格到 async。
 - `asyncOrElse` 失败轨道 recovery 桥接(sync Result + async recovery)。
 - `asyncMatch` async 分支匹配(sync Result + async handlers)。
-- `asyncBindOption` / `asyncTapOption` — Option 端的对应 bridge。
-- `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption` — Option 端 lift 算子。
 
-### Side-effect 族(7 个)
+### Side-effect 族(2 个)
 
-`asyncTap` / `asyncTapErr` / `tapAsync` / `tapErrAsync` 处理 result 侧;`asyncTapOption` / `tapAsyncOption` / `tapErrAsyncOption` 处理 option 侧。这一族**完整覆盖"同步回调同步 throw / 同步回调异步 reject / 异步回调 reject"三路径**,在 JSDoc 明示 catch+convert 合约,测试用 `vi.fn()` 配合 `expect(fn).toHaveBeenCalledOnce` 与 `expect(r).toBe(original)` 验证身份保留。原 result 对象透传,绝不构造新包装。
+`asyncTap` / `asyncTapErr` 处理 result 侧(sync Result → async 副作用)。这一族**完整覆盖"同步回调同步 throw / 同步回调异步 reject / 异步回调 reject"三路径**,在 JSDoc 明示 catch+convert 合约,测试用 `vi.fn()` 配合 `expect(fn).toHaveBeenCalledOnce` 与 `expect(r).toBe(original)` 验证身份保留。原 result 对象透传,绝不构造新包装。
 
-### 谓词族(6 个)
+> 注意:`tapAsync` / `tapErrAsync` / `matchAsync` 等在 `Promise<IResultOfT>` 上操作的 side-effect 与终态算子仍在**本目录**;作用于 `Promise<IOption>` 的同名变体在 [`../promise-option/`](../promise-option/)。
 
-`containsAsync` 与 `containsAsyncOption` 用 `===` 比较;`existsAsync` 与 `existsAsyncOption` 接受同步 / 异步 predicate。失败的 catch+convert 策略:predicate / fn 抛出时一律归约 `false`(BOOL 终态),与 `R.map` 风格相反——谓词族**避免抛错上浮到上层**。`filterAsyncOption` 单 predicate 过滤,predicate throw / reject 归约 `None`。`filterOrElseAsync` 接受 `predicate` + `errorFn`,在 predicate 失败时把原值传给 `errorFn` 映射为 error,**独立三处**断言 catch+convert:
+### 谓词族(3 个)
+
+`containsAsync` 与 `existsAsync` 用 `===` 比较与同步 / 异步 predicate。失败的 catch+convert 策略:predicate / fn 抛出时一律归约 `false`(BOOL 终态),与 `R.map` 风格相反——谓词族**避免抛错上浮到上层**。`filterOrElseAsync` 接受 `predicate` + `errorFn`,在 predicate 失败时把原值传给 `errorFn` 映射为 error,**独立三处**断言 catch+convert:
 
 - sync `predicate` throw 归约 `err(caughtError)`;
 - async `predicate` reject 归约 `err(caughtError)`;
@@ -53,48 +52,40 @@
 ### 结构族(4 个)
 
 - `flattenAsync` 把 `Promise<IResultOfT<IResultOfT<A, E>, E>>` 展平到 `Promise<IResultOfT<A, E>>`,外层 Err 短路。
-- `flattenAsyncOption` 是 Option 版。
 - `swapAsync` 是 Ok/Err 字面量交换。
 - `ap` applicative 应用——把 `Promise<IResultOfT<(a) => B, E>>` 应用到 `Promise<IResultOfT<A, E>>`,任一失败则传播。
 
-### 组合族(2 个)
+### 组合族(3 个)
 
 - `combine` 用 `Promise.all` 并发收集所有结果,在首个失败处短路,返回 `Promise<IResultOfT<T[], E>>`。
 - `combineWithAllErrors` 不短路,把全部错误累积为 `E[]` 返回。
+- `ap` applicative。
 
-### 带默认的变换族(2 个)
+### 终态族(7 个)
 
-- `mapOrAsync` / `mapOrElseAsync` 是异步版的"success 映射或失败 default"——失败侧的 default 取自给定值,后者在错误上计算。
-
-### 终态族(11 个)
-
-- `matchAsync` / `matchAsyncOption` 模式匹配,handler 接受 `C | Promise<C>`,**handler throw 沿 Promise reject 路径传播**(与 `operators/match` 对齐)。
-- `mapOrAsync` / `mapOrElseAsync` 见上。
-- `unwrapOrAsync` / `unwrapOrAsyncOption` 终态提取,default 接受 `A | Promise<A>`。返回 `Promise<A>`(裸值,不是 `Promise<Result>`)。
-- `unwrapOrElseAsync` / `unwrapOrElseAsyncOption` 在错误侧计算 default,支持 async 错误处理器,返回 `Promise<A>`。
-- `orElseAsync` / `orElseAsyncOption` 在失败 / None 侧走 recovery 路径。
-- `tapAsync` / `tapErrAsync` / `tapAsyncOption` / `tapErrAsyncOption` 见 Side-effect 节。
-
-特别地 `unwrapOrAsyncOption` 的 [lazy await 测试](</abs/path/E:/projects/sandlada/result/src/promise-result/unwrapOrAsyncOption.ts:35>) 用 `setTimeout(10)` 验证了 `await defaultValue` 真的会 await,而非 `return defaultValue` 漏了 await——这是防回归的高质量测试。
+- `matchAsync` 模式匹配,handler 接受 `C | Promise<C>`,**handler throw 沿 Promise reject 路径传播**(与 `operators/match` 对齐)。
+- `mapOrAsync` / `mapOrElseAsync` 见映射族。
+- `unwrapOrAsync` / `unwrapOrElseAsync` 终态提取,default 接受 `A | Promise<A>`。返回 `Promise<A>`(裸值,不是 `Promise<Result>`)。
+- `tapAsync` / `tapErrAsync` 见 Side-effect 节。
 
 ## 模块的设计原则
 
 - **eager vs lazy 的清晰界线**:本目录是 eager,所有算子接受并返回 `Promise`;不要与 `async-result/`(惰性 thunk)混淆。当"何时求值"必须由调用方控制时,用 `async-result/`。
-- **catch+convert 在错误位置**:每个会在回调中 throw / reject 的算子,都用 `try / catch` + `Promise.then(_, onRejected)` 双向收敛,把错误归约为 `err(caughtError)` / `None` / `false` / `default` 等"已恢复"的状态。谓词族 / 过滤族作为**始终吞下异常**的终态工具,与 `match` 的"让异常上浮"形成对照。
-- **callback 同时接受 sync / async**:在 `mapAsync` / `mapOrAsync` / `mapOrElseAsync` / `unwrapOrAsyncOption` / `unwrapOrElseAsync` 等算子上,callback 形参声明为 `B | Promise<B>` / `A | Promise<A>`,调用方写同步或异步函数都行——这是 TS 在类型层吸收 sync / async 形态差异。
+- **catch+convert 在错误位置**:每个会在回调中 throw / reject 的算子,都用 `try / catch` + `Promise.then(_, onRejected)` 双向收敛,把错误归约为 `err(caughtError)` / `false` / `default` 等"已恢复"的状态。谓词族 / 过滤族作为**始终吞下异常**的终态工具,与 `match` 的"让异常上浮"形成对照。
+- **callback 同时接受 sync / async**:在 `mapAsync` / `mapOrAsync` / `mapOrElseAsync` / `unwrapOrAsync` / `unwrapOrElseAsync` 等算子上,callback 形参声明为 `B | Promise<B>` / `A | Promise<A>`,调用方写同步或异步函数都行——这是 TS 在类型层吸收 sync / async 形态差异。
 - **`unwrapOrAsync` 提取裸值**:`unwrapOrAsync` / `unwrapOrElseAsync` 现在返回 `Promise<A>`,与名字 "unwrap" 的 Rust 语义对齐;先前的 `Promise<IResultOfT<A, unknown>>` 是命名 bug,已修正。
-- **`unwrapOrAsyncOption` 的 lazy await 合约**:default 是 `T | Promise<T>`,**必须 await** 后再返回,不能把 Promise 引用直接 return。这条合约由 `setTimeout` 测试固化,任何"忘了 await"的实现回归都会被这条测试抓到。
-- **同步入口 / 异步出 = 同步入口有可观察性**:sync 入参的算子(`asyncBind` / `asyncBindThrough` / `asyncMap` / `asyncTap` / `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption`)保留原 result / option 的**身份**(测试用 `expect(r).toBe(original)` 验证),让上层能做引用比较。
-- **`Promise.resolve` 做零分配失败透传**:对短路路径(失败 / None),直接 `Promise.resolve(r)` 不构造新对象,符合项目的"plain object 不装箱"原则。
+- **同步入口 / 异步出 = 同步入口有可观察性**:sync 入参的算子(`asyncBind` / `asyncBindThrough` / `asyncMap` / `asyncTap`)保留原 result 的**身份**(测试用 `expect(r).toBe(original)` 验证),让上层能做引用比较。
+- **`Promise.resolve` 做零分配失败透传**:对短路路径(失败),直接 `Promise.resolve(r)` 不构造新对象,符合项目的"plain object 不装箱"原则。
+- **与 `../promise-option/` 的对应关系**:本目录的 `mapAsync` 对应那里的 `mapAsyncOption`,`bindAsync` 对应 `bindAsyncOption`,以此类推。命名保持镜像,导入路径分离。
 
 ## 算子分类总览
 
 - **同步入口(5)**:`map` / `mapErr` / `unwrapOr` / `unwrapOrElse` / `flatten`
-- **链式 bind(6)**:`asyncBind` / `asyncBindThrough` / `asyncBindOption` / `bindAsync` / `bindAsyncOption` / `bindThroughAsync`
-- **映射(8)**:`asyncMap` / `mapAsync` / `mapAsyncOption` / `mapErrAsync` / `mapOrAsync` / `mapOrElseAsync` / `bimapAsync` / `mapOrAsyncOption` / `mapOrElseAsyncOption`
-- **Lift(7)**:`asyncOrElse` / `asyncMatch` / `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption` (与链式族中的 `asyncBind` / `asyncBindOption` / `asyncTap` / `asyncTapErr` / `asyncTapOption` 共 12 个)
-- **Side-effect(7)**:`asyncTap` / `asyncTapErr` / `tapAsync` / `tapErrAsync` / `tapAsyncOption` / `tapErrAsyncOption` / `asyncTapOption`
-- **谓词 / 过滤(6)**:`containsAsync` / `containsAsyncOption` / `existsAsync` / `existsAsyncOption` / `filterAsyncOption` / `filterOrElseAsync`
-- **结构(4)**:`flattenAsync` / `flattenAsyncOption` / `swapAsync` / `ap`
+- **链式 bind(3)**:`asyncBind` / `asyncBindThrough` / `bindAsync` / `bindThroughAsync`
+- **映射(8)**:`asyncMap` / `mapAsync` / `mapErrAsync` / `mapOrAsync` / `mapOrElseAsync` / `bimapAsync`
+- **Lift(5)**:`asyncOrElse` / `asyncMatch`(与链式族中的 `asyncBind` / `asyncBindThrough` / `asyncTap` / `asyncTapErr` 共 6 个)
+- **Side-effect(2 + 终态)**:`asyncTap` / `asyncTapErr` / `tapAsync` / `tapErrAsync`
+- **谓词 / 过滤(3)**:`containsAsync` / `existsAsync` / `filterOrElseAsync`
+- **结构(3)**:`swapAsync` / `flattenAsync` / `ap`
 - **组合(2)**:`combine` / `combineWithAllErrors`
-- **终态(11)**:`matchAsync` / `matchAsyncOption` / `mapOrAsync` / `mapOrElseAsync` / `unwrapOrAsync` / `unwrapOrAsyncOption` / `unwrapOrElseAsync` / `unwrapOrElseAsyncOption` / `orElseAsync` / `orElseAsyncOption` / (重复项已合并)
+- **终态(7)**:`matchAsync` / `mapOrAsync` / `mapOrElseAsync` / `unwrapOrAsync` / `unwrapOrElseAsync`

@@ -84,7 +84,13 @@ export {
     tapErrAsync,
     unwrapOrAsync,
     unwrapOrElseAsync,
+} from './promise-result/index.js';
+
+export {
     asyncBindOption,
+    asyncMapOption,
+    asyncMatchOption,
+    asyncOrElseOption,
     asyncTapOption,
     bindAsyncOption,
     containsAsyncOption,
@@ -92,11 +98,15 @@ export {
     filterAsyncOption,
     flattenAsyncOption,
     mapAsyncOption,
+    mapOrAsyncOption,
+    mapOrElseAsyncOption,
     matchAsyncOption,
     orElseAsyncOption,
     tapAsyncOption,
+    tapErrAsyncOption,
     unwrapOrAsyncOption,
-} from './promise-result/index.js';
+    unwrapOrElseAsyncOption,
+} from './promise-option/index.js';
 
 // ── Composition ─────────────────────────────────────────────────────────────
 export { composeK } from './composition/composeK.js';

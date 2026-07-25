@@ -73,6 +73,7 @@ All exports are listed in [SPEC.md](./SPEC.md) with links to their source files.
 | --- | --- |
 | `@sandlada/result` | Core types, factories, sync + async operators, adapters, composition, combine (everything) |
 | `@sandlada/result/promise-result` | Async operators on `Promise<IResultOfT>` |
+| `@sandlada/result/promise-option` | Async operators on `Promise<IOption>` |
 | `@sandlada/result/async-result` | Lazy AsyncResult thunks |
 | `@sandlada/result/async-option` | Lazy AsyncOption thunks |
 | `@sandlada/result/adapters` | Wlaschin three-shape adapters |

@@ -50,6 +50,10 @@
             "types": "./build/async-option/index.d.ts",
             "default": "./build/async-option/index.js"
         },
+        "./promise-option": {
+            "types": "./build/promise-option/index.d.ts",
+            "default": "./build/promise-option/index.js"
+        },
         "./reliability": {
             "types": "./build/reliability/index.d.ts",
             "default": "./build/reliability/index.js"
