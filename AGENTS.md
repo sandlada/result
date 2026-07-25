@@ -16,13 +16,20 @@ The library exposes:
 | Concern         | Value                                                                   |
 | --------------- | ----------------------------------------------------------------------- |
 | Language        | TypeScript (strict mode)                                                |
-| Build tool      | `tsgo` (TypeScript Native, via `@typescript/native-preview`)            |
+| Build tools     | Rolldown 1.2 (JavaScript) + TypeScript 7 (declarations)                 |
 | Module system   | `esnext` (ESM, `.js` extensions in relative imports)                    |
 | Module syntax   | `verbatimModuleSyntax` — always use `import type` for type-only imports |
 | Target          | ESNext                                                                  |
 | Package type    | `module` (`package.json` `"type": "module"`)                            |
 | Declaration     | `declaration: true`, `declarationMap: true`                             |
 | Stricter checks | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`                |
+
+### Build Pipeline
+
+- `npm run build` clears `build/`, emits declaration files with `tsc --project tsconfig.build.json`, emits JavaScript with `rolldown.config.ts`, then runs `verify:build`.
+- Rolldown emits ESM with `preserveModules: true`, `preserveModulesRoot: "src"`, `minify: true`, `comments: false`, and external sourcemaps.
+- TypeScript declarations keep JSDoc comments (`removeComments: false`); generated JavaScript removes source comments while retaining `sourceMappingURL` metadata.
+- Pure re-export barrels may not receive a JavaScript sourcemap when Rolldown has no local mappings. The root and `./types` entries export an empty default object so those public entries produce mapped JavaScript.
 
 ## Architecture
 

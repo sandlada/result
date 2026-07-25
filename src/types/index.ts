@@ -1,7 +1,8 @@
 /**
  * Result type definitions — barrel export.
  *
- * Re-exports all discriminated union type interfaces.
+ * Re-exports all discriminated union type interfaces. Its only runtime export
+ * is `moduleMarker`, which keeps this entry and its sourcemap materialized.
  */
 
 export type { IResult, IResultSuccess, IResultFailure } from './IResult.js';
@@ -13,3 +14,5 @@ export type {
 export type { IOption, IOptionSome, IOptionNone } from './Option.js';
 export type { AsyncResult } from './AsyncResult.js';
 export type { AsyncOption } from './AsyncOption.js';
+
+export default {}

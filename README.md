@@ -35,7 +35,7 @@ npm i @sandlada/result
 
 ## :ship: Quick Start
 
-The main barrel `@sandlada/result` is **type-only**. Runtime values come from dedicated subpath packages — pick the one that matches your shape.
+The main barrel `@sandlada/result` is **type-focused**. Its only runtime value is `moduleMarker`, used to materialize the entry and sourcemap; functional runtime values come from dedicated subpath packages — pick the one that matches your shape.
 
 ```ts
 import type { IResultOfT } from '@sandlada/result';              // type contracts
@@ -75,7 +75,7 @@ All exports are listed in [SPEC.md](./SPEC.md) with links to their source files.
 
 | Export path | Contents |
 | --- | --- |
-| `@sandlada/result` | **Type-only barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Runtime values must use a subpath. |
+| `@sandlada/result` | **Type-focused barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`, plus the runtime `moduleMarker`. Functional runtime values must use a subpath. |
 | `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, …). |
 | `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe`, …). |
 | `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). |
@@ -89,7 +89,7 @@ All exports are listed in [SPEC.md](./SPEC.md) with links to their source files.
 | `@sandlada/result/reliability` | `retry`, `retryLazy`, `timeout`, `race`, `any`, `allSettled`. |
 | `@sandlada/result/observability` | `ctx`, `withPath`, `format`, `inspect`, `installObserver`, … |
 | `@sandlada/result/primitives` | `cond`, `condErr`, `sequence`, `reduce`, `partitionOption`, `lift`. |
-| `@sandlada/result/types` | Same as the main barrel — type contracts only. Kept for backward compatibility. |
+| `@sandlada/result/types` | Same type contracts as the main barrel, plus its own runtime `moduleMarker`. Kept for backward compatibility. |
 
 ## :package: Integration Pattern
 

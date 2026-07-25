@@ -11,25 +11,30 @@
 
 ## Tech Stack
 
-| Concern         | Value |
-| --------------- | ----- |
-| Language        | TypeScript (strict mode) |
-| Build tool      | `tsc` (TypeScript 7) |
-| Module system   | ESM, `.js` extensions in relative imports |
-| Module syntax   | `verbatimModuleSyntax` — `import type` for type-only imports |
-| Test runner     | Vitest v4 |
+| Concern | Value |
+| --- | --- |
+| Language | TypeScript (strict mode) |
+| Build tools | TypeScript 7 (`.d.ts`) + Rolldown 1.2 (`.js`) |
+| Module system | ESM, `.js` extensions in relative imports |
+| Module syntax | `verbatimModuleSyntax` — `import type` for type-only imports |
+| Test runner | Vitest v4 |
 | Stricter checks | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
 
 ## Scripts
 
-| Command              | Purpose |
-| -------------------- | ------- |
-| `npm run build`      | Compile via `tsc` |
-| `npm test`           | Run Vitest v4 (single run, CI mode) |
+| Command | Purpose |
+| --- | --- |
+| `npm run clean` | Remove `build/` |
+| `npm run build` | Build declarations with TypeScript, JavaScript with Rolldown, then verify artifacts |
+| `npm run build:types` | Emit `.d.ts` and `.d.ts.map` only |
+| `npm run build:js` | Emit minified ESM and sourcemaps with Rolldown |
+| `npm run typecheck` | Type-check without emitting |
+| `npm run verify:build` | Validate exports, comments, sourcemaps, and runtime loading |
+| `npm test` | Run Vitest v4 (single run, CI mode) |
 | `npm run test:watch` | Vitest interactive watch |
-| `npm run bench`      | Vitest bench (interactive) |
+| `npm run bench` | Vitest bench (interactive) |
 | `npm run bench:json` | Vitest bench → `bench/results.json` |
-| `npm run bench:ui`   | Vitest bench with `@vitest/ui` |
+| `npm run bench:ui` | Vitest bench with `@vitest/ui` |
 
 ## Source Layout
 
@@ -173,9 +178,9 @@ import { from, bind } from '@sandlada/result/async-result';     // lazy async
 
 Or compose via `pipe` / `pipeAsync` so the import style stays neutral.
 
-### ADR 10: Main Barrel — Type-Only
+### ADR 10: Main Barrel — Type-Focused with Runtime Marker
 
-**Decision:** The main barrel `@sandlada/result` (`src/index.ts` and its build output) exports **only the type contracts** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Every runtime value (factories, operators, composition helpers, etc.) is reachable **only** via dedicated subpath imports.
+**Decision:** The main barrel `@sandlada/result` (`src/index.ts` and its build output) exports the type contracts — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption` — plus a single runtime `moduleMarker` empty object used to materialize the entry and its sourcemap. Functional runtime values (factories, operators, composition helpers, etc.) are reachable **only** via dedicated subpath imports.
 
 **Context considered:** ADR 9 stopped short of removing re-exports for sync operators and helpers. The result was a ~50-name top-level barrel. Users still hit subtle collisions (`map` for Result vs Option, `pipe` vs `pipeAsync`, etc.) and IDE autocomplete lists remained cluttered.
 
@@ -183,8 +188,8 @@ Or compose via `pipe` / `pipeAsync` so the import style stays neutral.
 
 1. **Resolve name collisions at the import site, not the barrel.** `map` means different things on `IResultOfT` and `IOption`. The compiler can't disambiguate; the package layout can. Subpath imports (`@sandlada/result/operators/map` vs `@sandlada/result/option/map`) make the type explicit at the call site.
 2. **Tree-shaking becomes total.** With no runtime re-exports in the main barrel, the only way to drag a function into a bundle is to explicitly import it. There is no incidental inclusion.
-3. **TypeScript symbol table collapses to ~5 entries.** IDE autocomplete, `go-to-definition`, and project-wide symbol search operate on the barrel's export list. Smaller list = faster.
-4. **No "main barrel" knowledge to maintain.** `package.json` `exports` continues to point at the file for backward compatibility — it just contains type re-exports and a no-op `export {}` at runtime.
+3. **TypeScript symbol table collapses to ~6 entries.** IDE autocomplete, `go-to-definition`, and project-wide symbol search operate on the barrel's export list. Smaller list = faster.
+4. **No functional "main barrel" knowledge to maintain.** `package.json` `exports` continues to point at the file for backward compatibility. It contains type re-exports plus `moduleMarker`, whose only purpose is to materialize the runtime entry and sourcemap under Rolldown.
 
 **Trade-offs accepted:**
 
@@ -200,9 +205,10 @@ export type { IResultOfT, IResultOfTSuccess, IResultOfTFailure } from './types/I
 export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
 export type { AsyncResult } from './types/AsyncResult.js';
 export type { AsyncOption } from './types/AsyncOption.js';
+export const moduleMarker = {};
 ```
 
-The runtime counterpart is `export {};` — a valid no-op module.
+The runtime counterpart exports only `moduleMarker`; functional runtime values remain available exclusively through subpaths.
 
 **Migration path:**
 

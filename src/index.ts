@@ -1,8 +1,9 @@
 /**
  * @sandlada/result — main entry.
  *
- * Type-only barrel. All runtime values are imported from the dedicated
- * subpath packages (`./factories`, `./operators`, `./option`,
+ * Type-focused barrel. Its only runtime export is `moduleMarker`, which keeps
+ * this entry and its sourcemap materialized. Functional runtime values are
+ * imported from the dedicated subpath packages (`./factories`, `./operators`, `./option`,
  * `./async-result`, `./async-option`, `./promise-result`, `./promise-option`,
  * `./composition`, `./adapters`, `./combine`, `./reliability`,
  * `./observability`, `./primitives`).
@@ -23,3 +24,5 @@ export type {
 export type { IOption, IOptionSome, IOptionNone } from './types/Option.js';
 export type { AsyncResult } from './types/AsyncResult.js';
 export type { AsyncOption } from './types/AsyncOption.js';
+
+export default {}

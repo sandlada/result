@@ -28,7 +28,7 @@ npm install @sandlada/result
 
 | Entry point | Contents |
 | --- | --- |
-| `@sandlada/result` | **Type-only barrel.** Re-exports `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption` only. Runtime values must come from a subpath. |
+| `@sandlada/result` | **Type-focused barrel.** Re-exports `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`, plus the runtime `moduleMarker`. Functional runtime values must come from a subpath. |
 | `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `fromPredicate`, `tryCatch`, etc.). |
 | `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe` companions, …). |
 | `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). |
@@ -42,7 +42,13 @@ npm install @sandlada/result
 | `@sandlada/result/reliability` | Retry / timeout / concurrency. |
 | `@sandlada/result/observability` | Breadcrumbs + formatters + observer hooks. |
 | `@sandlada/result/primitives` | High-frequency helpers (`cond`, `reduce`, `partitionOption`, `lift`). |
-| `@sandlada/result/types` | Re-exports the same type contracts as `@sandlada/result` — kept for backward compatibility. |
+| `@sandlada/result/types` | Re-exports the same type contracts as `@sandlada/result`, plus its own runtime `moduleMarker` — kept for backward compatibility. |
+
+### Runtime Entry Markers
+
+| Export | Entry points | Description |
+| --- | --- | --- |
+| `moduleMarker` | `@sandlada/result`, `@sandlada/result/types` | Empty object that materializes each type-focused entry and its JavaScript sourcemap. It has no domain behavior. |
 
 ## Core Types
 
@@ -292,7 +298,7 @@ const name = pipe(
 );
 ```
 
-> **Note:** The main barrel `@sandlada/result` exports types only. All runtime values come from a dedicated subpath. See ADR 10 in `ARCH.md` for the rationale.
+> **Note:** The main barrel `@sandlada/result` is type-focused and exports only the type contracts plus `moduleMarker`. Functional runtime values come from a dedicated subpath. See ADR 10 in `ARCH.md` for the rationale.
 
 ## JSON Serialization
 
