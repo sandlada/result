@@ -1,316 +1,138 @@
 # ARCH.md — `@sandlada/result` Architecture
 
-> **Authoritative record of the project's architecture.** This document must be updated whenever source code, interfaces, or module structure change.
-
----
+> Authoritative record of the project's architecture. Update whenever source code, interfaces, or module structure change.
+> For the public API list, see [SPEC.md](./SPEC.md).
 
 ## Overview
 
-`@sandlada/result` is a TypeScript library providing the **Result pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing throw/catch for predictable failure paths.
+`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing `throw`/`catch` for predictable failure paths.
 
-**Key differentiator:** Generic `TError` parameter (vs C# reference's hardcoded `DomainError`). Users pass their own error types.
+**Key differentiator:** generic `TError` parameter (the C# reference hardcodes `DomainError`). Users pass their own error types.
 
-## Package Metadata
+## Tech Stack
 
-| Field      | Value                        |
-| ---------- | ---------------------------- |
-| Name       | `@sandlada/result`           |
-| Type       | `module` (ESM)               |
-| License    | MIT                          |
-| Repository | `github.com/sandlada/result` |
-
-### Tech Stack
-
-| Concern         | Value                                                        |
-| --------------- | ------------------------------------------------------------ |
-| Language        | TypeScript (strict mode)                                     |
-| Build tool      | `tsgo` (TypeScript Native, via `@typescript/native-preview`) |
-| Module system   | `esnext` (ESM, `.js` extensions in relative imports)         |
+| Concern         | Value |
+| --------------- | ----- |
+| Language        | TypeScript (strict mode) |
+| Build tool      | `tsc` (TypeScript 7) |
+| Module system   | ESM, `.js` extensions in relative imports |
 | Module syntax   | `verbatimModuleSyntax` — `import type` for type-only imports |
-| Test runner     | Vitest v4                                                    |
-| Stricter checks | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`     |
+| Test runner     | Vitest v4 |
+| Stricter checks | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
 
 ## Scripts
 
-| Command              | Purpose                                                      |
-| -------------------- | ------------------------------------------------------------ |
-| `npm run build`      | Compile TypeScript via `tsgo`                                |
-| `npm test`           | Run Vitest v4 test suite (single-run, CI mode)               |
-| `npm run test:watch` | Run Vitest in interactive watch mode                         |
-| `npm run bench`      | Run benchmarks via Vitest bench (interactive)                |
-| `npm run bench:json` | Run benchmarks and serialize results to `bench/results.json` |
-| `npm run bench:ui`   | Run benchmarks with the `@vitest/ui` inspector               |
-
-## Package Exports
-
-| Entry point                     | Description                                      |
-| ------------------------------- | ------------------------------------------------ |
-| `@sandlada/result`              | Core types, factories, sync/async operators      |
-| `@sandlada/result/promise-result` | Async operators (Promise<IResultOfT>)           |
-| `@sandlada/result/async-result` | AsyncResult lazy thunks                          |
-| `@sandlada/result/async-option` | AsyncOption lazy thunks                          |
-| `@sandlada/result/adapters`     | Wlaschin three-shape adapters                    |
-| `@sandlada/result/combine`      | Parallel combination (short-circuit, all-errors) |
-| `@sandlada/result/composition`  | Kleisli composition, pipe, safeTry               |
-| `@sandlada/result/factories`    | Core constructors (ok, err, fromThrowable, etc.) |
-| `@sandlada/result/operators`    | Sync operators (map, bind, match, unwrap, etc.)  |
-| `@sandlada/result/option`       | Option module (Some/None)                        |
-| `@sandlada/result/types`        | Type definitions only                            |
+| Command              | Purpose |
+| -------------------- | ------- |
+| `npm run build`      | Compile via `tsc` |
+| `npm test`           | Run Vitest v4 (single run, CI mode) |
+| `npm run test:watch` | Vitest interactive watch |
+| `npm run bench`      | Vitest bench (interactive) |
+| `npm run bench:json` | Vitest bench → `bench/results.json` |
+| `npm run bench:ui`   | Vitest bench with `@vitest/ui` |
 
 ## Source Layout
 
 ```
 src/
   index.ts              — Public barrel
-  types/                — IResult, IResultOfT, IOption, AsyncResult, AsyncOption interfaces (5 files)
-  factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc. (10 files)
-  operators/            — map, bind, match, unwrap, orThrow, separate, etc. (32 files)
-  promise-result/       — mapAsync, asyncBind, matchAsync, etc. (35 files, Promise-based)
-  async-result/         — AsyncResult lazy thunk operators (26 files)
-  async-option/         — AsyncOption lazy thunk operators (15 files)
-  composition/          — pipe, composeK, safeTry, pipeAsync, composeKAsync (5 files)
-  adapters/             — switchFn, liftMap, tee, toOption, fromOption (7 files)
-  combine/              — combine, all, combineWithAllErrors (3 files)
-  option/               — ofSome, ofNone, map, bind, match, etc. (16 files)
-  tests/                — Cross-module integration, behaviors, hardening, type-level tests
-    behaviors/          — custom-error-types, default-error-type, toJSON, value (4 files)
-    hardening/          — AsyncOptionEager, AsyncResultHardening, ResultAsyncHardening (3 files)
-    integration/        — api-consistency, AsyncOption, ComplexIntegration, ConsumptionPatterns, IntegrationPattern, Interop (6 files)
-    type-tests/         — Result.type-tests (1 file)
+  types/                — IResult, IResultOfT, IOption, AsyncResult, AsyncOption
+  factories/            — ok, err, fromPredicate, tryCatch, fromPromise, …
+  operators/            — map, bind, match, unwrap, orThrow, separate, …
+  promise-result/       — mapAsync, bindAsync, matchAsync, … (Promise-based)
+  async-result/         — AsyncResult lazy thunk operators
+  async-option/         — AsyncOption lazy thunk operators
+  composition/          — pipe, composeK, safeTry, pipeAsync, composeKAsync
+  adapters/             — switchFn, liftMap, tee, toOption, fromOption
+  combine/              — combine, all, combineWithAllErrors
+  option/               — ofSome, ofNone, map, bind, match, okOr, transpose, …
+  reliability/          — retry, timeout, race, any, allSettled
+  observability/        — ctx, withPath, format, inspect, observe, installObserver
+  primitives/           — cond, condErr, sequence, reduce, partitionOption, lift
+  tests/                — Cross-module integration, behaviors, hardening, type tests
 ```
 
-**Unit-level tests** live alongside their subjects as `<name>.spec.ts` next to every
-`src/<dir>/*.ts` source file (the co-located style). **Cross-module** tests under
-`src/tests/{behaviors,hardening,integration,type-tests}/` cover scenarios that
-cross module boundaries or harden against sentinel incidents recorded in
-`.jules/sentinel.md`.
+## Module Responsibilities
 
-`tsconfig.json` excludes `*.spec.ts` from build output and `vitest.config.ts` uses
-the same glob in `test.include`, so the two layers stay in sync without a separate
-`test/` directory.
+| Module            | Responsibility |
+| ----------------- | -------------- |
+| `types/`          | Discriminated union type definitions |
+| `factories/`      | Standalone functions producing Result/Option objects |
+| `operators/`      | Data-last curried sync operators on `IResultOfT` |
+| `promise-result/` | Data-last curried operators on `Promise<IResultOfT>` (eager) |
+| `async-result/`   | Lazy AsyncResult thunks — defer execution until `.run()` |
+| `async-option/`   | Lazy AsyncOption thunks |
+| `composition/`    | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync` |
+| `adapters/`       | Convert between Wlaschin's three function shapes |
+| `combine/`        | Parallel result combination (short-circuit, accumulate errors) |
+| `option/`         | `IOption<T>` operators — independent of Result |
+| `reliability/`    | Retry / timeout / concurrency primitives |
+| `observability/`  | Breadcrumb stack + formatters + observer hooks |
+| `primitives/`     | High-frequency helpers (`cond`, `reduce`, `lift`, `partitionOption`, …) |
 
-## Discriminated Union Types
-
-All result and option values are **plain objects** with a discriminant property:
-
-```
-── IResult (void result) ──
-
-IResultSuccess                           (isSuccess: true, isFailure: false — no error)
-IResultFailure<TError>                   (isSuccess: false, isFailure: true, error: TError)
-IResult<TError = Error>                  = IResultSuccess | IResultFailure<TError>
-
-── IResultOfT (value-bearing) ──
-
-IResultOfTSuccess<TValue>                (isSuccess: true, isFailure: false, value: TValue)
-IResultOfTFailure<TError>                (isSuccess: false, isFailure: true, error: TError)
-IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
-
-── IOption ──
-
-IOptionSome<T>                           (isSome: true, isNone: false, value: T)
-IOptionNone                              (isSome: false, isNone: true)
-IOption<T>                               = IOptionSome<T> | IOptionNone
-
-── AsyncOption ──
-
-AsyncOption<T>                           (run: () => Promise<IOption<T>>)
-```
-
-**Narrowing:** Access `value` or `error` only after narrowing via `isSuccess`:
-
-```ts
-if (result.isSuccess) {
-    doSomething(result.value);  // ✓ safe
-} else {
-    handleError(result.error);  // ✓ safe
-}
-```
-
-## Module Architecture
-
-| Module          | Responsibility                                                   |
-| --------------- | ---------------------------------------------------------------- |
-| `types/`        | Discriminated union type definitions (interfaces + type aliases) |
-| `factories/`    | Standalone functions that produce Result/Option objects          |
-| `operators/`    | Data-last curried sync operators on `IResultOfT`                 |
-| `promise-result/` | Data-last curried async operators on `Promise<IResultOfT>`       |
-| `async-result/` | **Lazy** AsyncResult thunks — defers execution until awaited     |
-| `async-option/` | **Lazy** AsyncOption thunks — defers execution until awaited     |
-| `composition/`  | Pipeline helpers: `pipe`, `composeK`, `safeTry`                  |
-| `adapters/`     | Convert between Wlaschin's three function shapes                 |
-| `combine/`      | Parallel result combination (short-circuit, accumulate errors)   |
-| `option/`       | Option type operators (Some/None)                                |
-
-**Key patterns:**
-1. **Data-last currying** — Every operator accepts the data (Result/Option/Promise) as the final argument, enabling partial application and `pipe` composition.
-2. **Plain objects** — No classes, no prototype methods, no sentinel values. Results are pure discriminated union objects with a string discriminant property.
-3. **Factory purity** — Factories produce the narrowest possible type (`IResultOfT<T, never>` for `ok`, `IResultOfT<never, E>` for `err`).
-4. **Two async approaches** — `promise-result/` operators work with `Promise<IResultOfT>` (eager, standard promises); `async-result/` uses **lazy thunks** that defer execution.
-5. **No barrel cycles** — Each module imports dependencies from specific source files, not barrel indexes, avoiding circular dependencies.
-6. **Option is standalone** — Option module has no dependency on Result types. Conversion between Result and Option happens in `adapters/`.
+See [SPEC.md](./SPEC.md) for the API list exported by each module.
 
 ## Coding Conventions
 
-1. **`interface` for contracts** — Interfaces define the shape of result/option objects. No classes.
-2. **`readonly` properties only** — Result objects are immutable value objects.
+1. **`interface` for contracts** — shape of result/option objects, no classes.
+2. **`readonly` properties only** — results are immutable value objects.
 3. **`import type { ... }`** for all type-only imports (enforced by `verbatimModuleSyntax`).
 4. **No barrel / index re-export cycles.** Each module imports dependencies from the specific source file.
 5. **camelCase** for properties (`isSuccess`, `isFailure`, `error`, `value`, `isSome`, `isNone`).
 
 ## Testing Architecture
 
-Tests live in two distinct layers:
+**Two layers:**
 
-**Layer 1 — Co-located unit tests.** Every public source file in `src/` has a
-matching `<name>.spec.ts` directly beside it. There are 14 module directories
-with one `.spec.ts` per source file:
+1. **Co-located unit tests** — every `src/<dir>/*.ts` has a matching `<name>.spec.ts` beside it. `tsconfig.json` excludes `*.spec.ts` from output and `vitest.config.ts` includes them, so the two layers stay in sync without a separate `test/` directory.
+2. **Cross-module tests** under `src/tests/`:
+   - `behaviors/` — custom error types, default error type, `toJSON`, value semantics.
+   - `hardening/` — regression guards against the incidents catalogued in `.jules/sentinel.md`.
+   - `integration/` — scenarios that cross module boundaries.
+   - `type-tests/` — compile-time narrowing validation.
 
-| Directory           | spec count |
-| ------------------- | ---------: |
-| `src/factories/`    |         10 |
-| `src/adapters/`     |          7 |
-| `src/combine/`      |          3 |
-| `src/composition/`  |          5 |
-| `src/operators/`    |         32 |
-| `src/option/`       |         16 |
-| `src/promise-result/` |         35 |
-| `src/async-result/` |         26 |
-| `src/async-option/` |         15 |
-| `src/types/`        |          5 |
-
-**Layer 2 — Cross-module tests** under `src/tests/`:
-
-- `behaviors/` (4): `Result.custom-error-types`, `Result.default-error-type`, `Result.toJSON`, `Result.value`
-- `hardening/` (3): `AsyncOptionEager`, `AsyncResultHardening`, `ResultAsyncHardening` — defend against the two incidents catalogued in `.jules/sentinel.md` (the `safeTry` generator cleanup and the `in`-operator `TypeError` on non-objects in async interop)
-- `integration/` (6): `api-consistency`, `AsyncOption`, `ComplexIntegration`, `ConsumptionPatterns`, `IntegrationPattern`, `Interop`
-- `type-tests/` (1): `Result.type-tests` — compile-time narrowing validation
-
-There is **no top-level `test/` directory**. The co-located style is enforced by
-both `tsconfig.json` (excludes `*.spec.ts` from build output) and
-`vitest.config.ts` (`test.include: ['src/**/*.spec.ts']`).
-
-Design principles:
-1. **Success path + failure path** — Every operator tests both branches
-2. **Curried + direct** — Tests verify both invocation forms
-3. **Edge cases** — `never` type propagation, empty arrays, nested results, lazy await (`unwrapOrAsyncOption` against `setTimeout`)
-4. **Type tests** — `Result.type-tests.spec.ts` verifies compile-time behavior
-5. **Hardening tests** — sentinel incidents are encoded as long-lived regression
-   tests under `src/tests/hardening/`
+Design principles: success + failure paths tested, both curried and direct invocation forms, edge cases (empty arrays, lazy await, nested results), and `never` type propagation.
 
 ## Architectural Decisions
 
 ### ADR 1: Pure Discriminated Unions over Classes
 
-**Decision:** Results are plain objects with a discriminant property, not class instances.
-
-**Rationale:** Classes introduce prototype chain overhead, make structural typing harder, and imply behavior rather than data. Plain objects serialize trivially, match TypeScript's structural type system, and allow `isSuccess` property narrowing without `instanceof`.
+Results are plain objects with a discriminant property, not class instances. Plain objects serialize trivially, match TypeScript's structural type system, and allow `isSuccess` property narrowing without `instanceof`.
 
 ### ADR 2: Generic TError over Hardcoded Error Type
 
-**Decision:** The error type is a generic parameter, not a fixed `DomainError`.
-
-**Rationale:** Users of the C# library must convert between error types. The generic approach lets each function define its own error contract via the type system, with `Error` as a sensible default.
+The error type is a generic parameter, not a fixed `DomainError`. Users define their own error contract; `Error` is the sensible default.
 
 ### ADR 3: Standalone Functions over Instance Methods
 
-**Decision:** All operators are standalone curried functions, not methods on a Result object.
+All operators are standalone curried functions, not methods on a Result object. Standalone functions compose naturally with `pipe` and support dead-code elimination.
 
-**Rationale:** Instance methods would require classes (see ADR 1), prevent tree-shaking, and make data-last currying awkward. Standalone functions compose naturally with `pipe` and support dead-code elimination.
+### ADR 4: ESM-Only with `.js` Extensions
 
-### ADR 4: ESM-Only with .js Extensions
-
-**Decision:** Package uses ES modules exclusively with explicit `.js` extensions in relative imports.
-
-**Rationale:** Required for native Node.js ESM (`package.json` `"type": "module"`). Ensures compatibility with native ESM runtimes and bundlers. Dropping CJS support simplifies the build pipeline and aligns with the TypeScript ecosystem direction.
+Required for native Node.js ESM (`"type": "module"`). Dropping CJS simplifies the build pipeline and aligns with the TypeScript ecosystem direction.
 
 ### ADR 5: Independent Option Module
 
-**Decision:** Option is a standalone module with no Result dependency; conversion happens in adapters.
-
-**Rationale:** Option is conceptually independent of Result. Keeping them separate avoids circular dependencies, allows tree-shaking when only Option is used, and follows the principle of minimal dependencies between modules.
+Option is a standalone module with no Result dependency; conversion happens in `adapters/`. Avoids circular dependencies and allows tree-shaking when only Option is used.
 
 ### ADR 6: Two Async Approaches (Eager + Lazy)
 
-**Decision:** Two separate async systems: `promise-result/` for eager `Promise<IResultOfT>` or `Promise<IOption<T>>` and `async-result/` / `async-option/` for lazy thunks.
+`promise-result/` works with eager `Promise<...>`; `async-result/` / `async-option/` use lazy thunks. Separating them avoids conflating two execution models.
 
-**Rationale:** Promise-based approaches (eager) are familiar and compose well with existing async code. Lazy thunks enable deferred execution, which is useful for conditional evaluation and resource management. Separating them avoids conflating two different execution models.
+### ADR 7: Three Layered Concerns (Reliability / Observability / Primitives)
 
-## Development Workflow
+Beyond the core ROP operators, three additional concern-specific modules exist:
 
-1. **ARCH.md holds the current architecture design.** Update whenever source code, interfaces, or module structure change.
+- `reliability/` — production retry/timeout/concurrency (`retry`, `timeout`, `race`, `any`, `allSettled`).
+- `observability/` — breadcrumb path stack + formatters + observer hooks.
+- `primitives/` — high-frequency helpers (`cond`, `reduce`, `lift`, `partitionOption`).
 
-2. **SPEC.md teaches consumers.** Update when adding new exports or changing public API behavior.
+Each module reuses the existing `IResultOfT` and `AsyncResult` types without inventing new abstractions, so consumers can pick a module without learning a separate mental model. All three are tree-shakeable via dedicated export paths in `package.json`.
 
-3. **AGENTS.md guides AI agents.** Update when project conventions or workflow change.
+## Document Responsibilities
 
-## Reliability Module (`src/reliability/`)
-
-Production-grade helpers for ROP pipelines that need transient-failure tolerance, timeout ceilings, and concurrency primitives.
-
-| Operator       | Signature                                          | Notes                                                            |
-| -------------- | -------------------------------------------------- | ---------------------------------------------------------------- |
-| `retry`        | `(fn, opts?) => Promise<IResultOfT<T,E>>`          | Eager; bounded by `opts.times`; honors `shouldRetry` + `signal`. |
-| `retryLazy`    | `(ar, opts?) => AsyncResult<T,E>`                  | Lazy thunk wrap of `retry`. Triggers no work until `.run()`.     |
-| `timeout`      | `(ms, ar, onTimeout?) => AsyncResult<T, E\|TOE>`   | Lazy; race against `setTimeout`; configurable error factory.     |
-| `timeoutEager` | `(ms, () => Promise<IResultOfT<T,E>>, onTimeout?)` | Eager counterpart for callers already in `Promise` land.         |
-| `race`         | `(ars[]) => AsyncResult<T,E>`                      | First `Ok` wins; on all-fail returns the first `Err`.            |
-| `any`          | `(ars[]) => AsyncResult<T[], E[]>`                 | Collects **all** successes / all errors; never short-circuits.   |
-| `allSettled`   | `(ars[]) => AsyncResult<Settled<T,E>[], never>`    | Always `Ok`; emits per-thunk outcome in input order.             |
-
-**Design notes**
-
-- Zero runtime dependencies. `setTimeout`, `clearTimeout`, `AbortController` come from platform globals (declared in `src/types/globals.d.ts`).
-- All failures are surfaced as `Err`; nothing throws on the happy or sad path.
-- `retryLazy` never invokes `ar.run()` until the returned thunk is `run()` — `src/tests/hardening/RetryLeak.spec.ts` (TBD) hardens this contract.
-
-## Observability Module (`src/observability/`)
-
-Structured-logging primitives built around a tiny synchronous frame stack. **Not** based on `AsyncLocalStorage`, so it composes with the existing sync and lazy-async operators without runtime surprises.
-
-| API                  | Purpose                                                                     |
-| -------------------- | --------------------------------------------------------------------------- |
-| `ctx.run(fn)`        | Push/pop a frame around `fn`.                                               |
-| `withPath(seg, r?)`  | Push a path segment (must be inside `ctx.run`); pass-through on the result. |
-| `getPath()`          | Snapshot the current path.                                                  |
-| `tapErrContext(fn)`  | On failure, invokes `fn(error, { path })`. Supports sync/async callbacks.   |
-| `format(r)`          | Human-readable `Ok(...)` / `Err(...)` rendering for logs.                   |
-| `inspect(r)`         | Structured `{kind, value\|error}` view for log frameworks.                  |
-| `observe(r)`         | Pass-through hook that fires the installed observer.                        |
-| `installObserver(h)` | Install a process-wide observer; returns a disposer.                        |
-
-**Design notes**
-
-- `withPath(segment, r)` always pushes **synchronously** on call; the optional `r` lets it slot into `pipe` without changing semantics. `withPath(segment)` returns `void` and exists for "tag a region" usage.
-- `installObserver` is global but additive — the rest of the pipeline is untouched. Observer errors are swallowed so a misbehaving reporter never breaks the chain.
-- All entries are re-exported from the main barrel under their natural names plus a `anyAsyncResult` re-export to avoid clashing with the future `(value: T) => any` of the same name coming from the async operators.
-
-## Primitives Module (`src/primitives/`)
-
-High-frequency but commonly-missing helpers. Most are value-level functions that wrap existing factories.
-
-| API                        | Behaviour                                                          |
-| -------------------------- | ------------------------------------------------------------------ |
-| `cond(pred, err, v)`       | `Ok(v)` if `pred(v)` else `Err(err)`; carries the value through.   |
-| `condErr(pred, ok, err)`   | Inverse: `Ok(ok)` if `!pred(ok)` else `Err(err)`.                  |
-| `sequence(rs)`             | Alias of `combine`; pick the name that matches your codebase.      |
-| `sequenceAsyncResult(ars)` | Lazy `AsyncResult<T[], E>`; no inner `run()` triggers.             |
-| `reduce(fn, init, rs)`     | Left-fold; short-circuits on first source or reducer failure.      |
-| `partitionOption(opts)`    | `{ some, noneIndices }` — preserves positions of `None`s.          |
-| `lift(fn, errorFn?)`       | Wrap a (possibly throwing) function into a `Result`-returning one. |
-
-**Design notes**
-
-- All helpers are zero-overhead wrappers around the existing primitives (`ok`/`err`/`combine`) to keep the surface consistent.
-- `lift` propagates thrown errors when no `errorFn` is supplied (mirrors the documented throw policy for `unwrapOrElse` and friends).
-- `partitionOption` retains the original indices because validating a fixed-shape schema (request body, form input) often needs the position to compose a useful error message.
-
-## Source Layout (Updated)
-
-```
-src/
-  reliability/        — retry, timeout, race, any, allSettled (8 source files)
-  observability/      — format, inspect, ctx, withPath, observe (7 source files)
-  primitives/         — cond, reduce, partitionOption, lift, sequence (8 source files)
-  ... existing modules
-```
+| Document | Role |
+| -------- | ---- |
+| [ARCH.md](./ARCH.md) | Architecture record — update when source layout, module responsibilities, or decisions change. |
+| [SPEC.md](./SPEC.md) | API index — update when exports or public API behavior change. |
+| [AGENTS.md](./AGENTS.md) | AI agent conventions and project metadata. |

@@ -48,7 +48,7 @@ Both approaches compose: the type alias keeps signatures clean, and the factory 
 
 All result and option values are **plain objects** with a discriminant property.
 
-```
+```text
 ── IResult (void result) ──
 
 IResultSuccess                           (isSuccess: true, isFailure: false — no error)
@@ -84,18 +84,22 @@ Access `value` or `error` only after narrowing via `isSuccess` — checking `res
 
 ## Source Layout
 
-```
+```text
 src/
   index.ts              — Public barrel
-  types/                — IResult, IResultOfT, IOption, AsyncResult interfaces
+  types/                — IResult, IResultOfT, IOption, AsyncResult, AsyncOption interfaces
   factories/            — ok, err, fromPredicate, tryCatch, fromPromise, etc.
   operators/            — map, bind, match, unwrap, orThrow, separate, etc.
   promise-result/       — mapAsync, bindAsync, matchAsync, etc. (Promise-based)
   async-result/         — AsyncResult lazy thunk operators
+  async-option/         — AsyncOption lazy thunk operators
   composition/          — pipe, composeK, safeTry
   adapters/             — switchFn, liftMap, tee, toOption, fromOption
   combine/              — combine, all, combineWithAllErrors
-  option/               — ofSome, ofNone, map, andThen, match, etc.
+  option/               — ofSome, ofNone, map, bind, match, etc.
+  reliability/          — retry, retryLazy, timeout, timeoutEager, race, any, allSettled
+  observability/        — ctx, withPath, tapErrContext, format, inspect, observe, installObserver
+  primitives/           — cond, condErr, sequence, sequenceAsyncResult, reduce, partitionOption, lift
 ```
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.
@@ -115,6 +119,6 @@ The project maintains three complementary documentation files with distinct resp
 
 1. **ARCH.md is the architecture record.** Update whenever source code, interfaces, or module structure change.
 
-2. **SPEC.md is the consumer reference.** Update when adding new exports or changing public API behavior.
+2. **SPEC.md is the API index.** Update when adding new exports or changing public API behavior. SPEC.md lists each export with a link to its source file — full type signatures and JSDoc live in the source.
 
 3. **AGENTS.md guides AI agents.** Update when project conventions, workflow, or source layout change.

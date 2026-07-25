@@ -26,11 +26,11 @@
 
 **终态族**
 
-`match` 是 `await + 分支`,返回 `Promise<U>`,handler 既同步也接受 `Promise<U>`。`unwrapOr` 在成功返回 value,失败返回给定 default——default 既可以是同步值也可以是 `Promise<T>`,由 `Promise.resolve` 隐式摊平。`contains` / `exists` 是 boolean 终态,前者用 `===`,后者支持 sync + 异步 predicate。`swap` 是简单的字面量交换。
+`match` 是 `await + 分支`,返回 `Promise<U>`,handler 既同步也接受 `Promise<U>`。`unwrapOr` 在成功返回 value,失败返回给定 default——default 既可以是同步值也可以是 `Promise<T>`,由 `Promise.resolve` 隐式摊平。`contains` / `exists` 是 boolean 终态,前者用 `===`,后者支持 sync + 异步 predicate。
 
 **结构族**
 
-`flatten` 把 `AsyncResult<AsyncResult<T, E>, E>` 解嵌套为 `AsyncResult<T, E>`——可以看作是 `bind` 的"形式化绑定"路径。`filterOrElse` 在成功路径上调用 predicate,不满足时把原值映射为 `err(errorFn(value))`;异步 predicate 与 async errorFn 都支持,并对 predicate / errorFn 的同步 throw 与异步 reject **三处独立断言**统一归约,是本模块错误归约策略最完整测试覆盖的一处。
+`flatten` 把 `AsyncResult<AsyncResult<T, E>, E>` 解嵌套为 `AsyncResult<T, E>`——可以看作是 `bind` 的"形式化绑定"路径。`swapAsync` 是 Ok/Err 字面量在 lazy 上下文的交换。`filterOrElse` 在成功路径上调用 predicate,不满足时把原值映射为 `err(errorFn(value))`;异步 predicate 与 async errorFn 都支持,并对 predicate / errorFn 的同步 throw 与异步 reject **三处独立断言**统一归约,是本模块错误归约策略最完整测试覆盖的一处。
 
 **算子分类总览**
 
@@ -38,7 +38,7 @@
 - **链式族**:`bind` / `orElse`
 - **Side-effect 族**:`tap` / `tapAsync` / `tapErr` / `tapErrAsync` / `andTee` / `andThrough` / `orTee`
 - **终态族**:`match` / `unwrapOr` / `contains` / `exists`
-- **结构族**:`flatten` / `swap` / `filterOrElse`
+- **结构族**:`flatten` / `swapAsync` / `filterOrElse`
 - **聚合族**:`combine` / `combineWithAllErrors`
 - **工厂族**:`from` / `fromPromise` / `fromResult`
 

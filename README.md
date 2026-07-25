@@ -16,8 +16,10 @@ Unlike traditional Result libraries that hardcode a single error type, `@sandlad
 - Fully generic `TError` — define your own error types
 - **Pure FP** — data-last curried operators (`pipe`, `map`, `bind`) with discriminated union types
 - **Option type** — `IOption<T>` (Some / None) with curried operators
-- **Async-native** — `asyncOk`/`asyncErr` factories + `pipeAsync` for Promise-based railways
+- **Async-native** — `asyncOk`/`asyncErr` factories + `pipeAsync` for Promise-based railways, plus lazy `AsyncResult` / `AsyncOption` thunks
 - **Railway Oriented Programming** built-in — `map`, `bind`, `orElse`, `match`, `tap`, `combine`
+- **Reliability** — bounded `retry`, `timeout`, `race`, `any`, `allSettled` for production pipelines
+- **Observability** — breadcrumb `withPath` / `ctx` / `tapErrContext` + `format` / `inspect` / `installObserver`
 - **JSON serializable** — result and option objects survive `JSON.stringify`
 - Zero dependencies
 - ESM-only, strict TypeScript
@@ -65,21 +67,24 @@ const name = pipe(
 
 ## :ledger: API Overview
 
-All exports are documented in detail in [SPEC.md](./SPEC.md) with full signatures, examples, and edge-case behavior.
+All exports are listed in [SPEC.md](./SPEC.md) with links to their source files. Full type signatures and JSDoc live in the source.
 
-| Export path                     | Contents                                                                                                                                                                                                                                                                                                                                                              |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@sandlada/result`              | Core types (`IResult`, `IResultOfT`), factories (`ok`, `err`, `tryCatch`, `fromPromise`, …), sync operators (`map`, `bind`, `match`, `unwrap`, `orThrow`, …), async operators (`mapAsync`, `bindAsync`, `pipeAsync`, …), adapters (`toOption`, `switchFn`, `tee`, …), composition (`pipe`, `composeK`, `safeTry`), combine (`combine`, `all`, `combineWithAllErrors`) |
-| `@sandlada/result/promise-result` | Async operators on `Promise<IResultOfT>` — `mapAsync`, `bindAsync`, `matchAsync`, `orElseAsync`, `tapAsync`, `unwrapOrAsync`, `asyncBindThrough`, …                                                                                                                                                                                                                 |
-| `@sandlada/result/async-result` | Lazy AsyncResult thunks — `from`, `fromPromise`, `fromResult`, `map`, `bind`, `orElse`, `match`, `combine`, `combineWithAllErrors`                                                                                                                                                                                                                                    |
-| `@sandlada/result/async-option` | Lazy AsyncOption thunks — `from`, `fromPromise`, `fromOption`, `map`, `bind`, `orElse`, `match`, `tap`, `unwrapOr`                                                                                                                                                                                                                                                    |
-| `@sandlada/result/adapters`     | Wlaschin three-shape adapters — `switchFn`, `switchFnAsync`, `liftMap`, `tee`, `teeAsync`, `toOption`, `fromOption`                                                                                                                                                                                                                                                   |
-| `@sandlada/result/combine`      | Parallel combination — `combine`, `all`, `combineWithAllErrors`                                                                                                                                                                                                                                                                                                       |
-| `@sandlada/result/composition`  | Composition helpers — `pipe`, `composeK`, `composeKAsync`, `pipeAsync`, `safeTry`, `fromSafeTry`                                                                                                                                                                                                                                                                      |
-| `@sandlada/result/factories`    | Core constructors — `ok`, `err`, `fromPredicate`, `fromThrowable`, `tryCatch`, `tryCatchAsync`, `fromPromise`, `fromSafePromise`, `asyncOk`, `asyncErr`                                                                                                                                                                                                               |
-| `@sandlada/result/operators`    | Sync operators — `map`, `bind`, `match`, `unwrap`, `orThrow`, `separate`, `traverseArray`, …                                                                                                                                                                                                                                                                          |
-| `@sandlada/result/option`       | Option module — `ofSome`, `ofNone`, `map`, `bind`, `match`, `okOr`, `transpose`, …                                                                                                                                                                                                                                                                                    |
-| `@sandlada/result/types`        | Type definitions only — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`                                                                                                                                                                                                                                                                              |
+| Export path | Contents |
+| --- | --- |
+| `@sandlada/result` | Core types, factories, sync + async operators, adapters, composition, combine (everything) |
+| `@sandlada/result/promise-result` | Async operators on `Promise<IResultOfT>` |
+| `@sandlada/result/async-result` | Lazy AsyncResult thunks |
+| `@sandlada/result/async-option` | Lazy AsyncOption thunks |
+| `@sandlada/result/adapters` | Wlaschin three-shape adapters |
+| `@sandlada/result/combine` | Parallel combination |
+| `@sandlada/result/composition` | Composition helpers |
+| `@sandlada/result/factories` | Core constructors |
+| `@sandlada/result/operators` | Sync operators |
+| `@sandlada/result/option` | `IOption<T>` operators |
+| `@sandlada/result/reliability` | Retry / timeout / concurrency |
+| `@sandlada/result/observability` | Breadcrumbs + formatters + observer hooks |
+| `@sandlada/result/primitives` | High-frequency helpers |
+| `@sandlada/result/types` | Type definitions only |
 
 ## :package: Integration Pattern
 
@@ -109,8 +114,8 @@ function getUser(id: string): AppResult<User> {
 
 ## :ledger: Further Reading
 
-- [SPEC.md](./SPEC.md) — complete API reference with signatures, examples, and all modules
-- [ARCH.md](./ARCH.md) — internal architecture, module design, and contributor documentation
+- [SPEC.md](./SPEC.md) — API index with links to each source file
+- [ARCH.md](./ARCH.md) — internal architecture and contributor documentation
 - [AGENTS.md](./AGENTS.md) — AI agent conventions and project metadata for tool-assisted development
 
 ## License
