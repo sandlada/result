@@ -4,11 +4,16 @@
  * Re-exports all asynchronous operators for working with Promise<Result> values.
  */
 
-export { asyncBind } from './asyncBind.js';
-export { asyncBindThrough } from './asyncBindThrough.js';
-export { asyncMap } from './asyncMap.js';
-export { asyncTap } from './asyncTap.js';
-export { asyncTapErr } from './asyncTapErr.js';
+// ── Result-flavored ─────────────────────────────────────────────────────────
+
+// Sync operators (operate on `Promise<IResultOfT>`, sync fn)
+export { flatten } from './flatten.js';
+export { map } from './map.js';
+export { mapErr } from './mapErr.js';
+export { unwrapOr } from './unwrapOr.js';
+export { unwrapOrElse } from './unwrapOrElse.js';
+
+// Async operators (operate on `Promise<IResultOfT>`, sync-or-async fn)
 export { bimapAsync } from './bimapAsync.js';
 export { bindAsync } from './bindAsync.js';
 export { bindThroughAsync } from './bindThroughAsync.js';
@@ -28,15 +33,43 @@ export { tapErrAsync } from './tapErrAsync.js';
 export { unwrapOrAsync } from './unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';
 
-export { asyncBindOption } from './asyncBindOption.js';
-export { asyncTapOption } from './asyncTapOption.js';
-export { bindAsyncOption } from './bindAsyncOption.js';
-export { containsAsyncOption } from './containsAsyncOption.js';
-export { existsAsyncOption } from './existsAsyncOption.js';
-export { filterAsyncOption } from './filterAsyncOption.js';
+// Lift operators (operate on sync `IResultOfT`, async fn)
+export { asyncBind } from './asyncBind.js';
+export { asyncBindThrough } from './asyncBindThrough.js';
+export { asyncMap } from './asyncMap.js';
+export { asyncMatch } from './asyncMatch.js';
+export { asyncOrElse } from './asyncOrElse.js';
+export { asyncTap } from './asyncTap.js';
+export { asyncTapErr } from './asyncTapErr.js';
+
+// Combinators
+export { ap } from './ap.js';
+export { combine } from './combine.js';
+export { combineWithAllErrors } from './combineWithAllErrors.js';
+
+// ── Option-flavored ─────────────────────────────────────────────────────────
+
+// Sync operators on `Promise<IOption>`
 export { flattenAsyncOption } from './flattenAsyncOption.js';
 export { mapAsyncOption } from './mapAsyncOption.js';
 export { matchAsyncOption } from './matchAsyncOption.js';
 export { orElseAsyncOption } from './orElseAsyncOption.js';
 export { tapAsyncOption } from './tapAsyncOption.js';
 export { unwrapOrAsyncOption } from './unwrapOrAsyncOption.js';
+
+// Async operators on `Promise<IOption>`
+export { bindAsyncOption } from './bindAsyncOption.js';
+export { containsAsyncOption } from './containsAsyncOption.js';
+export { existsAsyncOption } from './existsAsyncOption.js';
+export { filterAsyncOption } from './filterAsyncOption.js';
+export { mapOrAsyncOption } from './mapOrAsyncOption.js';
+export { mapOrElseAsyncOption } from './mapOrElseAsyncOption.js';
+export { tapErrAsyncOption } from './tapErrAsyncOption.js';
+export { unwrapOrElseAsyncOption } from './unwrapOrElseAsyncOption.js';
+
+// Lift operators on sync `IOption`
+export { asyncBindOption } from './asyncBindOption.js';
+export { asyncMapOption } from './asyncMapOption.js';
+export { asyncMatchOption } from './asyncMatchOption.js';
+export { asyncOrElseOption } from './asyncOrElseOption.js';
+export { asyncTapOption } from './asyncTapOption.js';
