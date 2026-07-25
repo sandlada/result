@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ofNone } from '../../src/index.js';
+import { ofNone } from './index.js';
 import type { IOptionNone, IOption } from '../../src/types/Option.js';
 
 describe('ofNone()', () => {

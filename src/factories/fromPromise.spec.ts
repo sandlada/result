@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fromPromise } from '../../src/index.js';
+import { fromPromise } from './index.js';
 
 describe('fromPromise', () => {
     it('wraps a resolved promise into Ok', async () => {

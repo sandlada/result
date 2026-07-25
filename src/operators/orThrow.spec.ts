@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ok, err } from '../../src/index.js';
-import { orThrow, orThrowWith } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { orThrow, orThrowWith } from './index.js';
 
 describe('orThrow', () => {
     it('returns the value on success', () => {

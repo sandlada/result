@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { switchFnAsync } from '../../src/index.js';
+import { switchFnAsync } from './index.js';
 
 describe('switchFnAsync', () => {
     it('lifts an async function to async switch', async () => {

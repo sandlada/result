@@ -3,7 +3,7 @@
  * These verify compile-time behavior only.
  */
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
 import type { IResultOfTSuccess, IResultOfTFailure, IResultOfT } from '../../src/types/IResultOfT.js';
 
 describe('IResultOfT — discriminated union (value-bearing)', () => {

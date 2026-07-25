@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, safeTry, fromSafeTry, map } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { safeTry, fromSafeTry } from './index.js';
+import { map } from '../operators/index.js';
 
 describe('safeTry / fromSafeTry', () => {
     it('fromSafeTry returns ok on success path', () => {

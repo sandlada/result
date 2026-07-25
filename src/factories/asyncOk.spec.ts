@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { IResult } from '../../src/types/IResult.js';
-import { asyncOk } from '../../src/index.js';
+import { asyncOk } from './index.js';
 
 // ─── asyncOk<T>(value) — value success ─────────────────────────────────────
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { any } from './index.js';
-import { ok, err } from '../index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('any', () => {
     it('collects all successes when at least one Ok', async () => {

@@ -6,6 +6,10 @@
  * For `Promise<IOption<T>>` operators, see `../promise-option/index.js` (subpath `./promise-option`).
  */
 
+// ── Convenience factories (pre-resolved Promise<IResultOfT>) ─────────────────
+export { asyncOk } from '../factories/asyncOk.js';
+export { asyncErr } from '../factories/asyncErr.js';
+
 // ── Sync operators (operate on `Promise<IResultOfT>`, sync fn) ───────────────
 export { flatten } from './flatten.js';
 export { map } from './map.js';

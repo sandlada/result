@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ofSome, ofNone, tapAsyncOption } from '../../src/index.js';
+import { tapAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('tapAsyncOption', () => {
     it('calls side-effect on Some (curried)', async () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, existsAsyncOption } from '../../src/index.js';
+import { existsAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('existsAsyncOption', () => {
     const isEven = async (x: number) => x % 2 === 0;

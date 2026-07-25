@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ok, err } from '../index.js';
+import { ok, err } from '../factories/index.js';
 import { observe, installObserver, getActiveObserver } from './index.js';
 
 describe('observe / installObserver', () => {

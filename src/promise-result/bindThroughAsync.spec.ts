@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, bindThroughAsync } from '../../src/index.js';
+import { bindThroughAsync } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('bindThroughAsync', () => {
     it('passes through success when inner callback returns success (curried)', async () => {

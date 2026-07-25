@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fromResult } from '../async-result/index.js';
-import { ok, err } from '../index.js';
+import { ok, err } from '../factories/index.js';
 import { retryLazy } from './index.js';
 
 describe('retryLazy', () => {

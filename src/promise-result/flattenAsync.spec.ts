@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, flattenAsync } from '../../src/index.js';
+import { flattenAsync } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('flattenAsync', () => {
     it('flattens nested success', async () => {

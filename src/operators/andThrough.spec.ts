@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, andThrough } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { andThrough } from './index.js';
 
 describe('andThrough', () => {
     it('curried: calls fn and preserves original result on success', () => {

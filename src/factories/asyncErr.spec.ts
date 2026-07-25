@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr } from '../../src/index.js';
+import { asyncOk, asyncErr } from './index.js';
 
 // ─── asyncErr(error) — void failure ────────────────────────────────────────
 

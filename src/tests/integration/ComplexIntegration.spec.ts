@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
 import type { IResultOfT, IResultOfTSuccess } from '../../types/IResultOfT.js';
 
 type DomainError =

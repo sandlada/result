@@ -3,7 +3,7 @@
  * These verify compile-time behavior only.
  */
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone } from '../../src/index.js';
+import { ofSome, ofNone } from '../option/index.js';
 import type { IOptionSome, IOptionNone, IOption } from '../../src/types/Option.js';
 
 describe('IOption — discriminated union', () => {

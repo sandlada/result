@@ -7,6 +7,14 @@
  * @see ./README.md for full operator catalogue.
  */
 
+// ── Convenience factories (pre-resolved Promise<IResultOfT>) ─────────────────
+export { asyncOk } from '../factories/asyncOk.js';
+export { asyncErr } from '../factories/asyncErr.js';
+
+// ── Sync `IOption` constructors ─────────────────────────────────────────────
+export { ofSome } from '../option/ofSome.js';
+export { ofNone } from '../option/ofNone.js';
+
 // ── Result-flavored: operate on `Promise<IOption<T>>` with sync-or-async fn ─
 export { bindAsyncOption } from './bindAsyncOption.js';
 export { containsAsyncOption } from './containsAsyncOption.js';

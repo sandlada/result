@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr, unwrapOrElseAsync } from '../../src/index.js';
+import { unwrapOrElseAsync } from './index.js';
+import { asyncOk, asyncErr } from '../factories/index.js';
 
 describe('unwrapOrElseAsync', () => {
     it('returns value on success (curried)', async () => {

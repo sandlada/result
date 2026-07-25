@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { allSettled } from './index.js';
-import { ok, err } from '../index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('allSettled', () => {
     it('collects every outcome in input order', async () => {

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
-import { ok, err, bind } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { bind } from './index.js';
 
 describe('bind', () => {
     type NumErr = { kind: 'TooSmall' };

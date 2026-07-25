@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone } from '../../src/index.js';
+import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
 import { okOr } from '../../src/option/index.js';
 

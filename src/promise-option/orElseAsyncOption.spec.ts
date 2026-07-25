@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, orElseAsyncOption } from '../../src/index.js';
+import { orElseAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('orElseAsyncOption', () => {
     it('returns the Some value unchanged when Some (curried)', async () => {

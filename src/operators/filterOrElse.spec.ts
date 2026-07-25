@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, filterOrElse, map, pipe } from '../index.js';
+import { filterOrElse, map } from '../operators/index.js';
+import { pipe } from '../composition/index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('filterOrElse', () => {
     it('passes through success when predicate holds (curried)', () => {

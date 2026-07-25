@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, matchAsyncOption } from '../../src/index.js';
+import { matchAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('matchAsyncOption', () => {
     it('calls onSome on Some (curried)', async () => {

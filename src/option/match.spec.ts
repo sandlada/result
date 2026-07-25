@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, matchOption } from '../../src/index.js';
+import { match, ofSome, ofNone } from './index.js';
 
-describe('matchOption', () => {
+describe('match', () => {
     it('calls onSome on a Some', () => {
-        const result = matchOption(
+        const result = match(
             (v: number) => `got ${v}`,
             () => 'missing',
         )(ofSome(5));
@@ -11,7 +11,7 @@ describe('matchOption', () => {
     });
 
     it('calls onNone on a None', () => {
-        const result = matchOption(
+        const result = match(
             (v: number) => `got ${v}`,
             () => 'missing',
         )(ofNone());
@@ -19,7 +19,7 @@ describe('matchOption', () => {
     });
 
     it('object form: calls some handler on Some', () => {
-        const result = matchOption(
+        const result = match(
             { some: (v: number) => `got ${v}`, none: () => 'missing' },
             ofSome(7),
         );
@@ -27,7 +27,7 @@ describe('matchOption', () => {
     });
 
     it('object form: calls none handler on None', () => {
-        const result = matchOption(
+        const result = match(
             { some: (v: number) => `got ${v}`, none: () => 'missing' },
             ofNone(),
         );
@@ -35,7 +35,7 @@ describe('matchOption', () => {
     });
 
     it('object form: curried', () => {
-        const matcher = matchOption({
+        const matcher = match({
             some: (v: number) => `got ${v}`,
             none: () => 'missing',
         });

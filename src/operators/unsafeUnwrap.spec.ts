@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, unsafeUnwrap } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { unsafeUnwrap } from './index.js';
 
 describe('unsafeUnwrap', () => {
     it('returns the value on success', () => {

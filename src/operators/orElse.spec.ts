@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
-import { ok, err, orElse } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { orElse } from './index.js';
 
 describe('orElse', () => {
     const fallback = (_e: string) => ok<number | string>(42) as IResultOfT<number | string, string>;

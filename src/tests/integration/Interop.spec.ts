@@ -1,24 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import type { IResultOfT } from '../../types/IResultOfT.js';
-import {
-    ok,
-    err,
-    map,
-    bind,
-    orElse,
-    match,
-    unwrapOr,
-    composeK,
-    pipe,
-    combine,
-    tryCatch,
-    asyncOk,
-    tryCatchAsync,
-    mapAsync,
-    bindAsync,
-    matchAsync,
-    pipeAsync,
-} from '../../index.js';
+import { ok, err, tryCatch, asyncOk, tryCatchAsync } from '../../factories/index.js';
+import { map, bind, orElse, match, unwrapOr } from '../../operators/index.js';
+import { composeK, pipe, pipeAsync } from '../../composition/index.js';
+import { combine } from '../../combine/index.js';
+import { mapAsync, bindAsync, matchAsync } from '../../promise-result/index.js';
 
 // ── Sync FP deep interop ─────────────────────────────────────────────
 

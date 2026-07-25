@@ -1,5 +1,5 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { ok, err } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
 import type { IResult } from '../../types/IResult.js';
 import type { IResultOfT } from '../../types/IResultOfT.js';
 

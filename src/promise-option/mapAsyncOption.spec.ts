@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, mapAsyncOption } from '../../src/index.js';
+import { mapAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('mapAsyncOption', () => {
     it('transforms value (curried)', async () => {

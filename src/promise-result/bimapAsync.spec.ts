@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr, bimapAsync } from '../../src/index.js';
+import { bimapAsync } from './index.js';
+import { asyncOk, asyncErr } from '../factories/index.js';
 
 describe('bimapAsync', () => {
     it('maps success value (curried)', async () => {

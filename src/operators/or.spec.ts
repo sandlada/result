@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
-import { or, unwrap } from '../../src/index.js';
+import { or, unwrap } from './index.js';
 
 describe('or', () => {
     it('direct form: failure falls back to other', () => {

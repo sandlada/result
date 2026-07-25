@@ -1,44 +1,44 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
 import {
     fromResult,
-    promiseResultBind,
-    promiseResultOrElse,
-    promiseResultMap,
-    promiseResultTap,
-} from '../../index.js';
+    bind,
+    map,
+    orElse,
+    tap,
+} from '../../async-result/index.js';
 
 describe('AsyncResult hardening and interop', () => {
     it('map should catch callback error', async () => {
-        const ar = promiseResultMap(() => { throw new Error('boom'); }, fromResult(ok(42)));
+        const ar = map(() => { throw new Error('boom'); }, fromResult(ok(42)));
         const r = await ar.run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('boom');
     });
 
     it('bind should support Promise<IResultOfT> interop', async () => {
-        const ar = promiseResultBind((x: number) => Promise.resolve(ok(x * 2)), fromResult(ok(21)));
+        const ar = bind((x: number) => Promise.resolve(ok(x * 2)), fromResult(ok(21)));
         const r = await ar.run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
     it('bind should catch callback error', async () => {
-        const ar = promiseResultBind(() => { throw new Error('boom'); }, fromResult(ok(42)));
+        const ar = bind(() => { throw new Error('boom'); }, fromResult(ok(42)));
         const r = await ar.run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('boom');
     });
 
     it('orElse should support Promise<IResultOfT> interop', async () => {
-        const ar = promiseResultOrElse((e: string) => Promise.resolve(ok(0)), fromResult(err('fail')));
+        const ar = orElse((e: string) => Promise.resolve(ok(0)), fromResult(err('fail')));
         const r = await ar.run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(0);
     });
 
     it('tap should catch callback error', async () => {
-        const ar = promiseResultTap(() => { throw new Error('boom'); }, fromResult(ok(42)));
+        const ar = tap(() => { throw new Error('boom'); }, fromResult(ok(42)));
         const r = await ar.run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('boom');

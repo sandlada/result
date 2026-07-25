@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, orTee } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { orTee } from './index.js';
 
 describe('orTee', () => {
     it('curried: calls fn and passes original result through on failure', () => {

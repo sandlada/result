@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, existsAsync } from '../../src/index.js';
+import { existsAsync } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('existsAsync', () => {
     const isEven = async (x: number) => x % 2 === 0;

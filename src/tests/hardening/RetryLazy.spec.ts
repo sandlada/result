@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ok, err } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
 import { retryLazy } from '../../reliability/index.js';
 import { withPath, getPath, installObserver } from '../../observability/index.js';
 

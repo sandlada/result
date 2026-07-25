@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, pipe } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
+import { pipe } from '../../composition/index.js';
 import { retryLazy, timeout, allSettled } from '../../reliability/index.js';
 import { sequenceAsyncResult } from '../../primitives/index.js';
 import { fromResult, match as promiseResultMatch } from '../../async-result/index.js';

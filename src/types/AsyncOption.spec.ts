@@ -3,7 +3,7 @@
  * These verify compile-time behavior only.
  */
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone } from '../../src/index.js';
+import { ofSome, ofNone } from '../option/index.js';
 import type { AsyncOption } from '../../src/types/AsyncOption.js';
 
 describe('AsyncOption — lazy async option', () => {

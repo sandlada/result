@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr, mapOrAsync } from '../../src/index.js';
+import { mapOrAsync } from './index.js';
+import { asyncOk, asyncErr } from '../factories/index.js';
 
 describe('mapOrAsync', () => {
     it('maps success value (curried)', async () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, mapErr } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { mapErr } from './index.js';
 
 describe('mapErr', () => {
     const toUpper = (e: string) => e.toUpperCase();

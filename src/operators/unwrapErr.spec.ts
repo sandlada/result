@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
-import { unwrapErr } from '../../src/index.js';
+import { unwrapErr } from './index.js';
 
 // ─── Void result ───────────────────────────────────────────────────────────
 

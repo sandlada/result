@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, match } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { match } from './index.js';
 
 describe('match', () => {
     const onOk = (v: number) => `value: ${v}`;

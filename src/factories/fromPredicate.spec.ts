@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fromPredicate } from '../../src/index.js';
+import { fromPredicate } from './index.js';
 
 describe('fromPredicate', () => {
     it('creates success when predicate is true (direct)', () => {

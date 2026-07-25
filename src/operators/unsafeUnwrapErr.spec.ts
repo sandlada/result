@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, unsafeUnwrapErr } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { unsafeUnwrapErr } from './index.js';
 
 describe('unsafeUnwrapErr', () => {
     it('returns the error on failure', () => {

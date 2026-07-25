@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, asyncBindOption } from '../../src/index.js';
+import { asyncBindOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('asyncBindOption', () => {
     it('chains async success (curried)', async () => {

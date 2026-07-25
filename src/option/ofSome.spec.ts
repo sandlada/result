@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome } from '../../src/index.js';
+import { ofSome } from './index.js';
 import type { IOptionSome, IOption } from '../../src/types/Option.js';
 
 describe('ofSome(value)', () => {

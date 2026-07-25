@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, containsAsyncOption } from '../../src/index.js';
+import { containsAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('containsAsyncOption', () => {
     it('returns true if Some matches the value (curried)', async () => {

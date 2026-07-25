@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ofSome, ofNone, tapOption } from '../../src/index.js';
+import { tap, ofSome, ofNone } from './index.js';
 
-describe('tapOption', () => {
+describe('tap', () => {
     it('calls fn with the value on Some', () => {
         let sideEffect = '';
-        const result = tapOption((v: string) => {
+        const result = tap((v: string) => {
             sideEffect = v;
         })(ofSome('hello'));
         expect(sideEffect).toBe('hello');
@@ -13,7 +13,7 @@ describe('tapOption', () => {
 
     it('returns the same None', () => {
         const mockFn = vi.fn();
-        const result = tapOption(mockFn)(ofNone());
+        const result = tap(mockFn)(ofNone());
         expect(mockFn).not.toHaveBeenCalled();
         expect(result.isSome).toBe(false);
     });
@@ -22,7 +22,7 @@ describe('tapOption', () => {
         const mockFn = vi.fn().mockImplementation(() => {
             throw new Error('boom');
         });
-        const result = tapOption(mockFn)(ofSome('hello'));
+        const result = tap(mockFn)(ofSome('hello'));
         expect(mockFn).toHaveBeenCalledWith('hello');
         expect(result.isNone).toBe(true);
         expect(result).toEqual(ofNone());

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ok, err, asyncTapErr } from '../../src/index.js';
+import { asyncTapErr } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('asyncTapErr', () => {
     it('calls side-effect on failure and returns original Result', async () => {

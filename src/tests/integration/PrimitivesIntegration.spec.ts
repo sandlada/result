@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, pipe, map } from '../../index.js';
+import { ok, err } from '../../factories/index.js';
+import { pipe } from '../../composition/index.js';
+import { map } from '../../operators/index.js';
 import { ofSome, ofNone } from '../../option/index.js';
 import {
     cond,

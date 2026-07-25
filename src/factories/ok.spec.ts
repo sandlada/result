@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { IResult } from '../../src/types/IResult.js';
-import { ok } from '../../src/index.js';
+import { ok } from './index.js';
 
 // ─── ok() — void success ───────────────────────────────────────────────────
 

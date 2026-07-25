@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, asyncOk, asyncErr, composeKAsync } from '../../src/index.js';
+import { ok, asyncOk, asyncErr } from '../factories/index.js';
+import { composeKAsync } from './index.js';
 
 describe('composeKAsync', () => {
     it('composes two async switch functions', async () => {

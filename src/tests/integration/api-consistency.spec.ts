@@ -1,23 +1,26 @@
 import { describe, it, expect } from 'vitest';
+import { ok, err } from '../../factories/index.js';
+import { ofSome } from '../../option/ofSome.js';
+import { fromOption } from '../../async-option/fromOption.js';
 import {
-    ok,
-    err,
-    ofSome,
     bimapAsync,
     swapAsync,
     flattenAsync,
     containsAsync,
     existsAsync,
     filterOrElseAsync,
-    promiseResultBimap,
-    promiseResultAp,
-    promiseResultSwap,
-    promiseResultFlatten,
-    asyncOptionFilter,
-    asyncOptionFlatten,
+} from '../../promise-result/index.js';
+import {
+    ap as asyncResultAp,
+    bimap as asyncResultBimap,
+    flatten as asyncResultFlatten,
     fromResult,
-    asyncOptionFromOption
-} from '../../index.js';
+    swapAsync as asyncResultSwapAsync,
+} from '../../async-result/index.js';
+import {
+    filter as asyncOptionFilter,
+    flatten as asyncOptionFlatten,
+} from '../../async-option/index.js';
 
 describe('API Consistency - New Operators', () => {
     describe('eager async result', () => {
@@ -57,26 +60,26 @@ describe('API Consistency - New Operators', () => {
     });
 
     describe('lazy async result', () => {
-        it('promiseResultBimap', async () => {
-            const ar = promiseResultBimap(x => x * 2, e => e + '!', fromResult(ok(21)));
+        it('asyncResultBimap', async () => {
+            const ar = asyncResultBimap(x => x * 2, e => e + '!', fromResult(ok(21)));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });
 
-        it('promiseResultSwap', async () => {
-            const ar = promiseResultSwap(fromResult(ok(42)));
+        it('asyncResultSwap', async () => {
+            const ar = asyncResultSwapAsync(fromResult(ok(42)));
             const r = await ar.run();
             expect(r.isFailure).toBe(true);
         });
 
-        it('promiseResultAp', async () => {
-            const ar = promiseResultAp(fromResult(ok((x: number) => x * 2)), fromResult(ok(21)));
+        it('asyncResultAp', async () => {
+            const ar = asyncResultAp(fromResult(ok((x: number) => x * 2)), fromResult(ok(21)));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });
 
-        it('promiseResultFlatten', async () => {
-            const ar = promiseResultFlatten(fromResult(ok(fromResult(ok(42)))));
+        it('asyncResultFlatten', async () => {
+            const ar = asyncResultFlatten(fromResult(ok(fromResult(ok(42)))));
             const r = await ar.run();
             if (r.isSuccess) expect(r.value).toBe(42);
         });
@@ -84,13 +87,13 @@ describe('API Consistency - New Operators', () => {
 
     describe('lazy async option', () => {
         it('asyncOptionFilter', async () => {
-            const ao = asyncOptionFilter(x => x > 100, asyncOptionFromOption(ofSome(42)));
+            const ao = asyncOptionFilter(x => x > 100, fromOption(ofSome(42)));
             const r = await ao.run();
             expect(r.isNone).toBe(true);
         });
 
         it('asyncOptionFlatten', async () => {
-            const ao = asyncOptionFlatten(asyncOptionFromOption(ofSome(asyncOptionFromOption(ofSome(42)))));
+            const ao = asyncOptionFlatten(fromOption(ofSome(fromOption(ofSome(42)))));
             const r = await ao.run();
             if (r.isSome) expect(r.value).toBe(42);
         });

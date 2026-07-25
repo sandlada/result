@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { switchFn } from '../../src/index.js';
+import { switchFn } from './index.js';
 
 describe('switchFn', () => {
     it('wraps a normal function to return a success result', () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, swapAsync } from '../../src/index.js';
+import { swapAsync } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('swapAsync', () => {
     it('swaps success to err', async () => {

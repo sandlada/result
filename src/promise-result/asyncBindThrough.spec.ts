@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, pipe } from '../../src/index.js';
-import { asyncBindThrough } from '../../src/index.js';
-import type { IResultOfT } from '../../src/types/IResultOfT.js';
+import { asyncBindThrough } from './index.js';
+import { ok, err } from '../factories/index.js';
+import { pipe } from '../composition/pipe.js';
+import type { IResultOfT } from '../../types/IResultOfT.js';
 
 describe('asyncBindThrough', () => {
     it('preserves original value when callback succeeds', async () => {

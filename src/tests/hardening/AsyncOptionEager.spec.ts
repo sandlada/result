@@ -1,13 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ofSome, ofNone } from '../../option/index.js';
-import {
-    mapAsyncOption,
-    bindAsyncOption,
-    matchAsyncOption,
-    orElseAsyncOption,
-    tapAsyncOption,
-    unwrapOrAsyncOption
-} from '../../index.js';
+import { mapAsyncOption, bindAsyncOption, matchAsyncOption, orElseAsyncOption, tapAsyncOption, unwrapOrAsyncOption } from '../../promise-option/index.js';
 
 describe('eager AsyncOption operators', () => {
     it('mapAsyncOption should transform value', async () => {

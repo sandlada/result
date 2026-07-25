@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, bindAsyncOption } from '../../src/index.js';
+import { bindAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('bindAsyncOption', () => {
     it('chains to Promise<IOption> (curried)', async () => {

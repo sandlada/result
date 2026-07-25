@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, ofSome, ofNone, fromOption, toOption, unwrap, unwrapErr } from '../../src/index.js';
+import { ok, err } from '../factories/index.js';
+import { ofSome, ofNone } from '../option/index.js';
+import { fromOption, toOption } from './index.js';
+import { unwrap, unwrapErr } from '../operators/index.js';
 import type { IOption } from '../../src/types/Option.js';
 
 describe('fromOption', () => {

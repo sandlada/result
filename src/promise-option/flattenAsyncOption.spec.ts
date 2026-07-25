@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, flattenAsyncOption } from '../../src/index.js';
+import { flattenAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('flattenAsyncOption', () => {
     it('flattens nested Some', async () => {

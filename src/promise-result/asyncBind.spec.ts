@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ok, err, asyncBind } from '../../src/index.js';
+import { asyncBind } from './index.js';
+import { ok, err } from '../factories/index.js';
 
 describe('asyncBind', () => {
     it('chains async success (curried)', async () => {

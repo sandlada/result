@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { asyncOk, asyncErr, bindAsync, orElseAsync, tapAsync, tapErrAsync } from '../../index.js';
+import { asyncOk, asyncErr } from '../../factories/index.js';
+import { bindAsync, orElseAsync, tapAsync, tapErrAsync } from '../../promise-result/index.js';
 
 describe('Result async hardening', () => {
     describe('eager operators', () => {

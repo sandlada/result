@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ofSome, ofNone, unwrapOrAsyncOption } from '../../src/index.js';
+import { unwrapOrAsyncOption } from './index.js';
+import { ofSome, ofNone } from '../option/index.js';
 
 describe('unwrapOrAsyncOption', () => {
     it('returns value on Some (curried)', async () => {

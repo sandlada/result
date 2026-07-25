@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { race } from './index.js';
-import { ok, err } from '../index.js';
+import { ok, err } from '../factories/index.js';
 
 const arFrom = <T, E>(ms: number, value: { isSuccess: true; isFailure: false; value: T } | { isSuccess: false; isFailure: true; error: E }) => ({
     run: () => new Promise<typeof value>((resolve) => setTimeout(() => resolve(value), ms)),
