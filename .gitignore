@@ -47,3 +47,12 @@ dist
 .env.*
 !.env.example
 coverage/
+
+# AI
+.claude
+.agents
+.gemini
+.antigravity
+.copilot
+.superpowers
+docs/superpowers
