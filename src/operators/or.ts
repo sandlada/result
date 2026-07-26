@@ -15,11 +15,10 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function or<A, F>(other: IResultOfT<A, F>): <E>(r: IResultOfT<A, E>) => IResultOfT<A, F>;
-export function or<A, E, F>(other: IResultOfT<A, F>, r: IResultOfT<A, E>): IResultOfT<A, F>;
-export function or<A, E, F>(other: IResultOfT<A, F>, r?: IResultOfT<A, E>): IResultOfT<A, F> | ((r: IResultOfT<A, E>) => IResultOfT<A, F>) {
-    if(r === undefined) return (r: IResultOfT<A, E>): IResultOfT<A, F> => or(other, r);
-    if(r.isSuccess) return r as unknown as IResultOfT<A, F>;
-    return other as unknown as IResultOfT<A, F>;
+export function or<A, E, F>(other: IResultOfT<A, F>): (r: IResultOfT<A, E>) => IResultOfT<A, E | F>;
+export function or<A, E, F>(other: IResultOfT<A, F>, r: IResultOfT<A, E>): IResultOfT<A, E | F>;
+export function or<A, E, F>(other: IResultOfT<A, F>, r?: IResultOfT<A, E>): IResultOfT<A, E | F> | ((r: IResultOfT<A, E>) => IResultOfT<A, E | F>) {
+    if(r === undefined) return (r: IResultOfT<A, E>): IResultOfT<A, E | F> => or(other, r);
+    if(r.isSuccess) return r;
+    return other;
 }
-

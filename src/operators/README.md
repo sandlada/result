@@ -10,7 +10,7 @@
 
 **链式族**(`bind` / `orElse`)
 
-`bind(fn)` 是 monadic bind,在成功轨道上调用 `fn(value)`,错误类型扩到 `E | F`;回调同步抛错被 `try / catch` 归约为 `err(e as E | F)`。`orElse(fn)` 是错误轨道的对偶,`fn` 返回 `IResultOfT<B, F>` 时结果值类型拓宽为 `A | B`,供从失败侧把布尔/默认恢复类型补回主轨。
+`bind(fn)` 是 monadic bind,在成功轨道上调用 `fn(value)`,错误类型扩到 `E | F`;**回调同步抛错沿调用栈向上传播**(`bind` 与 `mapErr` 一并构成 "throw-propagates" 子集——与 fp-ts、neverthrow、true-myth、canonical Result throw policy 一致)。`orElse(fn)` 是错误轨道的对偶,`fn` 返回 `IResultOfT<B, F>` 时结果值类型拓宽为 `A | B`,供从失败侧把布尔/默认恢复类型补回主轨。
 
 **映射族**(`map` / `mapErr` / `mapOr` / `mapOrElse` / `bimap`)
 
@@ -43,7 +43,7 @@
 ## 模块的设计原则
 
 - **窄化返回类型优先**:所有工厂与算子返回最窄的字面量类型(`IResultOfTSuccess<T, E>` / `IResultOfTFailure<T, E>` 或并集),不向上返回宽类型,让消费方在 `match` 中立即 exhaustive narrow。
-- **catch+convert 政策**:所有可能在回调里 throw 的算子(`map` / `mapErr` / `bind` / `orElse` / `bimap` / `ap` / `filterOrElse` / `andTee` / `andThrough` / `orTee` / `tap` / `tapErr` / `traverseArray`)都用 `try / catch` 把 throw 归约为 `err(caughtError)`——这是与 `pipe/tap` 一致的家族合约。**终态 panic 算子(`unwrap` / `expect` / `unwrapOrElse` / `match`)则不捕获 throw**,沿调用栈向上传播,JSDoc 与测试都固化。
+- **catch+convert 政策**:所有可能在回调里 throw 的算子(`map` / `orElse` / `bimap` / `ap` / `filterOrElse` / `andTee` / `andThrough` / `orTee` / `tap` / `tapErr` / `traverseArray`)都用 `try / catch` 把 throw 归约为 `err(caughtError)`——这是与 `pipe/tap` 一致的家族合约。`bind` 与 `mapErr` 不在此列:它们按 canonical Result throw policy **传播** sync throw(fp-ts、neverthrow、true-myth、bind.ts 与 mapErr.ts 的 JSDoc 均为此表述)。**终态 panic 算子(`unwrap` / `expect` / `unwrapOrElse` / `match`)则不捕获 throw**,沿调用栈向上传播,JSDoc 与测试都固化。
 - **`uwrappedEr` v2(`unsafeUnwrap*`)作为 escape hatch**:`unsafeUnwrap` / `unsafeUnwrapErr` 直接 throw 原值,不做包装。这是测试场景与边角互操作场景的应急工具;正常路径请使用 `unwrap` / `unwrapErr`,后者语义明确且 panic 文案带可观察信息。
 - **`readonly` 全覆盖**:`IResultOfT<A, E>` 的所有实例属性都是 readonly,本目录里的算子不引入任何可变中间态。
 - **Data-last + 双 overload**:几乎所有算子都有 curried + direct 两形态,数据在最后一个参数,支持 `pipe`。
