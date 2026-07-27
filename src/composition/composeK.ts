@@ -68,20 +68,21 @@ export function composeK<A, B, C, D, F, G, H, E>(
 ): (a: A) => IResultOfT<H, E>;
 
 export function composeK(
-    ...fns: Array<(arg: unknown) => IResultOfT<unknown, unknown>>
-): (a: unknown) => IResultOfT<unknown, unknown> {
+    ...fns: Array<unknown>
+): unknown {
     if (fns.length === 0) throw new TypeError('composeK requires at least one function');
     // Pre-compose at construction time via reduce. The first fn seeds the chain;
     // the remaining fns are wrapped in `bind` so each invocation threads the
     // value through the pre-built pipeline instead of re-walking it.
-    const [head, ...rest] = fns;
+    const fnsArray = fns as Array<(arg: unknown) => IResultOfT<unknown, unknown>>;
+    const [head, ...rest] = fnsArray;
     const composed = rest.reduce(
-        (acc, fn) => (a: unknown) => bind(fn as (arg: unknown) => IResultOfT<unknown, unknown>, acc(a) as IResultOfT<unknown, unknown>),
+        (acc, fn) => (a: unknown) => bind(fn, acc(a)),
         (a: unknown) => head!(a),
     );
     return (a: unknown) => {
         try {
-            return composed(a) as IResultOfT<unknown, unknown>;
+            return composed(a);
         } catch (e: unknown) {
             return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<unknown, unknown>;
         }

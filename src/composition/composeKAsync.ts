@@ -65,8 +65,8 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
 ): (a: A) => Promise<IResultOfT<H, E>>;
 
 export function composeKAsync(
-    ...fns: Array<(arg: unknown) => IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>>
-): (a: unknown) => Promise<IResultOfT<unknown, unknown>> {
+    ...fns: Array<unknown>
+): unknown {
     if (fns.length === 0) {
         throw new TypeError('composeKAsync requires at least one function');
     }
@@ -75,14 +75,15 @@ export function composeKAsync(
     // value through the pre-built pipeline instead of re-walking it. Each step
     // wraps its awaited result in `Promise.resolve` so `bindAsync`'s signature
     // (`Promise<IResultOfT>`) is honored even when an upstream fn is sync.
-    const [head, ...rest] = fns;
+    const fnsArray = fns as Array<(arg: unknown) => IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>>;
+    const [head, ...rest] = fnsArray;
     const composed = rest.reduce(
-        (acc, fn) => async (a: unknown) => bindAsync(fn as (arg: unknown) => IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>, Promise.resolve(await acc(a)) as Promise<IResultOfT<unknown, unknown>>),
+        (acc, fn) => async (a: unknown) => bindAsync(fn, Promise.resolve(await acc(a)) as Promise<IResultOfT<unknown, unknown>>),
         async (a: unknown) => head!(a) as IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>,
     );
     return async (a: unknown) => {
         try {
-            return await composed(a) as IResultOfT<unknown, unknown>;
+            return await composed(a);
         } catch (e: unknown) {
             return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<unknown, unknown>;
         }
