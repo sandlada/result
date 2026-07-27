@@ -62,21 +62,25 @@ const formatValue = (
     if (depth >= opts.maxDepth) return Array.isArray(v) ? '[...]' : '{...}';
     try {
         if (Array.isArray(v)) {
-            if (v.length === 0) return '[]';
-            const parts: string[] = [];
-            for (let i = 0; i < v.length; i++) {
-                parts.push(formatValue(v[i], depth + 1, opts, visited));
+            const len = v.length;
+            if (len === 0) return '[]';
+            let str = '[' + formatValue(v[0], depth + 1, opts, visited);
+            for (let i = 1; i < len; i++) {
+                str += ', ' + formatValue(v[i], depth + 1, opts, visited);
             }
-            return '[' + parts.join(', ') + ']';
+            return str + ']';
         }
         const obj = v as Record<string, unknown>;
         const keys = Object.keys(obj);
-        if (keys.length === 0) return '{}';
-        const parts: string[] = [];
-        for (const k of keys) {
-            parts.push(JSON.stringify(k) + ': ' + formatValue(obj[k], depth + 1, opts, visited));
+        const len = keys.length;
+        if (len === 0) return '{}';
+        const firstKey = keys[0]!;
+        let str = '{' + JSON.stringify(firstKey) + ': ' + formatValue(obj[firstKey], depth + 1, opts, visited);
+        for (let i = 1; i < len; i++) {
+            const k = keys[i]!;
+            str += ', ' + JSON.stringify(k) + ': ' + formatValue(obj[k], depth + 1, opts, visited);
         }
-        return '{' + parts.join(', ') + '}';
+        return str + '}';
     } catch {
         return '[Unserializable]';
     }
