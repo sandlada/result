@@ -75,4 +75,14 @@ describe('switchFnAsync', () => {
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect(r.error).toBe('string error');
     });
+
+    it('catches sync exception when mapping function meant to return Promise throws before returning', async () => {
+        const syncThrowPromiseFn = switchFnAsync((_s: string): Promise<number> => {
+            if (true) throw new Error('sync throw before promise');
+            return Promise.resolve(42);
+        });
+        const r = await syncThrowPromiseFn('test');
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect((r.error as Error).message).toBe('sync throw before promise');
+    });
 });
