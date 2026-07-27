@@ -43,5 +43,14 @@ describe('switchFn', () => {
             expect(result.error.message).toBe('mapped: raw');
         }
     });
+
+    it('catches non-Error throws and returns err', () => {
+        const stringThrowFn = switchFn((_s: string) => {
+            throw 'string error';
+        });
+        const result = stringThrowFn('anything');
+        expect(result.isSuccess).toBe(false);
+        if (!result.isSuccess) expect(result.error).toBe('string error');
+    });
 });
 
