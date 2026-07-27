@@ -1,6 +1,8 @@
 import { bench, describe } from 'vitest';
 import { ofSome, ofNone, map as optionMap, andThen, orElse, match, flatten, okOr, okOrElse, transpose } from '../src/option/index.js';
-import { pipe, ok, type IResultOfT } from '../src/index.js';
+import { pipe } from '../src/composition/index.js';
+import { ok } from '../src/factories/index.js';
+import type { IResultOfT } from '../src/index.js';
 
 // ── Construction ──────────────────────────────────────────────────────────
 describe('option construction', () => {

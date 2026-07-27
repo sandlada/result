@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { ok, err, fromPredicate, tryCatch, fromThrowable } from '../src/index.js';
+import { ok, err, fromPredicate, tryCatch, fromThrowable } from '../src/factories/index.js';
 
 // ── Data fixtures ──────────────────────────────────────────────────────────
 const SAMPLE_NUM = 42;

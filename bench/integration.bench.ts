@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest';
-import {
-    ok, err, map, bind, orElse, match, pipe, composeK,
-    traverseArray, combine, combineWithAllErrors,
-} from '../src/index.js';
+import { combine, combineWithAllErrors } from '../src/combine/index.js';
+import { pipe, composeK } from '../src/composition/index.js';
+import { ok, err } from '../src/factories/index.js';
+import { map, bind, orElse, match, traverseArray } from '../src/operators/index.js';
 import type { IResultOfT } from '../src/index.js';
 
 // ── Full pipeline: ok → map → bind → orElse → match ───────────────────────

@@ -1,13 +1,6 @@
 import { bench, describe } from 'vitest';
-import {
-    ok, err,
-    map, mapErr, bind, orElse, match,
-    tap, tapErr,
-    unwrapOr, unwrapOrElse, unwrap,
-    flatten, and, or, contains, exists,
-    bimap, mapOr, mapOrElse,
-    separate, traverseArray, filterOrElse,
-} from '../src/index.js';
+import { ok, err } from '../src/factories/index.js';
+import { map, mapErr, bind, orElse, match, tap, tapErr, unwrapOr, unwrapOrElse, unwrap, flatten, and, or, contains, exists, bimap, mapOr, mapOrElse, separate, traverseArray, filterOrElse } from '../src/operators/index.js';
 
 // ── Data fixtures ──────────────────────────────────────────────────────────
 const double = (x: number) => x * 2;
