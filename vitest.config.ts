@@ -52,6 +52,6 @@ export default defineConfig({
         },
     },
     bench: {
-        include: ['bench/**/*.bench.ts'],
+        include: ['src/**/*.bench.ts'],
     },
 });
