@@ -72,6 +72,31 @@ describe('observe / installObserver', () => {
         }
     });
 
+    it('swallows observer errors when observing an Err result', () => {
+        const fn = vi.fn(() => { throw new Error('observer boom err'); });
+        const cancel = installObserver(fn);
+        try {
+            const r = err('boom');
+            const returned = observe(r);
+            expect(returned).toBe(r);
+        } finally {
+            cancel();
+        }
+    });
+
+    it('swallows primitive exceptions thrown by misbehaving observers', () => {
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        const fn = vi.fn(() => { throw 'string boom'; });
+        const cancel = installObserver(fn);
+        try {
+            const r = ok(42);
+            const returned = observe(r);
+            expect(returned).toBe(r);
+        } finally {
+            cancel();
+        }
+    });
+
     it('records the current path on every event', () => {
         const seen: unknown[] = [];
         const cancel = installObserver((e) => seen.push(e));
