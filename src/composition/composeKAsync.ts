@@ -65,8 +65,8 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
 ): (a: A) => Promise<IResultOfT<H, E>>;
 
 export function composeKAsync(
-    ...fns: Array<(arg: any) => IResultOfT<any, any> | Promise<IResultOfT<any, any>>>
-): (a: any) => Promise<IResultOfT<any, any>> {
+    ...fns: Array<(arg: any) => IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>>
+): (a: unknown) => Promise<IResultOfT<unknown, unknown>> {
     if (fns.length === 0) {
         throw new TypeError('composeKAsync requires at least one function');
     }
@@ -77,14 +77,14 @@ export function composeKAsync(
     // (`Promise<IResultOfT>`) is honored even when an upstream fn is sync.
     const [head, ...rest] = fns;
     const composed = rest.reduce(
-        (acc, fn) => async (a: any) => bindAsync(fn, Promise.resolve(await acc(a))),
-        async (a: any) => head!(a),
+        (acc, fn) => async (a: unknown) => bindAsync(fn, Promise.resolve(await acc(a))),
+        async (a: unknown) => head!(a),
     );
-    return async (a: any) => {
+    return async (a: unknown) => {
         try {
             return await composed(a);
         } catch (e: unknown) {
-            return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<any, any>;
+            return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<unknown, unknown>;
         }
     };
 }
