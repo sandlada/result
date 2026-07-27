@@ -1,5 +1,7 @@
 import { bench, describe } from 'vitest';
-import { ok, err, map, bind, orElse, match, pipe, composeK } from '../src/index.js';
+import { ok, err } from '../src/factories/index.js';
+import { map, bind, orElse, match } from '../src/operators/index.js';
+import { pipe, composeK, safeTry, fromSafeTry } from '../src/composition/index.js';
 
 // ── pipe ───────────────────────────────────────────────────────────────────
 describe('pipe', () => {

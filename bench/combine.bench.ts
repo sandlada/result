@@ -1,5 +1,7 @@
 import { bench, describe } from 'vitest';
-import { ok, err, combine, all, combineWithAllErrors, promiseResultCombine } from '../src/index.js';
+import { ok, err } from '../src/factories/index.js';
+import { combine, all, combineWithAllErrors } from '../src/combine/index.js';
+import { combine as promiseResultCombine } from '../src/promise-result/index.js';
 import type { IResultOfT, AsyncResult } from '../src/index.js';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
