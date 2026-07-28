@@ -33,12 +33,22 @@ import { ok } from '../factories/ok.js';
  * const value = yield* safeTry(fallibleOp());
  * ```
  */
+/**
+ * Returns `T` when the inner result is `Ok`, otherwise yields the failure to
+ * be collected by `fromSafeTry`. The Generator's return type is `T |
+ * undefined`: the success path returns `T`, and the failure path's
+ * unreachable tail explicitly returns `undefined` (matches JS semantics when
+ * a generator exhausts after a yield without a top-level `return`). The
+ * previous version used `return undefined as unknown as T` which silently
+ * cast `undefined` to `T` — a type lie that misled consumers iterating the
+ * generator directly past the yield.
+ */
 export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
-): Generator<IResultOfT<never, E>, T, unknown> {
+): Generator<IResultOfT<never, E>, T | undefined, unknown> {
     if(result.isSuccess) return result.value;
     yield result as IResultOfT<never, E>;
-    return undefined as unknown as T;
+    return undefined;
 }
 
 /**
@@ -58,12 +68,18 @@ export function* safeTry<T, E>(
  * ```
  */
 export function fromSafeTry<T, E>(
-    gen: () => Generator<IResultOfT<never, E>, T, unknown>,
+    gen: () => Generator<IResultOfT<never, E>, T | undefined, unknown>,
 ): IResultOfT<T, E> {
     const iterator = gen();
     try {
         const first = iterator.next();
-        if (first.done) return ok(first.value as T) as unknown as IResultOfT<T, E>;
+        if (first.done) {
+            // Success path: generator returned without yielding.
+            if (first.value === undefined) {
+                throw new Error('safeTry: generator returned undefined without yielding — did you forget to yield a failure?');
+            }
+            return ok(first.value) as unknown as IResultOfT<T, E>;
+        }
         // A failure was yielded via safeTry. Ensure the generator is closed.
         if (typeof iterator.return === 'function') {
             iterator.return(undefined!);
