@@ -79,4 +79,26 @@ describe('observability/ctx', () => {
         expect(result).toBe('custom resolved');
         expect(getPath()).toEqual([]);
     });
+
+    it('concurrency caveat: overlapping async calls affect the global stack', async () => {
+        // Since the stack is process-global, concurrent ctx.run calls will see each other's pushes.
+        const promise1 = ctx.run(async () => {
+            ctx.push('task1');
+            await new Promise((resolve) => setTimeout(resolve, 10));
+            // Expect to see task2's push as well, demonstrating the caveat
+            expect(getPath()).toContain('task2');
+        });
+
+        const promise2 = ctx.run(async () => {
+            ctx.push('task2');
+            await new Promise((resolve) => setTimeout(resolve, 10));
+        });
+
+        await Promise.all([promise1, promise2]);
+
+        // As a result of concurrent cleanup with shared stack.length modifications,
+        // the array might be truncated but padded with `undefined` values due to JS Array internals.
+        // We ensure that the primary stack is functionally empty.
+        expect(getPath().filter(Boolean)).toEqual([]);
+    });
 });
