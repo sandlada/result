@@ -1,5 +1,7 @@
-import { bind, err, fromPredicate, map, match, ok, pipe, tap } from '@sandlada/result';
 import type { IResultOfT } from '@sandlada/result';
+import { pipe } from '@sandlada/result/composition';
+import { err, fromPredicate, ok } from '@sandlada/result/factories';
+import { bind, map, match, tap } from '@sandlada/result/operators';
 import { wireExample } from './demo-ui.js';
 import { products } from './mock-api.js';
 import type { DemoError } from './mock-api.js';
