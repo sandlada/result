@@ -1,8 +1,7 @@
-import { fromOption, pipe, toOption } from '@sandlada/result';
-import {
-    bind, map, match, ofNone, ofSome,
-} from '@sandlada/result/option';
 import type { IOption, IResultOfT } from '@sandlada/result';
+import { fromOption, toOption } from '@sandlada/result/adapters';
+import { pipe } from '@sandlada/result/composition';
+import { bind, map, match, ofNone, ofSome } from '@sandlada/result/option';
 import { wireExample } from './demo-ui.js';
 import { customers } from './mock-api.js';
 import type { DemoError } from './mock-api.js';
