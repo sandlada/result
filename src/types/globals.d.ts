@@ -6,6 +6,15 @@ declare function setTimeout(handler: (...args: any[]) => void, ms?: number, ...a
 declare function clearTimeout(handle: unknown): void;
 declare function queueMicrotask(callback: () => void): void;
 
+interface ImportMeta {
+    readonly url: string;
+}
+
+declare class URL {
+    constructor(url: string, base?: string | URL);
+    readonly href: string;
+}
+
 interface AbortSignalEventMap {
     abort: Event;
 }

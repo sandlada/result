@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../../factories/index.js';
 import { retryLazy } from '../../reliability/index.js';
-import { withPath, getPath, installObserver } from '../../observability/index.js';
+import { ctx, withPath, getPath, installObserver } from '../../observability/index.js';
 
 /**
  * Sentinel-driven regression coverage for the laziness contract of `retryLazy`:
@@ -60,10 +60,16 @@ describe('RetryLazy hardening (sentinel regression)', () => {
 
     it('path breadcrumbs survive across retry boundaries', () => {
         // Simulate the failure-then-retry path: the path stack is captured at
-        // *failure-time* in `tapErrContext`. Verifying that `getPath()` returns
-        // an empty stack when no frame is active.
+        // *failure-time* in `tapErrContext`. `withPath` must be wrapped in a
+        // `ctx.run` scope so that segment mutations stay local to the scope
+        // and don't leak into the process-global path stack (which is what
+        // the previous single-stack implementation did by accident).
         expect(getPath()).toEqual([]);
-        withPath('test');
-        expect(getPath()).toEqual(['test']);
+        ctx.run(() => {
+            withPath('test');
+            expect(getPath()).toEqual(['test']);
+        });
+        // Frame released — back to empty.
+        expect(getPath()).toEqual([]);
     });
 });
