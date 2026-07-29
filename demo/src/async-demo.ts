@@ -1,6 +1,8 @@
-import {
-    all, bindAsync, map, mapAsync, matchAsync, pipe, pipeAsync, tryCatchAsync,
-} from '@sandlada/result';
+import { all } from '@sandlada/result/combine';
+import { pipe, pipeAsync } from '@sandlada/result/composition';
+import { tryCatchAsync } from '@sandlada/result/factories';
+import { map } from '@sandlada/result/operators';
+import { bindAsync, mapAsync, matchAsync } from '@sandlada/result/promise-result';
 import { wireExample } from './demo-ui.js';
 import { simulatedApi, unavailable } from './mock-api.js';
 import type { DemoError, Order } from './mock-api.js';

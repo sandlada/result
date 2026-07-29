@@ -1,6 +1,9 @@
-import { err, ok, orElse, pipe, retry, timeout } from '@sandlada/result';
-import { from as promiseResultFrom } from '@sandlada/result/async-result';
 import type { IResultOfT } from '@sandlada/result';
+import { from as promiseResultFrom } from '@sandlada/result/async-result';
+import { pipe } from '@sandlada/result/composition';
+import { err, ok } from '@sandlada/result/factories';
+import { orElse } from '@sandlada/result/operators';
+import { retry, timeout } from '@sandlada/result/reliability';
 import { wireExample } from './demo-ui.js';
 import { wait } from './mock-api.js';
 import type { DemoError } from './mock-api.js';

@@ -82,7 +82,7 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "bench": "vitest bench",
-        "bench:json": "vitest bench --outputJson=bench/results.json",
+        "bench:json": "vitest bench --outputJson=results.json",
         "bench:ui": "vitest bench --ui"
     },
     "repository": {
