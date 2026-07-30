@@ -29,10 +29,10 @@
 - **建議命名**：`choose` (對齊 F# 中過濾並映射 `Option` 的操作) 或 `values`。
 - **參考**：F# `List.choose`。
 
-### 2.3 `catchError` / `catchAll`
+### 2.3 `catchErr` / `catchAll`
 - **現狀**：目前有 `orElse` 用於在錯誤時返回另一個 Result。
-- **缺失功能**：與 `Effect` 中的 `catchAll` 類似，有時候我們需要不僅是回退一個靜態的 Result，而是能夠根據錯誤類型，重新進入軌道。雖然 `orElse` 或 `bindError` 可以做到，但語義上 `catchError` 對應 Promise/Effect 範式會更直覺。
-- **建議命名**：`catchError` (作為 `orElse` 的語義別名或特定擴展)。
+- **缺失功能**：與 `Effect` 中的 `catchAll` 類似，有時候我們需要不僅是回退一個靜態的 Result，而是能夠根據錯誤類型，重新進入軌道。雖然 `orElse` 或 `bindErr` 可以做到，但語義上 `catchErr` 對應 Promise/Effect 範式會更直覺。
+- **建議命名**：`catchErr` (作為 `orElse` 的語義別名或特定擴展)。
 
 ## 3. 需求度：低 (Low Priority / Nice to Have)
 這些功能可以通過現有的 API 組合實現，但提供內置函數能減少樣板代碼。
