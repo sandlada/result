@@ -10,3 +10,4 @@ export { fromSafeTry } from './safeTry.js';
 export { pipe } from './pipe.js';
 export { pipeAsync } from './pipeAsync.js';
 export { safeTry } from './safeTry.js';
+export { fromSafeTryAsync, safeTryAsync } from './safeTryAsync.js';

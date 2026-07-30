@@ -36,6 +36,7 @@ export { tapAsync } from './tapAsync.js';
 export { tapErrAsync } from './tapErrAsync.js';
 export { unwrapOrAsync } from './unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';
+export { catchErrAsync } from './catchErrAsync.js';
 
 // ── Lift operators (operate on sync `IResultOfT`, async fn) ──────────────────
 export { asyncBind } from './asyncBind.js';
