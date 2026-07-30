@@ -29,10 +29,14 @@
 - **建議命名**：`choose` (對齊 F# 中過濾並映射 `Option` 的操作) 或 `values`。
 - **參考**：F# `List.choose`。
 
-### 2.3 `catchErr` / `catchAll`
-- **現狀**：目前有 `orElse` 用於在錯誤時返回另一個 Result。
-- **缺失功能**：與 `Effect` 中的 `catchAll` 類似，有時候我們需要不僅是回退一個靜態的 Result，而是能夠根據錯誤類型，重新進入軌道。雖然 `orElse` 或 `bindErr` 可以做到，但語義上 `catchErr` 對應 Promise/Effect 範式會更直覺。
-- **建議命名**：`catchErr` (作為 `orElse` 的語義別名或特定擴展)。
+### 2.3 `catchErr`
+- **現狀**：目前有 `orElse`、`unwrapOrElse` 與 `tapErr` 處理錯誤邏輯。
+- **缺失功能**：提供一種從錯誤中「復原並保持在 Result 軌道」的捷徑。
+- **設計理念與差異**：
+  - **`catchErr`**：接收 `(e: E) => T` 並返回 `IResultOfT<T, never>`。當發生錯誤時，將錯誤轉換為成功值 `T`，並**重新包裝為 `Ok(T)` 保持在鏈式調用中**（與 Rust 的 `unwrap_or_else` 但不解包，或 F# 的 `Result.defaultWith` 但返回 Result 類似）。
+  - **vs `orElse`**：`orElse` 接收 `(e: E) => IResultOfT<T, NewE>`，要求開發者手動回傳一個新的 `Result` 物件，適合在錯誤時切換到另一個可能失敗的操作軌道。
+  - **vs `unwrapOrElse`**：`unwrapOrElse` 是終端操作，它會終止 Result 鏈並直接提取裸值 `T`。
+  - **vs `tapErr`**：`tapErr` 用於執行純副作用（如 Log），不會改變軌道狀態，原本失敗的狀態還是失敗。
 
 ## 3. 需求度：低 (Low Priority / Nice to Have)
 這些功能可以通過現有的 API 組合實現，但提供內置函數能減少樣板代碼。

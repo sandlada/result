@@ -36,3 +36,6 @@ export { unwrap } from './unwrap.js';
 export { unwrapErr } from './unwrapErr.js';
 export { unwrapOr } from './unwrapOr.js';
 export { unwrapOrElse } from './unwrapOrElse.js';
+export { choose } from './choose.js';
+export { unzip } from './unzip.js';
+export { catchErr } from './catchErr.js';

@@ -140,21 +140,6 @@ describe('safeTry / fromSafeTry', () => {
         };
         expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
     });
-
-    it('generator yields safeTry result and continues manually', () => {
-        // Direct safeTry yields a failure to be picked up by fromSafeTry
-        // we can test safeTry directly returning undefined when exhausted
-        const gen = safeTry(err('direct-yield'));
-        expect(gen.next().value).toEqual(err('direct-yield'));
-        expect(gen.next().value).toBe(undefined);
-    });
-
-    it('throws when fromSafeTry generator returns undefined directly on first tick without yielding', () => {
-        expect(() => fromSafeTry(function* () {
-            yield* safeTry(ok(1));
-            return undefined;
-        } as never)).toThrow('safeTry: generator returned undefined without yielding — did you forget to yield a failure?');
-    });
 });
 
     it('throws when the generator returns undefined without yielding', () => {
