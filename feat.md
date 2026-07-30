@@ -9,12 +9,7 @@
 ## 1. 需求度：極高 (High Priority)
 這些 API 是日常開發中非常常用的實用工具，在 Rust 和 Effect 中極為常見。
 
-### 1.1 `mapError` (對齊 F# 與 Rust)
-- **現狀**：目前有 `mapErr`，但 F# 標準庫中對應的名稱是 `Result.mapError`。
-- **缺失功能**：為了嚴格遵守 F# 命名規範，應該考慮別名或重命名 `mapErr` 為 `mapError`（或提供 `mapError` 作為標準導出）。
-- **參考**：F# `Result.mapError`。
-
-### 1.2 異步的 Do-notation (`safeTryAsync`)
+### 1.1 異步的 Do-notation (`safeTryAsync`)
 - **現狀**：目前專案實現了基於 Generator 的同步 Do-notation (`safeTry` / `fromSafeTry`)。
 - **缺失功能**：缺少針對異步 `AsyncResult` 的 Do-notation 支援。在 `Effect` 或 `fp-ts`（結合 yield）中，異步的 Do-notation 能夠極大地改善深層次嵌套的 `await bindAsync` 程式碼結構。
 - **建議命名**：`safeTryAsync` / `fromSafeTryAsync` (基於 AsyncGenerator)。
@@ -55,4 +50,4 @@
 ---
 
 **總結**：
-`@sandlada/result` 的核心功能非常豐富且堅固。首要的增強方向應聚焦在**異步的 Do-notation (`safeTryAsync`)**，這將大幅提升處理多個依賴異步請求時的開發體驗，使其能媲美 Effect 的 yield 特性。同時，為了貫徹 F# 原則，可以考慮梳理 `mapError` 的命名。
+`@sandlada/result` 的核心功能非常豐富且堅固。首要的增強方向應聚焦在**異步的 Do-notation (`safeTryAsync`)**，這將大幅提升處理多個依賴異步請求時的開發體驗，使其能媲美 Effect 的 yield 特性。
