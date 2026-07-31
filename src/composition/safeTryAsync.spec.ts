@@ -161,4 +161,147 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             'safeTryAsync: generator yielded more than once',
         );
     });
+
+    it('generator yield safeTryAsync directly without value', async () => {
+        const gen = safeTryAsync(asyncErr('direct-yield'));
+        expect((await gen.next()).value).toEqual(err('direct-yield'));
+        expect((await gen.next()).value).toBe(undefined);
+    });
+
+    it('identifies non-AsyncResult objects gracefully (e.g. promise that happens to have a run property not as function)', async () => {
+        const fakePromise = Promise.resolve(ok(99)) as any;
+        fakePromise.run = 'not a function'; // branch coverage: res.run is not a function
+
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(99);
+    });
+
+    it('identifies non-AsyncResult completely normal objects correctly', async () => {
+        const fakePromise = Promise.resolve(ok(88)) as any;
+
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(88);
+    });
+
+    it('identifies non-AsyncResult completely normal objects correctly but failed at runtime with non-result shape', async () => {
+        const fakePromise = Promise.resolve({}) as any;
+
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(undefined);
+    });
+
+    it('identifies bare objects with run property not matching function completely normal objects correctly but failed at runtime with non-result shape', async () => {
+        const fakePromise = Promise.resolve({}) as any;
+        fakePromise.run = 123;
+
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(undefined);
+    });
+
+    it('identifies bare objects with run property strictly returning a bare promise without isSuccess', async () => {
+        const fakePromise = Promise.resolve({ value: 'hello' }) as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: string = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(undefined);
+    });
+
+    it('identifies bare promise missing isSuccess', async () => {
+        const fakePromise = Promise.resolve({}) as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: string = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+        const r = await result.run();
+        expect(r.isSuccess).toBe(undefined);
+    });
+
+    it('handles falsy result inputs gracefully', async () => {
+        const fakePromise = null as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: string = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+        await expect(result.run()).rejects.toThrow();
+    });
+
+    it('falls back to bare result handling branch', async () => {
+        // Line 34 uncovered branch
+        const fakePromise = { isSuccess: true, value: 42 } as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
+    });
+
+    it('identifies bare objects strictly with run not function branch', async () => {
+        // Line 34 uncovered branch coverage
+        const fakePromise = {
+            then: (resolve: any) => resolve(ok(123)),
+            run: 'not-a-function'
+        } as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(123);
+    });
+
+    it('handles falsy result inputs missing run safely without evaluating as AsyncResult', async () => {
+        // Line 34 uncovered branch coverage (ternary false on result lacking run)
+        const fakePromise = Promise.resolve(ok(22)) as any;
+        delete fakePromise.run;
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(22);
+    });
+
+    it('identifies result successfully with falsy type mapping gracefully (checking condition on isAsyncResult)', async () => {
+        // Line 34 uncovered branch
+        const fakePromise = { run: 123 } as any;
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(fakePromise);
+            return a;
+        });
+
+        const r = await result.run();
+        expect(r.isSuccess).toBe(undefined);
+    });
 });
