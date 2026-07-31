@@ -141,3 +141,10 @@ describe('safeTry / fromSafeTry', () => {
         expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
     });
 });
+
+    it('throws when the generator returns undefined without yielding', () => {
+        const gen = function* () {
+            // Return nothing
+        };
+        expect(() => fromSafeTry(gen)).toThrow('safeTry: generator returned undefined without yielding');
+    });
