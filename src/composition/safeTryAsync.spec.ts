@@ -123,4 +123,42 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         };
         await expect(fromSafeTryAsync(() => fakeIterator as never).run()).rejects.toThrow('body-throw');
     });
+
+    it('generator returns a raw promise instead of async result', async () => {
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(Promise.resolve(ok(21)));
+            return a * 2;
+        });
+        const r = await result.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
+    });
+
+    it('yields a promise failure correctly', async () => {
+        let called = false;
+        const result = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(Promise.resolve(err<string>('boom')));
+            called = true;
+            return a * 2;
+        });
+        const r = await result.run();
+        expect(called).toBe(false);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('boom');
+    });
+
+    it('handles raw generator yielding twice directly', async () => {
+        let calls = 0;
+        const fakeIterator: unknown = {
+            next: async () => {
+                calls++;
+                return calls === 1
+                    ? { value: err('first'), done: false }
+                    : { value: err('second'), done: false };
+            }
+        };
+        await expect(fromSafeTryAsync(() => fakeIterator as never).run()).rejects.toThrow(
+            'safeTryAsync: generator yielded more than once',
+        );
+    });
 });
