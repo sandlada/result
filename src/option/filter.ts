@@ -19,11 +19,11 @@ export function filter<T>(
     predicate: (value: T) => boolean,
 ): (opt: IOption<T>) => IOption<T> {
     return opt => {
-        if(!opt.isSome) return opt as unknown as IOption<T>;
+        if(!opt.isSome) return opt;
         try {
-            if(!predicate(opt.value)) return ofNone() as unknown as IOption<T>;
+            if(!predicate(opt.value)) return ofNone();
         } catch {
-            return ofNone() as unknown as IOption<T>;
+            return ofNone();
         }
         return opt;
     };

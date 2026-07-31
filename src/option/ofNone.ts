@@ -12,7 +12,7 @@
 
 import type { IOption } from '../types/Option.js';
 
-export function ofNone(): IOption<never> {
+export function ofNone<T = never>(): IOption<T> {
     return { isSome: false as const, isNone: true as const };
 }
 
