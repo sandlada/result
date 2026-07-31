@@ -140,4 +140,22 @@ describe('safeTry / fromSafeTry', () => {
         };
         expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
     });
+
+    it('throws when the generator returns undefined without yielding', () => {
+        const gen = function* () {
+            // Do not yield, just return undefined
+            return undefined;
+        };
+        expect(() => fromSafeTry(gen)).toThrow(/generator returned undefined without yielding/);
+    });
+
+    it('covers the safeTry undefined return path', () => {
+        const gen = function* () {
+            const iterator = safeTry(err('test'));
+            iterator.next(); // yield err('test')
+            iterator.next(); // return undefined
+        };
+        const iterator = gen();
+        iterator.next();
+    });
 });
