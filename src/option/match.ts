@@ -61,7 +61,7 @@ export function match<T, U>(
     if (direct === undefined) {
         return (o: IOption<T>): U => match(handlers, o);
     }
-    const target = direct as IOption<T>;
+    const target = direct as unknown as IOption<T>;
     return target.isSome ? handlers.some(target.value) : handlers.none();
 }
 
