@@ -29,7 +29,7 @@ export function mapAsync<A, B, E>(
     return r.then(async inner => {
         if(!inner.isSuccess) return inner as unknown as IResultOfT<B, E>;
         try { return ok(await f(inner.value)) as unknown as IResultOfT<B, E>; }
-        catch(e: unknown) { return err(e as E) as IResultOfT<B, E>; }
+        catch(e: unknown) { return err(e as unknown as E) as unknown as IResultOfT<B, E>; }
     });
 }
 

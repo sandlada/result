@@ -40,7 +40,7 @@ export function bimapAsync<A, E, B, F>(
                 return err(await onErr(inner.error)) as unknown as IResultOfT<B, F>;
             }
         } catch (e: unknown) {
-            return err(e as F) as IResultOfT<B, F>;
+            return err(e as unknown as F) as unknown as IResultOfT<B, F>;
         }
     });
 }

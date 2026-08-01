@@ -43,6 +43,6 @@ export function filterOrElseAsync<A, E>(
     return r.then(async inner => {
         if (!inner.isSuccess) return inner;
         if (await predicate(inner.value)) return inner;
-        return err(await errorFn(inner.value)) as IResultOfT<A, E>;
+        return err(await errorFn(inner.value)) as unknown as IResultOfT<A, E>;
     });
 }

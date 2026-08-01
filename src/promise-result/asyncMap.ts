@@ -41,9 +41,9 @@ export function asyncMap<A, B, E>(
     try {
         return f(r.value).then(
             v => ok(v) as unknown as IResultOfT<B, E>,
-            e => err(e as E) as IResultOfT<B, E>,
+            e => err(e as unknown as E) as unknown as IResultOfT<B, E>,
         );
     } catch(e: unknown) {
-        return Promise.resolve(err(e as E) as IResultOfT<B, E>);
+        return Promise.resolve(err(e as unknown as E) as unknown as IResultOfT<B, E>);
     }
 }

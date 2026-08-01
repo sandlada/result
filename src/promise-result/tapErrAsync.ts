@@ -29,7 +29,7 @@ export function tapErrAsync<A, E>(
             try {
                 await fn(inner.error);
             } catch(e: unknown) {
-                return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<A, E>;
+                return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<A, E>;
             }
         }
         return inner;

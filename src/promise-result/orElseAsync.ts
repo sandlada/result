@@ -33,7 +33,7 @@ export function orElseAsync<A, E, B, F>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<A | B, F>> => orElseAsync(f, r);
     return r.then(async inner => {
         if(inner.isSuccess) return inner as unknown as IResultOfT<A | B, F>;
-        return (await f(inner.error)) as IResultOfT<A | B, F>;
+        return (await f(inner.error)) as unknown as IResultOfT<A | B, F>;
     });
 }
 
