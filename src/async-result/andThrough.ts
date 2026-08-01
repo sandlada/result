@@ -45,7 +45,7 @@ export function andThrough<T, E, F>(
                 if (nextResult.isSuccess) return r as unknown as IResultOfT<T, E | F>;
                 return nextResult as unknown as IResultOfT<T, E | F>;
             } catch (e: unknown) {
-                return err(e as E | F) as unknown as IResultOfT<T, E | F>;
+                return err(e as unknown as E | F) as unknown as IResultOfT<T, E | F>;
             }
         },
     };

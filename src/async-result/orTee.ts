@@ -40,7 +40,7 @@ export function orTee<T, E>(
                     await fn(r.error);
                 } catch (e: unknown) {
                     // Project policy: tap/tee side-effects that throw convert to err.
-                    return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
+                    return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<T, E>;
                 }
             }
             return r;

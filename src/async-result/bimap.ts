@@ -43,7 +43,7 @@ export function bimap<T, E, U, F>(
                 if (r.isSuccess) return ok(await onOk(r.value)) as unknown as IResultOfT<U, F>;
                 return err(await onErr(r.error)) as unknown as IResultOfT<U, F>;
             } catch (e: unknown) {
-                return err(e as F) as IResultOfT<U, F>;
+                return err(e as unknown as F) as unknown as IResultOfT<U, F>;
             }
         },
     };

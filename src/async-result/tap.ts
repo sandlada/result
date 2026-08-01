@@ -39,7 +39,7 @@ export function tap<T, E>(
                 try {
                     fn(r.value);
                 } catch(e: unknown) {
-                    return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<T, E>;
+                    return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<T, E>;
                 }
             }
             return r;
