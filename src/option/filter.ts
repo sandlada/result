@@ -28,4 +28,3 @@ export function filter<T>(
         return opt;
     };
 }
-
