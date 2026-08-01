@@ -15,13 +15,13 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 export function combine<A, E>(results: readonly IResultOfT<A, E>[]): IResultOfT<A[], E> {
     const values: A[] = [];
     for(const r of results) {
-        if(!r.isSuccess) return r as unknown as IResultOfT<A[], E>;
+        if(!r.isSuccess) return err(r.error);
         values.push(r.value);
     }
-    return ok(values) as unknown as IResultOfT<A[], E>;
+    return ok(values);
 }
-

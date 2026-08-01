@@ -27,7 +27,7 @@ export function combineWithAllErrors<A, E>(
         if(r.isSuccess) values.push(r.value);
         else errors.push(r.error);
     }
-    if(errors.length > 0) return err(errors) as unknown as IResultOfT<A[], E[]>;
-    return ok(values) as unknown as IResultOfT<A[], E[]>;
+    if(errors.length > 0) return err(errors);
+    return ok(values);
 }
 
