@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import type { IOption } from '../types/Option.js';
 import { ofSome, ofNone } from '../option/index.js';
 
 /**
@@ -27,7 +28,7 @@ export function all<T>(
             const opts = await Promise.all(aos.map(a => a.run()));
             const values: T[] = [];
             for (const opt of opts) {
-                if (!opt.isSome) return ofNone() as never;
+                if (!opt.isSome) return ofNone() as unknown as IOption<T[]>;
                 values.push(opt.value);
             }
             return ofSome(values);
