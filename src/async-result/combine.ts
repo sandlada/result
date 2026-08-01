@@ -29,7 +29,7 @@ export function combine<T, E>(
                 if(!r.isSuccess) return r as unknown as IResultOfT<T[], E>;
                 values.push(r.value);
             }
-            return { isSuccess: true as const, isFailure: false as const, value: values } as IResultOfT<T[], E>;
+            return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<T[], E>;
         },
     };
 }

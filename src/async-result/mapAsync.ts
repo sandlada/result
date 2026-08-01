@@ -40,7 +40,7 @@ export function mapAsync<T, U, E>(
             const r = await ar.run();
             if(!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             const mapped = await fn(r.value);
-            return { isSuccess: true as const, isFailure: false as const, value: mapped } as IResultOfT<U, E>;
+            return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
         },
     };
 }
