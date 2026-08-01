@@ -38,7 +38,7 @@ export function bindAsync<A, B, E, F>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<B, E | F>> => bindAsync(f, r);
     return r.then(async inner => {
         if(!inner.isSuccess) return inner as unknown as IResultOfT<B, E | F>;
-        return (await f(inner.value)) as IResultOfT<B, E | F>;
+        return (await f(inner.value)) as unknown as IResultOfT<B, E | F>;
     });
 }
 

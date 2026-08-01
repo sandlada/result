@@ -27,8 +27,8 @@ export function combineWithAllErrors<A, E>(
             else errors.push(r.error);
         }
         if (errors.length > 0) {
-            return { isSuccess: false as const, isFailure: true as const, error: errors } as IResultOfT<A[], E[]>;
+            return { isSuccess: false as const, isFailure: true as const, error: errors } as unknown as IResultOfT<A[], E[]>;
         }
-        return { isSuccess: true as const, isFailure: false as const, value: values } as IResultOfT<A[], E[]>;
+        return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<A[], E[]>;
     });
 }

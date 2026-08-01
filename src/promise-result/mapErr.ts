@@ -32,7 +32,7 @@ export function mapErr<T, E, F>(
     if (r === undefined) return (r: Promise<IResultOfT<T, E>>) => mapErr(f, r);
     return r.then(inner => {
         if (inner.isSuccess) return inner as unknown as IResultOfT<T, F>;
-        try { return err(f(inner.error)) as IResultOfT<T, F>; }
-        catch (e: unknown) { return err(e as F) as IResultOfT<T, F>; }
+        try { return err(f(inner.error)) as unknown as IResultOfT<T, F>; }
+        catch (e: unknown) { return err(e as unknown as F) as unknown as IResultOfT<T, F>; }
     });
 }
