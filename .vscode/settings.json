@@ -2,7 +2,7 @@
     "js/ts.experimental.useTsgo": true,
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
-        "*.ts": "$(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts",
+        "*.ts": "$(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts, $(capture).type-spec.ts",
         "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
         "*.js": "$(capture).js.map, $(capture).d.ts"
     }
