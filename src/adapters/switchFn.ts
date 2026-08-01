@@ -26,12 +26,12 @@ export function switchFn<A, B, E = unknown>(
 ): (a: A) => IResultOfT<B, E> {
     return (a: A): IResultOfT<B, E> => {
         try {
-            return ok(f(a)) as IResultOfT<B, E>;
+            return ok(f(a)) as unknown as IResultOfT<B, E>;
         } catch (e: unknown) {
             // No `errorFn`: pass through the raw rejection. The cast goes
             // through `unknown` to make the type honesty visible.
             const caught = errorFn ? errorFn(e) : (e as unknown as E);
-            return err(caught) as IResultOfT<B, E>;
+            return err(caught) as unknown as IResultOfT<B, E>;
         }
     };
 }
