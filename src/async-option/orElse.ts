@@ -39,7 +39,7 @@ export function orElse<T>(
                 if (isAsyncCarrier(next)) {
                     return (next as AsyncOption<T>).run();
                 }
-                return next as IOption<T>;
+                return next as unknown as IOption<T>;
             } catch {
                 return ofNone();
             }
