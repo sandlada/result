@@ -43,7 +43,7 @@ export async function* safeTryAsync<T, E>(
 
     const r = isAsyncResult(result) ? await result.run() : await result;
     if (r.isSuccess) return r.value;
-    yield r as IResultOfT<never, E>;
+    yield r as unknown as IResultOfT<never, E>;
     return undefined;
 }
 

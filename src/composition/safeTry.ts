@@ -47,7 +47,7 @@ export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
 ): Generator<IResultOfT<never, E>, T | undefined, unknown> {
     if(result.isSuccess) return result.value;
-    yield result as IResultOfT<never, E>;
+    yield result as unknown as IResultOfT<never, E>;
     return undefined;
 }
 
@@ -89,7 +89,7 @@ export function fromSafeTry<T, E>(
         if (!check.done) {
             throw new Error('safeTry: generator yielded more than once. Each safeTry() call should only yield on failure.');
         }
-        return first.value as IResultOfT<T, E>;
+        return first.value as unknown as IResultOfT<T, E>;
     } catch (e) {
         // In case the generator itself throws, we still try to close it.
         if (typeof iterator.return === 'function') {
