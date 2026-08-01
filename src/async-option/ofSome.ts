@@ -1,5 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import { ofSome as syncOfSome } from '../option/index.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Lifts a raw value into an `AsyncOption<T>` that resolves to `Some(value)`.
@@ -16,5 +17,5 @@ import { ofSome as syncOfSome } from '../option/index.js';
  * @note Ready for Product
  */
 export function ofSome<T>(value: T): AsyncOption<T> {
-    return { run: () => Promise.resolve(syncOfSome(value)) };
+    return markAsyncCarrier({ run: () => Promise.resolve(syncOfSome(value)) });
 }

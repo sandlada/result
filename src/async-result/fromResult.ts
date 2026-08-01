@@ -16,9 +16,10 @@
 
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 export function fromResult<T, E = unknown>(
     result: IResultOfT<T, E>,
 ): AsyncResult<T, E> {
-    return { run: () => Promise.resolve(result) };
+    return markAsyncCarrier({ run: () => Promise.resolve(result) });
 }

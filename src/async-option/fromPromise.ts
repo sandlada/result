@@ -1,6 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
 import { ofSome, ofNone } from '../option/index.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Wraps a `Promise<T>` into an AsyncOption, catching rejections.
@@ -22,7 +23,7 @@ import { ofSome, ofNone } from '../option/index.js';
 export function fromPromise<T>(
     thunk: () => Promise<T>,
 ): AsyncOption<T> {
-    return {
+    return markAsyncCarrier({
         run: async (): Promise<IOption<T>> => {
             try {
                 const value = await thunk();
@@ -31,5 +32,5 @@ export function fromPromise<T>(
                 return ofNone();
             }
         },
-    };
+    });
 }
