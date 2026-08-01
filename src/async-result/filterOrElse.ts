@@ -43,9 +43,9 @@ export function filterOrElse<T, E>(
             if (!r.isSuccess) return r;
             try {
                 if (await predicate(r.value)) return r;
-                return err(await errorFn(r.value)) as IResultOfT<T, E>;
+                return err(await errorFn(r.value)) as unknown as IResultOfT<T, E>;
             } catch (e: unknown) {
-                return err(e as E) as unknown as IResultOfT<T, E>;
+                return err(e as unknown as E) as unknown as IResultOfT<T, E>;
             }
         },
     };

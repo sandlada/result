@@ -39,9 +39,9 @@ export function orElse<T, E, F>(
                 if (isAsyncCarrier(next)) {
                     return (next as AsyncResult<T, F>).run() as Promise<IResultOfT<T, E | F>>;
                 }
-                return next as IResultOfT<T, E | F>;
+                return next as unknown as IResultOfT<T, E | F>;
             } catch(e: unknown) {
-                return { isSuccess: false as const, isFailure: true as const, error: e as F } as IResultOfT<T, E | F>;
+                return { isSuccess: false as const, isFailure: true as const, error: e as unknown as F } as unknown as IResultOfT<T, E | F>;
             }
         },
     };

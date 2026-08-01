@@ -40,9 +40,9 @@ export function bind<T, U, E>(
                 if (isAsyncCarrier(next)) {
                     return (next as AsyncResult<U, E>).run();
                 }
-                return next as IResultOfT<U, E>;
+                return next as unknown as IResultOfT<U, E>;
             } catch(e: unknown) {
-                return { isSuccess: false as const, isFailure: true as const, error: e as E } as IResultOfT<U, E>;
+                return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<U, E>;
             }
         },
     };

@@ -34,9 +34,9 @@ export function mapErrAsync<T, E, F>(
             const r = await ar.run();
             if(r.isSuccess) return r as unknown as IResultOfT<T, F>;
             try {
-                return err(await fn(r.error)) as IResultOfT<T, F>;
+                return err(await fn(r.error)) as unknown as IResultOfT<T, F>;
             } catch(e: unknown) {
-                return err(e as F) as IResultOfT<T, F>;
+                return err(e as unknown as F) as unknown as IResultOfT<T, F>;
             }
         },
     };
