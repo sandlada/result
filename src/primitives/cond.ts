@@ -31,6 +31,6 @@ export function cond<T, E>(
     value: T,
 ): IResultOfT<T, E> {
     return predicate(value)
-        ? (ok(value) as IResultOfT<T, E>)
-        : (err(errorOnFalse) as IResultOfT<T, E>);
+        ? (ok(value) as unknown as IResultOfT<T, E>)
+        : (err(errorOnFalse) as unknown as IResultOfT<T, E>);
 }

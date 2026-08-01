@@ -33,10 +33,10 @@ export function sequenceAsyncResult<T, E>(
             for (let i = 0; i < runs.length; i++) {
                 const run = runs[i]!;
                 const r = await run();
-                if (!r.isSuccess) return r as IResultOfT<T[], E>;
+                if (!r.isSuccess) return r as unknown as IResultOfT<T[], E>;
                 values.push(r.value);
             }
-            return ok(values) as IResultOfT<T[], E>;
+            return ok(values) as unknown as IResultOfT<T[], E>;
         },
     };
 }
