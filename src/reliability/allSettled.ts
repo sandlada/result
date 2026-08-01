@@ -42,7 +42,7 @@ export function allSettled<T, E>(
     return {
         run: async (): Promise<IResultOfT<Settled<T, E>[], never>> => {
             if (runs.length === 0) {
-                return ok([] as Settled<T, E>[]) as IResultOfT<Settled<T, E>[], never>;
+                return ok([] as Settled<T, E>[]) as unknown as IResultOfT<Settled<T, E>[], never>;
             }
             const settledOutcomes: Settled<T, E>[] = new Array(runs.length);
             await Promise.all(
@@ -52,11 +52,11 @@ export function allSettled<T, E>(
                         else settledOutcomes[idx] = { ok: false, error: r.error };
                     },
                     (rej: unknown) => {
-                        settledOutcomes[idx] = { ok: false, error: rej as E };
+                        settledOutcomes[idx] = { ok: false, error: rej as unknown as E };
                     },
                 )),
             );
-            return ok(settledOutcomes) as IResultOfT<Settled<T, E>[], never>;
+            return ok(settledOutcomes) as unknown as IResultOfT<Settled<T, E>[], never>;
         },
     };
 }

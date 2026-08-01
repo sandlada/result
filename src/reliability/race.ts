@@ -77,7 +77,7 @@ export function race<T, E>(
                             pending--;
                             if (pending === 0) {
                                 settled = true;
-                                resolve((firstError ?? r) as IResultOfT<T, E>);
+                                resolve((firstError ?? r) as unknown as IResultOfT<T, E>);
                             }
                         },
                         (rej: unknown) => {
@@ -91,8 +91,8 @@ export function race<T, E>(
                                 firstError = {
                                     isSuccess: false as const,
                                     isFailure: true as const,
-                                    error: findEarliestRejection() as E,
-                                } as IResultOfT<T, E>;
+                                    error: findEarliestRejection() as unknown as E,
+                                } as unknown as IResultOfT<T, E>;
                                 resolve(firstError);
                             }
                         },
