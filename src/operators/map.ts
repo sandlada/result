@@ -24,7 +24,7 @@ export function map<A, B, E>(f: (a: A) => B, r?: IResultOfT<A, E>): IResultOfT<B
     try {
         return ok(f(r.value)) as unknown as IResultOfT<B, E>;
     } catch(e: unknown) {
-        return err(e as E) as unknown as IResultOfT<B, E>;
+        return err(e as unknown as E) as unknown as IResultOfT<B, E>;
     }
 }
 

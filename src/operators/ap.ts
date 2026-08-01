@@ -35,6 +35,6 @@ export function ap<A, B, E>(
     try {
         return ok(fnResult.value(result.value)) as unknown as IResultOfT<B, E>;
     } catch(e: unknown) {
-        return err(e as E) as unknown as IResultOfT<B, E>;
+        return err(e as unknown as E) as unknown as IResultOfT<B, E>;
     }
 }

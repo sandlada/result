@@ -47,7 +47,7 @@ export function andThrough<A, E, B, F>(
     try {
         inner = fn(r.value);
     } catch(e: unknown) {
-        return err(e as (E | F)) as unknown as IResultOfT<A, E | F>;
+        return err(e as unknown as (E | F)) as unknown as IResultOfT<A, E | F>;
     }
     if(!inner.isSuccess) return inner as unknown as IResultOfT<A, E | F>;
     return r as unknown as IResultOfT<A, E | F>;

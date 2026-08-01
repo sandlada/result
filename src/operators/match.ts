@@ -68,7 +68,7 @@ export function match<A, E, C>(
     if (direct === undefined) {
         return (rr: IResultOfT<A, E>): C => match(handlers, rr);
     }
-    const target = direct as IResultOfT<A, E>;
+    const target = direct as unknown as IResultOfT<A, E>;
     return target.isSuccess ? handlers.ok(target.value) : handlers.err(target.error);
 }
 

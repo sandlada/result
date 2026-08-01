@@ -29,7 +29,7 @@ export function orElse<A, E, B, F>(
     try {
         return f(r.error) as unknown as IResultOfT<A | B, F>;
     } catch(e: unknown) {
-        return err(e as F) as unknown as IResultOfT<A | B, F>;
+        return err(e as unknown as F) as unknown as IResultOfT<A | B, F>;
     }
 }
 

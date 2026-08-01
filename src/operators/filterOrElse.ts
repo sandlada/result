@@ -38,6 +38,6 @@ export function filterOrElse<A, E>(
         if(predicate(r.value)) return r;
         return err(errorFn(r.value)) as unknown as IResultOfT<A, E>;
     } catch(e: unknown) {
-        return err(e as E) as unknown as IResultOfT<A, E>;
+        return err(e as unknown as E) as unknown as IResultOfT<A, E>;
     }
 }
