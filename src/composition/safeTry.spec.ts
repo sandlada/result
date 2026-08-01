@@ -141,3 +141,17 @@ describe('safeTry / fromSafeTry', () => {
         expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('body-throw');
     });
 });
+
+    it('returns undefined if generator exhausts without yield or return', () => {
+        const gen = function* () {};
+        expect(() => fromSafeTry(gen)).toThrow('safeTry: generator returned undefined without yielding');
+    });
+
+    it('recovers from generator throwing during iterator.return() inside catch block', () => {
+        const fakeIterator: unknown = {
+            next: () => { throw new Error('iterator-throw'); },
+            return: () => { throw new Error('return-throw'); }
+        };
+        // The 'return-throw' is swallowed, 'iterator-throw' propagates
+        expect(() => fromSafeTry(() => fakeIterator as never)).toThrow('iterator-throw');
+    });
