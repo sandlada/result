@@ -1,6 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import type { IOption } from '../types/Option.js';
 import { ofSome as syncOfSome, ofNone as syncOfNone } from '../option/index.js';
 
 /**
@@ -31,7 +32,10 @@ export function transpose<T, E>(
         run: async (): Promise<IResultOfT<AsyncOption<T>, E>> => {
             const opt = await ao.run();
             if (!opt.isSome) {
-                const noneAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfNone() as never) };
+                // `syncOfNone()` returns `IOptionNone` (a unit literal with no
+                // payload). Cast through `unknown` rather than `never` so the
+                // type honesty is visible — same convention as ofNone.ts.
+                const noneAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfNone() as unknown as IOption<T>) };
                 return { isSuccess: true as const, isFailure: false as const, value: noneAo };
             }
             const inner = await opt.value.run();
