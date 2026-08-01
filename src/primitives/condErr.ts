@@ -26,6 +26,6 @@ export function condErr<T, E>(
     errorOnTrue: E,
 ): IResultOfT<T, E> {
     return predicate(okValue)
-        ? (err(errorOnTrue) as IResultOfT<T, E>)
-        : (ok(okValue) as IResultOfT<T, E>);
+        ? (err(errorOnTrue) as unknown as IResultOfT<T, E>)
+        : (ok(okValue) as unknown as IResultOfT<T, E>);
 }
