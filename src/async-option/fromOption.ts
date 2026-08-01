@@ -1,5 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Wraps a sync `IOption` into an AsyncOption (lifts a sync Option into the async world).
@@ -18,5 +19,5 @@ import type { IOption } from '../types/Option.js';
 export function fromOption<T>(
     option: IOption<T>,
 ): AsyncOption<T> {
-    return { run: () => Promise.resolve(option) };
+    return markAsyncCarrier({ run: () => Promise.resolve(option) });
 }

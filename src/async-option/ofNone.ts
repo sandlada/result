@@ -1,5 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import type { IOption } from '../types/Option.js';
 import { ofNone as syncOfNone } from '../option/index.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Creates an `AsyncOption` that always resolves to `None`.
@@ -16,5 +18,9 @@ import { ofNone as syncOfNone } from '../option/index.js';
  * @note Ready for Product
  */
 export function ofNone<T = never>(): AsyncOption<T> {
-    return { run: () => Promise.resolve(syncOfNone() as never) };
+    // `syncOfNone()` returns `IOptionNone` (a unit literal with no payload).
+    // Cast via `unknown` rather than `never` so the type honesty is visible
+    // and consistent with the `as unknown as IOption<T>` convention used in
+    // siblings (e.g. `bind.ts`, `orElse.ts`, `transpose.ts`).
+    return markAsyncCarrier({ run: () => Promise.resolve(syncOfNone() as unknown as IOption<T>) });
 }

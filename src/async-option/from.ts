@@ -1,5 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Creates an AsyncOption from a thunk that returns a Promise<IOption>.
@@ -19,5 +20,5 @@ import type { IOption } from '../types/Option.js';
 export function from<T>(
     thunk: () => Promise<IOption<T>>,
 ): AsyncOption<T> {
-    return { run: thunk };
+    return markAsyncCarrier({ run: thunk });
 }
