@@ -43,7 +43,7 @@ export function andTee<A, E, B, F>(
         try {
             fn(r.value);
         } catch(e: unknown) {
-            return err(e as E) as unknown as IResultOfT<A, E>;
+            return err(e as unknown as E) as unknown as IResultOfT<A, E>;
         }
     }
     return r;

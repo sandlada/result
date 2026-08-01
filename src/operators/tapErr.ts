@@ -25,7 +25,7 @@ export function tapErr<A, E>(fn: (e: E) => void, r?: IResultOfT<A, E>): IResultO
         try {
             fn(r.error);
         } catch(e: unknown) {
-            return err(e as E) as unknown as IResultOfT<A, E>;
+            return err(e as unknown as E) as unknown as IResultOfT<A, E>;
         }
     }
     return r;
