@@ -94,7 +94,7 @@ const computeDelay = <E>(
  */
 const toErrFailure = <E>(thrown: unknown): IResultOfT<never, E> => {
     const wrapped = thrown instanceof Error ? thrown.message || thrown.constructor.name : String(thrown);
-    return err(wrapped as unknown as E) as IResultOfT<never, E>;
+    return err(wrapped as unknown as E) as unknown as IResultOfT<never, E>;
 };
 
 const safeInvoke = async <T, E>(
@@ -134,5 +134,5 @@ export async function retry<T, E>(
         const delay = computeDelay(options.delayMs, attempt, lastResult.error);
         await sleep(delay, options.signal);
     }
-    return lastResult as IResultOfT<T, E>;
+    return lastResult as unknown as IResultOfT<T, E>;
 }

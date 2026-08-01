@@ -49,13 +49,13 @@ export function any<T, E>(
                         if (r.isSuccess) successes.push(r.value);
                         else errors.push(r.error);
                     },
-                    (rej: unknown) => { errors.push(rej as E); },
+                    (rej: unknown) => { errors.push(rej as unknown as E); },
                 )),
             );
             if (successes.length > 0) {
-                return ok(successes) as IResultOfT<T[], E[]>;
+                return ok(successes) as unknown as IResultOfT<T[], E[]>;
             }
-            return err(errors) as IResultOfT<T[], E[]>;
+            return err(errors) as unknown as IResultOfT<T[], E[]>;
         },
     };
 }

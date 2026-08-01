@@ -66,13 +66,13 @@ export function timeout<T, E, TOE = TimeoutError>(
                     if (settled) return;
                     settled = true;
                     clearTimeout(timer);
-                    resolve(r as IResultOfT<T, E | TOE>);
+                    resolve(r as unknown as IResultOfT<T, E | TOE>);
                 },
                 (err: unknown) => {
                     if (settled) return;
                     settled = true;
                     clearTimeout(timer);
-                    resolve({ isSuccess: false as const, isFailure: true as const, error: err as E } as IResultOfT<T, E | TOE>);
+                    resolve({ isSuccess: false as const, isFailure: true as const, error: err as unknown as E } as unknown as IResultOfT<T, E | TOE>);
                 },
             );
         }),
