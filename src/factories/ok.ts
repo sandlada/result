@@ -24,6 +24,6 @@ export function ok<T>(value?: T): IResult<never> | IResultOfT<T, never> {
     // `undefined` (e.g. `ok(undefined)`) because we count arguments, not whether
     // they are defined.
     if(arguments.length === 0) return { isSuccess: true as const, isFailure: false as const };
-    return { isSuccess: true as const, isFailure: false as const, value: value! } as IResultOfT<T, never>;
+    return { isSuccess: true as const, isFailure: false as const, value: value! } as unknown as IResultOfT<T, never>;
 }
 

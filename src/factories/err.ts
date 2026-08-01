@@ -15,6 +15,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function err<E>(error: E): IResultOfT<never, E> {
-    return { isSuccess: false as const, isFailure: true as const, error } as IResultOfT<never, E>;
+    return { isSuccess: false as const, isFailure: true as const, error } as unknown as IResultOfT<never, E>;
 }
 

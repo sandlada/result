@@ -45,7 +45,7 @@ export function fromPredicate<T, E>(
     // arguments, not whether they are defined. The pattern matches the
     // canonical "data + function" curried overload used throughout the library.
     if(arguments.length < 3) return (value: T): IResultOfT<T, E> => fromPredicate(predicate, errorOnFalse, value);
-    if(predicate(value!)) return ok(value!) as IResultOfT<T, E>;
-    return err(errorOnFalse) as IResultOfT<T, E>;
+    if(predicate(value!)) return ok(value!) as unknown as IResultOfT<T, E>;
+    return err(errorOnFalse) as unknown as IResultOfT<T, E>;
 }
 
