@@ -11,6 +11,15 @@
  * **Empty input guard**: calling `composeK()` with zero functions throws
  * `TypeError` at construction time. The async variant has the same policy.
  *
+ * **Synchronous throw policy** (G1): if any function in the chain throws
+ * synchronously, the catch block funnels the unknown rejection through
+ * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
+ * documented in `retry.ts:toErrFailure` (Batch 5). The composed function's
+ * declared error type `E` is therefore a structural claim only: a synchronous
+ * throw at runtime can produce an arbitrary `unknown` value. If you need
+ * precise error-type narrowing, wrap each step in `tryCatch` with an
+ * `errorFn` that maps to your `E` before composing.
+ *
  * @example
  * ```ts
  * import { composeK, ok, err } from '@sandlada/result';
@@ -83,7 +92,13 @@ export function composeK(
             }
             return acc;
         } catch (e: unknown) {
-            return { isSuccess: false as const, isFailure: true as const, error: e } as IResultOfT<unknown, unknown>;
+            // G1 type lie: declared error type is `E` (per the public overloads),
+            // but the runtime value here is the raw `unknown` thrown by a step
+            // function. The cast goes through `unknown` so the cross-variant
+            // widening is explicit, matching the `as unknown as IResultOfT<...>`
+            // convention used elsewhere in the library. Consumers should wrap
+            // throwing steps in `tryCatch(..., errorFn)` if they need a typed `E`.
+            return { isSuccess: false as const, isFailure: true as const, error: e } as unknown as IResultOfT<unknown, unknown>;
         }
     };
 }
