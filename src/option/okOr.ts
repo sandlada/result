@@ -22,6 +22,6 @@ import { err } from '../factories/err.js';
 export function okOr<E>(error: E): <T>(opt: IOption<T>) => IResultOfT<T, E> {
     return <T>(opt: IOption<T>): IResultOfT<T, E> => {
         if(opt.isSome) return ok(opt.value) as unknown as IResultOfT<T, E>;
-        return err(error) as IResultOfT<T, E>;
+        return err(error) as unknown as IResultOfT<T, E>;
     };
 }
