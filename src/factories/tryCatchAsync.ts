@@ -18,13 +18,13 @@ export async function tryCatchAsync<T, E = unknown>(
     fn: () => Promise<T>,
     errorFn?: (error: unknown) => E,
 ): Promise<IResultOfT<T, E>> {
-    try { return ok<T>(await fn()) as IResultOfT<T, E>; }
+    try { return ok<T>(await fn()) as unknown as IResultOfT<T, E>; }
     catch(e: unknown) {
         // No `errorFn`: pass through the raw rejection. The cast goes through
         // `unknown` to make the type honesty visible — we don't claim `e` is
         // already an `E`, we just bridge it across the type parameter.
         const innerError = errorFn ? errorFn(e) : (e as unknown as E);
-        return err(innerError) as IResultOfT<T, E>;
+        return err(innerError) as unknown as IResultOfT<T, E>;
     }
 }
 
