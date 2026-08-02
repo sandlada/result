@@ -1,7 +1,25 @@
 import { describe, it, expectTypeOf } from 'vitest';
+import { flattenAsyncOption } from './flattenAsyncOption.js';
+import { ofSome, ofNone } from '../option/index.js';
+import type { IOption } from '../types/Option.js';
 
 describe('flattenAsyncOption types', () => {
-    it('should have correct types', () => {
-        // expectTypeOf(...)
+    it('flattens Promise<IOption<IOption<T>>> to Promise<IOption<T>>', () => {
+        const r = flattenAsyncOption(Promise.resolve(ofSome(ofSome(42))));
+        const _check: Promise<IOption<number>> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('handles string-typed inner option', () => {
+        const r = flattenAsyncOption(Promise.resolve(ofSome(ofSome('hi'))));
+        const _check: Promise<IOption<string>> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('handles outer None', () => {
+        const outerNone: IOption<IOption<number>> = ofNone();
+        const r = flattenAsyncOption(Promise.resolve(outerNone));
+        const _check: Promise<IOption<number>> = r;
+        expectTypeOf(_check).toBeObject();
     });
 });

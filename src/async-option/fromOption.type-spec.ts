@@ -1,7 +1,24 @@
 import { describe, it, expectTypeOf } from 'vitest';
+import { fromOption } from './fromOption.js';
+import { ofSome, ofNone } from '../option/index.js';
+import type { AsyncOption } from '../types/AsyncOption.js';
 
 describe('fromOption types', () => {
-    it('should have correct types', () => {
-        // expectTypeOf(...)
+    it('returns AsyncOption<T> from IOption<T>', () => {
+        const r = fromOption(ofSome(42));
+        const _check: AsyncOption<number> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('infers T from the option', () => {
+        const r = fromOption(ofSome('hi'));
+        const _check: AsyncOption<string> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('handles IOption<never> from ofNone', () => {
+        const r = fromOption(ofNone());
+        const _check: AsyncOption<never> = r;
+        expectTypeOf(_check).toBeObject();
     });
 });

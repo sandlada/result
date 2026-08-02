@@ -42,7 +42,8 @@
     "exclude": [
         "*/node_modules/**/*",
         "src/**/*.spec.ts",
-        "bench/**/*.bench.ts",
+        "src/**/*.type-spec.ts",
+        "src/**/*.bench.ts",
         "vitest.config.ts"
     ]
 }
