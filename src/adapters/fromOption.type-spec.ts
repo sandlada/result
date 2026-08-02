@@ -44,4 +44,41 @@ describe('fromOption types', () => {
         const _check: IResultOfT<number, Error> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('curried form keeps the error type across invocations', () => {
+        type E = { code: number };
+        const fn = fromOption<E>({ code: 1 });
+        const a = fn(ofSome('x'));
+        const b = fn(ofNone());
+        const _checkA: IResultOfT<string, E> = a;
+        const _checkB: IResultOfT<never, E> = b;
+        expectTypeOf(_checkA).toBeObject();
+        expectTypeOf(_checkB).toBeObject();
+    });
+
+    it('preserves literal narrowing from ofSome', () => {
+        const r = fromOption('missing', ofSome('y' as const));
+        const _check: IResultOfT<'y', string> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('A type parameter is polymorphic in the curried form', () => {
+        const fn = fromOption<number>(404);
+        const a = fn(ofSome('hello'));
+        const b = fn(ofNone());
+        // a: IResultOfT<string, number>; b: IResultOfT<never, number>
+        const _checkA: IResultOfT<string, number> = a;
+        const _checkB: IResultOfT<never, number> = b;
+        expectTypeOf(_checkA).toBeObject();
+        expectTypeOf(_checkB).toBeObject();
+    });
+
+    it('preserves null and undefined Some values end-to-end', () => {
+        const r1 = fromOption('missing', ofSome(null));
+        const r2 = fromOption('missing', ofSome(undefined));
+        const _check1: IResultOfT<null, string> = r1;
+        const _check2: IResultOfT<undefined, string> = r2;
+        expectTypeOf(_check1).toBeObject();
+        expectTypeOf(_check2).toBeObject();
+    });
 });

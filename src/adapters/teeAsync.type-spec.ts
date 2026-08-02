@@ -24,4 +24,25 @@ describe('teeAsync types', () => {
         const fn = teeAsync(async (u: User) => { /* side effect */ });
         expectTypeOf(fn).toEqualTypeOf<(a: User) => Promise<User>>();
     });
+
+    it('preserves the union input type and remains end-to-end', () => {
+        const fn = teeAsync(async (x: number | string) => { /* side effect */ });
+        expectTypeOf(fn).toEqualTypeOf<(a: number | string) => Promise<number | string>>();
+    });
+
+    it('preserves tuple-shaped structural types', () => {
+        type Pair = readonly [number, string];
+        const fn = teeAsync(async (p: Pair) => { /* side effect */ });
+        expectTypeOf(fn).toEqualTypeOf<(a: Pair) => Promise<Pair>>();
+    });
+
+    it('the produced function does not widen A', () => {
+        const fn = teeAsync(async (_x: 42) => { /* side effect */ });
+        expectTypeOf(fn).toEqualTypeOf<(a: 42) => Promise<42>>();
+    });
+
+    it('callback return type Promise<number> is irrelevant — output is Promise<A>', () => {
+        const ignored = teeAsync(async (_n: number) => 42);
+        expectTypeOf(ignored).toEqualTypeOf<(a: number) => Promise<number>>();
+    });
 });

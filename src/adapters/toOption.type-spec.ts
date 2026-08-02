@@ -2,6 +2,7 @@ import { describe, it, expectTypeOf } from 'vitest';
 import { toOption } from './toOption.js';
 import { ok, err } from '../factories/index.js';
 import type { IOption } from '../types/Option.js';
+import type { IOptionNone } from '../types/Option.js';
 
 describe('toOption types', () => {
     it('returns IOption<A> for a success result', () => {
@@ -22,5 +23,27 @@ describe('toOption types', () => {
     it('preserves value type from complex object', () => {
         const opt = toOption(ok({ id: 1, name: 'Alice' }));
         expectTypeOf(opt).toMatchTypeOf<IOption<{ id: number; name: string }>>();
+    });
+
+    it('discards wide error shapes (e.g. discriminated union)', () => {
+        type AppErr = { kind: 'NotFound'; id: string } | { kind: 'Forbidden' };
+        const opt = toOption(err<string, AppErr>({ kind: 'NotFound', id: 'x' }));
+        expectTypeOf(opt).toMatchTypeOf<IOption<never>>();
+    });
+
+    it('narrows to IOptionSome on `isSome` and IOptionNone on `isNone`', () => {
+        const opt = toOption(ok(42));
+        if (opt.isSome) {
+            expectTypeOf(opt.value).toEqualTypeOf<42>();
+        } else {
+            // @ts-expect-error value is not accessible on None variant
+            opt.value;
+            expectTypeOf(opt).toEqualTypeOf<IOptionNone>();
+        }
+    });
+
+    it('preserves literal types from the input Success', () => {
+        const opt = toOption(ok('k' as const));
+        expectTypeOf(opt).toMatchTypeOf<IOption<'k'>>();
     });
 });
