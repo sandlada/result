@@ -16,7 +16,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 
-export function all<T extends readonly [IResultOfT<unknown, unknown>, ...IResultOfT<unknown, unknown>[]]>(
+export function all<T extends readonly IResultOfT<unknown, unknown>[]>(
     results: T,
 ): IResultOfT<
     { [K in keyof T]: T[K] extends IResultOfT<infer V, unknown> ? V : never },
@@ -24,7 +24,7 @@ export function all<T extends readonly [IResultOfT<unknown, unknown>, ...IResult
 > {
     const values: unknown[] = [];
     for(const r of results) {
-        if(!r.isSuccess) return r as unknown as IResultOfT<never, never> as IResultOfT<
+        if(!r.isSuccess) return r as unknown as IResultOfT<
             { [K in keyof T]: T[K] extends IResultOfT<infer V, unknown> ? V : never },
             T[number] extends IResultOfT<unknown, infer E> ? E : never
         >;

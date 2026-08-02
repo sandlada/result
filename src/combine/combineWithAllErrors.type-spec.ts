@@ -21,4 +21,17 @@ describe('combineWithAllErrors types', () => {
         const _check: IResultOfT<number[], string[]> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('accepts a readonly array input', () => {
+        const input: readonly IResultOfT<number, never>[] = [ok(1), ok(2)];
+        const r = combineWithAllErrors(input);
+        const _check: IResultOfT<readonly number[], readonly never[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('returns IResultOfT<A[], E[]> for empty input', () => {
+        const r = combineWithAllErrors<number, string>([]);
+        const _check: IResultOfT<readonly number[], readonly string[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });
