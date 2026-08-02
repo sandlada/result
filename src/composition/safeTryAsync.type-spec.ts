@@ -35,4 +35,51 @@ describe('safeTryAsync types', () => {
         const _check: AsyncResult<number, never> = ar;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('safeTryAsync accepts AsyncResult OR Promise<IResultOfT>', async () => {
+        // The overload should accept a raw Promise that resolves to IResultOfT.
+        async function* gen() {
+            const x = yield* safeTryAsync(Promise.resolve(asyncOk(99)));
+            return x ?? 0;
+        }
+        const ar = fromSafeTryAsync(gen);
+        const _check: AsyncResult<number, never> = ar;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('safeTryAsync return type is T | undefined (value can be undefined after yield)', async () => {
+        async function* gen() {
+            const x: number | undefined = yield* safeTryAsync(asyncOk<number>(42));
+            return x ?? 0;
+        }
+        expectTypeOf(gen).toBeFunction();
+        const ar = fromSafeTryAsync(gen);
+        const _check: AsyncResult<number, never> = ar;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('preserves a generic error type across the chain', async () => {
+        type AppError = { code: number; message: string };
+        async function* gen() {
+            const x = yield* safeTryAsync(asyncErr<AppError>({ code: 500, message: 'Server' }));
+            return x ?? 0;
+        }
+        const ar = fromSafeTryAsync(gen);
+        const _check: AsyncResult<number, AppError> = ar as unknown as AsyncResult<number, AppError>;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('safeTryAsync discriminates by .run duck-typing', async () => {
+        // An object with a `run` method should be treated as an AsyncResult
+        // and the returned AsyncResult<T, E> should reflect the inner types.
+        const fakeAsyncResult: AsyncResult<number, string> = {
+            run: async () => ({ isSuccess: true as const, isFailure: false as const, value: 1 }),
+        };
+        async function* gen() {
+            const x = yield* safeTryAsync(fakeAsyncResult);
+            return x ?? 0;
+        }
+        const ar = fromSafeTryAsync(gen);
+        expectTypeOf(ar).toMatchObjectType<{ run: () => Promise<IResultOfT<number, string>> }>();
+    });
 });

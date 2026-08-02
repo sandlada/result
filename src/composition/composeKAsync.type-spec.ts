@@ -40,4 +40,62 @@ describe('composeKAsync types', () => {
         const _check: (a: number) => Promise<IResultOfT<number, AppError>> = f;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('composes 4 functions widening union output type', () => {
+        const f = composeKAsync(
+            (x: number) => asyncOk<number>(x * 2),
+            (x: number) => asyncOk<number>(x + 1),
+            (x: number) => asyncOk<string>(x.toString()),
+            (s: string) => asyncOk<number>(s.length),
+        );
+        const _check: (a: number) => Promise<IResultOfT<number, never>> = f;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('composes 5 functions', () => {
+        const f = composeKAsync(
+            (x: number) => asyncOk(x * 2),
+            (x: number) => asyncOk(x + 1),
+            (x: number) => asyncOk(x.toString()),
+            (s: string) => asyncOk(s.toUpperCase()),
+            (s: string) => asyncOk(s.length),
+        );
+        const _check: (a: number) => Promise<IResultOfT<number, never>> = f;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('composes 6 functions (top of the documented ladder)', () => {
+        const f = composeKAsync(
+            (x: number) => asyncOk(x * 2),
+            (x: number) => asyncOk(x + 1),
+            (x: number) => asyncOk(x.toString()),
+            (s: string) => asyncOk(s.toUpperCase()),
+            (s: string) => asyncOk(s.split('').reverse().join('')),
+            (s: string) => asyncOk(s.length),
+        );
+        const _check: (a: number) => Promise<IResultOfT<number, never>> = f;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('rejects the 7th function (no overload beyond the documented ladder)', () => {
+        // @ts-expect-error No overload accepts 7 functions — composeKAsync stops at 6
+        composeKAsync(
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+            (x: number) => asyncOk(x),
+        );
+    });
+
+    it('narrows isSuccess / isFailure on the awaited return', () => {
+        const f = composeKAsync(
+            (x: number) => asyncOk(x * 2),
+            (x: number) => asyncOk(x.toString()),
+        );
+        const p = f(10);
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<string, never>>>();
+    });
 });

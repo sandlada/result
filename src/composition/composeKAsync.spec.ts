@@ -52,4 +52,51 @@ describe('composeKAsync', () => {
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe('42');
     });
+
+    it('chains exactly 6 functions (top of the documented ladder)', async () => {
+        // Each step returns an AsyncResult or a sync IResultOfT; the
+        // pre-composed chain threads the value through 6 steps.
+        const composed = composeKAsync(
+            (x: number) => asyncOk<never, number>(x * 2),
+            (x: number) => asyncOk<never, number>(x + 1),
+            (x: number) => asyncOk<never, string>(x.toString()),
+            (s: string) => asyncOk<never, string>(s.toUpperCase()),
+            (s: string) => asyncOk<never, string>(s.split('').reverse().join('')),
+            (s: string) => asyncOk<never, number>(s.length),
+        );
+        const r = await composed(10);
+        // 10 → 21 → "21" → "21" → "12" → 2
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(2);
+    });
+
+    it('catches async rejection from a composed step', async () => {
+        const f1 = (x: number) => asyncOk<never, number>(x + 1);
+        const f2 = async (_x: number) => { throw new Error('async-rejection'); };
+        const composed = composeKAsync(f1, f2 as never);
+        const r = await composed(10);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBeInstanceOf(Error);
+        if (r.isFailure) expect((r.error as Error).message).toBe('async-rejection');
+    });
+
+    it('short-circuits in the middle of the 6-function chain', async () => {
+        let step5Called = false;
+        const step5 = async (_x: string) => {
+            step5Called = true;
+            return asyncOk<never, number>(0);
+        };
+        const composed = composeKAsync(
+            (x: number) => asyncOk<never, number>(x * 2),
+            (x: number) => asyncOk<never, number>(x + 1),
+            async (_x: number) => asyncErr<never, string>('middle failure'),
+            (s: string) => asyncOk<never, string>(s),
+            (s: string) => asyncOk<never, string>(s),
+            step5,
+        );
+        const r = await composed(1);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('middle failure');
+        expect(step5Called).toBe(false);
+    });
 });

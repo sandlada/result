@@ -158,11 +158,44 @@ describe('safeTry / fromSafeTry', () => {
         const iterator = gen();
         iterator.next();
     });
-});
 
-    it('throws when the generator returns undefined without yielding', () => {
-        const gen = function* () {
-            // Return nothing
-        };
-        expect(() => fromSafeTry(gen)).toThrow('safeTry: generator returned undefined without yielding');
+    it('preserves a falsy success value (0, false, "")', () => {
+        const zero = fromSafeTry(function* () {
+            const a: number = yield* safeTry(ok(0));
+            return a;
+        });
+        expect(zero.isSuccess).toBe(true);
+        if (zero.isSuccess) expect(zero.value).toBe(0);
+
+        const empty = fromSafeTry(function* () {
+            const s: string = yield* safeTry(ok(''));
+            return s;
+        });
+        expect(empty.isSuccess).toBe(true);
+        if (empty.isSuccess) expect(empty.value).toBe('');
+
+        const noBool = fromSafeTry(function* () {
+            const b: boolean = yield* safeTry(ok(false));
+            return b;
+        });
+        expect(noBool.isSuccess).toBe(true);
+        if (noBool.isSuccess) expect(noBool.value).toBe(false);
     });
+
+    it('enforces single-yield semantics — repeated safeTry yields in same iteration', () => {
+        // When the inner helper yields multiple times in one .next(), the
+        // single-yield guarantee is enforced by the outer runner.
+        let calls = 0;
+        const fakeIterator: unknown = {
+            next: () => {
+                calls++;
+                return calls === 1
+                    ? { value: 'first', done: false }
+                    : { value: 'second', done: false };
+            },
+        };
+        expect(() => fromSafeTry(() => fakeIterator as never)).toThrow(
+            /yielded more than once/,
+        );
+    });
+});

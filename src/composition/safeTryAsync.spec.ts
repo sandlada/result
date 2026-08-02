@@ -304,4 +304,46 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         const r = await result.run();
         expect(r.isSuccess).toBe(undefined);
     });
+
+    it('preserves falsy success values (0, false, "")', async () => {
+        const zero = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(asyncOk(0));
+            return a;
+        });
+        const r0 = await zero.run();
+        expect(r0.isSuccess).toBe(true);
+        if (r0.isSuccess) expect(r0.value).toBe(0);
+
+        const empty = fromSafeTryAsync(async function* () {
+            const s: string = yield* safeTryAsync(asyncOk(''));
+            return s;
+        });
+        const re = await empty.run();
+        expect(re.isSuccess).toBe(true);
+        if (re.isSuccess) expect(re.value).toBe('');
+
+        const noBool = fromSafeTryAsync(async function* () {
+            const b: boolean = yield* safeTryAsync(asyncOk(false));
+            return b;
+        });
+        const rb = await noBool.run();
+        expect(rb.isSuccess).toBe(true);
+        if (rb.isSuccess) expect(rb.value).toBe(false);
+    });
+
+    it('discriminates AsyncResult from Promise<IResultOfT> by duck-typing `.run`', async () => {
+        // The discriminator checks for a `.run` method. A Promise with no
+        // `.run` should be awaited directly; an AsyncResult should have its
+        // `.run()` invoked.
+        const asAsyncResult = {
+            run: async () => ok<never, number>(7),
+        };
+        const r = fromSafeTryAsync(async function* () {
+            const a: number = yield* safeTryAsync(asAsyncResult);
+            return a;
+        });
+        const res = await r.run();
+        expect(res.isSuccess).toBe(true);
+        if (res.isSuccess) expect(res.value).toBe(7);
+    });
 });
