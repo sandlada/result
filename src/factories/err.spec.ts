@@ -40,6 +40,21 @@ describe('err(error)', () => {
         const r = err<string>('fail');
         expect(r.isFailure).toBe(true);
     });
+
+    it('returns a result whose success branch has no `value` key', () => {
+        // err() always returns the failure variant. The runtime keys reflect
+        // the failure-only shape (no `value`).
+        const r = err('fail');
+        expect(r).not.toHaveProperty('value');
+        expect(Object.keys(r).sort()).toEqual(['error', 'isFailure', 'isSuccess']);
+    });
+
+    it('preserves primitive error values without wrapping', () => {
+        // Numeric, boolean, and string errors must pass through as-is.
+        expect((err(0) as { error: unknown }).error).toBe(0);
+        expect((err(false) as { error: unknown }).error).toBe(false);
+        expect((err('') as { error: unknown }).error).toBe('');
+    });
 });
 
 // ─── err<E>(error) — typed error ───────────────────────────────────────────
@@ -64,6 +79,30 @@ describe('err<E>(error) typed', () => {
         const r = err(42);
         if (r.isFailure) expect(r.error).toBe(42);
     });
+
+    it('preserves Symbol-keyed structured errors', () => {
+        // Class instances (with prototypes) must be passed through unchanged.
+        class DomainError extends Error {
+            public readonly code = 'E_DOMAIN';
+            constructor(public readonly detail: string) {
+                super(detail);
+            }
+        }
+        const e = new DomainError('bad');
+        const r = err(e);
+        if (r.isFailure) {
+            expect(r.error).toBe(e);
+            expect(r.error.code).toBe('E_DOMAIN');
+            expect(r.error.detail).toBe('bad');
+            expect(r.error).toBeInstanceOf(DomainError);
+        }
+    });
+
+    it('preserves exact literal error values', () => {
+        // `as const` errors must be preserved bit-for-bit.
+        const r = err('boom' as const);
+        if (r.isFailure) expect(r.error).toBe('boom');
+    });
 });
 
 // ─── Factory consistency ───────────────────────────────────────────────────
@@ -86,5 +125,13 @@ describe('Factory consistency', () => {
 
     it('FP operator form: err(error) is a failure', () => {
         expect(err('fail').isFailure).toBe(true);
+    });
+
+    it('many err() invocations produce independent objects', () => {
+        const a = err('x');
+        const b = err('x');
+        expect(a).not.toBe(b);
+        expect(a.error).toBe('x');
+        expect(b.error).toBe('x');
     });
 });

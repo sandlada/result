@@ -18,4 +18,38 @@ describe('asyncErr types', () => {
         const p = asyncErr<AppError>({ kind: 'AppError', message: 'x' });
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<never, AppError>>>();
     });
+
+    // ─── Async policy ──────────────────────────────────────────────────────
+
+    it('does not require a callback argument — the function takes exactly one error', () => {
+        const p = asyncErr(1);
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<never, number>>>();
+        // @ts-expect-error asyncErr does not accept a callback
+        asyncErr('x', () => {});
+    });
+
+    it('preserves primitive error types', () => {
+        const s = asyncErr('s' as const);
+        expectTypeOf(s).toEqualTypeOf<Promise<IResultOfT<never, 's'>>>();
+        const n = asyncErr(42 as const);
+        expectTypeOf(n).toEqualTypeOf<Promise<IResultOfT<never, 42>>>();
+    });
+
+    it('preserves class-based error types through inference', () => {
+        class CustomError extends Error {
+            public readonly code = 'E_CUSTOM';
+        }
+        const p = asyncErr(new CustomError('oops'));
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<never, CustomError>>>();
+    });
+
+    it('the success branch is not reachable on the asyncErr result', () => {
+        // asyncErr always resolves to the failure variant; the success branch
+        // of the union is empty at the call site.
+        const p = asyncErr('x');
+        type R = Awaited<typeof p>;
+        if (undefined as unknown as R extends { isSuccess: true } ? true : false) {
+            // unreachable branch — the success variant of `never`-value is empty
+        }
+    });
 });

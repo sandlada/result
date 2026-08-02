@@ -36,4 +36,50 @@ describe('fromThrowable types', () => {
         const _check: IResultOfT<unknown, AppError> = null as unknown as R;
         expectTypeOf(_check).toBeObject();
     });
+
+    // ─── Default-error and mapper contract ─────────────────────────────────
+
+    it('default E is `unknown` when errorFn is omitted', () => {
+        const safe = fromThrowable((x: number) => x);
+        type R = ReturnType<typeof safe>;
+        expectTypeOf<R>().toExtend<IResultOfT<number, unknown>>();
+    });
+
+    it('the wrapper preserves zero-argument function shape', () => {
+        const safe = fromThrowable(() => 42);
+        type Args = Parameters<typeof safe>;
+        expectTypeOf<Args>().toEqualTypeOf<[]>();
+        type R = ReturnType<typeof safe>;
+        expectTypeOf<R>().toExtend<IResultOfT<number, unknown>>();
+    });
+
+    it('the wrapper preserves rest-argument function shape', () => {
+        const safe = fromThrowable((...args: number[]) => args.reduce((a, b) => a + b, 0));
+        type Args = Parameters<typeof safe>;
+        expectTypeOf<Args>().toEqualTypeOf<number[]>();
+        type R = ReturnType<typeof safe>;
+        expectTypeOf<R>().toExtend<IResultOfT<number, unknown>>();
+    });
+
+    it('errorFn argument is implicitly `unknown`', () => {
+        const safe = fromThrowable(
+            () => 1,
+            (e) => String(e), // e is implicitly unknown here
+        );
+        type R = ReturnType<typeof safe>;
+        expectTypeOf<R>().toExtend<IResultOfT<number, string>>();
+    });
+
+    it('rejects a mapper that returns the wrong error type when E is fixed', () => {
+        type AppErr = { kind: 'App'; message: string };
+        // @ts-expect-error mapper must return AppErr, not string
+        fromThrowable<[], number, AppErr>(() => 1, (): string => 'wrong');
+    });
+
+    it('the wrapper function preserves the original function\'s return type', () => {
+        interface User { id: number; name: string; }
+        const safe = fromThrowable((id: number): User => ({ id, name: 'Alice' }));
+        type R = ReturnType<typeof safe>;
+        expectTypeOf<R>().toExtend<IResultOfT<User, unknown>>();
+    });
 });
