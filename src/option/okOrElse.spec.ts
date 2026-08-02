@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
 import { okOrElse } from '../../src/option/index.js';
+import type { IResultOfT } from '../../src/types/IResultOfT.js';
 
 describe('Option — okOrElse', () => {
     it('Some returns Ok(value)', () => {
@@ -36,5 +37,31 @@ describe('Option — okOrElse', () => {
         )(ofNone() as IOption<number>);
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('errFn-boom');
+    });
+
+    it('does NOT call errorFn on Some — short-circuit (Group C)', () => {
+        const fn = vi.fn(() => 'err');
+        okOrElse(fn)(ofSome(42));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls errorFn exactly once on None — single invocation (Group C)', () => {
+        const fn = vi.fn(() => 'err');
+        okOrElse(fn)(ofNone() as IOption<number>);
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('catches non-Error throws and converts to Err (Group D)', () => {
+        const result = okOrElse<number, unknown>(
+            () => { throw 'string-throw'; },
+        )(ofNone() as IOption<number>);
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('string-throw');
+    });
+
+    it('produces IResultOfT<T, E> — T from input, E from errorFn return (Group B)', () => {
+        const fn = okOrElse(() => 'default');
+        const r = fn(ofSome(42));
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
     });
 });

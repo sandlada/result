@@ -27,4 +27,29 @@ describe('tap', () => {
         expect(result.isNone).toBe(true);
         expect(result).toEqual(ofNone());
     });
+
+    it('does NOT call fn on None — short-circuit (Group C)', () => {
+        const fn = vi.fn((_v: number) => undefined);
+        tap(fn)(ofNone());
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls fn exactly once on Some — single invocation (Group C)', () => {
+        const fn = vi.fn((_v: number) => undefined);
+        tap(fn)(ofSome(42));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the original Some value reference unchanged on success (tee policy)', () => {
+        const sentinel = { count: 1 };
+        const opt = ofSome(sentinel);
+        const result = tap(() => undefined)(opt);
+        // same value identity — tap is a tee
+        if (result.isSome) expect(result.value).toBe(sentinel);
+    });
+
+    it('catches a non-Error throw and still converts to None (Group D)', () => {
+        const result = tap((_v: number) => { throw 'string-throw'; })(ofSome(1));
+        expect(result.isNone).toBe(true);
+    });
 });

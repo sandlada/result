@@ -31,4 +31,10 @@ describe('okOr types', () => {
             expectTypeOf(r.error).toEqualTypeOf<string>();
         }
     });
+
+    it('produces IResultOfT<T, E> where T is inferred from input and E is fixed (Group B)', () => {
+        const fn = okOr('default');
+        const r = fn(ofSome(42));
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
+    });
 });

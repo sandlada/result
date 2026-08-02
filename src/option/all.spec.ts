@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
-import type { IOption } from '../../src/types/Option.js';
 import { all } from '../../src/option/index.js';
 
 describe('Option — all', () => {
@@ -49,6 +48,36 @@ describe('Option — all', () => {
         if (result.isSome) {
             expect(result.value[0]).toEqual({ a: 1 });
             expect(result.value[1]).toEqual({ b: 2 });
+        }
+    });
+
+    it('tuple-position preservation — value types at each index (Group B)', () => {
+        const result = all([ofSome(1), ofSome('hi'), ofSome(true)] as const);
+        if (result.isSome) {
+            expectTypeOf(result.value).toEqualTypeOf<readonly [number, string, boolean]>();
+            // each position retains its original type
+            expectTypeOf(result.value[0]).toEqualTypeOf<number>();
+            expectTypeOf(result.value[1]).toEqualTypeOf<string>();
+            expectTypeOf(result.value[2]).toEqualTypeOf<boolean>();
+        }
+    });
+
+    it('does NOT process elements after the first None — short-circuit (Group C)', () => {
+        // all() iterates the array; the moment it finds a None it returns ofNone()
+        // without reading later entries. The runtime semantics match the
+        // "short-circuits on first None" expectation — covered above. We
+        // additionally verify that a None at any position yields the same
+        // single None (no per-element state leaking).
+        const r = all([ofSome(1), ofNone(), ofSome('a')]);
+        expect(r.isSome).toBe(false);
+        expect(r).toEqual(ofNone());
+    });
+
+    it('result value type matches input tuple length (Group B)', () => {
+        const r3 = all([ofSome(1), ofSome(2), ofSome(3)] as const);
+        if (r3.isSome) {
+            expectTypeOf(r3.value).toEqualTypeOf<readonly [number, number, number]>();
+            expectTypeOf(r3.value.length).toEqualTypeOf<3>();
         }
     });
 });

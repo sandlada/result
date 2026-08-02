@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, expectTypeOf } from 'vitest';
 import { unwrapOr, ofSome, ofNone } from './index.js';
+import type { IOption } from '../../src/types/Option.js';
 
 describe('unwrapOr', () => {
     it('extracts the value on Some', () => {
@@ -24,5 +25,29 @@ describe('unwrapOr', () => {
 
     it('direct form: returns the default on None', () => {
         expect(unwrapOr(0, ofNone())).toBe(0);
+    });
+
+    it('curried form — default object is returned by identity (Group B)', () => {
+        const sentinel = { name: 'Guest' };
+        const result = unwrapOr(sentinel)(ofNone() as IOption<{ name: string }>);
+        expect(result).toBe(sentinel);
+    });
+
+    it('direct form — default object is returned by identity (Group B)', () => {
+        const sentinel = { name: 'Guest' };
+        const result = unwrapOr(sentinel, ofNone() as IOption<{ name: string }>);
+        expect(result).toBe(sentinel);
+    });
+
+    it('default literal type is preserved (Group B)', () => {
+        const fallback = 'default' as const;
+        const result = unwrapOr(fallback)(ofNone() as IOption<'specific'>);
+        expectTypeOf(result).toEqualTypeOf<'default'>();
+    });
+
+    it('curried and direct form return same value for same input (Group A)', () => {
+        const opt = ofSome(42);
+        expect(unwrapOr(0)(opt)).toBe(unwrapOr(0, opt));
+        expect(unwrapOr(99, ofNone())).toBe(unwrapOr(99)(ofNone()));
     });
 });
