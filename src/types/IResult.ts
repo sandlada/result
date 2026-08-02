@@ -14,7 +14,7 @@
  * }
  * ```
  *
- * @typeParam TError — The error type. Defaults to `Error`.
+ * @typeParam TError — The error type. Defaults to `unknown`.
  *
  * @note Ready for Product
  */
