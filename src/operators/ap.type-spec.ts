@@ -1,7 +1,21 @@
 import { describe, it, expectTypeOf } from 'vitest';
+import { ap } from './ap.js';
+import { ok } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('ap types', () => {
-    it('should have correct types', () => {
-        // expectTypeOf(...)
+    it('curried form applies the wrapped function type', () => {
+        const wrappedFn = ok((value: number) => value.toString()) as IResultOfT<(value: number) => string, Error>;
+        const fn = ap(wrappedFn);
+        const _check: (r: IResultOfT<number, Error>) => IResultOfT<string, Error> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('direct form returns the wrapped function output type', () => {
+        const wrappedFn = ok((value: number) => value.toString()) as IResultOfT<(value: number) => string, Error>;
+        const input = ok(42) as IResultOfT<number, Error>;
+        const result = ap(wrappedFn, input);
+        const _check: IResultOfT<string, Error> = result;
+        expectTypeOf(_check).toBeObject();
     });
 });

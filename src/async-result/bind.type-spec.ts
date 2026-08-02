@@ -1,7 +1,27 @@
 import { describe, it, expectTypeOf } from 'vitest';
+import { bind } from './bind.js';
+import { fromResult } from './fromResult.js';
+import { ok } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import type { AsyncResult } from '../types/AsyncResult.js';
 
 describe('bind types', () => {
-    it('should have correct types', () => {
-        // expectTypeOf(...)
+    it('curried form returns (ar: AsyncResult<T, E>) => AsyncResult<U, E>', () => {
+        const fn = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>));
+        const _check: (ar: AsyncResult<number, string>) => AsyncResult<number, string> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('preserves U from the wrapped function', () => {
+        const fn = bind<string, number, string>((s) => fromResult(ok(s.length) as IResultOfT<number, string>));
+        const _check: (ar: AsyncResult<string, string>) => AsyncResult<number, string> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('direct form returns AsyncResult<U, E>', () => {
+        const ar: AsyncResult<number, string> = fromResult(ok(21) as IResultOfT<number, string>);
+        const r = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>), ar);
+        const _check: AsyncResult<number, string> = r;
+        expectTypeOf(_check).toBeObject();
     });
 });

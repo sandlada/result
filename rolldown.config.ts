@@ -18,6 +18,7 @@ function collectTypeScriptInputs(directory: string): string[] {
             entry.isFile()
             && entry.name.endsWith('.ts')
             && !entry.name.endsWith('.spec.ts')
+            && !entry.name.endsWith('.type-spec.ts')
             && !entry.name.endsWith('.d.ts')
         ) {
             inputs.push(entryPath.replaceAll('\\', '/'));
