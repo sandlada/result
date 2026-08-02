@@ -28,4 +28,41 @@ describe('all types', () => {
         const r = all([ok(1), err('boom'), ok(2)] as const);
         expectTypeOf(r.isSuccess).toBeBoolean();
     });
+
+    it('accepts an empty tuple and returns a value-bearing result (defect regression)', () => {
+        // Brief: all([]) returns ok([]); assert this and the inferred tuple type.
+        // Defect fixed: previously the constraint required at least one element,
+        // so all([]) was a type error. The constraint was relaxed to accept any
+        // readonly array including the empty tuple.
+        const r = all([]);
+        expectTypeOf(r).toBeObject();
+        if (r.isSuccess) {
+            expectTypeOf(r.value).toEqualTypeOf<readonly never[]>();
+        }
+    });
+
+    it('preserves tuple-position inference for non-empty tuples (Group B)', () => {
+        // TypeScript must infer T as the literal tuple type when given a tuple
+        // literal — not as an array of unions. We verify by checking each
+        // position retains its original type.
+        const r = all([ok(1), ok('hi'), ok(true)] as const);
+        if (r.isSuccess) {
+            expectTypeOf(r.value[0]).toEqualTypeOf<number>();
+            expectTypeOf(r.value[1]).toEqualTypeOf<string>();
+            expectTypeOf(r.value[2]).toEqualTypeOf<boolean>();
+        }
+    });
+
+    it('union error type collapses when input errors differ', () => {
+        // Brief: the error type is a distributive conditional collapsed to a
+        // common supertype. Here the input errors are string and number; the
+        // result error type must be `string | number`.
+        const r = all([
+            err<number, string>('boom') as IResultOfT<number, string>,
+            err<string, number>(42) as IResultOfT<string, number>,
+        ] as const);
+        if (!r.isSuccess) {
+            expectTypeOf(r.error).toEqualTypeOf<string | number>();
+        }
+    });
 });
