@@ -30,4 +30,21 @@ describe('ofSome types', () => {
             expectTypeOf(opt.value).toEqualTypeOf<number | null>();
         }
     });
+
+    it('ofSome(undefined) — undefined is a valid Some value (Group B)', () => {
+        const opt = ofSome(undefined);
+        const _check: IOption<undefined> = opt;
+        if (opt.isSome) expectTypeOf(opt.value).toBeUndefined();
+    });
+
+    it('preserves the literal input type — 42 stays 42 (Group B)', () => {
+        const opt = ofSome(42 as 42);
+        if (opt.isSome) expectTypeOf(opt.value).toEqualTypeOf<42>();
+    });
+
+    it('isSome is the literal type true (literal discrimination)', () => {
+        const opt = ofSome(42);
+        expectTypeOf(opt.isSome).toEqualTypeOf<true>();
+        expectTypeOf(opt.isNone).toEqualTypeOf<false>();
+    });
 });

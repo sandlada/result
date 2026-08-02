@@ -24,4 +24,16 @@ describe('ofNone types', () => {
             expectTypeOf(_check).toBeObject();
         }
     });
+
+    it('isNone is the literal type true (literal discrimination)', () => {
+        const opt = ofNone();
+        expectTypeOf(opt.isNone).toEqualTypeOf<true>();
+        expectTypeOf(opt.isSome).toEqualTypeOf<false>();
+    });
+
+    it('does NOT have a value field — narrowing excludes value', () => {
+        const opt = ofNone();
+        // @ts-expect-error — None has no `value` field
+        const _noValue: never = opt.value;
+    });
 });

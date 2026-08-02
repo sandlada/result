@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { bind, ofSome, ofNone } from './index.js';
 import { pipe } from '../composition/index.js';
+import type { IOption } from '../../src/types/Option.js';
 
 describe('bind', () => {
     it('chains an Option-returning function on Some', () => {
@@ -48,5 +49,38 @@ describe('bind', () => {
             throw new Error('test error');
         })(ofSome(5));
         expect(result.isSome).toBe(false);
+    });
+
+    it('does NOT call fn on None — short-circuit (Group C)', () => {
+        const fn = vi.fn((x: number) => ofSome(x));
+        bind(fn)(ofNone() as IOption<number>);
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls fn exactly once on Some — single invocation (Group C)', () => {
+        const fn = vi.fn((x: number) => ofSome(x));
+        bind(fn)(ofSome(7));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops calling fn after first None in pipeline (Group C)', () => {
+        const fn2 = vi.fn((x: number) => ofSome(x));
+        const result = pipe(
+            ofSome(1),
+            bind(() => ofNone()),
+            bind(fn2),
+        );
+        expect(result.isSome).toBe(false);
+        expect(fn2).toHaveBeenCalledTimes(0);
+    });
+
+    it('U is determined by the inner function return — chained types (Group B)', () => {
+        const r = bind((s: string) => ofSome(s.length))(ofSome('abc'));
+        if (r.isSome) expectTypeOf(r.value).toEqualTypeOf<number>();
+    });
+
+    it('catches callback throw and converts to None (Group D)', () => {
+        const result = bind((_x: number) => { throw new Error('bind-boom'); })(ofSome(1));
+        expect(result.isNone).toBe(true);
     });
 });

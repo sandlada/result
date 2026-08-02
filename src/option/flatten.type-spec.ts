@@ -22,4 +22,14 @@ describe('flatten types', () => {
             expectTypeOf(opt.value).toEqualTypeOf<number>();
         }
     });
+
+    it('one-layer invariant — three-layer nesting leaves one Option layer (Group B)', () => {
+        const inner: IOption<number> = ofSome(42);
+        const middle: IOption<IOption<number>> = ofSome(inner);
+        const outer: IOption<IOption<IOption<number>>> = ofSome(middle);
+        const result = flatten(outer);
+        // flatten removes exactly one layer — still an IOption<IOption<number>>
+        const _check: IOption<IOption<number>> = result;
+        expectTypeOf(_check).toBeObject();
+    });
 });

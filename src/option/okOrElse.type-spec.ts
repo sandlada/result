@@ -31,4 +31,10 @@ describe('okOrElse types', () => {
             expectTypeOf(r.error).toEqualTypeOf<string>();
         }
     });
+
+    it('E is fixed by the errorFn return type, T by the input (Group B)', () => {
+        const fn = okOrElse(() => 'default');
+        const r = fn(ofSome(42));
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
+    });
 });

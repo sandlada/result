@@ -47,4 +47,40 @@ describe('match types', () => {
         );
         expectTypeOf(r).toEqualTypeOf<number>();
     });
+
+    it('handler return types are unified to the broader type (Group B)', () => {
+        const r = match(
+            (_v: number): 1 | 2 => 1,
+            (): 1 | 2 => 2,
+            ofSome(42),
+        );
+        expectTypeOf(r).toEqualTypeOf<1 | 2>();
+    });
+
+    it('object form preserves the same union of return types (Group B)', () => {
+        const r = match(
+            { some: (_v: number): 1 | 2 => 1, none: (): 1 | 2 => 2 },
+            ofNone(),
+        );
+        expectTypeOf(r).toEqualTypeOf<1 | 2>();
+    });
+
+    it('no-r variant — positional curried with only onSome/onNone (Group A)', () => {
+        const fn = match(
+            (v: number) => `value: ${v}`,
+            () => 'nothing',
+        );
+        // Calling without opt at construction time returns a function
+        const _check: (opt: IOption<number>) => string = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('no-r variant — object curried with only handlers (Group A)', () => {
+        const fn = match({
+            some: (v: number) => `value: ${v}`,
+            none: () => 'nothing',
+        });
+        const _check: (opt: IOption<number>) => string = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

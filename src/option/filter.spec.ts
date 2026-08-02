@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
 import { filter } from '../../src/option/index.js';
@@ -34,5 +34,30 @@ describe('Option — filter', () => {
         const predicate = (() => { throw new Error('pred-boom'); }) as (n: number) => boolean;
         const result = filter(predicate)(ofSome(5));
         expect(result.isNone).toBe(true);
+    });
+
+    it('does NOT call predicate on None — short-circuit (Group C)', () => {
+        const pred = vi.fn((n: number) => n > 0);
+        filter(pred)(ofNone() as IOption<number>);
+        expect(pred).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls predicate exactly once on Some — single invocation (Group C)', () => {
+        const pred = vi.fn((n: number) => n > 0);
+        filter(pred)(ofSome(5));
+        expect(pred).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the original Some reference when predicate passes (tee policy)', () => {
+        const sentinel = { id: 'x' };
+        const opt = ofSome(sentinel);
+        const result = filter((_o: { id: string }) => true)(opt);
+        if (result.isSome) expect(result.value).toBe(sentinel);
+    });
+
+    it('T is preserved through filter — does not widen (Group B)', () => {
+        const opt = ofSome('hello' as 'hello');
+        const result = filter((s: 'hello') => s.length > 0)(opt);
+        if (result.isSome) expectTypeOf(result.value).toEqualTypeOf<'hello'>();
     });
 });

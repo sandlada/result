@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
 import { zipWith } from '../../src/option/index.js';
@@ -58,5 +58,37 @@ describe('Option — zipWith', () => {
         });
         const result = zipped(ofSome(1), ofSome(2));
         expect(result.isSome).toBe(false);
+    });
+
+    it('does NOT call fn when first is None — short-circuit (Group C)', () => {
+        const fn = vi.fn((a: number, b: number) => a + b);
+        zipWith(fn)(ofNone() as IOption<number>, ofSome(1));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('does NOT call fn when second is None — short-circuit (Group C)', () => {
+        const fn = vi.fn((a: number, b: number) => a + b);
+        zipWith(fn)(ofSome(1), ofNone() as IOption<number>);
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('does NOT call fn when both are None — short-circuit (Group C)', () => {
+        const fn = vi.fn((a: number, b: number) => a + b);
+        zipWith(fn)(ofNone() as IOption<number>, ofNone() as IOption<number>);
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls fn exactly once when both are Some — single invocation (Group C)', () => {
+        const fn = vi.fn((a: number, b: number) => a + b);
+        zipWith(fn)(ofSome(1), ofSome(2));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('value type is the callback return type (Group B)', () => {
+        const zipped = zipWith((a: number, b: number) => ({ sum: a + b }));
+        const result = zipped(ofSome(1), ofSome(2));
+        if (result.isSome) {
+            expectTypeOf(result.value).toEqualTypeOf<{ sum: number }>();
+        }
     });
 });
