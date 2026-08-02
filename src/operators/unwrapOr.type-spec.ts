@@ -23,4 +23,11 @@ describe('unwrapOr types', () => {
         const _check: string = result;
         expectTypeOf(_check).toBeString();
     });
+
+    it('default and success share the same value type (Group B)', () => {
+        const input = ok(7) as IResultOfT<number, string>;
+        const result = unwrapOr(0, input);
+        const _check: number = result;
+        expectTypeOf(_check).toBeNumber();
+    });
 });

@@ -16,4 +16,10 @@ describe('exists types', () => {
         const _check: boolean = result;
         expectTypeOf(_check).toBeBoolean();
     });
+
+    it('preserves generic narrowing through the predicate (Group B)', () => {
+        const input = ok(42) as IResultOfT<number, string>;
+        const result = exists((value: number) => value > 0, input);
+        expectTypeOf(result).toBeBoolean();
+    });
 });

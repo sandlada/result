@@ -16,4 +16,10 @@ describe('tap types', () => {
         const _check: IResultOfT<number, Error> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves the literal error type (Group B)', () => {
+        const input = err('boom' as const) as IResultOfT<number, 'boom'>;
+        const result = tap((v: number): void => { void v; }, input);
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<'boom'>();
+    });
 });

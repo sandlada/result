@@ -23,4 +23,10 @@ describe('mapErr types', () => {
         if (result.isSuccess) expectTypeOf(result.value).toBeNumber();
         else expectTypeOf(result.error).toBeString();
     });
+
+    it('preserves the literal success type (Group B)', () => {
+        const input = ok(42 as const) as IResultOfT<42, string>;
+        const result = mapErr((e: string) => e.length, input);
+        if (result.isSuccess) expectTypeOf(result.value).toEqualTypeOf<42>();
+    });
 });

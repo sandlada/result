@@ -23,4 +23,15 @@ describe('orThrow types', () => {
         const _check: number = result;
         expectTypeOf(_check).toBeNumber();
     });
+
+    it('orThrow requires E extends Error (Group B)', () => {
+        // @ts-expect-error — non-Error types are not assignable
+        orThrow(err('not-an-error' as never) as IResultOfT<number, string>);
+    });
+
+    it('orThrowWith accepts unconstrained E and requires (e: E) => Error (Group B)', () => {
+        const input = err('boom') as IResultOfT<number, string>;
+        const result = orThrowWith((_e: string): Error => new Error('wrapped'), input);
+        expectTypeOf(result).toBeNumber();
+    });
 });

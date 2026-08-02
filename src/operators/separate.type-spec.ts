@@ -22,4 +22,12 @@ describe('separate types', () => {
         expectTypeOf(okValue).toBeNumber();
         expectTypeOf(errValue).toBeString();
     });
+
+    it('preserves discriminated-union element types (Group B)', () => {
+        type E = { kind: 'A' } | { kind: 'B'; payload: number };
+        const results: readonly IResultOfT<string, E>[] = [];
+        const separated = separate(results);
+        const errValue: E = separated.err[0]!;
+        expectTypeOf(errValue).toEqualTypeOf<E>();
+    });
 });

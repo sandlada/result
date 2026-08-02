@@ -19,4 +19,22 @@ describe('orElse types', () => {
         const _check: IResultOfT<number | boolean, RangeError> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('error type narrows to F (the recovery error type) (Group B)', () => {
+        const input = ok(1) as IResultOfT<number, TypeError>;
+        const result = orElse(
+            (_e: TypeError) => err('recovered') as IResultOfT<never, string>,
+            input,
+        );
+        if (result.isFailure) expectTypeOf(result.error).toBeString();
+    });
+
+    it('value widens to A | B (Group B)', () => {
+        const input = err('e') as IResultOfT<number, string>;
+        const result = orElse(
+            (_e: string) => ok(true) as IResultOfT<boolean, string>,
+            input,
+        );
+        if (result.isSuccess) expectTypeOf(result.value).toEqualTypeOf<number | boolean>();
+    });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { ap } from '../../src/operators/ap.js';
 
@@ -55,5 +55,25 @@ describe('ap', () => {
         const result = ap(fnResult, ok(0));
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
+
+    it('invokes the wrapped function from the fn-result on Ok value (Group C)', () => {
+        const fn = vi.fn((x: number) => x * 3);
+        const result = ap(ok(fn), ok(7));
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(fn).toHaveBeenCalledWith(7);
+        if (result.isSuccess) expect(result.value).toBe(21);
+    });
+
+    it('does NOT invoke the wrapped function when value-result is Err (Group C)', () => {
+        const fn = vi.fn((x: number) => x * 3);
+        ap(ok(fn), err<number>('val'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('does NOT invoke the wrapped function when fn-result is Err (Group C)', () => {
+        const fn = vi.fn((x: number) => x * 3);
+        ap(err<(x: number) => number>('fn-fail'), ok(7));
+        expect(fn).toHaveBeenCalledTimes(0);
     });
 });

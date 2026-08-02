@@ -18,4 +18,12 @@ describe('ap types', () => {
         const _check: IResultOfT<string, Error> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('shares a single E across fn-result and value-result (Group B)', () => {
+        type E = { code: number };
+        const wrappedFn = ok((_x: number) => 'x') as IResultOfT<(x: number) => string, E>;
+        const input = ok(1) as IResultOfT<number, E>;
+        const result = ap(wrappedFn, input);
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<E>();
+    });
 });

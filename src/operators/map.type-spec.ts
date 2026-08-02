@@ -23,4 +23,10 @@ describe('map types', () => {
         if (result.isSuccess) expectTypeOf(result.value).toBeString();
         else expectTypeOf(result.error).toBeObject();
     });
+
+    it('preserves the literal error type (Group B)', () => {
+        const input = err('e' as const) as IResultOfT<number, 'e'>;
+        const result = map((v: number) => v.toString(), input);
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<'e'>();
+    });
 });

@@ -17,4 +17,11 @@ describe('unwrapErr types', () => {
         const _check: boolean = result;
         expectTypeOf(_check).toBeBoolean();
     });
+
+    it('preserves the literal error type (Group B)', () => {
+        const input = err('boom' as const) as IResultOfT<number, 'boom'>;
+        const result = unwrapErr(input);
+        const _check: 'boom' = result;
+        expectTypeOf(_check).toEqualTypeOf<'boom'>();
+    });
 });

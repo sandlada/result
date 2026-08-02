@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { filterOrElse, map } from '../operators/index.js';
 import { pipe } from '../composition/index.js';
 import { ok, err } from '../factories/index.js';
@@ -144,5 +144,21 @@ describe('filterOrElse', () => {
         );
         expect(r.isFailure).toBe(true);
         if(r.isFailure) expect(r.error.kind).toBe('Validation');
+    });
+
+    it('does NOT call predicate on failure (Group C)', () => {
+        const pred = vi.fn((_x: number) => true);
+        const errFn = vi.fn((_x: number) => 'err');
+        filterOrElse(pred, errFn, err<string>('down'));
+        expect(pred).toHaveBeenCalledTimes(0);
+        expect(errFn).toHaveBeenCalledTimes(0);
+    });
+
+    it('does NOT call errorFn when predicate holds (Group C)', () => {
+        const pred = vi.fn((_x: number) => true);
+        const errFn = vi.fn((_x: number) => 'err');
+        filterOrElse(pred, errFn, ok(5));
+        expect(pred).toHaveBeenCalledTimes(1);
+        expect(errFn).toHaveBeenCalledTimes(0);
     });
 });

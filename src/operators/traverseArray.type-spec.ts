@@ -27,4 +27,10 @@ describe('traverseArray types', () => {
             return ok(value) as IResultOfT<string, Error>;
         }, ['a']);
     });
+
+    it('preserves the error type across the array (Group B)', () => {
+        const fn = traverseArray((x: number) => err('e') as IResultOfT<never, { code: number }>);
+        const result = fn([1, 2, 3]);
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<{ code: number }>();
+    });
 });

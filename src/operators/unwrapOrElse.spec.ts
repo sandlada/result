@@ -1,9 +1,81 @@
-import { describe, it, expect, vi } from 'vitest';import { ok, err } from '../factories/index.js';import type { IResultOfT } from '../../src/types/IResultOfT.js';import { unwrapOrElse } from './index.js';describe('unwrapOrElse', () => {    it('returns the value on success without calling fn', () => {        const fn = vi.fn((_e: Error) => 0);        const r = ok(42);        expect(unwrapOrElse(fn, r)).toBe(42);        expect(fn).not.toHaveBeenCalled();    });    it('returns the result of fn(error) on failure', () => {        const error = new Error('parse failed');        const r = err<number>(error);        const result = unwrapOrElse((e) => {            expect(e).toBe(error);            return -1;        }, r);        expect(result).toBe(-1);    });    it('can recover different types (widening)', () => {        const r = err<{ name: string }>(new Error('not found'));        const recovery = unwrapOrElse((_e) => ({ name: 'unknown' }), r);        expect(recovery).toEqual({ name: 'unknown' });    });    it('works with discriminated union TError in callback', () => {        type AppErr = { kind: 'NotFound'; id: number } | { kind: 'Unauthorized' };        const r = err<string, AppErr>({ kind: 'NotFound', id: 5 });        const result = unwrapOrElse((e) => {            switch (e.kind) {                case 'NotFound': return `missing #${e.id}`;                case 'Unauthorized': return 'denied';            }        }, r);        expect(result).toBe('missing #5');
+import { describe, it, expect, vi } from 'vitest';
+import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../../src/types/IResultOfT.js';
+import { unwrapOrElse } from './index.js';
+
+describe('unwrapOrElse', () => {
+    it('returns the value on success without calling fn', () => {
+        const fn = vi.fn((_e: Error) => 0);
+        const r = ok(42);
+        expect(unwrapOrElse(fn, r)).toBe(42);
+        expect(fn).not.toHaveBeenCalled();
+    });
+    it('returns the result of fn(error) on failure', () => {
+        const error = new Error('parse failed');
+        const r = err<number>(error);
+        const result = unwrapOrElse((e) => {
+            expect(e).toBe(error);
+            return -1;
+        }, r);
+        expect(result).toBe(-1);
+    });
+    it('can recover different types (widening)', () => {
+        const r = err<{ name: string }>(new Error('not found'));
+        const recovery = unwrapOrElse((_e) => ({ name: 'unknown' }), r);
+        expect(recovery).toEqual({ name: 'unknown' });
+    });
+    it('works with discriminated union TError in callback', () => {
+        type AppErr = { kind: 'NotFound'; id: number } | { kind: 'Unauthorized' };
+        const r = err<string, AppErr>({ kind: 'NotFound', id: 5 });
+        const result = unwrapOrElse((e) => {
+            switch (e.kind) {
+                case 'NotFound': return `missing #${e.id}`;
+                case 'Unauthorized': return 'denied';
+            }
+        }, r);
+        expect(result).toBe('missing #5');
     });
 
     it('propagates exceptions thrown by onErr to the caller', () => {
         const r = err<number>(new Error('orig'));
         expect(() => unwrapOrElse(() => { throw new Error('boom'); }, r)).toThrowError('boom');
     });
-});describe('unwrapOrElse (FP operator)', () => {    it('returns value on success (direct form)', () => {        const r: IResultOfT<number> = ok(7);        const result = unwrapOrElse((_e: Error) => 99, r);        expect(result).toBe(7);    });    it('calls fallback on failure (direct form)', () => {        const r: IResultOfT<number> = err<number>(new Error('bad'));        const result = unwrapOrElse((e) => e.message.length, r);        expect(result).toBe(3);    });    it('curried form works', () => {        const orZero = unwrapOrElse((_e: Error) => 0);        expect(orZero(ok(10))).toBe(10);        expect(orZero(err<number>(new Error('fail')))).toBe(0);    });    it('fallback is not called on success (curried)', () => {        const fn = vi.fn((_e: Error) => 0);        const orZero = unwrapOrElse(fn);        const r: IResultOfT<number> = ok(5);        expect(orZero(r)).toBe(5);        expect(fn).not.toHaveBeenCalled();    });});
+
+    it('does NOT call onErr on success (Group C)', () => {
+        const fn = vi.fn((_e: Error) => 0);
+        unwrapOrElse(fn, ok(1));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls onErr exactly once on failure (Group C)', () => {
+        const fn = vi.fn((_e: Error) => 0);
+        unwrapOrElse(fn, err<number>('e'));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('unwrapOrElse (FP operator)', () => {
+    it('returns value on success (direct form)', () => {
+        const r: IResultOfT<number> = ok(7);
+        const result = unwrapOrElse((_e: Error) => 99, r);
+        expect(result).toBe(7);
+    });
+    it('calls fallback on failure (direct form)', () => {
+        const r: IResultOfT<number> = err<number>(new Error('bad'));
+        const result = unwrapOrElse((e) => e.message.length, r);
+        expect(result).toBe(3);
+    });
+    it('curried form works', () => {
+        const orZero = unwrapOrElse((_e: Error) => 0);
+        expect(orZero(ok(10))).toBe(10);
+        expect(orZero(err<number>(new Error('fail')))).toBe(0);
+    });
+    it('fallback is not called on success (curried)', () => {
+        const fn = vi.fn((_e: Error) => 0);
+        const orZero = unwrapOrElse(fn);
+        const r: IResultOfT<number> = ok(5);
+        expect(orZero(r)).toBe(5);
+        expect(fn).not.toHaveBeenCalled();
+    });
+});
 

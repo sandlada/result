@@ -20,4 +20,10 @@ describe('flatten types', () => {
         const _check: IResultOfT<IResultOfT<number, string>, string> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves the error type on outer failure (Group B)', () => {
+        const outer = err('boom') as IResultOfT<IResultOfT<number, string>, string>;
+        const result = flatten(outer);
+        if (result.isFailure) expectTypeOf(result.error).toBeString();
+    });
 });

@@ -23,4 +23,14 @@ describe('filterOrElse types', () => {
         const _check: IResultOfT<number, string> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('errorFn can widen the error type (Group B)', () => {
+        const input = ok(0) as IResultOfT<number, string>;
+        const result = filterOrElse(
+            (_x: number) => false,
+            (x: number): { code: number; value: number } => ({ code: 1, value: x }),
+            input,
+        );
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<{ code: number; value: number }>();
+    });
 });

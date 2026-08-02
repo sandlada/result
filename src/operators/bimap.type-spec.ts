@@ -30,4 +30,15 @@ describe('bimap types', () => {
         if (result.isSuccess) expectTypeOf(result.value).toBeString();
         else expectTypeOf(result.error).toBeString();
     });
+
+    it('widens each track to its mapped output type (Group B)', () => {
+        const input = ok(42) as IResultOfT<number, Error>;
+        const result = bimap(
+            (v: number) => v.toString(),
+            (e: Error) => e.message.length,
+            input,
+        );
+        const _check: IResultOfT<string, number> = result;
+        expectTypeOf(_check).toBeObject();
+    });
 });

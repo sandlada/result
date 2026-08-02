@@ -30,4 +30,15 @@ describe('or', () => {
         expect(unwrap(fn(err(new Error('boom'))))).toBe(7);
         expect(unwrap(fn(ok(99)))).toBe(99);
     });
+
+    it('value is invariant — both sides share the same success type (Group B)', () => {
+        const result = or(ok(1) as IResultOfT<number, string>, ok(2) as IResultOfT<number, number>);
+        if (result.isSuccess) expect(result.value).toBe(2);
+    });
+
+    it('short-circuits — success skips other evaluation (Group C)', () => {
+        const result = or(ok(1) as IResultOfT<number, string>, ok(2) as IResultOfT<number, number>);
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(2);
+    });
 });

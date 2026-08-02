@@ -1,2 +1,34 @@
-import { describe, it, expect } from 'vitest';import { ok, err } from '../factories/index.js';import type { IResultOfT } from '../../src/types/IResultOfT.js';import { mapOr } from './index.js';describe('mapOr', () => {    it('direct form', () => {        const r: IResultOfT<number> = ok(3);        expect(mapOr(0, (v: number) => v + 1, r)).toBe(4);    });    it('curried form', () => {        const doubleOrZero = mapOr(0, (v: number) => v * 2);        expect(doubleOrZero(ok(5))).toBe(10);        expect(doubleOrZero(err<number>(new Error('x')))).toBe(0);    });});
+import { describe, it, expect, vi } from 'vitest';
+import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../../src/types/IResultOfT.js';
+import { mapOr } from './index.js';
+
+describe('mapOr', () => {
+    it('direct form', () => {
+        const r: IResultOfT<number> = ok(3);
+        expect(mapOr(0, (v: number) => v + 1, r)).toBe(4);
+    });
+    it('curried form', () => {
+        const doubleOrZero = mapOr(0, (v: number) => v * 2);
+        expect(doubleOrZero(ok(5))).toBe(10);
+        expect(doubleOrZero(err<number>(new Error('x')))).toBe(0);
+    });
+
+    it('does NOT call fn on failure (Group C)', () => {
+        const fn = vi.fn((_v: number) => 99);
+        mapOr(0, fn, err<number>('e'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls fn on success (Group C)', () => {
+        const fn = vi.fn((_v: number) => 99);
+        mapOr(0, fn, ok(5));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('default value is returned as-is on failure (Group B)', () => {
+        const sentinel = 'fallback' as const;
+        expect(mapOr(sentinel, (_v: number) => 'mapped', err<number>('e'))).toBe('fallback');
+    });
+});
 

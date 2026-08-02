@@ -38,4 +38,23 @@ describe('match types', () => {
         expectTypeOf(_positionalCheck).toBeString();
         expectTypeOf(_objectCheck).toBeString();
     });
+
+    it('handler return types are unified (Group B)', () => {
+        const input = ok(42) as IResultOfT<number, string>;
+        const result = match(
+            (v: number): 1 | 2 => 1,
+            (_e: string): 1 | 2 => 2,
+            input,
+        );
+        expectTypeOf(result).toEqualTypeOf<1 | 2>();
+    });
+
+    it('object form preserves the same union of return types (Group B)', () => {
+        const input = err('e') as IResultOfT<number, string>;
+        const result = match({
+            ok: (v: number): 1 | 2 => 1,
+            err: (_e: string): 1 | 2 => 2,
+        }, input);
+        expectTypeOf(result).toEqualTypeOf<1 | 2>();
+    });
 });

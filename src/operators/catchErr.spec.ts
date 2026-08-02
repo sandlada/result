@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { catchErr } from './catchErr.js';
 import { ok, err } from '../factories/index.js';
 
@@ -23,5 +23,17 @@ describe('catchErr', () => {
         const recover = catchErr((e: string) => e.length);
         const result = recover(err('boom'));
         expect(result).toEqual(ok(4));
+    });
+
+    it('does NOT call onErr on success (Group C)', () => {
+        const onErr = vi.fn((_e: string) => 0);
+        catchErr(onErr, ok(42));
+        expect(onErr).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls onErr exactly once on failure (Group C)', () => {
+        const onErr = vi.fn((_e: string) => 0);
+        catchErr(onErr, err('boom'));
+        expect(onErr).toHaveBeenCalledTimes(1);
     });
 });

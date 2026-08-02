@@ -73,4 +73,21 @@ describe('unwrap (FP operator)', () => {
         const r: IResultOfT<number> = err<number>(new Error('op fail'));
         expect(() => unwrap(r)).toThrow(TypeError);
     });
+
+    it('throws TypeError on failure with exact message format (Group D)', () => {
+        const r = err<number>(new Error('inner-error'));
+        try { unwrap(r); } catch (e: unknown) {
+            const msg = (e as TypeError).message;
+            expect(msg).toContain('Called unwrap() on a failure result.');
+            expect(msg).toContain('inner-error');
+        }
+    });
+
+    it('throws on non-Error error types (string) (Group D)', () => {
+        const r = err<string>('string-error');
+        try { unwrap(r); } catch (e: unknown) {
+            expect(e).toBeInstanceOf(TypeError);
+            expect((e as TypeError).message).toContain('string-error');
+        }
+    });
 });
