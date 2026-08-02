@@ -29,4 +29,33 @@ describe('tryCatchAsync types', () => {
         );
         expectTypeOf(p).toExtend<Promise<IResultOfT<unknown, AppError>>>();
     });
+
+    // ─── Default-error and mapper contract ─────────────────────────────────
+
+    it('default E is `unknown` when errorFn is omitted', () => {
+        const p = tryCatchAsync(async () => 1);
+        expectTypeOf(p).toExtend<Promise<IResultOfT<number, unknown>>>();
+    });
+
+    it('errorFn argument is implicitly `unknown` (matches the rejection site)', () => {
+        // The mapper is declared as `(error: unknown) => E`. Callers do not
+        // need to annotate `e: unknown` explicitly.
+        const p = tryCatchAsync(
+            async () => 1,
+            (e) => String(e),
+        );
+        expectTypeOf(p).toExtend<Promise<IResultOfT<number, string>>>();
+    });
+
+    it('rejects a mapper that returns the wrong error type when E is fixed', () => {
+        type AppErr = { kind: 'App'; message: string };
+        // @ts-expect-error mapper must return AppErr, not string
+        tryCatchAsync<number, AppErr>(async () => 1, (): string => 'wrong');
+    });
+
+    it('preserves complex TValue types', () => {
+        interface User { id: number; name: string; }
+        const p = tryCatchAsync(async (): Promise<User> => ({ id: 1, name: 'Alice' }));
+        expectTypeOf(p).toExtend<Promise<IResultOfT<User, unknown>>>();
+    });
 });
