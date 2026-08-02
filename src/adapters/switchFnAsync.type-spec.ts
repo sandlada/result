@@ -34,4 +34,29 @@ describe('switchFnAsync types', () => {
         );
         expectTypeOf(safe).toEqualTypeOf<(a: number) => Promise<IResultOfT<number, AppError>>>();
     });
+
+    it('Promise is wrapped exactly once (no double-Promise leakage)', () => {
+        const safe = switchFnAsync(async (x: number) => x);
+        type R = ReturnType<typeof safe>;
+        // ReturnType is Promise<IResultOfT<...>> — not Promise<Promise<IResultOfT<...>>>
+        expectTypeOf<R>().toEqualTypeOf<Promise<IResultOfT<number, unknown>>>();
+    });
+
+    it('errorFn with literal `as const` return infers literal E', () => {
+        const safe = switchFnAsync(
+            async (x: number) => x,
+            (): 'BOOM' => 'BOOM',
+        );
+        expectTypeOf(safe).toEqualTypeOf<(a: number) => Promise<IResultOfT<number, 'BOOM'>>>();
+    });
+
+    it('the input function signature accepts a single positional argument', () => {
+        // Compile-time pin: the produced function takes a single A argument.
+        const safe = switchFnAsync(async (x: number) => x);
+        // One positional argument is required.
+        safe(1);
+        // @ts-expect-error Two arguments are not accepted by the produced function.
+        safe(1, 2);
+        expectTypeOf(safe).toEqualTypeOf<(a: number) => Promise<IResultOfT<number, unknown>>>();
+    });
 });
