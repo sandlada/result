@@ -23,4 +23,10 @@ describe('catchErr types', () => {
         const _check: IResultOfT<number, never> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('recovered value can be a different type than the original (Group B)', () => {
+        const input = err('boom') as IResultOfT<number, string>;
+        const result = catchErr((e: string) => e.length, input);
+        if (result.isSuccess) expectTypeOf(result.value).toBeNumber();
+    });
 });

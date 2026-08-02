@@ -62,4 +62,21 @@ describe('expectErr (FP operator / curried)', () => {
         expect(fn(err(errVal))).toBe(errVal);
         expect(() => fn(ok(5))).toThrow(TypeError);
     });
+
+    it('curried form: throws TypeError on success (Group D)', () => {
+        const fn = expectErr<number, Error>('curried-success-fail');
+        try {
+            fn(ok(5));
+        } catch (e: unknown) {
+            expect(e).toBeInstanceOf(TypeError);
+            expect((e as TypeError).message).toBe('curried-success-fail');
+        }
+    });
+
+    it('exact error type returned on failure (Group B)', () => {
+        class CustomError extends Error { public readonly code: number; }
+        const r = err(new CustomError());
+        const result = expectErr('msg', r);
+        expect(result).toBeInstanceOf(CustomError);
+    });
 });

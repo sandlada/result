@@ -17,4 +17,11 @@ describe('unwrap types', () => {
         const _check: string = result;
         expectTypeOf(_check).toBeString();
     });
+
+    it('preserves the literal value type (Group B)', () => {
+        const input = ok('lit' as const) as IResultOfT<'lit', Error>;
+        const result = unwrap(input);
+        const _check: 'lit' = result;
+        expectTypeOf(_check).toEqualTypeOf<'lit'>();
+    });
 });

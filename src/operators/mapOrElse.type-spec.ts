@@ -23,4 +23,14 @@ describe('mapOrElse types', () => {
         const _check: string = result;
         expectTypeOf(_check).toBeString();
     });
+
+    it('handler return types are unified (Group B)', () => {
+        const input = ok(42) as IResultOfT<number, string>;
+        const result = mapOrElse(
+            (e: string) => e.length as 5,
+            (v: number) => v * 2 as 84,
+            input,
+        );
+        expectTypeOf(result).toEqualTypeOf<5 | 84>();
+    });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { andThrough } from './index.js';
 
@@ -50,5 +50,24 @@ describe('andThrough', () => {
         );
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
+
+    it('counts one invocation per success (Group C)', () => {
+        const fn = vi.fn((_v: number) => ok('replaced'));
+        andThrough(fn, ok(1));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('counts zero invocations on failure — short-circuits (Group C)', () => {
+        const fn = vi.fn((_v: number) => ok('x'));
+        andThrough(fn, err<string>('down'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('short-circuits the chain after first failure (Group C)', () => {
+        // direct form propagates the first failure
+        const result = andThrough((_v: number) => err<string>('inner'), ok(1));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('inner');
     });
 });

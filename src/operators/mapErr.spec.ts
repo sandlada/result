@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { mapErr } from './index.js';
 
@@ -36,5 +36,17 @@ describe('mapErr', () => {
             () => { throw new Error('fn-boom'); },
             err('original'),
         )).toThrow('fn-boom');
+    });
+
+    it('does NOT call fn on success (Group C)', () => {
+        const fn = vi.fn((_e: string) => 'x');
+        mapErr(fn, ok(42));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls fn exactly once on failure (Group C)', () => {
+        const fn = vi.fn((_e: string) => 'x');
+        mapErr(fn, err('e'));
+        expect(fn).toHaveBeenCalledTimes(1);
     });
 });

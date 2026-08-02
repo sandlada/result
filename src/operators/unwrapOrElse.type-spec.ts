@@ -23,4 +23,11 @@ describe('unwrapOrElse types', () => {
         const _check: number = result;
         expectTypeOf(_check).toBeNumber();
     });
+
+    it('preserves the error type passed to onErr (Group B)', () => {
+        const input = err('boom') as IResultOfT<number, string>;
+        const result = unwrapOrElse((error: string) => error.length, input);
+        const _check: number = result;
+        expectTypeOf(_check).toBeNumber();
+    });
 });

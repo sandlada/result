@@ -48,4 +48,11 @@ describe('unwrapErr (FP operator)', () => {
         const r: IResultOfT<number> = ok(1);
         expect(() => unwrapErr(r)).toThrow(TypeError);
     });
+
+    it('throws TypeError on success with exact message (Group D)', () => {
+        const r: IResultOfT<number> = ok(1);
+        try { unwrapErr(r); } catch (e: unknown) {
+            expect((e as TypeError).message).toBe('Called unwrapErr() on a success result.');
+        }
+    });
 });

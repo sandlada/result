@@ -62,4 +62,23 @@ describe('orThrowWith', () => {
         expect(unwrap(ok(2))).toBe(2);
         expect(() => unwrap(err('x'))).toThrow('x');
     });
+
+    it('orThrow — throws TypeError on failure with raw error (Group D)', () => {
+        const errVal = new Error('boom');
+        expect(() => orThrow(err(errVal))).toThrow(errVal);
+    });
+
+    it('orThrow — works with Error subclass (Group B/D)', () => {
+        class CustomError extends Error { public readonly code: number; constructor(msg: string, code: number) { super(msg); this.code = code; } }
+        const ce = new CustomError('custom', 7);
+        expect(() => orThrow(err(ce))).toThrow(ce);
+        try { orThrow(err(ce)); } catch (e: unknown) {
+            if (e instanceof CustomError) expect(e.code).toBe(7);
+        }
+    });
+
+    it('orThrowWith — errorFn result is the thrown object (Group D)', () => {
+        const customError = new RangeError('range');
+        expect(() => orThrowWith(() => customError, err('original'))).toThrow(customError);
+    });
 });

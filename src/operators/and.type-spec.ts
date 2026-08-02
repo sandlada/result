@@ -18,4 +18,26 @@ describe('and types', () => {
         const _check: IResultOfT<string, TypeError | RangeError> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('curried form widens value to B and error to E | F (Group B)', () => {
+        const other = ok('next') as IResultOfT<string, RangeError>;
+        const fn = and(other);
+        // value type widens to the other branch's value (B = string)
+        const _value: string = null as unknown as ReturnType<typeof fn> extends IResultOfT<infer V, unknown> ? V : never;
+        void _value;
+        // error widens to E | F
+        const _err: TypeError | RangeError = null as unknown as Parameters<ReturnType<typeof fn>>[0] extends IResultOfT<number, infer E> ? E : never;
+        void _err;
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('direct form on success replaces the value with B (Group B)', () => {
+        const input = ok(1) as IResultOfT<number, TypeError>;
+        const other = ok('next') as IResultOfT<string, RangeError>;
+        const result = and(other, input);
+        if (result.isSuccess) {
+            const _v: string = result.value;
+            expectTypeOf(_v).toBeString();
+        }
+    });
 });

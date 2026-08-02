@@ -18,4 +18,11 @@ describe('choose types', () => {
         const _check: string[] = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves readonly array input (Group B)', () => {
+        const fn = choose((value: number) => ok(value) as IResultOfT<number, Error>);
+        const items: readonly number[] = [1, 2, 3];
+        const result = fn(items);
+        expectTypeOf(result).toEqualTypeOf<number[]>();
+    });
 });

@@ -16,4 +16,11 @@ describe('expectErr types', () => {
         const _check: string = result;
         expectTypeOf(_check).toBeString();
     });
+
+    it('preserves the literal error type (Group B)', () => {
+        const input = err('boom' as const) as IResultOfT<number, 'boom'>;
+        const result = expectErr('msg', input);
+        const _check: 'boom' = result;
+        expectTypeOf(_check).toEqualTypeOf<'boom'>();
+    });
 });

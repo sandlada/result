@@ -16,4 +16,14 @@ describe('orTee types', () => {
         const _check: IResultOfT<number, string> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves the original error type on failure (Group B)', () => {
+        const result = orTee((_e: number) => ok('x'), err<number>(404) as IResultOfT<string, number>);
+        if (result.isFailure) expectTypeOf(result.error).toBeNumber();
+    });
+
+    it('preserves the original success type on success (Group B)', () => {
+        const result = orTee((_e: string) => ok('x'), ok(7) as IResultOfT<number, string>);
+        if (result.isSuccess) expectTypeOf(result.value).toBeNumber();
+    });
 });

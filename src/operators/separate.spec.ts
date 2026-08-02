@@ -36,4 +36,13 @@ describe('separate', () => {
         expect(oks).toEqual([3, 1, 2]);
         expect(errs).toEqual(['e1', 'e2']);
     });
+
+    it('preserves the original success and error types in the output arrays (Group B)', () => {
+        const results = [ok(1), err('a')];
+        const { ok: oks, err: errs } = separate(results);
+        const firstOk: number = oks[0]!;
+        const firstErr: string = errs[0]!;
+        expect(firstOk).toBe(1);
+        expect(firstErr).toBe('a');
+    });
 });

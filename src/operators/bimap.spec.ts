@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { bimap, unwrap } from './index.js';
@@ -54,5 +54,39 @@ describe('bimap', () => {
         );
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('onErr-boom');
+    });
+
+    it('does NOT call onErr on success (Group C)', () => {
+        const onOk = vi.fn((v: number) => v * 2);
+        const onErr = vi.fn((_e: string) => 'never');
+        bimap(onOk, onErr, ok(5));
+        expect(onOk).toHaveBeenCalledTimes(1);
+        expect(onErr).toHaveBeenCalledTimes(0);
+    });
+
+    it('does NOT call onOk on failure (Group C)', () => {
+        const onOk = vi.fn((_v: number) => 99);
+        const onErr = vi.fn((_e: string) => 'called');
+        bimap(onOk, onErr, err<number>('bad'));
+        expect(onOk).toHaveBeenCalledTimes(0);
+        expect(onErr).toHaveBeenCalledTimes(1);
+    });
+
+    it('widens both tracks independently (Group B)', () => {
+        type A = number;
+        type E = string;
+        type C = boolean;
+        type F = symbol;
+        const r: IResultOfT<A, E> = ok(1);
+        const result = bimap(
+            (_v: A): C => true,
+            (_e: E): F => Symbol('s'),
+            r,
+        );
+        // The success track is on the success path; the error track only applies on failure.
+        if (result.isSuccess) {
+            const _v: C = result.value;
+            expectTypeOf(_v).toBeBoolean();
+        }
     });
 });

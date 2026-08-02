@@ -16,4 +16,14 @@ describe('andTee types', () => {
         const _check: IResultOfT<string, Error> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves the original success value type (Group B)', () => {
+        const result = andTee((_v: number) => ok('replaced') as IResultOfT<string, never>, ok(42) as IResultOfT<number, Error>);
+        if (result.isSuccess) expectTypeOf(result.value).toBeNumber();
+    });
+
+    it('preserves the original error type on failure (Group B)', () => {
+        const result = andTee((_v: number) => ok('x'), err<string>('boom') as IResultOfT<number, string>);
+        if (result.isFailure) expectTypeOf(result.error).toBeString();
+    });
 });

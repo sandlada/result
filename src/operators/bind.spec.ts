@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { ok, err } from '../factories/index.js';
 import { bind } from './index.js';
@@ -50,5 +50,23 @@ describe('bind', () => {
     it('propagates sync throw from bound function', () => {
         const throwing = (_x: number) => { throw new Error('crash'); };
         expect(() => bind(throwing, ok(42))).toThrow('crash');
+    });
+
+    it('counts exactly one invocation on success (Group C)', () => {
+        const fn = vi.fn((_x: number) => ok('chained'));
+        bind(fn, ok(1));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('does NOT invoke fn on failure — downstream stays silent (Group C)', () => {
+        const fn = vi.fn((_x: number) => ok('x'));
+        bind(fn, err<string>('down'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('curried form — zero invocations on failure (Group C)', () => {
+        const fn = vi.fn((_x: number) => ok('x'));
+        bind(fn)(err<string>('down'));
+        expect(fn).toHaveBeenCalledTimes(0);
     });
 });

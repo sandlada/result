@@ -17,4 +17,12 @@ describe('unsafeUnwrapErr types', () => {
         const _check: boolean = result;
         expectTypeOf(_check).toBeBoolean();
     });
+
+    it('supports discriminated union error types (Group B)', () => {
+        type E = { kind: 'A' } | { kind: 'B' };
+        const input = err({ kind: 'A' }) as IResultOfT<number, E>;
+        const result = unsafeUnwrapErr(input);
+        const _check: E = result;
+        expectTypeOf(_check).toEqualTypeOf<E>();
+    });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { andTee } from './index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
@@ -44,5 +44,30 @@ describe('andTee', () => {
         const result = andTee(() => { throw new Error('side-effect failed'); }, ok(42));
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+    });
+
+    it('counts a single invocation per success (Group C)', () => {
+        const fn = vi.fn((_v: number) => ok('x'));
+        andTee(fn, ok(1));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('counts zero invocations on failure (Group C)', () => {
+        const fn = vi.fn((_v: number) => ok('x'));
+        andTee(fn, err<string>('down'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('curried form — zero invocations on failure (Group C)', () => {
+        const fn = vi.fn((_v: number) => ok('x'));
+        const tee = andTee(fn);
+        tee(err<string>('down'));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('throws non-Error value — still converts to err(caught) (Group D)', () => {
+        const result = andTee(() => { throw 'string-throw'; }, ok(1));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('string-throw');
     });
 });

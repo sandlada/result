@@ -19,4 +19,23 @@ describe('bind types', () => {
         const _check: IResultOfT<boolean, TypeError | RangeError> = result;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves the input success error when fn returns the same error (Group B)', () => {
+        const input = err('original') as IResultOfT<number, string>;
+        const result = bind(
+            (_x: number) => err('inner') as IResultOfT<never, string>,
+            input,
+        );
+        // input error wins — bind short-circuits
+        if (result.isFailure) expectTypeOf(result.error).toBeString();
+    });
+
+    it('error widens to E | F when fn has a distinct error type (Group B)', () => {
+        const input = ok(1) as IResultOfT<number, TypeError>;
+        const result = bind(
+            (x: number) => err('fail') as IResultOfT<never, string>,
+            input,
+        );
+        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<TypeError | string>();
+    });
 });

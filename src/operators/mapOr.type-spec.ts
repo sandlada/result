@@ -16,4 +16,11 @@ describe('mapOr types', () => {
         const _check: string = result;
         expectTypeOf(_check).toBeString();
     });
+
+    it('default and fn return type are unified (Group B)', () => {
+        const input = err('e') as IResultOfT<number, string>;
+        const result = mapOr(0 as const, (v: number) => v * 2 as const, input);
+        expectTypeOf(result).toEqualTypeOf<0 | 0>(); // both literals collapse to 0
+        void result;
+    });
 });

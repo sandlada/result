@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { traverseArray } from '../../src/operators/traverseArray.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
@@ -48,5 +48,19 @@ describe('traverseArray', () => {
         );
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('cb-boom');
+    });
+
+    it('stops calling fn after first failure (Group C)', () => {
+        const fn = vi.fn((x: number) => x > 0 ? ok(x) : err('neg'));
+        const result = traverseArray(fn, [1, -1, 3, -3, 5]);
+        expect(fn).toHaveBeenCalledTimes(2);
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('neg');
+    });
+
+    it('calls fn exactly len(items) times when all succeed (Group C)', () => {
+        const fn = vi.fn((x: number) => ok(x));
+        traverseArray(fn, [1, 2, 3, 4, 5]);
+        expect(fn).toHaveBeenCalledTimes(5);
     });
 });

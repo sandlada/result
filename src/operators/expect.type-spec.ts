@@ -16,4 +16,11 @@ describe('expect types', () => {
         const _check: number = result;
         expectTypeOf(_check).toBeNumber();
     });
+
+    it('preserves the literal success type (Group B)', () => {
+        const input = ok('literal' as const) as IResultOfT<'literal', Error>;
+        const result = expect('msg', input);
+        const _check: 'literal' = result;
+        expectTypeOf(_check).toEqualTypeOf<'literal'>();
+    });
 });

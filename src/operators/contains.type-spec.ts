@@ -16,4 +16,10 @@ describe('contains types', () => {
         const _check: boolean = result;
         expectTypeOf(_check).toBeBoolean();
     });
+
+    it('curried form preserves the literal target type (Group B)', () => {
+        const fn = contains('x' as const);
+        const _check: (r: IResultOfT<'x', string>) => boolean = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

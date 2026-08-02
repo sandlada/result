@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { orTee } from './index.js';
 
@@ -45,5 +45,29 @@ describe('orTee', () => {
         const result = orTee(() => { throw new Error('side-effect failed'); }, err<string>('original'));
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+    });
+
+    it('counts exactly one invocation on failure (Group C)', () => {
+        const fn = vi.fn((_e: string) => ok('x'));
+        orTee(fn, err('boom'));
+        expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('counts zero invocations on success (Group C)', () => {
+        const fn = vi.fn((_e: string) => ok('x'));
+        orTee(fn, ok(42));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('curried form — zero invocations on success (Group C)', () => {
+        const fn = vi.fn((_e: string) => ok('x'));
+        orTee(fn)(ok(42));
+        expect(fn).toHaveBeenCalledTimes(0);
+    });
+
+    it('non-Error throw — still converts to err(caught) (Group D)', () => {
+        const result = orTee((_e: string) => { throw 'string-throw'; }, err<string>('original'));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('string-throw');
     });
 });

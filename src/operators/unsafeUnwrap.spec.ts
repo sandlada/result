@@ -24,4 +24,19 @@ describe('unsafeUnwrap', () => {
     it('works with Error instances as error type', () => {
         expect(() => unsafeUnwrap(err(new Error('oops')))).toThrow('oops');
     });
+
+    it('throws TypeError (the raw error, NOT a wrapper) on failure (Group D)', () => {
+        const e = new TypeError('t');
+        try { unsafeUnwrap(err(e)); } catch (caught: unknown) {
+            expect(caught).toBe(e);
+        }
+    });
+
+    it('returns the literal value (no widening) (Group B)', () => {
+        const r = ok('literal' as const);
+        const v = unsafeUnwrap(r);
+        expect(v).toBe('literal');
+        const _check: 'literal' = v;
+        void _check;
+    });
 });

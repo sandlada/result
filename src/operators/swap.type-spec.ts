@@ -17,4 +17,10 @@ describe('swap types', () => {
         if (result.isSuccess) expectTypeOf(result.value).toBeString();
         else expectTypeOf(result.error).toBeNumber();
     });
+
+    it('transposes value and error types (Group B)', () => {
+        const input = ok(42) as IResultOfT<number, string>;
+        const result = swap(input);
+        if (result.isFailure) expectTypeOf(result.error).toBeNumber();
+    });
 });

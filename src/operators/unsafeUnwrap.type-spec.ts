@@ -17,4 +17,11 @@ describe('unsafeUnwrap types', () => {
         const _check: boolean = result;
         expectTypeOf(_check).toBeBoolean();
     });
+
+    it('supports primitive error types like number (Group B)', () => {
+        const input = err(404) as IResultOfT<boolean, number>;
+        const result = unsafeUnwrap(input);
+        const _check: boolean = result;
+        expectTypeOf(_check).toBeBoolean();
+    });
 });

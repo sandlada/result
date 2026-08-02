@@ -26,4 +26,13 @@ describe('unzip types', () => {
         if (left.isSuccess) expectTypeOf(left.value).toBeNumber();
         if (right.isSuccess) expectTypeOf(right.value).toBeString();
     });
+
+    it('produces [IResultOfT<A, E>, IResultOfT<B, E>] with shared error (Group B)', () => {
+        const input = err('e') as IResultOfT<readonly [number, string], { code: number }>;
+        const [left, right] = unzip(input);
+        const _l: IResultOfT<number, { code: number }> = left;
+        const _r: IResultOfT<string, { code: number }> = right;
+        expectTypeOf(_l).toBeObject();
+        expectTypeOf(_r).toBeObject();
+    });
 });
