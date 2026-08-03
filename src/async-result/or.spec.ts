@@ -40,7 +40,8 @@ describe('AsyncResult or', () => {
         const r = await or(fromResult(err<number, string>('a')), fromResult(err<number, number>(7))).run();
         expect(r.isFailure).toBe(true);
         if(r.isFailure) {
-            expect(typeof r.error === 'string' ? r.error : r.error).toBe(7);
+            expect(typeof r.error).toBe('number');
+            expect(r.error).toBe(7);
         }
     });
 });
