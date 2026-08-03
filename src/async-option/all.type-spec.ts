@@ -26,8 +26,7 @@ describe('all types', () => {
     it('widens heterogeneous element types to a union T', () => {
         const r = all([ofSome(1), ofSome('a')]);
         // Heterogeneous arrays widen T to the union of element types.
-        const _check: AsyncOption<(string | number)[]> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<AsyncOption<(string | number)[]>>();
     });
 
     it('returns AsyncOption<never[]> for empty array literal', () => {

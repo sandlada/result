@@ -1,5 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { from } from './from.js';
+import { flatten } from './flatten.js';
 import { ofSome } from '../option/index.js';
 import type { AsyncOption } from '../types/AsyncOption.js';
 
@@ -23,15 +24,18 @@ describe('from types', () => {
     });
 
     it('carrier accepts an inline { run: () => Promise<IOption<T>> } shape', () => {
-        // The thunk shape is the canonical carrier contract; an inline literal
-        // must type-check as AsyncOption<T> when assigned the result.
-        const r: AsyncOption<number> = from(() => Promise.resolve(ofSome(42)));
-        expectTypeOf(r).toMatchTypeOf<AsyncOption<number>>();
+        // An inline { run: () => ... } literal must be assignable to AsyncOption<T>
+        // (structural contract; no factory required). Feed the carrier into a
+        // library API (flatten) to prove it is accepted where a parameter is
+        // typed AsyncOption<number>.
+        const carrier: AsyncOption<number> = { run: () => Promise.resolve(ofSome(42)) };
+        expectTypeOf(carrier).toEqualTypeOf<AsyncOption<number>>();
+        // Structural acceptance: flatten must accept the inline carrier unchanged.
+        flatten(carrier);
     });
 
     it('infers generic T through union (no widening to never)', () => {
         const r = from(() => Promise.resolve(ofSome<number | string>(42)));
-        const _check: AsyncOption<number | string> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<AsyncOption<number | string>>();
     });
 });
