@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { from } from '../../src/async-option/from.js';
+import { bind } from '../../src/async-option/bind.js';
+import { ofSome as asyncOfSome } from '../../src/async-option/ofSome.js';
 import { ofSome, ofNone } from '../../src/option/index.js';
+import type { AsyncOption } from '../../src/types/AsyncOption.js';
 
 describe('AsyncOption from', () => {
     it('creates an AsyncOption from a thunk that returns Some', async () => {
@@ -49,17 +52,19 @@ describe('AsyncOption from', () => {
 
     it('exposes a duck-typed AsyncOption carrier (no markAsyncCarrier brand required)', async () => {
         // The contract is structural: a { run } function returning a Promise<IOption>
-        // is a valid AsyncOption. Verify a hand-rolled carrier survives .run().
+        // is a valid AsyncOption. Verify a hand-rolled carrier (no brand) is accepted
+        // by a library API that runs isAsyncCarrier — the duck-type fallback at
+        // asyncCarrier.ts:83 must succeed even without the brand.
         let runs = 0;
-        const hand: { run: () => Promise<ReturnType<typeof ofSome<number>>> } = {
+        const hand: AsyncOption<number> = {
             run: () => {
                 runs += 1;
                 return Promise.resolve(ofSome(7));
             },
         };
-        const result = await hand.run();
+        const r = await bind(() => hand, asyncOfSome(0)).run();
         expect(runs).toBe(1);
-        expect(result.isSome).toBe(true);
-        if (result.isSome) expect(result.value).toBe(7);
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(7);
     });
 });
