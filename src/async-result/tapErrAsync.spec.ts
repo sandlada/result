@@ -20,14 +20,14 @@ describe('AsyncResult tapErrAsync', () => {
         const ar = tapErrAsync(async () => { throw new Error('boom'); }, fromResult(err('oops')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('boom');
     });
 
     it('catches sync throw and overrides failure', async () => {
         const ar = tapErrAsync((() => { throw new Error('sync'); }) as (e: string) => void, fromResult(err('oops')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('sync');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('sync');
     });
 
     it('does not call fn on success', async () => {

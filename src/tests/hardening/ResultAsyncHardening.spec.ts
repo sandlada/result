@@ -15,7 +15,7 @@ describe('Result async hardening', () => {
         it('tapAsync should catch callback error and turn to failure', async () => {
             const r = await tapAsync(() => { throw new Error('boom'); }, asyncOk(42));
             expect(r.isFailure).toBe(true);
-            if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+            if (r.isFailure) expect((r.error as unknown as Error).message).toBe('boom');
         });
 
         it('tapErrAsync should catch callback error and turn to failure', async () => {
@@ -23,7 +23,7 @@ describe('Result async hardening', () => {
             // Current implementation for tapErrAsync returns Failure with the new error.
             const r = await tapErrAsync(() => { throw new Error('boom'); }, asyncErr('original'));
             expect(r.isFailure).toBe(true);
-            if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+            if (r.isFailure) expect((r.error as unknown as Error).message).toBe('boom');
         });
     });
 });

@@ -7,19 +7,19 @@ describe('exists', () => {
         const isPositive = exists((n: number) => n > 0);
         expect(isPositive(ok(5))).toBe(true);
         expect(isPositive(ok(-1))).toBe(false);
-        expect(isPositive(err<number>(new Error('err')))).toBe(false);
+        expect(isPositive(err<Error>(new Error('err')))).toBe(false);
     });
 
     it('direct form', () => {
         const isPositive = (n: number) => n > 0;
         expect(exists(isPositive, ok(5))).toBe(true);
         expect(exists(isPositive, ok(-1))).toBe(false);
-        expect(exists(isPositive, err<number>('e'))).toBe(false);
+        expect(exists(isPositive, err<string>('e'))).toBe(false);
     });
 
     it('does NOT call predicate on failure (Group C)', () => {
         const pred = vi.fn((_n: number) => true);
-        exists(pred, err<number>('e'));
+        exists(pred, err<string>('e'));
         expect(pred).toHaveBeenCalledTimes(0);
     });
 

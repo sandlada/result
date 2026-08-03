@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { ok } from '../factories/index.js';
 import { asyncOk, asyncErr } from '../factories/index.js';
 import { bindAsync } from './index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('bindAsync', () => {
     it('chains to AsyncResult (curried)', async () => {
@@ -58,7 +59,7 @@ describe('bindAsync', () => {
         type BindErr = { kind: 'Bind'; reason: string };
         const r = await bindAsync<number, string, CustomErr, BindErr>(
             async (_x: number) => asyncErr<BindErr>({ kind: 'Bind', reason: 'nope' }),
-            asyncOk<number, CustomErr>(5),
+            asyncOk<number>(5) as Promise<IResultOfT<number, CustomErr>>,
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {

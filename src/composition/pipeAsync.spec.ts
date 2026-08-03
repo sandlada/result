@@ -9,7 +9,11 @@ describe('pipeAsync', () => {
             asyncOk(21),
             mapAsync((x: number) => x * 2),
             mapAsync((x: number) => x + 1),
-            matchAsync<string, number, string>(
+            // matchAsync type-args are inferred from the previous step's
+            // IResultOfT<number, never> and the callback return type
+            // (template literal -> string). Explicit type args here would
+            // mis-attribute the value type as `string`.
+            matchAsync(
                 v => `Value: ${v}`,
                 e => `Error: ${e}`,
             ),
@@ -22,7 +26,7 @@ describe('pipeAsync', () => {
             asyncOk(5),
             bindAsync((_x: number) => asyncErr<string>('pipeline fail')),
             mapAsync((x: number) => x * 2),
-            matchAsync<string, number, string>(
+            matchAsync(
                 v => `ok: ${v}`,
                 e => `err: ${e}`,
             ),
@@ -58,13 +62,15 @@ describe('pipeAsync', () => {
     it('threads AsyncResult carriers through the chain in order', async () => {
         // Each AsyncResult-returning step (mapAsync / bindAsync / matchAsync)
         // must receive the previous stage's value. Verify by capturing the
-        // observed inputs to each step.
+        // observed inputs to each step. matchAsync type-args are inferred
+        // from the previous step's IResultOfT<number, never>; explicit
+        // type args here would mis-attribute the value type as `string`.
         const seen: number[] = [];
         const r = await pipeAsync(
             asyncOk(10),
             mapAsync((x: number) => { seen.push(x); return x * 2; }),
             mapAsync((x: number) => { seen.push(x); return x + 1; }),
-            matchAsync<string, number, string>(
+            matchAsync(
                 v => { seen.push(v); return `done: ${v}`; },
                 e => { seen.push(-1); return `err: ${e}`; },
             ),

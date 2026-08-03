@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { tap } from './index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('tap', () => {
     it('curried: side-effect called on success, original returned', () => {
@@ -25,7 +26,7 @@ describe('tap', () => {
     });
     it('calls fn on success (phase5c form)', () => {
         let called = false;
-        const result = tap(() => { called = true; }, ok());
+        const result = tap(() => { called = true; }, ok() as unknown as IResultOfT<unknown, never>);
         expect(called).toBe(true);
         expect(result.isSuccess).toBe(true);
     });

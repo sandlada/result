@@ -67,13 +67,13 @@ describe('ap', () => {
 
     it('does NOT invoke the wrapped function when value-result is Err (Group C)', () => {
         const fn = vi.fn((x: number) => x * 3);
-        ap(ok(fn), err<number>('val'));
+        ap(ok(fn), err<string>('val'));
         expect(fn).toHaveBeenCalledTimes(0);
     });
 
     it('does NOT invoke the wrapped function when fn-result is Err (Group C)', () => {
         const fn = vi.fn((x: number) => x * 3);
-        ap(err<(x: number) => number>('fn-fail'), ok(7));
+        ap(err<string>('fn-fail'), ok(7));
         expect(fn).toHaveBeenCalledTimes(0);
     });
 });

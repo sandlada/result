@@ -16,7 +16,7 @@ describe('tryCatchAsync', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) {
             expect(result.error).toBeInstanceOf(Error);
-            expect(result.error.message).toBe('boom');
+            expect((result.error as Error).message).toBe('boom');
         }
     });
 
@@ -171,7 +171,7 @@ describe('tryCatchAsync', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) {
             expect(result.error).toBeInstanceOf(Error);
-            expect(result.error.message).toBe('after-await');
+            expect((result.error as Error).message).toBe('after-await');
         }
     });
 });

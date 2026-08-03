@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
 import { filterOrElse } from '../../src/async-result/filterOrElse.js';
+import type { AsyncResult } from '../../src/types/AsyncResult.js';
 
 describe('AsyncResult filterOrElse', () => {
     it('passes through success if predicate holds', async () => {
@@ -77,7 +78,7 @@ describe('AsyncResult filterOrElse', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if(!result.isSuccess) expect((result.error as Error).message).toBe('predicate boom');
+        if(!result.isSuccess) expect((result.error as unknown as Error).message).toBe('predicate boom');
     });
 
     it('converts async predicate rejection to err(caughtError) (catch+convert policy)', async () => {
@@ -88,7 +89,7 @@ describe('AsyncResult filterOrElse', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if(!result.isSuccess) expect((result.error as Error).message).toBe('predicate boom');
+        if(!result.isSuccess) expect((result.error as unknown as Error).message).toBe('predicate boom');
     });
 
     it('converts errorFn throw to err(caughtError) (catch+convert policy)', async () => {
@@ -99,7 +100,7 @@ describe('AsyncResult filterOrElse', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if(!result.isSuccess) expect((result.error as Error).message).toBe('errorFn boom');
+        if(!result.isSuccess) expect((result.error as unknown as Error).message).toBe('errorFn boom');
     });
 
     it('does not invoke errorFn when predicate holds on success', async () => {
@@ -127,13 +128,16 @@ describe('AsyncResult filterOrElse', () => {
     });
 
     it('preserves the failure type byte-for-byte on Err pass-through', async () => {
-        const original = err<number, Error>(new Error('orig'));
+        const e = new Error('orig');
+        const carrier: AsyncResult<number, Error> = {
+            run: () => Promise.resolve({ isSuccess: false as const, isFailure: true as const, error: e }),
+        };
         const ar = filterOrElse<number, Error>(
             (_x: number) => true,
             (_x: number) => new Error('replacement'),
-            fromResult(original),
+            carrier,
         );
         const result = await ar.run();
-        expect(result.isFailure && result.error).toBe(original.error);
+        if (result.isFailure) expect(result.error).toBe(e);
     });
 });

@@ -11,12 +11,12 @@ describe('mapOr', () => {
     it('curried form', () => {
         const doubleOrZero = mapOr(0, (v: number) => v * 2);
         expect(doubleOrZero(ok(5))).toBe(10);
-        expect(doubleOrZero(err<number>(new Error('x')))).toBe(0);
+        expect(doubleOrZero(err<Error>(new Error('x')))).toBe(0);
     });
 
     it('does NOT call fn on failure (Group C)', () => {
         const fn = vi.fn((_v: number) => 99);
-        mapOr(0, fn, err<number>('e'));
+        mapOr(0, fn, err<string>('e'));
         expect(fn).toHaveBeenCalledTimes(0);
     });
 
@@ -28,7 +28,7 @@ describe('mapOr', () => {
 
     it('default value is returned as-is on failure (Group B)', () => {
         const sentinel = 'fallback' as const;
-        expect(mapOr(sentinel, (_v: number) => 'mapped', err<number>('e'))).toBe('fallback');
+        expect(mapOr(sentinel, (_v: number) => 'mapped', err<string>('e'))).toBe('fallback');
     });
 });
 

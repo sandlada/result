@@ -17,7 +17,7 @@ describe('unsafeUnwrapErr', () => {
     });
 
     it('works with custom error types', () => {
-        const result = unsafeUnwrapErr(err<never, { code: number }>({ code: 404 }));
+        const result = unsafeUnwrapErr(err<{ code: number }>({ code: 404 }));
         expect(result.code).toBe(404);
     });
 

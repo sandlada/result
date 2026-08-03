@@ -12,7 +12,7 @@ describe('unwrapOrElse', () => {
     });
     it('returns the result of fn(error) on failure', () => {
         const error = new Error('parse failed');
-        const r = err<number>(error);
+        const r = err<Error>(error);
         const result = unwrapOrElse((e) => {
             expect(e).toBe(error);
             return -1;
@@ -20,13 +20,13 @@ describe('unwrapOrElse', () => {
         expect(result).toBe(-1);
     });
     it('can recover different types (widening)', () => {
-        const r = err<{ name: string }>(new Error('not found'));
-        const recovery = unwrapOrElse((_e) => ({ name: 'unknown' }), r);
+        const r = err<Error>(new Error('not found'));
+        const recovery = unwrapOrElse<{ name: string }, Error>((_e) => ({ name: 'unknown' }), r);
         expect(recovery).toEqual({ name: 'unknown' });
     });
     it('works with discriminated union TError in callback', () => {
         type AppErr = { kind: 'NotFound'; id: number } | { kind: 'Unauthorized' };
-        const r = err<string, AppErr>({ kind: 'NotFound', id: 5 });
+        const r = err<AppErr>({ kind: 'NotFound', id: 5 });
         const result = unwrapOrElse((e) => {
             switch (e.kind) {
                 case 'NotFound': return `missing #${e.id}`;
@@ -37,7 +37,7 @@ describe('unwrapOrElse', () => {
     });
 
     it('propagates exceptions thrown by onErr to the caller', () => {
-        const r = err<number>(new Error('orig'));
+        const r = err<Error>(new Error('orig'));
         expect(() => unwrapOrElse(() => { throw new Error('boom'); }, r)).toThrowError('boom');
     });
 
@@ -49,7 +49,7 @@ describe('unwrapOrElse', () => {
 
     it('calls onErr exactly once on failure (Group C)', () => {
         const fn = vi.fn((_e: Error) => 0);
-        unwrapOrElse(fn, err<number>('e'));
+        unwrapOrElse(fn, err<string>('e'));
         expect(fn).toHaveBeenCalledTimes(1);
     });
 });
@@ -61,14 +61,14 @@ describe('unwrapOrElse (FP operator)', () => {
         expect(result).toBe(7);
     });
     it('calls fallback on failure (direct form)', () => {
-        const r: IResultOfT<number> = err<number>(new Error('bad'));
-        const result = unwrapOrElse((e) => e.message.length, r);
+        const r: IResultOfT<number> = err<Error>(new Error('bad'));
+        const result = unwrapOrElse((e) => (e as Error).message.length, r);
         expect(result).toBe(3);
     });
     it('curried form works', () => {
         const orZero = unwrapOrElse((_e: Error) => 0);
         expect(orZero(ok(10))).toBe(10);
-        expect(orZero(err<number>(new Error('fail')))).toBe(0);
+        expect(orZero(err<Error>(new Error('fail')))).toBe(0);
     });
     it('fallback is not called on success (curried)', () => {
         const fn = vi.fn((_e: Error) => 0);

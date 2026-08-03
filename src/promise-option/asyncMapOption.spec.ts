@@ -10,7 +10,7 @@ describe('promise-result asyncMapOption', () => {
     });
 
     it('passes None through', async () => {
-        const o = await asyncMapOption(async (x: number) => x * 2, ofNone<number>());
+        const o = await asyncMapOption(async (x: number) => x * 2, ofNone());
         expect(o.isNone).toBe(true);
     });
 
@@ -23,7 +23,7 @@ describe('promise-result asyncMapOption', () => {
         // The lift family has no async carrier — None in skips the async
         // mapper invocation entirely.
         const mapper = vi.fn(async (x: number) => x * 2);
-        const o = await asyncMapOption(mapper, ofNone<number>());
+        const o = await asyncMapOption(mapper, ofNone());
         expect(mapper).not.toHaveBeenCalled();
         expect(o.isNone).toBe(true);
     });
@@ -60,7 +60,7 @@ describe('promise-result asyncMapOption', () => {
         // The lift family on the None branch keeps T unchanged — the
         // widening (if any) only applies when the mapper returns a *new*
         // type, not when None passes through.
-        const o = await asyncMapOption(async (x: number) => x.toString(), ofNone<number>());
+        const o = await asyncMapOption(async (x: number) => x.toString(), ofNone());
         expect(o.isNone).toBe(true);
     });
 });

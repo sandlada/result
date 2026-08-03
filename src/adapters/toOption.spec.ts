@@ -11,7 +11,7 @@ describe('toOption', () => {
     });
 
     it('Failure(error) → None', () => {
-        const opt = toOption(err<number>(new Error('boom')));
+        const opt = toOption(err(new Error('boom')));
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
     });
@@ -25,7 +25,7 @@ describe('toOption', () => {
 
     it('works with discriminated union TError', () => {
         type AppErr = { kind: 'NotFound' };
-        const opt = toOption(err<string, AppErr>({ kind: 'NotFound' }));
+        const opt = toOption(err<AppErr>({ kind: 'NotFound' }));
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
     });
@@ -60,7 +60,7 @@ describe('toOption', () => {
         // The whole point of toOption is that error info is lost. Verify that
         // a failure with rich fields turns into a bare None with no `value`.
         type Rich = { kind: 'NotFound'; resource: string; id: string };
-        const opt = toOption(err<number, Rich>({ kind: 'NotFound', resource: 'User', id: 'u-7' }));
+        const opt = toOption(err<Rich>({ kind: 'NotFound', resource: 'User', id: 'u-7' }));
         expect(opt.isSome).toBe(false);
         expect(opt.isNone).toBe(true);
         // None carries `isSome` + `isNone` only; no `value` field.
@@ -76,7 +76,7 @@ describe('toOption', () => {
 
     it('round-trips: Failure → toOption → fromOption loses the original error', () => {
         const replacement = new Error('replacement');
-        const original = err<number>(new Error('original'));
+        const original = err(new Error('original'));
         const back = fromOption(replacement, toOption(original));
         expect(back.isSuccess).toBe(false);
         if (!back.isSuccess) expect(back.error).toBe(replacement);

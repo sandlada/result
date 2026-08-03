@@ -20,11 +20,11 @@ describe('bimap', () => {
             (e: Error) => e.message,
         );
         expect(unwrap(transform(ok(1)))).toBe(2);
-        expect(transform(err<number>(new Error('fail'))).isSuccess).toBe(false);
+        expect(transform(err<Error>(new Error('fail'))).isSuccess).toBe(false);
     });
 
     it('maps failure error', () => {
-        const r: IResultOfT<number, string> = err<number>('bad');
+        const r = err<string>('bad');
         const result = bimap(
             (v: number) => v * 2,
             (e: string) => `mapped: ${e}`,
@@ -46,7 +46,7 @@ describe('bimap', () => {
     });
 
     it('catches onErr throw and converts to Err', () => {
-        const r: IResultOfT<number, string> = err<number>('original');
+        const r = err<string>('original');
         const result = bimap(
             (v: number) => v,
             () => { throw new Error('onErr-boom'); },
@@ -67,7 +67,7 @@ describe('bimap', () => {
     it('does NOT call onOk on failure (Group C)', () => {
         const onOk = vi.fn((_v: number) => 99);
         const onErr = vi.fn((_e: string) => 'called');
-        bimap(onOk, onErr, err<number>('bad'));
+        bimap(onOk, onErr, err<string>('bad'));
         expect(onOk).toHaveBeenCalledTimes(0);
         expect(onErr).toHaveBeenCalledTimes(1);
     });

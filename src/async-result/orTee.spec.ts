@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
 import { orTee } from '../../src/async-result/orTee.js';
+import type { AsyncResult } from '../../src/types/AsyncResult.js';
 
 describe('AsyncResult orTee', () => {
     it('calls fn on failure and passes original result through', async () => {
@@ -52,13 +53,13 @@ describe('AsyncResult orTee', () => {
         const ar = orTee(() => { throw new Error('side-effect failed'); }, fromResult(err<string>('original')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('side-effect failed');
     });
     it('converts to err when async fn rejects', async () => {
         const ar = orTee(async () => { throw new Error('async side-effect failed'); }, fromResult(err<string>('original')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('async side-effect failed');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('async side-effect failed');
     });
 
     it('does not invoke the source.run() on construction', () => {
@@ -69,9 +70,12 @@ describe('AsyncResult orTee', () => {
     });
 
     it('passes the original error byte-for-byte when fn is a no-op', async () => {
-        const original = err<number, Error>(new Error('orig'));
-        const ar = orTee<number, Error>(() => {}, fromResult(original));
+        const e = new Error('orig');
+        const carrier: AsyncResult<number, Error> = {
+            run: () => Promise.resolve({ isSuccess: false as const, isFailure: true as const, error: e }),
+        };
+        const ar = orTee<number, Error>(() => {}, carrier);
         const result = await ar.run();
-        expect(result.isFailure && result.error).toBe(original.error);
+        if (result.isFailure) expect(result.error).toBe(e);
     });
 });

@@ -47,7 +47,7 @@ describe('traverseArray', () => {
             [1, 2, 3],
         );
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('cb-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('cb-boom');
     });
 
     it('stops calling fn after first failure (Group C)', () => {

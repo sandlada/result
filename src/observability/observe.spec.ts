@@ -118,12 +118,12 @@ describe('observe / installObserver', () => {
     });
 
     it('observe on Ok still emits kind=ok with the same result identity', () => {
+        const r = ok(7);
         const cancel = installObserver((e) => {
             expect(e.kind).toBe('ok');
             expect(e.result).toBe(r);
         });
         try {
-            const r = ok(7);
             const returned = observe(r);
             expect(returned).toBe(r);
         } finally {
@@ -132,12 +132,12 @@ describe('observe / installObserver', () => {
     });
 
     it('observe on Err emits kind=err with the same result identity', () => {
+        const r = err('boom');
         const cancel = installObserver((e) => {
             expect(e.kind).toBe('err');
             expect(e.result).toBe(r);
         });
         try {
-            const r = err('boom');
             const returned = observe(r);
             expect(returned).toBe(r);
         } finally {

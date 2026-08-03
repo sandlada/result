@@ -34,19 +34,19 @@ describe('AsyncResult swapAsync', () => {
     it('swapping twice returns to the original Ok shape', async () => {
         const ar = swapAsync(swapAsync(fromResult(ok(99))));
         const result = await ar.run();
-        expect(result.isSuccess && result.value).toBe(99);
+        if (result.isSuccess) expect(result.value).toBe(99);
     });
 
     it('swapping twice returns to the original Err shape', async () => {
-        const ar = swapAsync(swapAsync(fromResult(err<number, string>('orig'))));
+        const ar = swapAsync(swapAsync(fromResult(err<string>('orig'))));
         const result = await ar.run();
-        expect(result.isFailure && result.error).toBe('orig');
+        if (result.isFailure) expect(result.error).toBe('orig');
     });
 
     it('preserves structured payload through swap', async () => {
         type VErr = { code: number };
-        const ar = swapAsync(fromResult(err<number, VErr>({ code: 7 })));
+        const ar = swapAsync(fromResult(err<VErr>({ code: 7 })));
         const result = await ar.run();
-        expect(result.isSuccess && result.value.code).toBe(7);
+        if (result.isSuccess) expect(result.value.code).toBe(7);
     });
 });

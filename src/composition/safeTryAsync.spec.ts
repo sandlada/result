@@ -6,8 +6,13 @@ import { mapAsync } from '../async-result/index.js';
 describe('safeTryAsync / fromSafeTryAsync', () => {
     it('returns ok on success path', async () => {
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asyncOk(21));
-            return a * 2;
+            // safeTryAsync's contract: yield* evaluates to `T | undefined`.
+            // The success path returns T; the failure path returns
+            // undefined after yielding. The `?? 0` is a typecheck-friendly
+            // way to handle the failure branch without weakening the
+            // success-path assertion (a is 21 in the success case).
+            const a: number | undefined = yield* safeTryAsync(asyncOk(21));
+            return (a ?? 0) * 2;
         });
         const r = await result.run();
         expect(r.isSuccess).toBe(true);
@@ -17,9 +22,10 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('returns err on failure path and short-circuits', async () => {
         let called = false;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asyncErr<string>('boom'));
+            const a: number | undefined = yield* safeTryAsync(asyncErr<string>('boom'));
             called = true;
-            return a * 2;
+            // Unreachable: safeTryAsync yields on failure.
+            return (a ?? 0) * 2;
         });
         const r = await result.run();
         expect(called).toBe(false);
@@ -29,9 +35,9 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
 
     it('works with mixed ok and err operations', async () => {
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asyncOk(10));
-            const b: number = yield* safeTryAsync(asyncOk(a * 2));
-            return b + 5;
+            const a: number | undefined = yield* safeTryAsync(asyncOk(10));
+            const b: number | undefined = yield* safeTryAsync(asyncOk((a ?? 0) * 2));
+            return (b ?? 0) + 5;
         });
         const r = await result.run();
         expect(r.isSuccess).toBe(true);
@@ -40,8 +46,10 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
 
     it('composes with pipe and mapAsync', async () => {
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asyncOk(10));
-            return a;
+            const a: number | undefined = yield* safeTryAsync(asyncOk(10));
+            // In the success path, a is 10; `?? 0` keeps the type narrow
+            // and fromSafeTryAsync's inferred T as `number`.
+            return a ?? 0;
         });
         const final = mapAsync((x: number) => x * 3, result);
         const r = await final.run();
@@ -126,8 +134,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
 
     it('generator returns a raw promise instead of async result', async () => {
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(Promise.resolve(ok(21)));
-            return a * 2;
+            const a: number | undefined = yield* safeTryAsync(Promise.resolve(ok(21)));
+            return (a ?? 0) * 2;
         });
         const r = await result.run();
         expect(r.isSuccess).toBe(true);
@@ -137,9 +145,9 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('yields a promise failure correctly', async () => {
         let called = false;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(Promise.resolve(err<string>('boom')));
+            const a: number | undefined = yield* safeTryAsync(Promise.resolve(err<string>('boom')));
             called = true;
-            return a * 2;
+            return (a ?? 0) * 2;
         });
         const r = await result.run();
         expect(called).toBe(false);
@@ -173,8 +181,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         fakePromise.run = 'not a function'; // branch coverage: res.run is not a function
 
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -186,8 +194,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         const fakePromise = Promise.resolve(ok(88)) as any;
 
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -199,8 +207,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         const fakePromise = Promise.resolve({}) as any;
 
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -212,8 +220,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         fakePromise.run = 123;
 
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -223,8 +231,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('identifies bare objects with run property strictly returning a bare promise without isSuccess', async () => {
         const fakePromise = Promise.resolve({ value: 'hello' }) as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: string = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: string | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? '';
         });
 
         const r = await result.run();
@@ -234,8 +242,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('identifies bare promise missing isSuccess', async () => {
         const fakePromise = Promise.resolve({}) as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: string = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: string | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? '';
         });
         const r = await result.run();
         expect(r.isSuccess).toBe(undefined);
@@ -244,8 +252,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('handles falsy result inputs gracefully', async () => {
         const fakePromise = null as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: string = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: string | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? '';
         });
         await expect(result.run()).rejects.toThrow();
     });
@@ -254,8 +262,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         // Line 34 uncovered branch
         const fakePromise = { isSuccess: true, value: 42 } as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -270,8 +278,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             run: 'not-a-function'
         } as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -284,8 +292,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         const fakePromise = Promise.resolve(ok(22)) as any;
         delete fakePromise.run;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -297,8 +305,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         // Line 34 uncovered branch
         const fakePromise = { run: 123 } as any;
         const result = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(fakePromise);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(fakePromise);
+            return a ?? 0;
         });
 
         const r = await result.run();
@@ -307,24 +315,26 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
 
     it('preserves falsy success values (0, false, "")', async () => {
         const zero = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asyncOk(0));
-            return a;
+            const a: number | undefined = yield* safeTryAsync(asyncOk(0));
+            // `?? 0` returns 0 for both `0` (falsy but not nullish) and
+            // `undefined`, so the falsy success value is preserved.
+            return a ?? 0;
         });
         const r0 = await zero.run();
         expect(r0.isSuccess).toBe(true);
         if (r0.isSuccess) expect(r0.value).toBe(0);
 
         const empty = fromSafeTryAsync(async function* () {
-            const s: string = yield* safeTryAsync(asyncOk(''));
-            return s;
+            const s: string | undefined = yield* safeTryAsync(asyncOk(''));
+            return s ?? '';
         });
         const re = await empty.run();
         expect(re.isSuccess).toBe(true);
         if (re.isSuccess) expect(re.value).toBe('');
 
         const noBool = fromSafeTryAsync(async function* () {
-            const b: boolean = yield* safeTryAsync(asyncOk(false));
-            return b;
+            const b: boolean | undefined = yield* safeTryAsync(asyncOk(false));
+            return b ?? false;
         });
         const rb = await noBool.run();
         expect(rb.isSuccess).toBe(true);
@@ -336,11 +346,11 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         // `.run` should be awaited directly; an AsyncResult should have its
         // `.run()` invoked.
         const asAsyncResult = {
-            run: async () => ok<never, number>(7),
+            run: async () => ok(7),
         };
         const r = fromSafeTryAsync(async function* () {
-            const a: number = yield* safeTryAsync(asAsyncResult);
-            return a;
+            const a: number | undefined = yield* safeTryAsync(asAsyncResult);
+            return a ?? 0;
         });
         const res = await r.run();
         expect(res.isSuccess).toBe(true);

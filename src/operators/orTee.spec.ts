@@ -44,7 +44,7 @@ describe('orTee', () => {
     it('converts to err when fn throws', () => {
         const result = orTee(() => { throw new Error('side-effect failed'); }, err<string>('original'));
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('side-effect failed');
     });
 
     it('counts exactly one invocation on failure (Group C)', () => {

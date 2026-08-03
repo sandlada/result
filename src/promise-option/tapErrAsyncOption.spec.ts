@@ -5,7 +5,7 @@ import { tapErrAsyncOption } from './tapErrAsyncOption.js';
 describe('promise-result tapErrAsyncOption', () => {
     it('calls fn on None', async () => {
         const fn = vi.fn();
-        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone<number>()));
+        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
         expect(fn).toHaveBeenCalled();
         expect(r.isNone).toBe(true);
     });
@@ -19,7 +19,7 @@ describe('promise-result tapErrAsyncOption', () => {
 
     it('is curried', async () => {
         const fn = vi.fn();
-        await tapErrAsyncOption(fn)(Promise.resolve(ofNone<number>()));
+        await tapErrAsyncOption(fn)(Promise.resolve(ofNone()));
         expect(fn).toHaveBeenCalled();
     });
 
@@ -28,7 +28,7 @@ describe('promise-result tapErrAsyncOption', () => {
         // path there's no payload — the runtime always passes `undefined`.
         // This test pins the H1 (contract) fix committed earlier.
         const fn = vi.fn();
-        await tapErrAsyncOption(fn, Promise.resolve(ofNone<number>()));
+        await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
         expect(fn).toHaveBeenCalledWith(undefined);
     });
 
@@ -38,14 +38,14 @@ describe('promise-result tapErrAsyncOption', () => {
         // outer `.then`.
         const fn = vi.fn(() => { throw new Error('side-effect-boom'); });
         await expect(
-            tapErrAsyncOption(fn, Promise.resolve(ofNone<number>())),
+            tapErrAsyncOption(fn, Promise.resolve(ofNone())),
         ).rejects.toThrow('side-effect-boom');
     });
 
     it('does not catch async rejection from the callback (propagates verbatim)', async () => {
         const fn = vi.fn(async () => { throw new Error('async-side-boom'); });
         await expect(
-            tapErrAsyncOption(fn, Promise.resolve(ofNone<number>())),
+            tapErrAsyncOption(fn, Promise.resolve(ofNone())),
         ).rejects.toThrow('async-side-boom');
     });
 
@@ -59,7 +59,7 @@ describe('promise-result tapErrAsyncOption', () => {
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        const r = tapErrAsyncOption((v: number | undefined) => { void v; }, Promise.resolve(ofNone<number>()));
+        const r = tapErrAsyncOption((v: number | undefined) => { void v; }, Promise.resolve(ofNone()));
         expect(r).toBeInstanceOf(Promise);
     });
 

@@ -67,14 +67,15 @@ describe('composeK', () => {
     it('chains exactly 6 functions (top of the documented ladder)', () => {
         // Documented ladder: 2-6 functions. Each step must widen to the
         // next function's input; the final composed function returns the
-        // innermost step's value type.
+        // innermost step's value type. The chain never produces an error,
+        // so the shared E resolves to `never`.
         const f = composeK(
-            (x: number) => ok<AppErr, number>(x * 2),
-            (x: number) => ok<AppErr, number>(x + 1),
-            (x: number) => ok<AppErr, string>(x.toString()),
-            (s: string) => ok<AppErr, string>(s.toUpperCase()),
-            (s: string) => ok<AppErr, string>(s.split('').reverse().join('')),
-            (s: string) => ok<AppErr, number>(s.length),
+            (x: number) => ok(x * 2),
+            (x: number) => ok(x + 1),
+            (x: number) => ok(x.toString()),
+            (s: string) => ok(s.toUpperCase()),
+            (s: string) => ok(s.split('').reverse().join('')),
+            (s: string) => ok(s.length),
         );
         const result = f(10);
         // 10 → 21 → "21" → "21" → "12" → 2
@@ -88,12 +89,16 @@ describe('composeK', () => {
             step5Called = true;
             return ok(0);
         };
+        // The third step is the only one that can fail; it carries the
+        // shared error type `AppErr` (= `string`). Each earlier step uses
+        // an explicit return-type annotation so the chain typechecks
+        // without forcing every step to actually produce a string error.
         const f = composeK(
-            (x: number) => ok<AppErr, number>(x * 2),
-            (x: number) => ok<AppErr, number>(x + 1),
-            (x: number) => err<AppErr, string>('middle failure'),
-            (s: string) => ok<AppErr, string>(s),
-            (s: string) => ok<AppErr, string>(s),
+            (x: number): IResultOfT<number, string> => ok(x * 2),
+            (x: number): IResultOfT<number, string> => ok(x + 1),
+            (x: number) => err('middle failure'),
+            (s: string): IResultOfT<string, string> => ok(s),
+            (s: string): IResultOfT<string, string> => ok(s),
             step5 as unknown as (s: string) => IResultOfT<number, AppErr>,
         );
         const r = f(1);

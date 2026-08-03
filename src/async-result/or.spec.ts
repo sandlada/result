@@ -11,13 +11,13 @@ describe('AsyncResult or', () => {
     });
 
     it('returns res2 when res1 is Err', async () => {
-        const r = await or(fromResult(err<string>('a')), fromResult(ok(2))).run();
+        const r = await or<number, string, never>(fromResult(err<string>('a')), fromResult(ok(2))).run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(2);
     });
 
     it('returns res2 Err when both are Err', async () => {
-        const r = await or(fromResult(err<string>('a')), fromResult(err<string>('b'))).run();
+        const r = await or<string, string, string>(fromResult(err<string>('a')), fromResult(err<string>('b'))).run();
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect(r.error).toBe('b');
     });
@@ -37,7 +37,7 @@ describe('AsyncResult or', () => {
     });
 
     it('unifies error types via union (E | F)', async () => {
-        const r = await or(fromResult(err<number, string>('a')), fromResult(err<number, number>(7))).run();
+        const r = await or<string, string, number>(fromResult(err<string>('a')), fromResult(err<number>(7))).run();
         expect(r.isFailure).toBe(true);
         if(r.isFailure) {
             expect(typeof r.error).toBe('number');

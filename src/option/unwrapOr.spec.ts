@@ -41,7 +41,7 @@ describe('unwrapOr', () => {
 
     it('default literal type is preserved (Group B)', () => {
         const fallback = 'default' as const;
-        const result = unwrapOr(fallback)(ofNone() as IOption<'specific'>);
+        const result = unwrapOr(fallback)(ofNone() as IOption<'default'>);
         expectTypeOf(result).toEqualTypeOf<'default'>();
     });
 

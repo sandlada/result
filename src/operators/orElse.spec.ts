@@ -41,8 +41,8 @@ describe('orElse', () => {
     });
 
     it('catches sync throw from fn and converts to Err', () => {
-        const result = orElse<number, string, Error>(
-            (() => { throw new Error('fn-boom'); }) as (e: string) => IResultOfT<number, string>,
+        const result = orElse<never, string, never, Error>(
+            (() => { throw new Error('fn-boom'); }) as (e: string) => IResultOfT<never, Error>,
             err<string>('original'),
         );
         expect(result.isFailure).toBe(true);

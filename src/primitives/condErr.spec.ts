@@ -58,7 +58,7 @@ describe('condErr', () => {
             'fail',
         );
         expect(r.isSuccess).toBe(true);
-        expect(r.value).toBeUndefined();
+        if (r.isSuccess) expect(r.value).toBeUndefined();
     });
 
     it('does not invoke predicate on failure path that goes the other way (Step 14.2 — predicate evaluation)', () => {

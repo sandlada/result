@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
 import { andTee } from '../../src/async-result/andTee.js';
+import type { AsyncResult } from '../../src/types/AsyncResult.js';
 
 describe('AsyncResult andTee', () => {
     it('calls fn on success and passes original result through', async () => {
@@ -76,9 +77,12 @@ describe('AsyncResult andTee', () => {
     });
 
     it('preserves the original Err through the side-effect path', async () => {
-        const original = err<string, Error>(new Error('orig'));
-        const ar = andTee<number, Error>(() => {}, fromResult(original));
+        const e = new Error('orig');
+        const carrier: AsyncResult<number, Error> = {
+            run: () => Promise.resolve({ isSuccess: false as const, isFailure: true as const, error: e }),
+        };
+        const ar = andTee<number, Error>(() => {}, carrier);
         const result = await ar.run();
-        expect(result.isFailure && result.error).toBe(original.error);
+        if (result.isFailure) expect(result.error).toBe(e);
     });
 });

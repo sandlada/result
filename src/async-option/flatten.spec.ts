@@ -18,7 +18,7 @@ describe('AsyncOption flatten', () => {
     });
 
     it('flattens Some(None) into None', async () => {
-        const inner = fromOption(ofNone<number>());
+        const inner = fromOption(ofNone());
         const outer = fromOption(ofSome(inner));
 
         const flattened = flatten(outer);
@@ -29,7 +29,7 @@ describe('AsyncOption flatten', () => {
 
     it('flattens None into None', async () => {
         // Here we simulate an AsyncOption<AsyncOption<number>> that resolves to None
-        const outer = fromOption(ofNone<any>());
+        const outer = fromOption(ofNone());
 
         const flattened = flatten(outer);
         const result = await flattened.run();

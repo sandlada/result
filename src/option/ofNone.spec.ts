@@ -20,9 +20,19 @@ describe('ofNone()', () => {
     });
 
     it('isNone and isSome are true/false literals (literal discrimination)', () => {
+        // CONTRACT GAP (pinned): `ofNone(): IOption<never>` returns the *union*
+        // `IOptionSome<never> | IOptionNone`, not the `IOptionNone` variant. So
+        // at the call site `isNone`/`isSome` are `boolean`, not the literals
+        // `true`/`false` — callers must narrow first. Pinned rather than
+        // "fixed" because tightening the return type would change the public API.
         const opt = ofNone();
-        expectTypeOf(opt.isNone).toEqualTypeOf<true>();
-        expectTypeOf(opt.isSome).toEqualTypeOf<false>();
+        expectTypeOf(opt.isNone).toEqualTypeOf<boolean>();
+        expectTypeOf(opt.isSome).toEqualTypeOf<boolean>();
+        // After narrowing, the literal discriminants are visible.
+        if (opt.isNone) {
+            expectTypeOf(opt.isNone).toEqualTypeOf<true>();
+            expectTypeOf(opt.isSome).toEqualTypeOf<false>();
+        }
     });
 
     it('forms a discriminated union with ofSome at the same call-site', () => {

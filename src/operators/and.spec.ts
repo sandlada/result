@@ -13,7 +13,7 @@ describe('and', () => {
     it('curried form', () => {
         const andWith = and(ok('result'));
         expect(unwrap(andWith(ok(5)))).toBe('result');
-        expect(andWith(err<number>(new Error('no'))).isSuccess).toBe(false);
+        expect(andWith(err<Error>(new Error('no'))).isSuccess).toBe(false);
     });
 
     it('short-circuits to the other side on success (Group C)', () => {
@@ -34,8 +34,8 @@ describe('and', () => {
         type E1 = 'one';
         type E2 = 'two';
         const r = and(
-            err<E1, E2>('two-error') as IResultOfT<string, E2>,
-            err<number, E1>('one-error'),
+            err<E2>('two-error') as unknown as IResultOfT<string, E2>,
+            err<E1>('one-error') as unknown as IResultOfT<string, E1>,
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('one-error');

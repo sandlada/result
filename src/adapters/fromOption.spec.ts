@@ -38,7 +38,7 @@ describe('fromOption', () => {
 
     it('round-trips: Failure → toOption → fromOption loses error', () => {
         const lostErr = new Error('was none');
-        const original = err<number>(new Error('original error'));
+        const original = err(new Error('original error'));
         const back = fromOption(lostErr, toOption(original));
         expect(unwrapErr(back)).toBe(lostErr);
     });
@@ -75,7 +75,7 @@ describe('fromOption', () => {
 
     it('curried form preserves the value identity for object Some', () => {
         const obj = { id: 2, name: 'Bob' };
-        const fn = fromOption<string>(new Error('missing'));
+        const fn = fromOption(new Error('missing'));
         const r = fn(ofSome(obj));
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(obj);

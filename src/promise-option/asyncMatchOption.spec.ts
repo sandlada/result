@@ -15,7 +15,7 @@ describe('promise-result asyncMatchOption', () => {
         const v = await asyncMatchOption({
             some: (x: number) => `some ${x}`,
             none: () => 'none',
-        }, ofNone<number>());
+        }, ofNone());
         expect(v).toBe('none');
     });
 
@@ -32,7 +32,7 @@ describe('promise-result asyncMatchOption', () => {
         const v = await asyncMatchOption({
             some,
             none: () => 'none',
-        }, ofNone<number>());
+        }, ofNone());
         expect(some).not.toHaveBeenCalled();
         expect(v).toBe('none');
     });
@@ -63,7 +63,7 @@ describe('promise-result asyncMatchOption', () => {
             asyncMatchOption({
                 some: (x: number) => `some ${x}`,
                 none: () => { throw new Error('none-boom'); },
-            }, ofNone<number>()),
+            }, ofNone()),
         ).rejects.toThrow('none-boom');
     });
 

@@ -61,7 +61,7 @@ describe('AsyncResult bimap', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if(result.isFailure) expect((result.error as Error).message).toBe('boom');
+        if(result.isFailure) expect((result.error as unknown as Error).message).toBe('boom');
     });
 
     it('catches handler throw on failure', async () => {
@@ -72,7 +72,7 @@ describe('AsyncResult bimap', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if(result.isFailure) expect((result.error as Error).message).toBe('err-boom');
+        if(result.isFailure) expect((result.error as unknown as Error).message).toBe('err-boom');
     });
 
     it('catches async handler rejection on success', async () => {
@@ -82,7 +82,7 @@ describe('AsyncResult bimap', () => {
             fromResult(ok(1)),
         );
         const result = await ar.run();
-        expect(result.isFailure && (result.error as Error).message).toBe('async-ok-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('async-ok-boom');
     });
 
     it('catches async handler rejection on failure', async () => {
@@ -92,7 +92,7 @@ describe('AsyncResult bimap', () => {
             fromResult(err('orig')),
         );
         const result = await ar.run();
-        expect(result.isFailure && (result.error as Error).message).toBe('async-err-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('async-err-boom');
     });
 
     it('does not invoke onOk when the source is Err', async () => {

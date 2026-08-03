@@ -17,7 +17,7 @@ describe('IResult — discriminated union (void result)', () => {
         const r = err(new Error('oops'));
         expect(r.isSuccess).toBe(false);
         expect(r.isFailure).toBe(true);
-        expect(r.error).toBeInstanceOf(Error);
+        if (!r.isSuccess) expect(r.error).toBeInstanceOf(Error);
     });
 
     it('narrows correctly via isSuccess', () => {

@@ -21,11 +21,12 @@ describe('Branching (if/else)', () => {
     });
 
     it('failure branch: error accessible', () => {
-        const result = err<string, AppError>({ kind: 'NotFound', id: '1' });
+        const result = err<AppError>({ kind: 'NotFound', id: '1' });
         if (result.isFailure) {
-            expect(result.error.kind).toBe('NotFound');
-            if (result.error.kind === 'NotFound') {
-                expect(result.error.id).toBe('1');
+            const error = result.error as unknown as AppError;
+            expect(error.kind).toBe('NotFound');
+            if (error.kind === 'NotFound') {
+                expect(error.id).toBe('1');
             }
         } else {
             expect.fail('should be failure');
@@ -35,14 +36,15 @@ describe('Branching (if/else)', () => {
     it('branching with discriminated union error', () => {
         function handle(r: IResultOfT<string, AppError>): string {
             if (r.isSuccess) return r.value;
-            switch (r.error.kind) {
-                case 'NotFound': return `Not found: ${r.error.id}`;
-                case 'Validation': return `Invalid: ${JSON.stringify(r.error.fields)}`;
+            const error = r.error as unknown as AppError;
+            switch (error.kind) {
+                case 'NotFound': return `Not found: ${error.id}`;
+                case 'Validation': return `Invalid: ${JSON.stringify(error.fields)}`;
             }
         }
 
         expect(handle(ok('ok') as unknown as IResultOfT<string, AppError>)).toBe('ok');
-        expect(handle(err<string, AppError>({ kind: 'NotFound', id: 'x' }))).toBe('Not found: x');
+        expect(handle(err<AppError>({ kind: 'NotFound', id: 'x' }) as unknown as IResultOfT<string, AppError>)).toBe('Not found: x');
     });
 });
 
@@ -50,10 +52,10 @@ describe('Early return / error propagation', () => {
     it('propagates failure without unwrapping', () => {
         function validate(input: string): IResultOfT<string, AppError> {
             if (!input) {
-                return err<string, AppError>({
+                return err<AppError>({
                     kind: 'Validation',
                     fields: { input: 'Required' },
-                });
+                }) as unknown as IResultOfT<string, AppError>;
             }
             return ok(input.trim()) as unknown as IResultOfT<string, AppError>;
         }
@@ -71,7 +73,7 @@ describe('Early return / error propagation', () => {
 
         const r2 = process('');
         expect(r2.isFailure).toBe(true);
-        if (r2.isFailure) expect(r2.error.kind).toBe('Validation');
+        if (r2.isFailure) expect((r2.error as unknown as AppError).kind).toBe('Validation');
     });
 
     it('chains multiple operations', () => {
@@ -81,10 +83,10 @@ describe('Early return / error propagation', () => {
 
         function validateUser(user: { name: string }): IResultOfT<{ name: string }, AppError> {
             if (!user.name) {
-                return err<{ name: string }, AppError>({
+                return err<AppError>({
                     kind: 'Validation',
                     fields: { name: 'Required' },
-                });
+                }) as unknown as IResultOfT<{ name: string }, AppError>;
             }
             return ok(user) as unknown as IResultOfT<{ name: string }, AppError>;
         }
@@ -109,16 +111,16 @@ describe('Early return / error propagation', () => {
         type MainError = { kind: 'SubSystemFailed'; cause: string };
 
         function subOperation(): IResultOfT<number, SubError> {
-            return err<number, SubError>({ code: 'E500' });
+            return err<SubError>({ code: 'E500' }) as unknown as IResultOfT<number, SubError>;
         }
 
         function mainOperation(): IResultOfT<string, MainError> {
             const sub = subOperation();
             if (sub.isFailure) {
-                return err<string, MainError>({
+                return err<MainError>({
                     kind: 'SubSystemFailed',
-                    cause: sub.error.code,
-                });
+                    cause: (sub.error as unknown as SubError).code,
+                }) as unknown as IResultOfT<string, MainError>;
             }
             return ok(String(sub.value)) as unknown as IResultOfT<string, MainError>;
         }
@@ -126,8 +128,9 @@ describe('Early return / error propagation', () => {
         const r = mainOperation();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
-            expect(r.error.kind).toBe('SubSystemFailed');
-            expect(r.error.cause).toBe('E500');
+            const error = r.error as unknown as MainError;
+            expect(error.kind).toBe('SubSystemFailed');
+            expect(error.cause).toBe('E500');
         }
     });
 });
@@ -139,7 +142,7 @@ describe('Type narrowing', () => {
                 const upper: string = result.value.toUpperCase();
                 return upper;
             }
-            return `Error: ${result.error.kind}`;
+            return `Error: ${(result.error as unknown as AppError).kind}`;
         }
 
         expect(handle(ok('hello') as unknown as IResultOfT<string, AppError>)).toBe('HELLO');
@@ -148,13 +151,13 @@ describe('Type narrowing', () => {
     it('error is narrowed after isFailure check', () => {
         function handle(result: IResultOfT<string, AppError>) {
             if (result.isFailure) {
-                const kind: AppError['kind'] = result.error.kind;
+                const kind: AppError['kind'] = (result.error as unknown as AppError).kind;
                 return kind;
             }
             return result.value;
         }
 
-        expect(handle(err<string, AppError>({ kind: 'NotFound', id: 'x' }))).toBe('NotFound');
+        expect(handle(err<AppError>({ kind: 'NotFound', id: 'x' }) as unknown as IResultOfT<string, AppError>)).toBe('NotFound');
         expect(handle(ok('ok') as unknown as IResultOfT<string, AppError>)).toBe('ok');
     });
 
@@ -185,7 +188,7 @@ describe('Edge cases', () => {
         const result = r1.isSuccess ? r1.value : -1;
         expect(result).toBe(42);
 
-        const r2 = err<number, Error>(new Error('fail'));
+        const r2 = err<Error>(new Error('fail'));
         const fallback = r2.isSuccess ? r2.value : -1;
         expect(fallback).toBe(-1);
     });
@@ -197,7 +200,7 @@ describe('Edge cases', () => {
                 sideEffect = true;
                 return ok(undefined) as unknown as IResultOfT<void, AppError>;
             }
-            return err<void, AppError>({ kind: 'NotFound', id: 'action' });
+            return err<AppError>({ kind: 'NotFound', id: 'action' }) as unknown as IResultOfT<void, AppError>;
         }
 
         const r = performAction();

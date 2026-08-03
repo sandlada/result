@@ -6,7 +6,7 @@ import { or, unwrap } from './index.js';
 describe('or', () => {
     it('direct form: failure falls back to other', () => {
         const fallback: IResultOfT<number> = ok(7);
-        const failed: IResultOfT<number> = err<number>(new Error('oops'));
+        const failed: IResultOfT<number> = err<Error>(new Error('oops'));
         expect(unwrap(or(fallback, failed))).toBe(7);
     });
 
@@ -17,8 +17,8 @@ describe('or', () => {
     });
 
     it('direct form: failure returned when other is also failure', () => {
-        const fallback: IResultOfT<number> = err<number>(new Error('fallback'));
-        const failed: IResultOfT<number> = err<number>(new Error('original'));
+        const fallback: IResultOfT<number> = err<Error>(new Error('fallback'));
+        const failed: IResultOfT<number> = err<Error>(new Error('original'));
         const r = or(fallback, failed);
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('fallback');

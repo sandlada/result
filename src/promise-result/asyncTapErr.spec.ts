@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { asyncTapErr } from './index.js';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('asyncTapErr', () => {
     it('calls side-effect on failure and returns original Result', async () => {
@@ -28,7 +29,7 @@ describe('asyncTapErr', () => {
             side = e;
         });
 
-        const original = ok<number, string>(5);
+        const original = ok<number>(5) as IResultOfT<number, string>;
         const r = await asyncTapErr(mockFn, original);
 
         expect(mockFn).not.toHaveBeenCalled();
@@ -62,7 +63,7 @@ describe('asyncTapErr', () => {
             throw error;
         });
 
-        const original = err<string, Error>('oops');
+        const original = err<string>('oops') as IResultOfT<string, Error>;
         const r = await asyncTapErr(throwingFn, original);
 
         expect(throwingFn).toHaveBeenCalledOnce();
@@ -78,7 +79,7 @@ describe('asyncTapErr', () => {
             return Promise.reject(error);
         });
 
-        const original = err<string, Error>('oops');
+        const original = err<string>('oops') as IResultOfT<string, Error>;
         const r = await asyncTapErr(rejectingFn, original);
 
         expect(rejectingFn).toHaveBeenCalledOnce();
@@ -90,9 +91,9 @@ describe('asyncTapErr', () => {
 
     it('catches sync throw from callback', async () => {
         const fn = (() => { throw new Error('sync-boom'); }) as unknown as (e: string) => Promise<void>;
-        const r = await asyncTapErr(fn, err<string, Error>('oops'));
+        const r = await asyncTapErr(fn, err<string>('oops'));
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('sync-boom');
     });
 
     it('starts the async callback synchronously on construction (eager)', () => {
@@ -106,7 +107,7 @@ describe('asyncTapErr', () => {
 
     it('returns the *original* Result object by reference on both branches', async () => {
         // tapErr is identity — the input Result must be returned verbatim.
-        const onOk = ok<number, string>(42);
+        const onOk = ok<number>(42) as IResultOfT<number, string>;
         const onErr = err<string>('boom');
         const rOk = await asyncTapErr(async (_e: string) => { /* noop */ }, onOk);
         const rErr = await asyncTapErr(async (_e: string) => { /* noop */ }, onErr);

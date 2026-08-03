@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ofSome, ofNone } from '../option/index.js';
 import { partitionOption } from './index.js';
+import type { IOption } from '../types/Option.js';
 
 describe('partitionOption', () => {
     it('returns Some values and None indices', () => {
@@ -95,7 +96,12 @@ describe('partitionOption', () => {
     });
 
     it('does not treat `false`/`0`/`""` Some payloads as falsy (Step 14.2 — falsy payload)', () => {
-        const r = partitionOption([ofSome(0), ofSome(''), ofSome(false), ofNone()]);
+        const r = partitionOption<string>([
+            ofSome(0) as IOption<string>,
+            ofSome(''),
+            ofSome(false) as IOption<string>,
+            ofNone(),
+        ]);
         expect(r.some).toEqual([0, '', false]);
         expect(r.noneIndices).toEqual([3]);
     });

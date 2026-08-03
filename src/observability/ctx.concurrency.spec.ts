@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ctx, getPath, polyfillStore, type PathSegment } from './ctx.js';
+import { ctx, getPath, polyfillStore, type PathSegment, type PathStack } from './ctx.js';
 
 const delay = (ms = 0): Promise<void> =>
     new Promise((resolve) => {
@@ -75,7 +75,7 @@ describe('observability/ctx (polyfill store)', () => {
                 expect(current).toBe(inner);
                 expect(current?.parent).toBe(outer);
                 const segments: Array<string | number> = [];
-                let f: typeof inner | null = current;
+                let f: { stack: Array<string | number>; parent: { stack: Array<string | number>; parent: unknown } | null } | null = current ?? null;
                 while (f !== null) {
                     segments.unshift(...f.stack);
                     f = f.parent;
@@ -107,7 +107,7 @@ describe('observability/ctx (out-of-scope behavior)', () => {
 });
 
 describe('observability/ctx (concurrency)', () => {    it('isolates two concurrent Promise.all scopes', async () => {
-        const seen: Array<ReadonlyArray<string>> = [];
+        const seen: Array<PathStack> = [];
         await Promise.all([
             ctx.run(async () => {
                 ctx.push('A1');
@@ -159,7 +159,7 @@ describe('observability/ctx (concurrency)', () => {    it('isolates two concurre
     });
 
     it('parallel branches do not observe each other mid-await', async () => {
-        const observations: Array<{ branch: string; path: ReadonlyArray<string> }> = [];
+        const observations: Array<{ branch: string; path: PathStack }> = [];
         await Promise.all([
             ctx.run(async () => {
                 ctx.push('a-start');

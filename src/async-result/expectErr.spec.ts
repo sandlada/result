@@ -21,7 +21,7 @@ describe('AsyncResult expectErr', () => {
 
     it('preserves the typed error value', async () => {
         type VErr = { code: number };
-        const v = await expectErr<VErr, number>('msg', fromResult(err<number, VErr>({ code: 7 })));
+        const v = await expectErr<number, VErr>('msg', fromResult(err<VErr>({ code: 7 })));
         expect(v.code).toBe(7);
     });
 });

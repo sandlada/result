@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { ctx, getPath, withPath, tapErrContext } from './index.js';
 
 describe('tapErrContext', () => {
@@ -37,7 +38,8 @@ describe('tapErrContext', () => {
 
     it('returns the result unchanged on success', () => {
         inScope(() => {
-            const r = tapErrContext(() => { /* never */ }, ok(99));
+            // Sync callback → sync return; assert non-Promise arm for narrowing.
+            const r = tapErrContext(() => { /* never */ }, ok(99)) as IResultOfT<number, never>;
             expect(r.isSuccess).toBe(true);
             if (r.isSuccess) expect(r.value).toBe(99);
         });
@@ -46,7 +48,8 @@ describe('tapErrContext', () => {
     it('returns the result unchanged on failure (sync callback)', () => {
         const original = err('boom');
         inScope(() => {
-            const r = tapErrContext(() => { /* saw it */ }, original);
+            // Sync callback → sync return; assert non-Promise arm for narrowing.
+            const r = tapErrContext(() => { /* saw it */ }, original) as IResultOfT<never, string>;
             expect(r).toBe(original);
             expect(r.isFailure).toBe(true);
         });
@@ -73,9 +76,10 @@ describe('tapErrContext', () => {
                 seen.push({ err: errVal, path: ctx.path });
             });
             withPath('curried');
-            const r1 = fn(ok(1));
+            // Sync callback → sync return; assert non-Promise arm for narrowing.
+            const r1 = fn(ok(1)) as IResultOfT<number, string>;
             expect(r1.isSuccess).toBe(true);
-            const r2 = fn(err('curried boom'));
+            const r2 = fn(err('curried boom')) as IResultOfT<number, string>;
             expect(r2.isFailure).toBe(true);
         });
         expect(seen).toEqual([{ err: 'curried boom', path: ['curried'] }]);

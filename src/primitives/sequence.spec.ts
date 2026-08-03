@@ -34,8 +34,8 @@ describe('sequence', () => {
         const sentinel = { code: 'E_FIRST' };
         const r = sequence([
             ok(1),
-            err<number>(sentinel),
-            err<number>({ code: 'NEVER_SEEN' }),
+            err<{ code: string }>(sentinel),
+            err<{ code: string }>({ code: 'NEVER_SEEN' }),
         ]);
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe(sentinel);
@@ -73,7 +73,7 @@ describe('sequence', () => {
 
     it('preserves E across more than two error types (Step 14.2 — error channel)', () => {
         const errObj = new Error('boom');
-        const r = sequence<number, Error>([ok(1), err<number, Error>(errObj)]);
+        const r = sequence<number, Error>([ok(1), err<Error>(errObj)]);
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe(errObj);
     });

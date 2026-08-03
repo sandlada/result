@@ -15,7 +15,7 @@ describe('switchFn', () => {
         });
         const result = badFn('anything');
         expect(result.isSuccess).toBe(false);
-        if (!result.isSuccess) expect(result.error.message).toBe('unexpected');
+        if (!result.isSuccess) expect((result.error as Error).message).toBe('unexpected');
     });
 
     it('preserves falsy return values', () => {
@@ -154,9 +154,11 @@ describe('switchFn', () => {
     it('the produced function is independent per switchFn call (closes over its own f)', () => {
         const inc = switchFn((x: number) => x + 1);
         const dec = switchFn((x: number) => x - 1);
-        expect(inc(10).isSuccess).toBe(true);
-        if (inc(10).isSuccess) expect(inc(10).value).toBe(11);
-        expect(dec(10).isSuccess).toBe(true);
-        if (dec(10).isSuccess) expect(dec(10).value).toBe(9);
+        const incResult = inc(10);
+        const decResult = dec(10);
+        expect(incResult.isSuccess).toBe(true);
+        if (incResult.isSuccess) expect(incResult.value).toBe(11);
+        expect(decResult.isSuccess).toBe(true);
+        if (decResult.isSuccess) expect(decResult.value).toBe(9);
     });
 });

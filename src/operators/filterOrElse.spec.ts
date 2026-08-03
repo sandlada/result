@@ -65,7 +65,7 @@ describe('filterOrElse', () => {
     });
 
     it('catches errorFn throw and converts to Err', () => {
-        const r = filterOrElse<number, never, Error>(
+        const r = filterOrElse<number, Error>(
             () => false,
             () => { throw new Error('errFn-boom'); },
             ok(7),

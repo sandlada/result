@@ -28,7 +28,7 @@ describe('asyncTapOption', () => {
             side = v;
         });
 
-        const original = ofNone<number>();
+        const original = ofNone();
         const r = await asyncTapOption(mockFn, original);
 
         expect(mockFn).not.toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe('asyncTapOption', () => {
     it('returns Option by reference on None (no wrapping)', async () => {
         // asyncTapOption short-circuits on None via `Promise.resolve(opt)`,
         // returning the original input unchanged.
-        const original = ofNone<number>();
+        const original = ofNone();
         const r = await asyncTapOption(async (_v: number) => { /* noop */ }, original);
         expect(r).toBe(original);
         expect(r.isNone).toBe(true);
