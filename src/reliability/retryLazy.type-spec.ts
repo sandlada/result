@@ -16,4 +16,22 @@ describe('retryLazy types', () => {
         const _check: AsyncResult<string, Error> = ar;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves literal error types through retryLazy', () => {
+        type Err = 'transient' | 'fatal';
+        const ar = retryLazy<number, Err>(fromResult(ok(1)));
+        const _check: AsyncResult<number, Err> = ar;
+        expectTypeOf(_check).toEqualTypeOf<AsyncResult<number, Err>>();
+    });
+
+    it('RetryOptions parameter is optional — defaults to {}', () => {
+        const ar = retryLazy(fromResult(ok(1)));
+        const _check: AsyncResult<number, never> = ar;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('the returned AsyncResult has a .run() method (and nothing else is required)', () => {
+        const ar = retryLazy(fromResult(ok(7)));
+        expectTypeOf(ar.run).toBeFunction();
+    });
 });

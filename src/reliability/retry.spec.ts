@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { retry } from './index.js';
 
@@ -136,5 +136,140 @@ describe('retry', () => {
         });
         expect(fn.mock.calls.length).toBeLessThanOrEqual(2);
         expect(r.isFailure).toBe(true);
+    });
+
+    describe('with fake timers', () => {
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('honors a fixed delayMs between attempts', async () => {
+            vi.useFakeTimers();
+            const fn = vi.fn(() => err<string>('again'));
+            const promise = retry(fn, { times: 2, delayMs: 100 });
+            await vi.advanceTimersByTimeAsync(300);
+            const r = await promise;
+            expect(fn).toHaveBeenCalledTimes(3); // initial + 2 retries
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('again');
+        });
+
+        it('clamps negative delayMs to zero — retries without delay', async () => {
+            vi.useFakeTimers();
+            const fn = vi.fn(() => err<string>('try'));
+            const promise = retry(fn, { times: 3, delayMs: -100 });
+            await vi.advanceTimersByTimeAsync(0);
+            const r = await promise;
+            expect(fn).toHaveBeenCalledTimes(4);
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('passes zero-based attempt index and error to the delayMs function', async () => {
+            vi.useFakeTimers();
+            const errors: string[] = ['a', 'b', 'c'];
+            let i = 0;
+            const fn = vi.fn(() => err<string>(errors[i++] ?? 'z'));
+            const delaysSeen: number[] = [];
+            const promise = retry(fn, {
+                times: 3,
+                delayMs: (attempt, error) => {
+                    delaysSeen.push(attempt);
+                    expect(error).toBe(errors[attempt]);
+                    return 25;
+                },
+            });
+            await vi.advanceTimersByTimeAsync(200);
+            await promise;
+            expect(delaysSeen).toEqual([0, 1, 2]);
+        });
+
+        it('returns early when fn succeeds before all retries are consumed', async () => {
+            vi.useFakeTimers();
+            const fn = vi.fn(() => ok(99));
+            const promise = retry(fn, { times: 5, delayMs: 1000 });
+            const r = await promise;
+            expect(fn).toHaveBeenCalledTimes(1);
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(99);
+        });
+
+        it('invokes onRetry with (error, attempt) for each retry attempt', async () => {
+            vi.useFakeTimers();
+            const fn = vi.fn(() => err<string>('try'));
+            const onRetry = vi.fn();
+            const promise = retry(fn, { times: 3, delayMs: 10, onRetry });
+            await vi.advanceTimersByTimeAsync(100);
+            await promise;
+            expect(onRetry.mock.calls).toEqual([
+                ['try', 0],
+                ['try', 1],
+                ['try', 2],
+            ]);
+        });
+
+        it('respects signal aborted during the delay window (fake-timer-driven)', async () => {
+            vi.useFakeTimers();
+            const fn = vi.fn(() => err<string>('try'));
+            const controller = new AbortController();
+            const promise = retry(fn, { times: 5, delayMs: 100, signal: controller.signal });
+            // Allow the first attempt to run, then abort partway through the delay.
+            await vi.advanceTimersByTimeAsync(0);
+            controller.abort();
+            await vi.advanceTimersByTimeAsync(200);
+            const r = await promise;
+            expect(fn.mock.calls.length).toBeLessThanOrEqual(2);
+            expect(r.isFailure).toBe(true);
+        });
+    });
+
+    it('is eager — the first invocation of fn happens synchronously when retry is called', () => {
+        // Eagerness contract: a synchronous-Ok fn is invoked immediately by `retry`,
+        // before any `await` on the returned promise. This mirrors the documented
+        // contract and is the difference vs `retryLazy`.
+        const fn = vi.fn(() => ok(7));
+        const p = retry(fn, { times: 3 });
+        expect(fn).toHaveBeenCalledTimes(1);
+        // The returned promise has not been awaited yet; the call already happened.
+        // Reclaim the value to silence the linter.
+        void p;
+    });
+
+    it('lastResult error is the final failure error after exhausting all retries', async () => {
+        const sequence: Array<ReturnType<typeof ok> | ReturnType<typeof err>> = [err('a'), err('b'), err('c')];
+        let i = 0;
+        const fn = vi.fn(() => sequence[i++] ?? err('overflow'));
+        const r = await retry(fn, { times: 2 });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('c');
+    });
+
+    it('returns the Ok from a later attempt and stops immediately', async () => {
+        const sequence: Array<ReturnType<typeof ok> | ReturnType<typeof err>> = [err('a'), err('b'), ok('late')];
+        let i = 0;
+        const fn = vi.fn(() => sequence[i++] ?? ok(0));
+        const r = await retry(fn, { times: 5 });
+        expect(fn).toHaveBeenCalledTimes(3);
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe('late');
+    });
+
+    it('keeps retrying when shouldRetry returns true (does not invoke after times are exhausted)', async () => {
+        const fn = vi.fn(() => err<string>('try'));
+        await retry(fn, { times: 2, shouldRetry: () => true });
+        expect(fn).toHaveBeenCalledTimes(3);
+    });
+
+    it('passes the raw thrown Error.message (not the Error instance) for a real Error throw', async () => {
+        const fn = vi.fn(() => { throw new TypeError('bad-type'); });
+        const r = await retry(fn, { times: 0 });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('bad-type');
+    });
+
+    it('stringifies a non-Error throw value', async () => {
+        const fn = vi.fn(() => { throw 42; });
+        const r = await retry(fn, { times: 0 });
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('42');
     });
 });

@@ -27,4 +27,34 @@ describe('timeout types', () => {
         const _check: AsyncResult<number, never | CustomError> = ar;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('TimeoutError has a literal kind: "Timeout" discriminant', () => {
+        const e: TimeoutError = { kind: 'Timeout', ms: 100 };
+        expectTypeOf(e.kind).toEqualTypeOf<'Timeout'>();
+        expectTypeOf(e.ms).toEqualTypeOf<number>();
+    });
+
+    it('onTimeout factory parameter is the configured ms (number)', () => {
+        let observed: number | undefined;
+        timeout(2000, fromResult(ok(1)), (ms): TimeoutError => {
+            observed = ms;
+            return { kind: 'Timeout', ms };
+        });
+        // observed captured at call site, not invoked — but the type is verified by inference.
+        expectTypeOf(observed).toEqualTypeOf<number | undefined>();
+    });
+
+    it('onTimeout is optional — defaults to the built-in TimeoutError factory', () => {
+        const ar = timeout(1000, fromResult(ok(42)));
+        // The default factory yields TimeoutError.
+        const _check: AsyncResult<number, never | TimeoutError> = ar;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('preserves literal error types through the union E | TOE', () => {
+        type Err = 'boom';
+        const ar = timeout<number, Err, TimeoutError>(1000, fromResult(ok(42)));
+        const _check: AsyncResult<number, Err | TimeoutError> = ar;
+        expectTypeOf(_check).toEqualTypeOf<AsyncResult<number, Err | TimeoutError>>();
+    });
 });
