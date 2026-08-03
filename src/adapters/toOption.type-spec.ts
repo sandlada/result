@@ -27,14 +27,16 @@ describe('toOption types', () => {
 
     it('discards wide error shapes (e.g. discriminated union)', () => {
         type AppErr = { kind: 'NotFound'; id: string } | { kind: 'Forbidden' };
-        const opt = toOption(err<string, AppErr>({ kind: 'NotFound', id: 'x' }));
+        const opt = toOption(err<AppErr>({ kind: 'NotFound', id: 'x' }));
         expectTypeOf(opt).toMatchTypeOf<IOption<never>>();
     });
 
     it('narrows to IOptionSome on `isSome` and IOptionNone on `isNone`', () => {
         const opt = toOption(ok(42));
         if (opt.isSome) {
-            expectTypeOf(opt.value).toEqualTypeOf<42>();
+            // `ok(42)` infers `T = number` (no `as const`), so the Some payload is
+            // `number`, not the literal `42`. Literal preservation is covered below.
+            expectTypeOf(opt.value).toEqualTypeOf<number>();
         } else {
             // @ts-expect-error value is not accessible on None variant
             opt.value;

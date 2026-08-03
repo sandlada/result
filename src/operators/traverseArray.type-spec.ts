@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { traverseArray } from './traverseArray.js';
-import { ok } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('traverseArray types', () => {

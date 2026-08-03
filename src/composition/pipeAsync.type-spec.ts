@@ -143,6 +143,7 @@ describe('pipeAsync types', () => {
             (c: { kind: 'circle'; r: number }) => c.r * Math.PI,
             (area: number) => ({ area, kind: 'circle' as const }),
         );
-        expectTypeOf(p).toMatchObjectType<{ area: number; kind: 'circle' }>();
+        // `pipeAsync` always returns a Promise, so unwrap before matching the shape.
+        expectTypeOf(await p).toMatchObjectType<{ area: number; kind: 'circle' }>();
     });
 });

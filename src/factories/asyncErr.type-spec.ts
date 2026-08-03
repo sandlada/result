@@ -43,13 +43,15 @@ describe('asyncErr types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<never, CustomError>>>();
     });
 
-    it('the success branch is not reachable on the asyncErr result', () => {
-        // asyncErr always resolves to the failure variant; the success branch
-        // of the union is empty at the call site.
+    it('the success branch is not reachable on the asyncErr result', async () => {
+        // asyncErr always resolves to the failure variant. The union still has a
+        // success arm structurally, but its payload type is `never`, so nothing
+        // can inhabit it.
         const p = asyncErr('x');
-        type R = Awaited<typeof p>;
-        if (undefined as unknown as R extends { isSuccess: true } ? true : false) {
-            // unreachable branch — the success variant of `never`-value is empty
+        expectTypeOf<Awaited<typeof p>>().toEqualTypeOf<IResultOfT<never, string>>();
+        const r = await p;
+        if (r.isSuccess) {
+            expectTypeOf(r.value).toEqualTypeOf<never>();
         }
     });
 });

@@ -62,9 +62,9 @@ describe('safeTry types', () => {
     });
 
     it('safeTry only accepts IResultOfT (not raw values)', () => {
-        // @ts-expect-error safeTry requires IResultOfT<T, E>, not a bare number
         function* gen() {
-            const x = yield* safeTry(42 as never);
+            // @ts-expect-error safeTry requires IResultOfT<T, E>, not a bare number
+            const x = yield* safeTry(42);
             return x ?? 0;
         }
         void gen;

@@ -41,8 +41,18 @@ describe('teeAsync types', () => {
         expectTypeOf(fn).toEqualTypeOf<(a: 42) => Promise<42>>();
     });
 
-    it('callback return type Promise<number> is irrelevant — output is Promise<A>', () => {
-        const ignored = teeAsync(async (_n: number) => 42);
-        expectTypeOf(ignored).toEqualTypeOf<(a: number) => Promise<number>>();
+    // CONTRACT GAP (pinned): the sibling sync `tee` declares `f: (a: A) => void`,
+    // so TypeScript's void-return special rule lets a value-returning callback
+    // through. `teeAsync` declares `f: (a: A) => void | Promise<void>`; that union
+    // disables the special rule, so a callback returning *anything* other than
+    // `void`/`Promise<void>` is rejected — including the sync `() => 42` form that
+    // `tee` accepts. The runtime discards the return value either way. Pinned
+    // rather than "fixed" because widening the parameter would change the public
+    // API. See typecheck-fix-report.md.
+    it('rejects a callback whose return type is not void/Promise<void>', () => {
+        // @ts-expect-error Promise<number> is not assignable to void | Promise<void>
+        teeAsync(async (_n: number) => 42);
+        // @ts-expect-error number is not assignable to void | Promise<void> (union defeats the void rule)
+        teeAsync((_n: number) => 42);
     });
 });

@@ -3,7 +3,7 @@ import { orElse } from './orElse.js';
 import { fromResult } from './fromResult.js';
 import { from } from './from.js';
 import { fromPromise } from './fromPromise.js';
-import { ok } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 

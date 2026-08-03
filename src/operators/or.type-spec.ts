@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { or } from './or.js';
-import { ok } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('or types', () => {

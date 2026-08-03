@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { tapErr } from './tapErr.js';
-import { err } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('tapErr types', () => {

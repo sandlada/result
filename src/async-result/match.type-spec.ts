@@ -23,19 +23,46 @@ describe('match types', () => {
         expectTypeOf(r).toEqualTypeOf<Promise<string>>();
     });
 
-    it('unifies U across ok and err handlers', () => {
-        const r = match(
+    it('requires a single U across ok and err handlers (no union inference)', () => {
+        // CONTRACT GAP (pinned): `match<T, E, U>` binds one `U` for both
+        // handlers. Handlers returning different types do NOT unify into
+        // `U1 | U2` — inference locks `U` to the `ok` handler's return and the
+        // `err` handler then fails to assign. Callers must widen `U` themselves
+        // (explicit type argument or a widened return annotation). Pinned
+        // rather than "fixed" because changing this would alter the public API.
+        match(
+            {
+                ok: (x: number) => x.toString(),
+                // @ts-expect-error (e: string) => number is not assignable when U is fixed to string
+                err: (e: string) => e.length,
+            },
+            fromResult(ok(42) as IResultOfT<number, string>),
+        );
+
+        // Supplying the union as U explicitly is the supported way to mix.
+        const widened = match<number, string, string | number>(
             { ok: (x: number) => x.toString(), err: (e: string) => e.length },
             fromResult(ok(42) as IResultOfT<number, string>),
         );
-        expectTypeOf(r).toEqualTypeOf<Promise<number>>();
+        expectTypeOf(widened).toEqualTypeOf<Promise<string | number>>();
     });
 
     it('accepts Promise<U> return types from handlers', () => {
-        const r = match(
-            { ok: (x: number) => Promise.resolve(x.toString()), err: (e: string) => Promise.resolve(e.length) },
+        // Same single-`U` rule applies to the `U | Promise<U>` form.
+        match(
+            {
+                ok: (x: number) => Promise.resolve(x.toString()),
+                // @ts-expect-error Promise<number> is not assignable when U is fixed to string
+                err: (e: string) => Promise.resolve(e.length),
+            },
             fromResult(ok(1) as IResultOfT<number, string>),
         );
-        expectTypeOf(r).toEqualTypeOf<Promise<string | number>>();
+
+        // Homogeneous Promise-returning handlers are accepted and unwrap to Promise<U>.
+        const r = match(
+            { ok: (x: number) => Promise.resolve(x.toString()), err: (e: string) => Promise.resolve(e) },
+            fromResult(ok(1) as IResultOfT<number, string>),
+        );
+        expectTypeOf(r).toEqualTypeOf<Promise<string>>();
     });
 });

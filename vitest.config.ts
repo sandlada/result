@@ -5,6 +5,7 @@ export default defineConfig({
         include: ['src/**/*.spec.ts'],
         typecheck: {
             include: ['src/**/*.type-spec.ts'],
+            tsconfig: './tsconfig.typecheck.json',
         },
         coverage: {
             provider: 'v8',

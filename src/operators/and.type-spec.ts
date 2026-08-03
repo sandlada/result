@@ -22,12 +22,12 @@ describe('and types', () => {
     it('curried form widens value to B and error to E | F (Group B)', () => {
         const other = ok('next') as IResultOfT<string, RangeError>;
         const fn = and(other);
-        // value type widens to the other branch's value (B = string)
-        const _value: string = null as unknown as ReturnType<typeof fn> extends IResultOfT<infer V, unknown> ? V : never;
-        void _value;
-        // error widens to E | F
-        const _err: TypeError | RangeError = null as unknown as Parameters<ReturnType<typeof fn>>[0] extends IResultOfT<number, infer E> ? E : never;
-        void _err;
+        // The curried overload is `<A, E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>`,
+        // so `A`/`E` are only bound at application time. Apply it to observe the
+        // widening rather than probing `ReturnType` of the un-applied generic
+        // (which instantiates A/E to `unknown`).
+        const applied = fn(ok(1) as IResultOfT<number, TypeError>);
+        expectTypeOf(applied).toEqualTypeOf<IResultOfT<string, TypeError | RangeError>>();
         expectTypeOf(fn).toBeFunction();
     });
 

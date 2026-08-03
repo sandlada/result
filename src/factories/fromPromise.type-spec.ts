@@ -70,11 +70,16 @@ describe('fromPromise types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<User, unknown>>>();
     });
 
-    it('does not require a callback — the function takes exactly one promise', () => {
-        // fromPromise wraps a Promise; no callback is part of the contract.
+    it('accepts an optional errorFn as the second argument', () => {
+        // Pinned: `fromPromise<T, E>(promise, errorFn?: (error: unknown) => E)`
+        // is a 2-arity function. The one-argument form leaves `E = unknown`;
+        // supplying `errorFn` is what narrows `E`.
         const p = fromPromise(Promise.resolve(1));
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, unknown>>>();
-        // @ts-expect-error fromPromise does not accept a callback
-        fromPromise(Promise.resolve(1), () => {});
+        const mapped = fromPromise(Promise.resolve(1), (e: unknown) => String(e));
+        expectTypeOf(mapped).toEqualTypeOf<Promise<IResultOfT<number, string>>>();
+        // A third argument is not part of the contract.
+        // @ts-expect-error fromPromise takes at most two arguments
+        fromPromise(Promise.resolve(1), (e: unknown) => String(e), 'extra');
     });
 });

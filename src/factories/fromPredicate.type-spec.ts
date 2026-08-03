@@ -83,8 +83,8 @@ describe('fromPredicate types', () => {
 
     it('rejects a predicate that returns Promise<boolean> (predicate must be synchronous)', () => {
         // fromPredicate is synchronous; async predicates are not supported.
-        // @ts-expect-error predicate must return boolean, not Promise<boolean>
         fromPredicate(
+            // @ts-expect-error predicate must return boolean, not Promise<boolean>
             async (_n: number) => true,
             'no',
             1,
@@ -92,8 +92,8 @@ describe('fromPredicate types', () => {
     });
 
     it('rejects a predicate that returns a non-boolean value', () => {
-        // @ts-expect-error predicate must return boolean
         fromPredicate(
+            // @ts-expect-error predicate must return boolean
             (_n: number) => 'yes',
             'no',
             1,
@@ -102,10 +102,10 @@ describe('fromPredicate types', () => {
 
     it('rejects a predicate that takes the wrong argument type', () => {
         // The predicate must accept a single argument of type T.
-        // @ts-expect-error predicate argument type does not match the value type
         fromPredicate(
             (_s: string) => true,
             'no',
+            // @ts-expect-error predicate argument type does not match the value type
             1, // value type is number, not string
         );
     });

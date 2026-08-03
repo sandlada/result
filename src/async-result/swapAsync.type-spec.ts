@@ -18,13 +18,13 @@ describe('swapAsync types', () => {
     });
 
     it('double swap restores AsyncResult<T, E> even on failure input', () => {
-        const r = swapAsync(swapAsync(fromResult(err<number, string>('orig'))));
+        const r = swapAsync(swapAsync(fromResult(err<string>('orig') as IResultOfT<number, string>)));
         expectTypeOf(r).toEqualTypeOf<AsyncResult<number, string>>();
     });
 
     it('preserves structured payload types through swap', () => {
         type VErr = { code: number };
-        const r = swapAsync(fromResult(err<number, VErr>({ code: 0 })));
+        const r = swapAsync(fromResult(err<VErr>({ code: 0 }) as IResultOfT<number, VErr>));
         expectTypeOf(r).toEqualTypeOf<AsyncResult<VErr, number>>();
     });
 });

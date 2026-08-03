@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { mapErr } from './mapErr.js';
-import { err } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('mapErr types', () => {

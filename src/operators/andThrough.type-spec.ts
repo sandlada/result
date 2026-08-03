@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { andThrough } from './andThrough.js';
-import { ok } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('andThrough types', () => {
@@ -31,7 +31,7 @@ describe('andThrough types', () => {
     it('error widens to E | F (Group B)', () => {
         const result = andThrough(
             (_v: number) => err('inner') as IResultOfT<never, string>,
-            err<number>(new Error('outer')),
+            err(new Error('outer')) as IResultOfT<number, Error>,
         );
         if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<string | Error>();
     });

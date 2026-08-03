@@ -48,12 +48,14 @@ describe('composeK types', () => {
 
     it('composes 5 functions with explicit E widening via a heterogeneous fn', () => {
         type AppError = { code: number };
-        const f = composeK<AppError, number, number, string, string, number, AppError>(
-            (x: number) => ok<AppError, number>(x * 2),
-            (x: number) => ok<AppError, number>(x + 1),
-            (x: number) => ok<AppError, string>(x.toString()),
-            (s: string) => ok<AppError, string>(s.toUpperCase()),
-            (s: string) => ok<AppError, number>(s.length),
+        // The 5-fn overload is `composeK<A, B, C, D, F, G, E>` — the error type `E`
+        // is the *last* type parameter, not the first.
+        const f = composeK<number, number, number, string, string, number, AppError>(
+            (x: number) => ok<number>(x * 2),
+            (x: number) => ok<number>(x + 1),
+            (x: number) => ok<string>(x.toString()),
+            (s: string) => ok<string>(s.toUpperCase()),
+            (s: string) => ok<number>(s.length),
         );
         const _check: (a: number) => IResultOfT<number, AppError> = f;
         expectTypeOf(_check).toBeFunction();
@@ -73,7 +75,6 @@ describe('composeK types', () => {
     });
 
     it('rejects the 7th function (no overload beyond the documented ladder)', () => {
-        // @ts-expect-error No overload accepts 7 functions — composeK stops at 6
         composeK(
             (x: number) => ok(x),
             (x: number) => ok(x),
@@ -81,6 +82,7 @@ describe('composeK types', () => {
             (x: number) => ok(x),
             (x: number) => ok(x),
             (x: number) => ok(x),
+            // @ts-expect-error No overload accepts 7 functions — composeK stops at 6
             (x: number) => ok(x),
         );
     });

@@ -78,7 +78,6 @@ describe('composeKAsync types', () => {
     });
 
     it('rejects the 7th function (no overload beyond the documented ladder)', () => {
-        // @ts-expect-error No overload accepts 7 functions — composeKAsync stops at 6
         composeKAsync(
             (x: number) => asyncOk(x),
             (x: number) => asyncOk(x),
@@ -86,6 +85,7 @@ describe('composeKAsync types', () => {
             (x: number) => asyncOk(x),
             (x: number) => asyncOk(x),
             (x: number) => asyncOk(x),
+            // @ts-expect-error No overload accepts 7 functions — composeKAsync stops at 6
             (x: number) => asyncOk(x),
         );
     });
