@@ -30,4 +30,15 @@ describe('AsyncOption zipWith', () => {
         const r = await adder(ofSome(5), ofSome(7)).run();
         if (r.isSome) expect(r.value).toBe(12);
     });
+
+    it('returns None if both are None', async () => {
+        const r = await zipWith((a: number, b: number) => a + b, ofNone<number>(), ofNone<number>()).run();
+        expect(r.isNone).toBe(true);
+    });
+
+    it('propagates rejection from async fn (does not catch)', async () => {
+        // zipWith has no try/catch around fn — async rejections propagate.
+        await expect(zipWith(async (a: number, b: number) => { throw new Error('rej'); }, ofSome(1), ofSome(2)).run())
+            .rejects.toThrow('rej');
+    });
 });

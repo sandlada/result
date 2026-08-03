@@ -11,4 +11,12 @@ describe('AsyncOption isSome', () => {
     it('returns false for None', async () => {
         expect(await isSome(ofNone<number>())).toBe(false);
     });
+
+    it('is the dual of isNone for the same AsyncOption', async () => {
+        const some = await isSome(ofSome(1));
+        const none = await isSome(ofNone<number>());
+        expect(some).toBe(true);
+        expect(none).toBe(false);
+        expect(some !== none).toBe(true);
+    });
 });

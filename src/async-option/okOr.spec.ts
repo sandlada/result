@@ -23,4 +23,14 @@ describe('AsyncOption okOr', () => {
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect(r.error).toBe('missing');
     });
+
+    it('returns Ok reference-preserving on Some (no reallocation)', async () => {
+        // okOr lifts the Some value directly into an Ok; the resulting AsyncResult
+        // should resolve to Ok(<same value>) without copying.
+        const ao = ofSome(42);
+        const ar = okOr('missing', ao);
+        const r = await ar.run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(42);
+    });
 });

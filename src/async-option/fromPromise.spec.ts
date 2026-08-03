@@ -17,6 +17,16 @@ describe('AsyncOption fromPromise', () => {
         expect(result.isNone).toBe(true);
     });
 
+    it('catches non-Error rejection reasons (string, undefined)', async () => {
+        const ao1 = fromPromise(() => Promise.reject('boom-string'));
+        const r1 = await ao1.run();
+        expect(r1.isNone).toBe(true);
+
+        const ao2 = fromPromise(() => Promise.reject(undefined));
+        const r2 = await ao2.run();
+        expect(r2.isNone).toBe(true);
+    });
+
     it('is lazy — thunk is not called until run()', () => {
         let called = false;
         fromPromise(() => {
@@ -34,5 +44,15 @@ describe('AsyncOption fromPromise', () => {
         });
         await ao.run();
         expect(called).toBe(true);
+    });
+
+    it('is lazy — thunk is not called when an upstream operator never runs', async () => {
+        let called = false;
+        fromPromise(() => {
+            called = true;
+            return Promise.resolve(1);
+        });
+        await Promise.resolve();
+        expect(called).toBe(false);
     });
 });

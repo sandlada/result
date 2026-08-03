@@ -55,4 +55,11 @@ describe('AsyncOption unwrapOr', () => {
         const result = await unwrapper(ao);
         expect(result).toBe(0);
     });
+
+    it('returns the Some value reference (no copy)', async () => {
+        const obj = { id: 7 };
+        const ao = fromOption(ofSome(obj));
+        const result = await unwrapOr({ id: 0 }, ao);
+        expect(result).toBe(obj);
+    });
 });

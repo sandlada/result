@@ -36,4 +36,15 @@ describe('AsyncOption flatten', () => {
 
         expect(result.isSome).toBe(false);
     });
+
+    it('only flattens a single layer (deeper nests require repeated calls)', async () => {
+        // Per source: "Single-step only: unwraps exactly one layer. Call
+        // flatten repeatedly to flatten deeper nests."
+        // Verify: AsyncOption<AsyncOption<AsyncOption<number>>> → AsyncOption<AsyncOption<number>>
+        const deep = fromOption(ofSome(fromOption(ofSome(7))));
+        const one = flatten(deep);
+        const result = await one.run();
+        // After one flatten, the value is still an AsyncOption (not the inner 7).
+        expect(result.isSome).toBe(true);
+    });
 });

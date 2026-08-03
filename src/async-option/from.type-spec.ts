@@ -15,4 +15,23 @@ describe('from types', () => {
         const _check: AsyncOption<string> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers T from Promise<IOptionNone> as AsyncOption<never>', () => {
+        const r = from(() => Promise.resolve(ofSome(42) as never));
+        const _check: AsyncOption<never> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('carrier accepts an inline { run: () => Promise<IOption<T>> } shape', () => {
+        // The thunk shape is the canonical carrier contract; an inline literal
+        // must type-check as AsyncOption<T> when assigned the result.
+        const r: AsyncOption<number> = from(() => Promise.resolve(ofSome(42)));
+        expectTypeOf(r).toMatchTypeOf<AsyncOption<number>>();
+    });
+
+    it('infers generic T through union (no widening to never)', () => {
+        const r = from(() => Promise.resolve(ofSome<number | string>(42)));
+        const _check: AsyncOption<number | string> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

@@ -15,4 +15,12 @@ describe('AsyncOption ofNone', () => {
         expect(o1.isNone).toBe(true);
         expect(o2.isNone).toBe(true);
     });
+
+    it('is reusable: many run() calls all yield None', async () => {
+        const ao = ofNone<number>();
+        const results = await Promise.all([ao.run(), ao.run(), ao.run()]);
+        for (const r of results) {
+            expect(r.isNone).toBe(true);
+        }
+    });
 });

@@ -16,4 +16,10 @@ describe('mapAsync types', () => {
         const _check: AsyncOption<number> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves U from the wrapped function', () => {
+        const fn = mapAsync(async (s: string) => s.length);
+        const _check: (ao: AsyncOption<string>) => AsyncOption<number> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

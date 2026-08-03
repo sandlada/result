@@ -62,4 +62,35 @@ describe('AsyncOption bind', () => {
             expect(result.value).toBe(42);
         }
     });
+
+    // ── Carrier handling ─────────────────────────────────────────────────────
+    // bind accepts functions that return either an AsyncOption<U> or a
+    // Promise<IOption<U>>. The implementation normalises both shapes via
+    // `isAsyncCarrier`. Pin that contract here.
+    it('accepts fn returning Promise<IOption<U>> (carrier contract)', async () => {
+        const ao = bind(async (x: number) => ofSome(x + 1), fromOption(ofSome(10)));
+        const result = await ao.run();
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(11);
+    });
+
+    it('accepts fn returning AsyncOption<U> (carrier contract)', async () => {
+        const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
+        const result = await ao.run();
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(42);
+    });
+
+    // ── Throw policy (canonical catch+convert) ───────────────────────────────
+    it('catches a non-Error throw reason and turns to None', async () => {
+        const ao = bind(() => { throw 'string-err'; }, fromOption(ofSome(1)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
+
+    it('catches a non-Error rejection reason and turns to None', async () => {
+        const ao = bind(async () => { throw 42; }, fromOption(ofSome(1)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
 });

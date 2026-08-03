@@ -25,4 +25,15 @@ describe('AsyncOption unwrapOrElse', () => {
         const v = await unwrapOrElse(() => -1)(ofNone<number>());
         expect(v).toBe(-1);
     });
+
+    it('propagates sync throw from onNone (does not catch)', async () => {
+        // unwrapOrElse has no try/catch around onNone — sync throws propagate.
+        await expect(unwrapOrElse(() => { throw new Error('boom'); }, ofNone<number>()))
+            .rejects.toThrow('boom');
+    });
+
+    it('propagates rejection from async onNone (does not catch)', async () => {
+        await expect(unwrapOrElse(async () => { throw new Error('rej'); }, ofNone<number>()))
+            .rejects.toThrow('rej');
+    });
 });

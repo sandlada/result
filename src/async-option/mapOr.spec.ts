@@ -29,4 +29,14 @@ describe('AsyncOption mapOr', () => {
         expect(await mapper(ofSome(10))).toBe(20);
         expect(await mapper(ofNone<number>())).toBe(-1);
     });
+
+    it('catches non-Error throw reason and returns default', async () => {
+        const v = await mapOr(-1, () => { throw 'string-err'; }, ofSome(21));
+        expect(v).toBe(-1);
+    });
+
+    it('catches non-Error rejection reason and returns default', async () => {
+        const v = await mapOr(-1, async () => { throw 'string-err'; }, ofSome(21));
+        expect(v).toBe(-1);
+    });
 });
