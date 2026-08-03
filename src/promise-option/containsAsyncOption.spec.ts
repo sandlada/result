@@ -31,4 +31,28 @@ describe('containsAsyncOption', () => {
         expect(r1).toBe(true);
         expect(r2).toBe(false);
     });
+
+    it('returns false for NaN compared to NaN (IEEE-754 strict equality)', async () => {
+        // NaN === NaN is false per IEEE-754. containsAsyncOption uses strict
+        // equality, so even when both sides are NaN, the answer is false.
+        const r = await containsAsyncOption(Number.NaN, Promise.resolve(ofSome(Number.NaN)));
+        expect(r).toBe(false);
+    });
+
+    it('propagates outer Promise rejection verbatim (no callback to swallow it)', async () => {
+        const outer = new Promise<ReturnType<typeof ofSome<number>>>((_, reject) => {
+            setTimeout(() => reject(new Error('outer-reject')), 5);
+        });
+        await expect(containsAsyncOption(0, outer)).rejects.toThrow('outer-reject');
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const r = containsAsyncOption(42, Promise.resolve(ofSome(42)));
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('curried form wraps the value eagerly', () => {
+        const r = containsAsyncOption(42);
+        expect(r).toBeInstanceOf(Function);
+    });
 });

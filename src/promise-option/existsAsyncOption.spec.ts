@@ -40,4 +40,38 @@ describe('existsAsyncOption', () => {
         const r = await existsAsyncOption(async () => { throw new Error('boom'); }, Promise.resolve(ofSome(42)));
         expect(r).toBe(false);
     });
+
+    it('does not invoke the predicate when the outer Promise rejects', async () => {
+        // The outer Promise rejection short-circuits before the inner Some is
+        // even observed; the predicate is never invoked. (Outer rejection
+        // itself propagates — the catch+convert policy applies only to the
+        // predicate's own rejection, not to the source.)
+        const outer = new Promise<ReturnType<typeof ofSome<number>>>((_, reject) => {
+            setTimeout(() => reject(new Error('outer-reject')), 5);
+        });
+        let invoked = false;
+        const predicate = () => {
+            invoked = true;
+            return Promise.resolve(true);
+        };
+        await expect(existsAsyncOption(predicate, outer)).rejects.toThrow('outer-reject');
+        expect(invoked).toBe(false);
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const r = existsAsyncOption((x: number) => x > 0, Promise.resolve(ofSome(1)));
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('discards the rejected reason (predicate exception → false, not propagated)', async () => {
+        const thrown = new Error('hide-me');
+        const r1 = await existsAsyncOption(() => { throw thrown; }, Promise.resolve(ofSome(1)));
+        expect(r1).toBe(false);
+
+        const r2 = await existsAsyncOption(
+            async () => { throw thrown; },
+            Promise.resolve(ofSome(1)),
+        );
+        expect(r2).toBe(false);
+    });
 });

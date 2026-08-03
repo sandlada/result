@@ -28,4 +28,22 @@ describe('asyncTapOption types', () => {
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = asyncTapOption(async (x: number) => { /* side effect */ });
+        expectTypeOf(fn).toEqualTypeOf<(opt: IOption<number>) => Promise<IOption<number>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const r = asyncTapOption(async (x: number) => { /* side effect */ }, ofSome(42));
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves T in the input carrier (no widening on the carrier)', () => {
+        // asyncTapOption takes T in and gives T back — side-effects cannot
+        // leak into T even if the callback returns a different type.
+        const fn = asyncTapOption(async (s: string) => { /* side effect */ void s; });
+        const _check: (opt: IOption<string>) => Promise<IOption<string>> = fn;
+        expectTypeOf(_check).toEqualTypeOf<(opt: IOption<string>) => Promise<IOption<string>>>();
+    });
 });

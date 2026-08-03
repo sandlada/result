@@ -30,4 +30,28 @@ describe('bindAsyncOption types', () => {
         const _check: (r: Promise<IOption<string>>) => Promise<IOption<number>> = fn;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        // Ensure the curried result is exactly the documented function shape.
+        const fn = bindAsyncOption((x: number) => Promise.resolve(ofSome(x * 2)));
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<IOption<number>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const r = bindAsyncOption(
+            (x: number) => Promise.resolve(ofSome(x * 2)),
+            Promise.resolve(ofSome(21)),
+        );
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves T parameter as the input carrier type', () => {
+        // The promise input is `Promise<IOption<string>>` — T is independent
+        // of the result U.
+        const fn = bindAsyncOption((s: string) => Promise.resolve(ofSome(s.length)));
+        const _carrier: Promise<IOption<string>> = Promise.resolve(ofSome('hi'));
+        const _check: (r: Promise<IOption<string>>) => Promise<IOption<number>> = fn;
+        void _carrier;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

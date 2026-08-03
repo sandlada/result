@@ -40,4 +40,31 @@ describe('asyncMatchOption types', () => {
         const _check: Promise<string> = p;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = asyncMatchOption<number, string>({
+            some: (v) => `value: ${v}`,
+            none: () => 'nothing',
+        });
+        expectTypeOf(fn).toEqualTypeOf<(o: IOption<number>) => Promise<string>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = asyncMatchOption<number, string>(
+            { some: (v) => `value: ${v}`, none: () => 'nothing' },
+            ofSome(42),
+        );
+        expectTypeOf(p).toEqualTypeOf<Promise<string>>();
+    });
+
+    it('unifies U across some and none — heterogeneous return types do NOT widen to a union', () => {
+        // Per the canonical contract, a single U parameter binds to *both*
+        // handlers. Same pattern as matchAsync.
+        const p = asyncMatchOption<number, string>(
+            { some: (v) => `s:${v}`, none: () => 'n' },
+            ofSome(5),
+        );
+        const _check: Promise<string> = p;
+        expectTypeOf(_check).toEqualTypeOf<Promise<string>>();
+    });
 });

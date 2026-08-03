@@ -27,4 +27,20 @@ describe('asyncMapOption types', () => {
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = asyncMapOption(async (x: number) => x.toString());
+        expectTypeOf(fn).toEqualTypeOf<(o: IOption<number>) => Promise<IOption<string>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const r = asyncMapOption(async (x: number) => x * 2, ofSome(21));
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves A in the input carrier (no narrowing on A)', () => {
+        const fn = asyncMapOption(async (s: string) => s.length);
+        const _check: (o: IOption<string>) => Promise<IOption<number>> = fn;
+        expectTypeOf(_check).toEqualTypeOf<(o: IOption<string>) => Promise<IOption<number>>>();
+    });
 });

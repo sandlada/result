@@ -22,4 +22,17 @@ describe('flattenAsyncOption types', () => {
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the application', () => {
+        const r = flattenAsyncOption(Promise.resolve(ofSome(ofSome(42))));
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves the inner T through the single-step flatten (no widening)', () => {
+        // flattenAsyncOption cannot widen or narrow T — the same T comes
+        // out as went in.
+        const r = flattenAsyncOption(Promise.resolve(ofSome(ofSome('payload'))));
+        const _check: Promise<IOption<string>> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

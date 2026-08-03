@@ -35,4 +35,25 @@ describe('mapOrAsyncOption types', () => {
         const _check: Promise<number> = p;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = mapOrAsyncOption(-1, (x: number) => x * 2);
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<number>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = mapOrAsyncOption(-1, (x: number) => x * 2, Promise.resolve(ofSome(21)));
+        expectTypeOf(p).toEqualTypeOf<Promise<number>>();
+    });
+
+    it('infers B from the default value when mapper returns a different B (annotation widening)', () => {
+        // The default value drives B when it carries a wider type than the
+        // mapper's natural return type. We assert only the type-level
+        // relationship `Promise<string>` (not the structural equality),
+        // because literal widening depends on the call-site context.
+        const noneOpt: IOption<number> = ofNone();
+        const p = mapOrAsyncOption('default', (n: number) => n.toString(), Promise.resolve(noneOpt));
+        const _check: Promise<string> = p;
+        expectTypeOf(_check).toBeObject();
+    });
 });
