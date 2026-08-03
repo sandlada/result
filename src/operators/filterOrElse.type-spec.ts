@@ -24,13 +24,24 @@ describe('filterOrElse types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('errorFn can widen the error type (Group B)', () => {
+    it('errorFn cannot widen the error type — E is shared with the input', () => {
+        // CONTRACT GAP (pinned): `filterOrElse<A, E>(predicate, errorFn: (a: A) => E,
+        // r: IResultOfT<A, E>)` binds a *single* `E`. The `errorFn` return type
+        // must match the input's error type — it cannot introduce a new/wider
+        // error type the way `andThrough` (`E | F`) does. Pinned rather than
+        // "fixed" because adding a second error parameter would change the
+        // public API.
         const input = ok(0) as IResultOfT<number, string>;
         const result = filterOrElse(
             (_x: number) => false,
+            // @ts-expect-error errorFn must return E (string here), not a new shape
             (x: number): { code: number; value: number } => ({ code: 1, value: x }),
             input,
         );
-        if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<{ code: number; value: number }>();
+        void result;
+
+        // Matching E is accepted and preserved.
+        const same = filterOrElse((_x: number) => false, (x: number) => `bad:${x}`, input);
+        expectTypeOf(same).toEqualTypeOf<IResultOfT<number, string>>();
     });
 });

@@ -20,12 +20,12 @@ describe('asyncOk types', () => {
 
     // ─── Async policy ──────────────────────────────────────────────────────
 
-    it('the awaited value type equals the argument type on the success branch', () => {
+    it('the awaited value type equals the argument type on the success branch', async () => {
         const p = asyncOk({ a: 1, b: 'x' });
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<{ a: number; b: string }, never>>>();
-        type AwaitedResult = Awaited<typeof p>;
-        if (undefined as unknown as AwaitedResult extends { isSuccess: true } ? true : false) {
-            // type-level smoke: awaiting narrows to the IResultOfT union
+        const r = await p;
+        if (r.isSuccess) {
+            expectTypeOf(r.value).toEqualTypeOf<{ a: number; b: string }>();
         }
     });
 
@@ -50,15 +50,15 @@ describe('asyncOk types', () => {
         expectTypeOf(pUndef).toEqualTypeOf<Promise<IResultOfT<undefined, never>>>();
     });
 
-    it('the failure branch is not reachable on the asyncOk result', () => {
-        // asyncOk always resolves to the success variant; the failure branch
-        // of the union is empty at the call site.
+    it('the failure branch is not reachable on the asyncOk result', async () => {
+        // asyncOk always resolves to the success variant. The union still has a
+        // failure arm structurally, but its payload type is `never`, so nothing
+        // can inhabit it.
         const p = asyncOk(1);
-        // Awaiting yields IResultOfT<number, never> — failure narrowing is a
-        // type error at this site because the failure variant is `never`.
-        type R = Awaited<typeof p>;
-        if (undefined as unknown as R extends { isFailure: true } ? true : false) {
-            // unreachable branch — the failure variant of `never`-error is empty
+        expectTypeOf<Awaited<typeof p>>().toEqualTypeOf<IResultOfT<number, never>>();
+        const r = await p;
+        if (!r.isSuccess) {
+            expectTypeOf(r.error).toEqualTypeOf<never>();
         }
     });
 });

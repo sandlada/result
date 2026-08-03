@@ -80,6 +80,9 @@ describe('safeTryAsync types', () => {
             return x ?? 0;
         }
         const ar = fromSafeTryAsync(gen);
-        expectTypeOf(ar).toMatchObjectType<{ run: () => Promise<IResultOfT<number, string>> }>();
+        // `AsyncResult.run` is declared `readonly`, so an inline `{ run: ... }`
+        // object type is not an exact match. Assert against the interface itself.
+        expectTypeOf(ar).toEqualTypeOf<AsyncResult<number, string>>();
+        expectTypeOf(ar.run).toEqualTypeOf<() => Promise<IResultOfT<number, string>>>();
     });
 });

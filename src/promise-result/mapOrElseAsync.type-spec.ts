@@ -25,7 +25,9 @@ describe('mapOrElseAsync types', () => {
 
     it('direct form returns Promise<B>', () => {
         const good: IResultOfT<number, string> = { isSuccess: true, isFailure: false, value: 5 };
-        const r = mapOrElseAsync<number, string, number>(
+        // Type parameters are `<A, B, E>` — success value, output, error (in that
+        // order). Here A = number, B = number, E = string.
+        const r = mapOrElseAsync<number, number, string>(
             (e: string) => -1,
             (x: number) => x * 2,
             Promise.resolve(good),
@@ -36,7 +38,7 @@ describe('mapOrElseAsync types', () => {
 
     it('preserves T and E from input on direct form', () => {
         const good: IResultOfT<number, string> = { isSuccess: true, isFailure: false, value: 42 };
-        const r = mapOrElseAsync<number, string, number>(
+        const r = mapOrElseAsync<number, number, string>(
             (e: string) => 0,
             (x: number) => x,
             Promise.resolve(good),

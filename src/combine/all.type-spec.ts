@@ -37,7 +37,10 @@ describe('all types', () => {
         const r = all([]);
         expectTypeOf(r).toBeObject();
         if (r.isSuccess) {
-            expectTypeOf(r.value).toEqualTypeOf<readonly never[]>();
+            // Pinned: an un-`as const` empty array literal infers
+            // `T = unknown[]`, so the mapped value type is `unknown[]` —
+            // it is neither `readonly` nor `never[]`.
+            expectTypeOf(r.value).toEqualTypeOf<unknown[]>();
         }
     });
 
@@ -58,8 +61,8 @@ describe('all types', () => {
         // common supertype. Here the input errors are string and number; the
         // result error type must be `string | number`.
         const r = all([
-            err<number, string>('boom') as IResultOfT<number, string>,
-            err<string, number>(42) as IResultOfT<string, number>,
+            err<string>('boom') as IResultOfT<number, string>,
+            err<number>(42) as IResultOfT<string, number>,
         ] as const);
         if (!r.isSuccess) {
             expectTypeOf(r.error).toEqualTypeOf<string | number>();

@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { mapOr } from './mapOr.js';
-import { ok } from '../factories/index.js';
+import { err, ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('mapOr types', () => {
@@ -17,10 +17,12 @@ describe('mapOr types', () => {
         expectTypeOf(_check).toBeString();
     });
 
-    it('default and fn return type are unified (Group B)', () => {
+    it('default and fn return type are unified into a single B (Group B)', () => {
+        // `mapOr<A, B, E>(defaultValue: B, fn: (a: A) => B, r)` binds one `B`.
+        // A literal default does not survive next to a widened fn return — the
+        // two candidates unify, and the widest one wins.
         const input = err('e') as IResultOfT<number, string>;
-        const result = mapOr(0 as const, (v: number) => v * 2 as const, input);
-        expectTypeOf(result).toEqualTypeOf<0 | 0>(); // both literals collapse to 0
-        void result;
+        const result = mapOr(0 as const, (v: number) => v * 2, input);
+        expectTypeOf(result).toEqualTypeOf<number>();
     });
 });

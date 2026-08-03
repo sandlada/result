@@ -97,13 +97,13 @@ describe('ok types', () => {
         }
     });
 
-    it('the failure branch is not reachable on the ok() overload', () => {
-        // `ok()` always returns the success variant, so the failure branch of
-        // the union is empty for the value of `r` at this call site.
+    it('the failure branch of the ok() overload carries a `never` error', () => {
+        // `ok()` returns `IResult<never>`. The failure arm exists structurally
+        // (so `isFailure` narrowing compiles), but its `error` payload is
+        // `never` — nothing can inhabit it.
         const r = ok();
-        // @ts-expect-error r is always the success variant; no failure branch
         if (r.isFailure) {
-            r.error;
+            expectTypeOf(r.error).toEqualTypeOf<never>();
         }
     });
 });

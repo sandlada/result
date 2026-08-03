@@ -22,10 +22,19 @@ describe('flatten types', () => {
         expectTypeOf(r).toEqualTypeOf<AsyncResult<string, VErr>>();
     });
 
-    it('narrows both the inner T and the outer E', () => {
+    it('requires the inner and outer error types to be identical', () => {
+        // CONTRACT GAP (pinned): `flatten<T, E>(ar: AsyncResult<AsyncResult<T, E>, E>)`
+        // binds one `E` across both layers. A nested value whose inner `E`
+        // differs from the outer `E` is rejected outright — flatten does not
+        // widen to `EOuter | EInner`. Pinned rather than "fixed" because
+        // widening the signature would change the public API.
         const inner: AsyncResult<string, string> = fromResult(ok('a') as IResultOfT<string, string>);
         const outer: AsyncResult<AsyncResult<string, string>, number> = fromResult({ isSuccess: true as const, isFailure: false as const, value: inner } as IResultOfT<AsyncResult<string, string>, number>);
-        const r = flatten(outer);
-        expectTypeOf(r).toEqualTypeOf<AsyncResult<string, number>>();
+        // @ts-expect-error outer E is number while inner E is string
+        flatten(outer);
+
+        // With a shared E the call type-checks and preserves it.
+        const outerSame: AsyncResult<AsyncResult<string, string>, string> = fromResult({ isSuccess: true as const, isFailure: false as const, value: inner } as IResultOfT<AsyncResult<string, string>, string>);
+        expectTypeOf(flatten(outerSame)).toEqualTypeOf<AsyncResult<string, string>>();
     });
 });

@@ -4,7 +4,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('mapOrAsync types', () => {
     it('curried form returns a function', () => {
-        const fn = mapOrAsync<number, string, string>(-1, (x: number) => `${x}`);
+        const fn = mapOrAsync<number, string, string>('fallback', (x: number) => `${x}`);
         const _check: (r: Promise<IResultOfT<number, string>>) => Promise<string> = fn;
         expectTypeOf(_check).toBeFunction();
     });

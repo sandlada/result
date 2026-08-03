@@ -31,7 +31,7 @@ describe('combine types', () => {
         type VErr = { code: number };
         const list: AsyncResult<string, VErr>[] = [
             fromResult(ok('a') as IResultOfT<string, VErr>),
-            fromResult(err<string, VErr>({ code: 1 }) as IResultOfT<string, VErr>),
+            fromResult(err<VErr>({ code: 1 }) as IResultOfT<string, VErr>),
         ];
         const ar = combine(list);
         expectTypeOf(ar).toEqualTypeOf<AsyncResult<string[], VErr>>();

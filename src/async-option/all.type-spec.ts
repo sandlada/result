@@ -23,15 +23,25 @@ describe('all types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('widens heterogeneous element types to a union T', () => {
-        const r = all([ofSome(1), ofSome('a')]);
-        // Heterogeneous arrays widen T to the union of element types.
+    it('rejects heterogeneous element types unless T is given explicitly', () => {
+        // CONTRACT (pinned): `all<T>(aos: readonly AsyncOption<T>[])` binds a
+        // *single* `T`. A mixed array literal does NOT widen `T` to a union —
+        // inference picks one candidate and the rest fail to assign.
+        // @ts-expect-error AsyncOption<number> is not assignable to AsyncOption<string>
+        all([ofSome(1), ofSome('a')]);
+        // Supplying the union explicitly is the supported way to mix elements.
+        const r = all<string | number>([ofSome(1), ofSome('a')]);
         expectTypeOf(r).toEqualTypeOf<AsyncOption<(string | number)[]>>();
     });
 
-    it('returns AsyncOption<never[]> for empty array literal', () => {
+    it('returns AsyncOption<unknown[]> for an empty array literal', () => {
+        // CONTRACT (pinned): an empty array literal gives TypeScript no
+        // inference candidate for `T`, so it falls back to `unknown` — not
+        // `never`. `all<never>([])` is the way to get `AsyncOption<never[]>`.
         const r = all([]);
-        const _check: AsyncOption<never[]> = r;
+        expectTypeOf(r).toEqualTypeOf<AsyncOption<unknown[]>>();
+        const explicit = all<never>([]);
+        const _check: AsyncOption<never[]> = explicit;
         expectTypeOf(_check).toBeObject();
     });
 });

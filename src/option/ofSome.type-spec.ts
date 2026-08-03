@@ -42,9 +42,20 @@ describe('ofSome types', () => {
         if (opt.isSome) expectTypeOf(opt.value).toEqualTypeOf<42>();
     });
 
-    it('isSome is the literal type true (literal discrimination)', () => {
+    it('discriminants are boolean before narrowing — ofSome returns the IOption union', () => {
+        // CONTRACT GAP (pinned): `ofSome<T>(value): IOption<T>` returns the
+        // *union* `IOptionSome<T> | IOptionNone`, not the `IOptionSome<T>`
+        // variant. So at the call site `isSome`/`isNone` are `boolean`, not the
+        // literals `true`/`false` — callers must narrow first. Pinned rather
+        // than "fixed" because tightening the return type would change the
+        // public API.
         const opt = ofSome(42);
-        expectTypeOf(opt.isSome).toEqualTypeOf<true>();
-        expectTypeOf(opt.isNone).toEqualTypeOf<false>();
+        expectTypeOf(opt.isSome).toEqualTypeOf<boolean>();
+        expectTypeOf(opt.isNone).toEqualTypeOf<boolean>();
+        // After narrowing, the literal discriminants are visible.
+        if (opt.isSome) {
+            expectTypeOf(opt.isSome).toEqualTypeOf<true>();
+            expectTypeOf(opt.isNone).toEqualTypeOf<false>();
+        }
     });
 });

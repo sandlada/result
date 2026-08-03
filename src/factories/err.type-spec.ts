@@ -40,22 +40,20 @@ describe('err types', () => {
 
     // ─── Value-branch accessibility ────────────────────────────────────────
 
-    it('the success branch is not reachable for err()', () => {
-        // err() always returns the failure variant; the success branch of the
-        // union is empty at the call site, so `.value` cannot be reached
-        // through the success discriminator.
+    it('the success branch of err() carries a `never` value', () => {
+        // `err()` returns `IResultOfT<never, E>`. Narrowing on `isSuccess` is
+        // still *allowed* by the compiler — the success arm exists structurally
+        // — but its payload type is `never`, so nothing can inhabit it.
         const r = err('boom');
         if (r.isSuccess) {
-            // @ts-expect-error the success branch is empty for err() — no value
-            r.value;
+            expectTypeOf(r.value).toEqualTypeOf<never>();
         }
     });
 
-    it('explicit <never> TValue argument produces IResultOfT<never, E>', () => {
-        // The error type parameter is what callers actually want to vary;
-        // supplying `TValue = never` explicitly documents that the success
-        // branch is intentionally absent.
-        const r = err<never, string>('boom');
+    it('err<E> takes exactly one type argument — the error type', () => {
+        // The value type is fixed to `never` by the signature; it is not a
+        // caller-supplied type parameter.
+        const r = err<string>('boom');
         expectTypeOf(r).toEqualTypeOf<IResultOfT<never, string>>();
     });
 

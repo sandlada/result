@@ -32,7 +32,7 @@ describe('fromResult types', () => {
     });
 
     it('supports Err narrowing via generic E', () => {
-        const failure = err<string, number>(7) as IResultOfT<string, number>;
+        const failure = err<number>(7) as IResultOfT<string, number>;
         const ar = fromResult(failure);
         expectTypeOf(ar).toEqualTypeOf<AsyncResult<string, number>>();
     });
