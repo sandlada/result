@@ -36,9 +36,20 @@ describe('AsyncResult bind', () => {
     });
 
     // ── Mixed-carrier support (brief Step 8.1) ────────────────────────────
-    it('accepts an AsyncResult<T,E> from the inner callback', async () => {
-        const ar = bind((x: number) => fromResult(ok(x * 2)), fromResult(ok(21)));
+    it('accepts a duck-typed AsyncResult<T,E> from the inner callback', async () => {
+        let runs = 0;
+        const ar = bind(
+            (x: number) => ({
+                run: () => {
+                    runs += 1;
+                    return Promise.resolve(ok(x * 2));
+                },
+            }),
+            fromResult(ok(21)),
+        );
+        expect(runs).toBe(0);
         const result = await ar.run();
+        expect(runs).toBe(1);
         expect(result.isSuccess && result.value).toBe(42);
     });
 
