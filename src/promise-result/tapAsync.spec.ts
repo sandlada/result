@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { tapAsync } from './index.js';
 import { asyncOk, asyncErr } from '../factories/index.js';
 
@@ -42,5 +42,33 @@ describe('tapAsync', () => {
         expect(called).toBe(true);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(7);
+    });
+
+    it('does not invoke the callback on an Err source', async () => {
+        const fn = vi.fn((v: number) => { void v; });
+        const r = await tapAsync(fn, asyncErr<string>('pre-fail'));
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const r = tapAsync((v: number) => { void v; }, asyncOk(5));
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('propagates outer Promise rejection verbatim (does not catch)', async () => {
+        await expect(
+            tapAsync((v: number) => { void v; }, Promise.reject(new Error('outer-reject'))),
+        ).rejects.toThrow('outer-reject');
+    });
+
+    it('preserves the input E type on Err short-circuit (no widening)', async () => {
+        type CustomErr = { kind: 'TapBoom' };
+        const r = await tapAsync((_v: number) => { /* noop */ }, asyncErr<CustomErr>({ kind: 'TapBoom' }));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as CustomErr;
+            expect(e.kind).toBe('TapBoom');
+        }
     });
 });

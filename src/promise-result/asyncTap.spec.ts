@@ -94,4 +94,45 @@ describe('asyncTap', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
     });
+
+    it('starts the async callback synchronously on construction (eager)', () => {
+        let invokedSync = false;
+        const r = asyncTap(async (_v: number) => {
+            invokedSync = true;
+        }, ok<number, string>(5));
+        expect(invokedSync).toBe(true);
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('returns the *original* Result object by reference on success', async () => {
+        // tap is identity on success — the input Result must be returned
+        // verbatim. Any object identity check passes iff the implementation
+        // is `Promise.resolve(r)` rather than a clone.
+        const original = ok<number, string>(42);
+        const r = await asyncTap(async (_x: number) => { /* noop */ }, original);
+        expect(r).toBe(original);
+    });
+
+    it('returns the *original* Result object by reference on failure', async () => {
+        // tap does not invoke the callback on Err, and returns the input
+        // Result verbatim.
+        const original = err<string>('boom');
+        const r = await asyncTap(async (_x: number) => { /* noop */ }, original);
+        expect(r).toBe(original);
+    });
+
+    it('preserves the input E type on Err short-circuit (lift family — no widening)', async () => {
+        // asyncTap is `Promise<IResultOfT<A, E>>` — the input E flows
+        // through unchanged. No widening applies because the callback's
+        // return value is discarded on the success branch and never
+        // observed on the failure branch.
+        type CustomErr = { kind: 'TapBoom'; id: number };
+        const r = await asyncTap(async (_x: number) => { /* noop */ }, err<CustomErr>({ kind: 'TapBoom', id: 7 }));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as CustomErr;
+            expect(e.kind).toBe('TapBoom');
+            expect(e.id).toBe(7);
+        }
+    });
 });

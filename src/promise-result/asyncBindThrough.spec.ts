@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { asyncBindThrough } from './index.js';
 import { ok, err } from '../factories/index.js';
 import { pipe } from '../composition/pipe.js';
@@ -73,5 +73,44 @@ describe('asyncBindThrough', () => {
         );
         expect(result.isSuccess).toBe(true);
         if(result.isSuccess) expect(result.value).toBe(10);
+    });
+
+    it('widens the error type to E | F when callback returns failure', async () => {
+        // The lift-family signature is `Promise<IResultOfT<A, E | F>>` — the
+        // input E (flowing through unchanged on the failure short-circuit)
+        // and the callback's F (newly introduced) are unioned in the result.
+        // Pinned at the type level in asyncBindThrough.type-spec.ts; here we
+        // verify the runtime widening: callback can return Err with a
+        // *different* error type than the input E, and the output carries
+        // it through.
+        type InputErr = { kind: 'Input'; id: string };
+        type BindErr = { kind: 'Bind'; reason: string };
+        const source = ok<string, InputErr>('hello');
+        const result = await asyncBindThrough(
+            async (_x: string): Promise<IResultOfT<unknown, BindErr>> => err({ kind: 'Bind', reason: 'nope' }),
+            source,
+        );
+        expect(result.isSuccess).toBe(false);
+        if (!result.isSuccess) {
+            const e = result.error as InputErr | BindErr;
+            expect(e.kind).toBe('Bind');
+        }
+    });
+
+    it('does not invoke the callback on an Err source', async () => {
+        const fn = vi.fn(async (x: number) => ok(x * 2));
+        const r = await asyncBindThrough(fn, err<string>('pre-fail'));
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+    });
+
+    it('starts the async callback synchronously on construction (eager)', () => {
+        let invokedSync = false;
+        const r = asyncBindThrough(async (x: number) => {
+            invokedSync = true;
+            return ok(x * 2);
+        }, ok(21));
+        expect(invokedSync).toBe(true);
+        expect(r).toBeInstanceOf(Promise);
     });
 });

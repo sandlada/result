@@ -22,4 +22,24 @@ describe('promise-result unwrapOr (sync)', () => {
         const v = await unwrapOr(0)(Promise.resolve(err<string>('x')));
         expect(v).toBe(0);
     });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const pending = new Promise<ReturnType<typeof ok<number>>>(() => { /* never */ });
+        const result = unwrapOr(0, pending);
+        expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('propagates outer Promise rejection verbatim (does not catch)', async () => {
+        await expect(
+            unwrapOr(0, Promise.reject(new Error('outer-reject'))),
+        ).rejects.toThrow('outer-reject');
+    });
+
+    it('propagates a rejected Promise default as a thrown error', async () => {
+        // `r.then(async inner => ... await defaultValue)` — a rejected
+        // Promise default propagates verbatim.
+        await expect(
+            unwrapOr(Promise.reject('boom'), Promise.resolve(err<string>('x'))),
+        ).rejects.toBe('boom');
+    });
 });
