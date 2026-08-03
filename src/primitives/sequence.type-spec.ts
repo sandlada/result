@@ -24,15 +24,13 @@ describe('sequence types', () => {
 
     it('returns IResultOfT<T[], E> on empty input with explicit generics', () => {
         const r = sequence<number, string>([]);
-        const _check: IResultOfT<readonly number[], string> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number[], string>>();
     });
 
     it('accepts readonly array input — type-shape', () => {
         const input: readonly IResultOfT<number, never>[] = [ok(1), ok(2)];
         const r = sequence(input);
-        const _check: IResultOfT<readonly number[], never> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number[], never>>();
     });
 
     it('preserves E type verbatim — heterogeneous aggregation (Step 14.2 — error channel)', () => {

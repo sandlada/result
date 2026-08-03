@@ -3,10 +3,13 @@ import { cond } from './cond.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('cond types', () => {
-    it('returns IResultOfT<T, E>', () => {
-        const r = cond((n: number) => n > 0, 'must be positive', 5);
-        const _check: IResultOfT<number, string> = r;
-        expectTypeOf(_check).toBeObject();
+    it('returns the value-aware IResultOfT<T, E>', () => {
+        // CONTRACT GAP (pinned): the Task 14 brief describes `cond` as returning
+        // `IResultOfT<undefined, E>`, but the public signature and implementation
+        // return `IResultOfT<T, E>` and carry the original value through on success.
+        // Pinned rather than "fixed" because changing this would break the public API.
+        const r = cond<number, string>((n) => n > 0, 'must be positive', 5);
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
     });
 
     it('preserves T from value argument', () => {

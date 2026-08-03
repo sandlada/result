@@ -3,10 +3,13 @@ import { condErr } from './condErr.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('condErr types', () => {
-    it('returns IResultOfT<T, E>', () => {
-        const r = condErr((s: string) => s.includes('@'), 'no-at', 'invalid email');
-        const _check: IResultOfT<string, string> = r;
-        expectTypeOf(_check).toBeObject();
+    it('returns the inverse value-aware IResultOfT<T, E>', () => {
+        // CONTRACT GAP (pinned): the Task 14 brief describes `condErr` as the
+        // inverse of an undefined-valued `cond`, but the public signature and
+        // implementation return `IResultOfT<T, E>` and preserve `okValue` on success.
+        // Pinned rather than "fixed" because changing this would break the public API.
+        const r = condErr<string, string>((s) => s.includes('@'), 'no-at', 'invalid email');
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<string, string>>();
     });
 
     it('preserves T from okValue', () => {
