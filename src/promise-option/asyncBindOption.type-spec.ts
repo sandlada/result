@@ -27,4 +27,20 @@ describe('asyncBindOption types', () => {
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = asyncBindOption(async (x: number) => ofSome(x.toString()));
+        expectTypeOf(fn).toEqualTypeOf<(opt: IOption<number>) => Promise<IOption<string>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const r = asyncBindOption(async (x: number) => ofSome(x * 2), ofSome(21));
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves U across heterogeneous T and U (no narrowing on U)', () => {
+        const fn = asyncBindOption(async (s: string) => ofSome(s.length));
+        const _check: (opt: IOption<string>) => Promise<IOption<number>> = fn;
+        expectTypeOf(_check).toEqualTypeOf<(opt: IOption<string>) => Promise<IOption<number>>>();
+    });
 });

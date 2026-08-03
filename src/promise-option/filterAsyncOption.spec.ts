@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { filterAsyncOption } from './index.js';
 import { ofSome, ofNone } from '../option/index.js';
 
@@ -42,5 +42,34 @@ describe('filterAsyncOption', () => {
     it('converts async rejection to None (catch+convert policy)', async () => {
         const r = await filterAsyncOption(async () => { throw new Error('boom'); }, Promise.resolve(ofSome(42)));
         expect(r.isNone).toBe(true);
+    });
+
+    it('does not invoke the predicate when the outer Promise is rejected', async () => {
+        // Outer Promise rejection short-circuits before the inner Some is
+        // observed — the predicate is never called. The outer rejection
+        // itself propagates verbatim.
+        const outer = new Promise<ReturnType<typeof ofSome<number>>>((_, reject) => {
+            setTimeout(() => reject(new Error('outer-reject')), 5);
+        });
+        const predicate = vi.fn(async () => true);
+        await expect(filterAsyncOption(predicate, outer)).rejects.toThrow('outer-reject');
+        expect(predicate).not.toHaveBeenCalled();
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const r = filterAsyncOption((x: number) => x > 0, Promise.resolve(ofSome(1)));
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('discards the rejected reason (predicate exception → None, not propagated)', async () => {
+        const thrown = new Error('hide-me');
+        const r1 = await filterAsyncOption(() => { throw thrown; }, Promise.resolve(ofSome(1)));
+        expect(r1.isNone).toBe(true);
+
+        const r2 = await filterAsyncOption(
+            async () => { throw thrown; },
+            Promise.resolve(ofSome(1)),
+        );
+        expect(r2.isNone).toBe(true);
     });
 });

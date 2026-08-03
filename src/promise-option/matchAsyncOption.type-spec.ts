@@ -42,4 +42,35 @@ describe('matchAsyncOption types', () => {
         const _check: Promise<string> = p;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = matchAsyncOption(
+            (v: number) => `some: ${v}`,
+            () => 'none',
+        );
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<string>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = matchAsyncOption(
+            (v: number) => `some: ${v}`,
+            () => 'none',
+            Promise.resolve(ofSome(42)),
+        );
+        expectTypeOf(p).toEqualTypeOf<Promise<string>>();
+    });
+
+    it('unifies U across onSome and onNone — heterogeneous return types do NOT widen to a union', () => {
+        // Per the canonical contract, a single U parameter binds to *both*
+        // handlers. Handlers returning different types do not unify into a
+        // U1 | U2 union — the first argument's U is locked, and the second
+        // handler must conform. Same shape as matchAsync in async-result.
+        const p = matchAsyncOption<number, string>(
+            (v) => `s:${v}`,
+            () => 'n',
+            Promise.resolve(ofSome(5)),
+        );
+        const _check: Promise<string> = p;
+        expectTypeOf(_check).toEqualTypeOf<Promise<string>>();
+    });
 });

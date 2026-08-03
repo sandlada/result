@@ -27,4 +27,22 @@ describe('asyncOrElseOption types', () => {
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = asyncOrElseOption<number>(async () => ofSome(0));
+        expectTypeOf(fn).toEqualTypeOf<(o: IOption<number>) => Promise<IOption<number>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const r = asyncOrElseOption<number>(async () => ofSome(0), ofNone());
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('preserves T in the recovery (no widening on T across the recovery callback)', () => {
+        // The recovery callback's return type drives T — confirm T is locked
+        // and propagated correctly across the curried application.
+        const fn = asyncOrElseOption<string>(async () => ofSome('default'));
+        const _check: (o: IOption<string>) => Promise<IOption<string>> = fn;
+        expectTypeOf(_check).toEqualTypeOf<(o: IOption<string>) => Promise<IOption<string>>>();
+    });
 });

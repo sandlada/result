@@ -70,4 +70,30 @@ describe('asyncTapOption', () => {
         const r = await asyncTapOption(rejectFn, ofSome<number>(7));
         expect(r.isSome).toBe(false);
     });
+
+    it('returns Option by reference on None (no wrapping)', async () => {
+        // asyncTapOption short-circuits on None via `Promise.resolve(opt)`,
+        // returning the original input unchanged.
+        const original = ofNone<number>();
+        const r = await asyncTapOption(async (_v: number) => { /* noop */ }, original);
+        expect(r).toBe(original);
+        expect(r.isNone).toBe(true);
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const r = asyncTapOption(async (_v: number) => { /* noop */ }, ofSome<number>(5));
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('discards the rejected reason (callback exception → None, not propagated)', async () => {
+        const thrown = new Error('hide-me');
+        const r1 = await asyncTapOption(() => { throw thrown; }, ofSome<number>(1));
+        expect(r1.isNone).toBe(true);
+
+        const r2 = await asyncTapOption(
+            async () => { throw thrown; },
+            ofSome<number>(1),
+        );
+        expect(r2.isNone).toBe(true);
+    });
 });

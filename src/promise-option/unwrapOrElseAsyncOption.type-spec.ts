@@ -34,4 +34,22 @@ describe('unwrapOrElseAsyncOption types', () => {
         const _check: (r: Promise<IOption<string>>) => Promise<string> = fn;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = unwrapOrElseAsyncOption(() => 0);
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<number>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = unwrapOrElseAsyncOption(() => 0, Promise.resolve(ofSome(42)));
+        expectTypeOf(p).toEqualTypeOf<Promise<number>>();
+    });
+
+    it('preserves T across the onNone return type (no widening)', () => {
+        // The onNone return type drives T when the None path is taken.
+        // Confirm the type-level relationship stays consistent.
+        const fn = unwrapOrElseAsyncOption<string>(() => 'fallback');
+        const _check: (r: Promise<IOption<string>>) => Promise<string> = fn;
+        expectTypeOf(_check).toEqualTypeOf<(r: Promise<IOption<string>>) => Promise<string>>();
+    });
 });

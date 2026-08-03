@@ -34,4 +34,23 @@ describe('unwrapOrAsyncOption types', () => {
         const _check: (r: Promise<IOption<string>>) => Promise<string> = fn;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = unwrapOrAsyncOption(0);
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<number>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = unwrapOrAsyncOption(0, Promise.resolve(ofSome(42)));
+        expectTypeOf(p).toEqualTypeOf<Promise<number>>();
+    });
+
+    it('infers T from the defaultValue literal when Some value is provided later', () => {
+        // The defaultValue drives T when the outer Promise hasn't been
+        // observed. We assert the type-level relationship rather than the
+        // exact structural equality (literal widening is config-dependent).
+        const fn = unwrapOrAsyncOption('fallback');
+        const _check: (r: Promise<IOption<string>>) => Promise<string> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

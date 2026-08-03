@@ -1,4 +1,4 @@
-import { describe, it, expectTypeOf } from 'vitest';
+import { describe, it, expect, expectTypeOf } from 'vitest';
 import { tapErrAsyncOption } from './tapErrAsyncOption.js';
 import { ofSome, ofNone } from '../option/index.js';
 import type { IOption } from '../types/Option.js';
@@ -33,5 +33,32 @@ describe('tapErrAsyncOption types', () => {
         const r = tapErrAsyncOption((v: number | undefined) => { /* side effect */ }, Promise.resolve(ofSome(42)));
         const _check: Promise<IOption<number>> = r;
         expectTypeOf(_check).toBeObject();
+    });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = tapErrAsyncOption((v: number | undefined) => { /* side effect */ });
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<IOption<number>>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const noneOpt: IOption<number> = ofNone();
+        const r = tapErrAsyncOption(
+            (v: number | undefined) => { void v; },
+            Promise.resolve(noneOpt),
+        );
+        expectTypeOf(r).toEqualTypeOf<Promise<IOption<number>>>();
+    });
+
+    it('callback accepts T | undefined on the None path (H1 contract pin)', () => {
+        // The H1 fix pins the callback parameter as `T | undefined`. The
+        // implementation passes `undefined` on the None path, so the
+        // callback must accept that value type at the type level.
+        const observed: Array<number | undefined> = [];
+        const fn = tapErrAsyncOption<number>((v: number | undefined) => {
+            observed.push(v);
+        });
+        const _check: (r: Promise<IOption<number>>) => Promise<IOption<number>> = fn;
+        expectTypeOf(_check).toBeFunction();
+        expect(observed).toEqual([]);
     });
 });

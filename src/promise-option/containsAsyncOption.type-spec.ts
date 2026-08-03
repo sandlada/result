@@ -28,4 +28,14 @@ describe('containsAsyncOption types', () => {
         const _check: Promise<boolean> = p;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('infers a structural return-type for the curried application', () => {
+        const fn = containsAsyncOption(42);
+        expectTypeOf(fn).toEqualTypeOf<(r: Promise<IOption<number>>) => Promise<boolean>>();
+    });
+
+    it('infers a structural return-type for the direct application', () => {
+        const p = containsAsyncOption(42, Promise.resolve(ofSome(42)));
+        expectTypeOf(p).toEqualTypeOf<Promise<boolean>>();
+    });
 });
