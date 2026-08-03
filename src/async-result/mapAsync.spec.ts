@@ -41,4 +41,30 @@ describe('AsyncResult mapAsync', () => {
         const ar = mapAsync(async (x: number) => x * 2, fromResult(ok(5)));
         expect(ar).toBeDefined();
     });
+
+    // ── Throw policy (brief Step 8.1) ──────────────────────────────────────
+    // The source documents that mapAsync does NOT catch — sync throws and
+    // promise rejections propagate out of `.run()`. Pin the propagation policy.
+    it('propagates a sync throw from fn (does not catch)', async () => {
+        const ar = mapAsync((() => { throw new Error('sync err'); }) as (x: number) => number, fromResult(ok(1)));
+        await expect(ar.run()).rejects.toThrow('sync err');
+    });
+
+    it('propagates a rejected Promise returned by fn (does not catch)', async () => {
+        const ar = mapAsync((_x: number) => Promise.reject(new Error('rejected')), fromResult(ok(1)));
+        await expect(ar.run()).rejects.toThrow('rejected');
+    });
+
+    it('does not invoke fn on failure (no leak)', async () => {
+        let called = false;
+        const ar = mapAsync((_x: number) => { called = true; return 1; }, fromResult(err<string>('skip')));
+        await expect(ar.run()).resolves.toMatchObject({ isSuccess: false });
+        expect(called).toBe(false);
+    });
+
+    it('curried form has the same propagation policy as direct form', async () => {
+        const fn = mapAsync((_x: number) => Promise.reject(new Error('curried-prop')));
+        const ar = fn(fromResult(ok(1)));
+        await expect(ar.run()).rejects.toThrow('curried-prop');
+    });
 });

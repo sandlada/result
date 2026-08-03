@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { combine } from './combine.js';
 import { fromResult } from './fromResult.js';
-import { ok } from '../factories/index.js';
+import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
 
@@ -25,5 +25,20 @@ describe('combine types', () => {
         const ar = combine(list);
         const _check: AsyncResult<string[], number> = ar;
         expectTypeOf(_check).toBeObject();
+    });
+
+    it('preserves structured error type from a mixed input list', () => {
+        type VErr = { code: number };
+        const list: AsyncResult<string, VErr>[] = [
+            fromResult(ok('a') as IResultOfT<string, VErr>),
+            fromResult(err<string, VErr>({ code: 1 }) as IResultOfT<string, VErr>),
+        ];
+        const ar = combine(list);
+        expectTypeOf(ar).toEqualTypeOf<AsyncResult<string[], VErr>>();
+    });
+
+    it('accepts an empty array', () => {
+        const ar = combine([] as AsyncResult<number, string>[]);
+        expectTypeOf(ar).toEqualTypeOf<AsyncResult<number[], string>>();
     });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
+import type { IResultOfT } from '../../src/types/IResultOfT.js';
 
 describe('AsyncResult fromResult', () => {
     it('wraps a success result', async () => {
@@ -28,5 +29,24 @@ describe('AsyncResult fromResult', () => {
         const ar = fromResult(ok(99));
         // Simply creating it should not throw or require await
         expect(ar).toBeDefined();
+    });
+
+    it('preserves the input IResultOfT identity (no clone)', async () => {
+        const input = { isSuccess: true as const, isFailure: false as const, value: 'identity' } as IResultOfT<string, never>;
+        const ar = fromResult(input);
+        const result = await ar.run();
+        expect(result).toBe(input);
+    });
+
+    it('preserves structured error types', async () => {
+        type VErr = { field: string; message: string };
+        const input = { isSuccess: false as const, isFailure: true as const, error: { field: 'email', message: 'bad' } } as IResultOfT<never, VErr>;
+        const ar = fromResult(input);
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if(result.isFailure) {
+            expect(result.error.field).toBe('email');
+            expect(result.error.message).toBe('bad');
+        }
     });
 });

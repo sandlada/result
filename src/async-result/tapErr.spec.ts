@@ -33,4 +33,11 @@ describe('AsyncResult tapErr', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('side-effect failed');
     });
+
+    it('does not invoke the source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(err('x')); } };
+        tapErr<number, string>(() => {}, lazy);
+        expect(called).toBe(false);
+    });
 });

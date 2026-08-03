@@ -44,4 +44,11 @@ describe('AsyncResult tapErrAsync', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('curried');
     });
+
+    it('does not invoke the source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(err('x')); } };
+        tapErrAsync<number, string>(async () => {}, lazy);
+        expect(called).toBe(false);
+    });
 });

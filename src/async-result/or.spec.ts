@@ -28,4 +28,19 @@ describe('AsyncResult or', () => {
         await or(fromResult(ok(1)), res2).run();
         expect(evaluated).toBe(false);
     });
+
+    it('does not invoke res1.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok(1)); } };
+        or(lazy, fromResult(ok(2)));
+        expect(called).toBe(false);
+    });
+
+    it('unifies error types via union (E | F)', async () => {
+        const r = await or(fromResult(err<number, string>('a')), fromResult(err<number, number>(7))).run();
+        expect(r.isFailure).toBe(true);
+        if(r.isFailure) {
+            expect(typeof r.error === 'string' ? r.error : r.error).toBe(7);
+        }
+    });
 });

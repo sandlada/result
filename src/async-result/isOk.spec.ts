@@ -11,4 +11,8 @@ describe('AsyncResult isOk', () => {
     it('returns false on Err', async () => {
         expect(await isOk(fromResult(err('x')))).toBe(false);
     });
+
+    it('returns a Promise', () => {
+        expect(isOk(fromResult(ok(1)))).toBeInstanceOf(Promise);
+    });
 });

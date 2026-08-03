@@ -73,4 +73,38 @@ describe('AsyncResult combineWithAllErrors', () => {
             expect(result.error[1]!.field).toBe('email');
         }
     });
+
+    // ── Lazy execution (brief Step 8.1) ────────────────────────────────────
+    it('does not invoke any source.run() on construction', () => {
+        let calls = 0;
+        const items = [
+            { run: () => { calls++; return Promise.resolve(ok(1)); } },
+            { run: () => { calls++; return Promise.resolve(err(2)); } },
+            { run: () => { calls++; return Promise.resolve(ok(3)); } },
+        ];
+        combineWithAllErrors(items);
+        expect(calls).toBe(0);
+    });
+
+    it('aggregates only the failures (successes do not leak into errors)', async () => {
+        const ar = combineWithAllErrors([
+            fromResult(ok('a')),
+            fromResult(ok('b')),
+            fromResult(err('e1')),
+            fromResult(ok('c')),
+            fromResult(err('e2')),
+        ]);
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toEqual(['e1', 'e2']);
+    });
+
+    it('returns a single-element error array for a single failure', async () => {
+        const ar = combineWithAllErrors([
+            fromResult(ok(1)),
+            fromResult(err('only')),
+            fromResult(ok(3)),
+        ]);
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toEqual(['only']);
+    });
 });

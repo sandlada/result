@@ -29,4 +29,13 @@ describe('AsyncResult mapOr', () => {
         expect(await mapper(fromResult(ok(5)))).toBe(10);
         expect(await mapper(fromResult(err('x')))).toBe(-1);
     });
+
+    it('catches async throws and returns default', async () => {
+        const v = await mapOr(-1, async () => { throw new Error('boom'); }, fromResult(ok(1)));
+        expect(v).toBe(-1);
+    });
+
+    it('returns a Promise', () => {
+        expect(mapOr(-1, (x: number) => x, fromResult(ok(1)))).toBeInstanceOf(Promise);
+    });
 });

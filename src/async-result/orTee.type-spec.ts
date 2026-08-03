@@ -32,4 +32,16 @@ describe('orTee types', () => {
         const _check: AsyncResult<number, string> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('accepts an async side-effect callback (returns Promise<unknown>)', () => {
+        const fn = orTee<number, string>(async (_e: string) => 0);
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('E stays exactly the same type — no widening via orTee', () => {
+        type VErr = { code: number };
+        const ar: AsyncResult<number, VErr> = fromResult(ok(1) as IResultOfT<number, VErr>);
+        const r = orTee<number, VErr>((_e: VErr) => {}, ar);
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number, VErr>>();
+    });
 });

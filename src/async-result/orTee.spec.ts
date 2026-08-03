@@ -60,4 +60,18 @@ describe('AsyncResult orTee', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('async side-effect failed');
     });
+
+    it('does not invoke the source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(err('x')); } };
+        orTee<number, string>(() => {}, lazy);
+        expect(called).toBe(false);
+    });
+
+    it('passes the original error byte-for-byte when fn is a no-op', async () => {
+        const original = err<number, Error>(new Error('orig'));
+        const ar = orTee<number, Error>(() => {}, fromResult(original));
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe(original.error);
+    });
 });

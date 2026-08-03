@@ -12,4 +12,8 @@ describe('AsyncResult unwrapErr', () => {
     it('throws on Ok', async () => {
         await expect(unwrapErr(fromResult(ok(42)))).rejects.toThrow(/Ok/);
     });
+
+    it('returns a Promise', () => {
+        expect(unwrapErr(fromResult(err('x')))).toBeInstanceOf(Promise);
+    });
 });

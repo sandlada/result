@@ -1,6 +1,8 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import { bind } from './bind.js';
 import { fromResult } from './fromResult.js';
+import { from } from './from.js';
+import { fromPromise } from './fromPromise.js';
 import { ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
@@ -23,5 +25,26 @@ describe('bind types', () => {
         const r = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>), ar);
         const _check: AsyncResult<number, string> = r;
         expectTypeOf(_check).toBeObject();
+    });
+
+    // ── Mixed-carrier return types (brief Step 8.1) ────────────────────────
+    it('callback returning AsyncResult<U, E> is accepted', () => {
+        const fn = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>));
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('callback returning Promise<IResultOfT<U, E>> is accepted', () => {
+        const fn = bind<number, number, string>((x) => Promise.resolve(ok(x * 2) as IResultOfT<number, string>));
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('callback returning from() thunk carrier is accepted', () => {
+        const fn = bind<number, number, string>((x) => from(() => Promise.resolve(ok(x * 2) as IResultOfT<number, string>)));
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('callback returning fromPromise() carrier is accepted', () => {
+        const fn = bind<number, number, string>((x) => fromPromise(() => Promise.resolve(x * 2)));
+        expectTypeOf(fn).toBeFunction();
     });
 });

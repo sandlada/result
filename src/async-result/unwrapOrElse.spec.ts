@@ -25,4 +25,10 @@ describe('AsyncResult unwrapOrElse', () => {
         const v = await unwrapOrElse(() => -1)(fromResult(err('x')));
         expect(v).toBe(-1);
     });
+
+    it('passes the original error to onErr', async () => {
+        let received: unknown;
+        await unwrapOrElse((e: string) => { received = e; return 0; }, fromResult(err('orig')));
+        expect(received).toBe('orig');
+    });
 });

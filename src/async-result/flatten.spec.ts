@@ -33,4 +33,21 @@ describe('AsyncResult flatten', () => {
         expect(ar).toBeDefined();
         expect(ar.run).toBeInstanceOf(Function);
     });
+
+    it('does not invoke the outer source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok({ run: () => Promise.resolve(ok(1)) })); } };
+        flatten(lazy);
+        expect(called).toBe(false);
+    });
+
+    it('does not invoke the inner source.run() until outer resolves to Ok', async () => {
+        let innerCalled = false;
+        const inner = { run: () => { innerCalled = true; return Promise.resolve(ok(7)); } };
+        const outer = fromResult(ok(inner));
+        const ar = flatten(outer);
+        expect(innerCalled).toBe(false);
+        await ar.run();
+        expect(innerCalled).toBe(true);
+    });
 });

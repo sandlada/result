@@ -60,4 +60,25 @@ describe('AsyncResult andTee', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('async side-effect failed');
     });
+
+    it('does not invoke the source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok(1)); } };
+        andTee<number, string>(() => {}, lazy);
+        expect(called).toBe(false);
+    });
+
+    it('passes through the original success value byte-for-byte', async () => {
+        const obj = { hello: 'world' };
+        const ar = andTee(() => {}, fromResult(ok(obj)));
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe(obj);
+    });
+
+    it('preserves the original Err through the side-effect path', async () => {
+        const original = err<string, Error>(new Error('orig'));
+        const ar = andTee<number, Error>(() => {}, fromResult(original));
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe(original.error);
+    });
 });

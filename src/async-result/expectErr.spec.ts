@@ -13,4 +13,15 @@ describe('AsyncResult expectErr', () => {
         await expect(expectErr('must fail', fromResult(ok(42))))
             .rejects.toThrow('must fail');
     });
+
+    it('returns a Promise', () => {
+        const p = expectErr('msg', fromResult(err('boom')));
+        expect(p).toBeInstanceOf(Promise);
+    });
+
+    it('preserves the typed error value', async () => {
+        type VErr = { code: number };
+        const v = await expectErr<VErr, number>('msg', fromResult(err<number, VErr>({ code: 7 })));
+        expect(v.code).toBe(7);
+    });
 });

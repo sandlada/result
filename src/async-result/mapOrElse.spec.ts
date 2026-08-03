@@ -24,4 +24,16 @@ describe('AsyncResult mapOrElse', () => {
         const v = await mapOrElse(async () => -2, async (x: number) => x * 3, fromResult(ok(5)));
         expect(v).toBe(15);
     });
+
+    it('does not call onOk on Err', async () => {
+        const onOk = vi.fn((x: number) => x);
+        await mapOrElse(() => -1, onOk, fromResult(err<string>('x')));
+        expect(onOk).not.toHaveBeenCalled();
+    });
+
+    it('passes the original error to onErr', async () => {
+        let received: unknown;
+        await mapOrElse((e: string) => { received = e; return -1; }, (x: number) => x, fromResult(err('orig')));
+        expect(received).toBe('orig');
+    });
 });
