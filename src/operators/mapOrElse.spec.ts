@@ -4,7 +4,7 @@ import { mapOrElse } from './index.js';
 
 describe('mapOrElse', () => {
     it('direct form', () => {
-        const r = err<number>(new Error('x'));
+        const r = err<Error>(new Error('x'));
         const result = mapOrElse(
             (e: Error) => e.message.length,
             (v: number) => v * 2,
@@ -18,7 +18,7 @@ describe('mapOrElse', () => {
             (v: number) => `ok: ${v}`,
         );
         expect(handle(ok(42))).toBe('ok: 42');
-        expect(handle(err<number>(new Error('boom')))).toBe('fail: boom');
+        expect(handle(err<Error>(new Error('boom')))).toBe('fail: boom');
     });
 
     it('does NOT call onErr on success (Group C)', () => {
@@ -32,7 +32,7 @@ describe('mapOrElse', () => {
     it('does NOT call fn on failure (Group C)', () => {
         const onErr = vi.fn((_e: Error) => 0);
         const fn = vi.fn((_v: number) => 0);
-        mapOrElse(onErr, fn, err<number>('e'));
+        mapOrElse(onErr, fn, err<string>('e'));
         expect(onErr).toHaveBeenCalledTimes(1);
         expect(fn).toHaveBeenCalledTimes(0);
     });

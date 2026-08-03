@@ -21,8 +21,10 @@ describe('AsyncResult flatten', () => {
     });
 
     it('passes through outer failure', async () => {
-        const nested = fromResult(err<string>('outer-fail'));
-        const ar = flatten(nested as unknown as ReturnType<typeof fromResult>);
+        const nested: { run: () => Promise<{ isSuccess: false; isFailure: true; error: string }> } = {
+            run: () => Promise.resolve({ isSuccess: false as const, isFailure: true as const, error: 'outer-fail' }),
+        };
+        const ar = flatten(nested as unknown as Parameters<typeof flatten>[0]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
         if(!result.isSuccess) expect(result.error).toBe('outer-fail');

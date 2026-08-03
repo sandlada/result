@@ -7,7 +7,7 @@ import { unwrap } from './index.js';
 
 describe('unwrap (void result)', () => {
     it('succeeds on a success result (no return)', () => {
-        const r = ok();
+        const r = ok() as unknown as IResultOfT<unknown, never>;
         expect(() => unwrap(r)).not.toThrow();
     });
 
@@ -46,12 +46,12 @@ describe('unwrap (value result)', () => {
     });
 
     it('throws TypeError on failure', () => {
-        const r = err<number>(new Error('no number here'));
+        const r = err<Error>(new Error('no number here'));
         expect(() => unwrap(r)).toThrow(TypeError);
     });
 
     it('includes the error in the thrown message', () => {
-        const r = err<string>(new Error('parse error'));
+        const r = err<Error>(new Error('parse error'));
         try {
             unwrap(r);
         } catch (e: unknown) {
@@ -70,12 +70,12 @@ describe('unwrap (FP operator)', () => {
     });
 
     it('throws on failure', () => {
-        const r: IResultOfT<number> = err<number>(new Error('op fail'));
+        const r: IResultOfT<number> = err<Error>(new Error('op fail'));
         expect(() => unwrap(r)).toThrow(TypeError);
     });
 
     it('throws TypeError on failure with exact message format (Group D)', () => {
-        const r = err<number>(new Error('inner-error'));
+        const r = err<Error>(new Error('inner-error'));
         try { unwrap(r); } catch (e: unknown) {
             const msg = (e as TypeError).message;
             expect(msg).toContain('Called unwrap() on a failure result.');

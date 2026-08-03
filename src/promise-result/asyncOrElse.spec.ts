@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { asyncOrElse } from './asyncOrElse.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('promise-result asyncOrElse', () => {
     it('returns Ok on Ok without calling f', async () => {
@@ -29,11 +30,12 @@ describe('promise-result asyncOrElse', () => {
 
     it('passes the original error value to the recovery callback', async () => {
         let captured: unknown = undefined;
-        const f = vi.fn(async (e: string) => {
+        type AppErr = { code: number; msg: string };
+        const f = vi.fn(async (e: AppErr) => {
             captured = e;
             return ok('recovered');
         });
-        await asyncOrElse(f, err<{ code: number; msg: string }>({ code: 7, msg: 'boom' }));
+        await asyncOrElse(f, err<AppErr>({ code: 7, msg: 'boom' }));
         expect(captured).toEqual({ code: 7, msg: 'boom' });
     });
 
@@ -59,7 +61,7 @@ describe('promise-result asyncOrElse', () => {
         type CustomErr = { kind: 'Boom' };
         const r = await asyncOrElse(
             async (e: CustomErr) => ok<string>('recovered'),
-            ok<string, CustomErr>('original'),
+            ok<string>('original') as IResultOfT<string, CustomErr>,
         );
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe('original');

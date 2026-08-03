@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { andThrough } from './index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('andThrough', () => {
     it('curried: calls fn and preserves original result on success', () => {
@@ -44,8 +45,8 @@ describe('andThrough', () => {
     });
 
     it('catches sync throw from fn and converts to Err', () => {
-        const result = andThrough<number, string, Error>(
-            (() => { throw new Error('fn-boom'); }) as (v: number) => { isSuccess: true; isFailure: false; value: string },
+        const result = andThrough<number, string, never, Error>(
+            (() => { throw new Error('fn-boom'); }) as (v: number) => IResultOfT<string, Error>,
             ok(7),
         );
         expect(result.isFailure).toBe(true);

@@ -9,7 +9,7 @@ describe('promise-result mapOrElseAsyncOption', () => {
     });
 
     it('uses onNone on None', async () => {
-        const v = await mapOrElseAsyncOption(() => -1, (x: number) => x * 2, Promise.resolve(ofNone<number>()));
+        const v = await mapOrElseAsyncOption(() => -1, (x: number) => x * 2, Promise.resolve(ofNone()));
         expect(v).toBe(-1);
     });
 
@@ -21,7 +21,7 @@ describe('promise-result mapOrElseAsyncOption', () => {
 
     it('does not call the mapper on None (callback short-circuit)', async () => {
         const mapper = vi.fn((x: number) => x * 2);
-        const v = await mapOrElseAsyncOption(() => -1, mapper, Promise.resolve(ofNone<number>()));
+        const v = await mapOrElseAsyncOption(() => -1, mapper, Promise.resolve(ofNone()));
         expect(mapper).not.toHaveBeenCalled();
         expect(v).toBe(-1);
     });
@@ -37,7 +37,7 @@ describe('promise-result mapOrElseAsyncOption', () => {
 
     it('propagates sync throw from onNone verbatim (no catch)', async () => {
         await expect(
-            mapOrElseAsyncOption(() => { throw new Error('onNone-boom'); }, (x: number) => x * 2, Promise.resolve(ofNone<number>())),
+            mapOrElseAsyncOption(() => { throw new Error('onNone-boom'); }, (x: number) => x * 2, Promise.resolve(ofNone())),
         ).rejects.toThrow('onNone-boom');
     });
 
@@ -49,7 +49,7 @@ describe('promise-result mapOrElseAsyncOption', () => {
 
     it('propagates async onNone rejection verbatim (no catch)', async () => {
         await expect(
-            mapOrElseAsyncOption(async () => { throw new Error('onNone-reject'); }, (x: number) => x * 2, Promise.resolve(ofNone<number>())),
+            mapOrElseAsyncOption(async () => { throw new Error('onNone-reject'); }, (x: number) => x * 2, Promise.resolve(ofNone())),
         ).rejects.toThrow('onNone-reject');
     });
 
@@ -68,7 +68,7 @@ describe('promise-result mapOrElseAsyncOption', () => {
     });
 
     it('supports async onNone returning Promise<B>', async () => {
-        const v = await mapOrElseAsyncOption(async () => -1, (x: number) => x * 2, Promise.resolve(ofNone<number>()));
+        const v = await mapOrElseAsyncOption(async () => -1, (x: number) => x * 2, Promise.resolve(ofNone()));
         expect(v).toBe(-1);
     });
 });

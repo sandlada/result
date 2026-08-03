@@ -11,7 +11,7 @@ describe('swap', () => {
         expect(swapped.isFailure).toBe(true);
     });
     it('failure becomes success', () => {
-        const r: IResultOfT<string, number> = err<string, number>(404);
+        const r: IResultOfT<string, number> = err<number>(404) as unknown as IResultOfT<string, number>;
         const swapped = swap(r);
         expect(swapped.isSuccess).toBe(true);
         expect(unwrap(swapped)).toBe(404);
@@ -30,7 +30,7 @@ describe('swap', () => {
         const s1 = swap(r1);
         if (s1.isFailure) expect(s1.error).toBe('hello');
 
-        const r2: IResultOfT<string, number> = err<string, number>(404);
+        const r2: IResultOfT<string, number> = err<number>(404) as unknown as IResultOfT<string, number>;
         const s2 = swap(r2);
         if (s2.isSuccess) expect(s2.value).toBe(404);
     });

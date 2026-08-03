@@ -13,7 +13,7 @@ describe('unwrapErr (void result)', () => {
     });
 
     it('throws TypeError on success', () => {
-        const r = ok();
+        const r = ok() as unknown as IResultOfT<unknown, never>;
         expect(() => unwrapErr(r)).toThrow(TypeError);
         expect(() => unwrapErr(r)).toThrow('success');
     });
@@ -24,7 +24,7 @@ describe('unwrapErr (void result)', () => {
 describe('unwrapErr (value result)', () => {
     it('returns the error on failure', () => {
         const errVal = new Error('nope');
-        const r = err<number>(errVal);
+        const r = err<Error>(errVal);
         expect(unwrapErr(r)).toBe(errVal);
     });
 
@@ -40,7 +40,7 @@ describe('unwrapErr (value result)', () => {
 describe('unwrapErr (FP operator)', () => {
     it('returns error on failure', () => {
         const errVal = new Error('oops');
-        const r: IResultOfT<number> = err<number>(errVal);
+        const r: IResultOfT<number> = err<Error>(errVal);
         expect(unwrapErr(r)).toBe(errVal);
     });
 

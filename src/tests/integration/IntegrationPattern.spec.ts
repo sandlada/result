@@ -30,10 +30,10 @@ describe('Integration: Type Alias', () => {
     it('type alias works with failure', () => {
         function findUser(id: string): AppResult<{ id: number; name: string }> {
             if (!id) {
-                return err<{ id: number; name: string }, AppError>({
+                return err<AppError>({
                     kind: 'Validation',
                     fields: { id: 'Required' },
-                });
+                }) as unknown as AppResult<{ id: number; name: string }>;
             }
             return ok({ id: 1, name: 'Alice' }) as unknown as AppResult<{ id: number; name: string }>;
         }
@@ -204,13 +204,14 @@ describe('Integration: mapError()', () => {
     });
 
     it('converts failure error', () => {
-        const subResult = err<string, SubError>({ code: 'E1', detail: 'Oops' });
-        const mapped = mapError(subResult);
+        const subResult = err<SubError>({ code: 'E1', detail: 'Oops' });
+        const mapped = mapError(subResult as unknown as IResultOfT<string, SubError>);
         expect(mapped.isFailure).toBe(true);
         if (mapped.isFailure) {
-            expect(mapped.error.kind).toBe('Validation');
-            if (mapped.error.kind === 'Validation') {
-                expect(mapped.error.fields.E1).toBe('Oops');
+            const error = mapped.error as unknown as AppError;
+            expect(error.kind).toBe('Validation');
+            if (error.kind === 'Validation') {
+                expect(error.fields.E1).toBe('Oops');
             }
         }
     });

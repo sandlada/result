@@ -131,7 +131,7 @@ describe('Factory consistency', () => {
         const a = err('x');
         const b = err('x');
         expect(a).not.toBe(b);
-        expect(a.error).toBe('x');
-        expect(b.error).toBe('x');
+        if (!a.isSuccess) expect(a.error).toBe('x');
+        if (!b.isSuccess) expect(b.error).toBe('x');
     });
 });

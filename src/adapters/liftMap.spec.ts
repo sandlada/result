@@ -44,10 +44,10 @@ describe('liftMap', () => {
     });
 
     it('preserves the failure reference (does not re-wrap)', () => {
-        const original = err<number, { kind: 'Boo'; detail: string }>({ kind: 'Boo', detail: 'whoops' });
+        const original = err<{ kind: 'Boo'; detail: string }>({ kind: 'Boo', detail: 'whoops' });
         const result = liftMap(double, original);
         expect(result.isSuccess).toBe(false);
-        if (!result.isSuccess) expect(result.error).toBe(original.error);
+        if (!result.isSuccess && !original.isSuccess) expect(result.error).toBe(original.error);
     });
 
     it('preserves object reference returned by f (no re-allocation)', () => {
@@ -73,7 +73,7 @@ describe('liftMap', () => {
     it('curried form is reusable with different error shapes', () => {
         const lifted = liftMap((x: number) => x.toString());
         const a = lifted(ok(5));
-        const b = lifted(err<string, number>(404));
+        const b = lifted(err<number>(404));
         expect(a.isSuccess).toBe(true);
         if (a.isSuccess) expect(a.value).toBe('5');
         expect(b.isSuccess).toBe(false);

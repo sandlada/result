@@ -4,7 +4,7 @@ import { asyncOrElseOption } from './asyncOrElseOption.js';
 
 describe('promise-result asyncOrElseOption', () => {
     it('recovers on None', async () => {
-        const o = await asyncOrElseOption(async () => ofSome(0), ofNone<number>());
+        const o = await asyncOrElseOption(async () => ofSome(0), ofNone());
         expect(o.isSome).toBe(true);
         if (o.isSome) expect(o.value).toBe(0);
     });
@@ -37,12 +37,12 @@ describe('promise-result asyncOrElseOption', () => {
         // converted to None. (Distinct from the Result-flavored orElseAsync
         // / orElseAsyncOption, which catch.)
         await expect(
-            asyncOrElseOption(async () => { throw new Error('recovery-boom'); }, ofNone<number>()),
+            asyncOrElseOption(async () => { throw new Error('recovery-boom'); }, ofNone()),
         ).rejects.toThrow('recovery-boom');
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        const r = asyncOrElseOption(async () => ofSome(0), ofNone<number>());
+        const r = asyncOrElseOption(async () => ofSome(0), ofNone());
         expect(r).toBeInstanceOf(Promise);
     });
 });

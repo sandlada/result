@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { asyncBind } from './index.js';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('asyncBind', () => {
     it('chains async success (curried)', async () => {
@@ -52,8 +53,8 @@ describe('asyncBind', () => {
         type CustomErr = { kind: 'Input'; id: string };
         type BindErr = { kind: 'Bind'; reason: string };
         const r = await asyncBind(
-            async (x: number) => ok<number, BindErr>(x * 2),
-            ok<number, CustomErr>(21),
+            async (x: number) => ok<number>(x * 2) as IResultOfT<number, BindErr>,
+            ok<number>(21) as IResultOfT<number, CustomErr>,
         );
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { orThrow, orThrowWith } from './index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('orThrow', () => {
     it('returns the value on success', () => {
@@ -8,7 +9,7 @@ describe('orThrow', () => {
     });
 
     it('returns undefined for void success', () => {
-        expect(orThrow(ok())).toBeUndefined();
+        expect(orThrow(ok() as unknown as IResultOfT<unknown, never>)).toBeUndefined();
     });
 
     it('throws the error directly on failure', () => {
@@ -33,7 +34,7 @@ describe('orThrowWith', () => {
     });
 
     it('returns undefined for void success', () => {
-        expect(orThrowWith(e => new Error(String(e)), ok())).toBeUndefined();
+        expect(orThrowWith(e => new Error(String(e)), ok() as unknown as IResultOfT<unknown, never>)).toBeUndefined();
     });
 
     it('throws a custom error transformed by errorFn on failure', () => {

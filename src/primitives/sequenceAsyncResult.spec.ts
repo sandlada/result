@@ -42,8 +42,8 @@ describe('sequenceAsyncResult', () => {
         const sentinel = { code: 'E_FIRST' };
         const r = await sequenceAsyncResult([
             fromResult(ok(1)),
-            fromResult(err<number>(sentinel)),
-            fromResult(err<number>({ code: 'NEVER_SEEN' })),
+            fromResult(err<{ code: string }>(sentinel)),
+            fromResult(err<{ code: string }>({ code: 'NEVER_SEEN' })),
         ]).run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe(sentinel);
@@ -105,7 +105,7 @@ describe('sequenceAsyncResult', () => {
         const r = await sequenceAsyncResult([
             fromResult(ok(1)),
             fromResult(ok(2)),
-            fromResult(err<number>('last')),
+            fromResult(err<string>('last')),
         ]).run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('last');

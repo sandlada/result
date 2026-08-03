@@ -11,12 +11,12 @@ describe('promise-result unwrapOrElseAsyncOption', () => {
     });
 
     it('calls onNone on None', async () => {
-        const v = await unwrapOrElseAsyncOption(() => 0, Promise.resolve(ofNone<number>()));
+        const v = await unwrapOrElseAsyncOption(() => 0, Promise.resolve(ofNone()));
         expect(v).toBe(0);
     });
 
     it('supports async onNone', async () => {
-        const v = await unwrapOrElseAsyncOption(async () => 99, Promise.resolve(ofNone<number>()));
+        const v = await unwrapOrElseAsyncOption(async () => 99, Promise.resolve(ofNone()));
         expect(v).toBe(99);
     });
 
@@ -31,13 +31,13 @@ describe('promise-result unwrapOrElseAsyncOption', () => {
         // unwrapOrElseAsyncOption uses bare `inner.isSome ? inner.value : await onNone()`.
         // A sync throw from the handler propagates via the outer `.then`.
         await expect(
-            unwrapOrElseAsyncOption(() => { throw new Error('onNone-boom'); }, Promise.resolve(ofNone<number>())),
+            unwrapOrElseAsyncOption(() => { throw new Error('onNone-boom'); }, Promise.resolve(ofNone())),
         ).rejects.toThrow('onNone-boom');
     });
 
     it('propagates async onNone rejection verbatim (no catch)', async () => {
         await expect(
-            unwrapOrElseAsyncOption(async () => { throw new Error('async-onNone-boom'); }, Promise.resolve(ofNone<number>())),
+            unwrapOrElseAsyncOption(async () => { throw new Error('async-onNone-boom'); }, Promise.resolve(ofNone())),
         ).rejects.toThrow('async-onNone-boom');
     });
 

@@ -25,14 +25,14 @@ describe('AsyncResult mapErrAsync', () => {
         const ar = mapErrAsync(async () => { throw new Error('boom'); }, fromResult(err('oops')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('boom');
     });
 
     it('catches sync throw inside the callback', async () => {
         const ar = mapErrAsync((() => { throw new Error('sync-boom'); }) as (e: string) => string, fromResult(err('oops')));
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('sync-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('sync-boom');
     });
 
     it('curried: returns a function to apply later', async () => {

@@ -11,7 +11,7 @@ describe('AsyncOption unwrapOr', () => {
     });
 
     it('returns the default value when AsyncOption resolves to None', async () => {
-        const ao = fromOption(ofNone<number>());
+        const ao = fromOption(ofNone());
         const result = await unwrapOr(0, ao);
         expect(result).toBe(0);
     });
@@ -24,7 +24,7 @@ describe('AsyncOption unwrapOr', () => {
     });
 
     it('supports currying for None', async () => {
-        const ao = fromOption(ofNone<number>());
+        const ao = fromOption(ofNone());
         const unwrapper = unwrapOr(0);
         const result = await unwrapper(ao);
         expect(result).toBe(0);
@@ -37,7 +37,7 @@ describe('AsyncOption unwrapOr', () => {
     });
 
     it('supports a Promise as the default value when resolving to None', async () => {
-        const ao = fromOption(ofNone<number>());
+        const ao = fromOption(ofNone());
         const result = await unwrapOr(Promise.resolve(0), ao);
         expect(result).toBe(0);
     });
@@ -50,7 +50,7 @@ describe('AsyncOption unwrapOr', () => {
     });
 
     it('supports currying with a Promise as the default value when resolving to None', async () => {
-        const ao = fromOption(ofNone<number>());
+        const ao = fromOption(ofNone());
         const unwrapper = unwrapOr(Promise.resolve(0));
         const result = await unwrapper(ao);
         expect(result).toBe(0);

@@ -9,7 +9,7 @@ describe('promise-result mapOrAsyncOption', () => {
     });
 
     it('returns default on None', async () => {
-        const v = await mapOrAsyncOption(-1, (x: number) => x * 2, Promise.resolve(ofNone<number>()));
+        const v = await mapOrAsyncOption(-1, (x: number) => x * 2, Promise.resolve(ofNone()));
         expect(v).toBe(-1);
     });
 
@@ -46,7 +46,7 @@ describe('promise-result mapOrAsyncOption', () => {
 
     it('does not invoke the mapper on None input', async () => {
         const mapper = vi.fn((x: number) => x * 2);
-        const v = await mapOrAsyncOption(-1, mapper, Promise.resolve(ofNone<number>()));
+        const v = await mapOrAsyncOption(-1, mapper, Promise.resolve(ofNone()));
         expect(mapper).not.toHaveBeenCalled();
         expect(v).toBe(-1);
     });

@@ -20,7 +20,7 @@ describe('AsyncResult expect', () => {
     });
 
     it('stringifies non-string errors', async () => {
-        const e = expectOk('boom', fromResult(err<number, number>(7)));
+        const e = expectOk('boom', fromResult(err<number>(7)));
         await expect(e).rejects.toThrow(/boom: 7/);
     });
 });

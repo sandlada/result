@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { ok, asyncOk, asyncErr } from '../factories/index.js';
 import { composeKAsync } from './index.js';
 
@@ -39,7 +40,9 @@ describe('composeKAsync', () => {
     });
 
     it('throws TypeError at construction when no functions provided', () => {
+        // @ts-expect-error Testing runtime check — the public overloads require 1-6 functions.
         expect(() => composeKAsync()).toThrow(TypeError);
+        // @ts-expect-error Testing runtime check — same reason as above.
         expect(() => composeKAsync()).toThrow(/at least one function/);
     });
 
@@ -55,14 +58,15 @@ describe('composeKAsync', () => {
 
     it('chains exactly 6 functions (top of the documented ladder)', async () => {
         // Each step returns an AsyncResult or a sync IResultOfT; the
-        // pre-composed chain threads the value through 6 steps.
+        // pre-composed chain threads the value through 6 steps. The chain
+        // never produces an error so the shared E resolves to `never`.
         const composed = composeKAsync(
-            (x: number) => asyncOk<never, number>(x * 2),
-            (x: number) => asyncOk<never, number>(x + 1),
-            (x: number) => asyncOk<never, string>(x.toString()),
-            (s: string) => asyncOk<never, string>(s.toUpperCase()),
-            (s: string) => asyncOk<never, string>(s.split('').reverse().join('')),
-            (s: string) => asyncOk<never, number>(s.length),
+            (x: number) => asyncOk(x * 2),
+            (x: number) => asyncOk(x + 1),
+            (x: number) => asyncOk(x.toString()),
+            (s: string) => asyncOk(s.toUpperCase()),
+            (s: string) => asyncOk(s.split('').reverse().join('')),
+            (s: string) => asyncOk(s.length),
         );
         const r = await composed(10);
         // 10 → 21 → "21" → "21" → "12" → 2
@@ -71,7 +75,7 @@ describe('composeKAsync', () => {
     });
 
     it('catches async rejection from a composed step', async () => {
-        const f1 = (x: number) => asyncOk<never, number>(x + 1);
+        const f1 = (x: number) => asyncOk(x + 1);
         const f2 = async (_x: number) => { throw new Error('async-rejection'); };
         const composed = composeKAsync(f1, f2 as never);
         const r = await composed(10);
@@ -84,15 +88,19 @@ describe('composeKAsync', () => {
         let step5Called = false;
         const step5 = async (_x: string) => {
             step5Called = true;
-            return asyncOk<never, number>(0);
+            return asyncOk(0) as Promise<IResultOfT<number, string>>;
         };
+        // The third step is the only one that can fail; it carries the
+        // shared error type `string`. Each earlier step uses an explicit
+        // return-type annotation so the chain typechecks without forcing
+        // every step to actually produce a string error.
         const composed = composeKAsync(
-            (x: number) => asyncOk<never, number>(x * 2),
-            (x: number) => asyncOk<never, number>(x + 1),
-            async (_x: number) => asyncErr<never, string>('middle failure'),
-            (s: string) => asyncOk<never, string>(s),
-            (s: string) => asyncOk<never, string>(s),
-            step5,
+            (x: number): Promise<IResultOfT<number, string>> => asyncOk(x * 2),
+            (x: number): Promise<IResultOfT<number, string>> => asyncOk(x + 1),
+            async (_x: number) => asyncErr('middle failure'),
+            (s: string): Promise<IResultOfT<string, string>> => asyncOk(s),
+            (s: string): Promise<IResultOfT<string, string>> => asyncOk(s),
+            step5 as (s: string) => Promise<IResultOfT<number, string>>,
         );
         const r = await composed(1);
         expect(r.isFailure).toBe(true);

@@ -15,7 +15,7 @@ describe('tryCatch', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) {
             expect(result.error).toBeInstanceOf(Error);
-            expect(result.error.message).toBe('boom');
+            expect((result.error as Error).message).toBe('boom');
         }
     });
 

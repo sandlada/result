@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { tapAsync } from './index.js';
 import { asyncOk, asyncErr } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('tapAsync', () => {
     it('calls side-effect on success', async () => {
@@ -20,7 +21,7 @@ describe('tapAsync', () => {
     it('catches callback throw and converts to Err', async () => {
         const r = await tapAsync(
             () => { throw new Error('boom'); },
-            asyncOk<number, string>(5),
+            asyncOk<number>(5) as Promise<IResultOfT<number, string>>,
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('boom');
@@ -29,7 +30,7 @@ describe('tapAsync', () => {
     it('catches async callback rejection and converts to Err', async () => {
         const r = await tapAsync(
             async () => { throw new Error('async-boom'); },
-            asyncOk<number, string>(5),
+            asyncOk<number>(5) as Promise<IResultOfT<number, string>>,
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('async-boom');
@@ -37,7 +38,7 @@ describe('tapAsync', () => {
 
     it('curried: returns a function to apply later', async () => {
         let called = false;
-        const fn = tapAsync<number, string>(() => { called = true; });
+        const fn = tapAsync<number>(() => { called = true; });
         const r = await fn(asyncOk(7));
         expect(called).toBe(true);
         expect(r.isSuccess).toBe(true);

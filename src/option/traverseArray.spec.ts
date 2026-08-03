@@ -3,7 +3,7 @@ import { traverseArray } from './traverseArray.js';
 import { ofSome, ofNone } from './index.js';
 
 describe('Option traverseArray', () => {
-    const doubleIfPositive = (x: number) => (x > 0 ? ofSome(x * 2) : ofNone<number>());
+    const doubleIfPositive = (x: number) => (x > 0 ? ofSome(x * 2) : ofNone());
 
     it('returns Some with mapped array when all succeed (direct)', () => {
         const result = traverseArray(doubleIfPositive, [1, 2, 3]);
@@ -32,7 +32,7 @@ describe('Option traverseArray', () => {
     });
 
     it('stops calling fn after first None — short-circuit (Group C)', () => {
-        const fn = vi.fn((x: number) => x > 0 ? ofSome(x) : ofNone<number>());
+        const fn = vi.fn((x: number) => x > 0 ? ofSome(x) : ofNone());
         const result = traverseArray(fn, [1, -1, 3, -3, 5]);
         expect(fn).toHaveBeenCalledTimes(2);
         expect(result).toEqual(ofNone());

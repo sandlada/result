@@ -108,7 +108,7 @@ describe('reduce', () => {
         const r = reduce(
             (acc: number, _n: number) => ok(acc + 1),
             0,
-            [ok(1), err<number>(sentinel)],
+            [ok(1), err<{ code: string }>(sentinel)],
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe(sentinel);

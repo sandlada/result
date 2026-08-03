@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { asyncBindThrough } from './index.js';
 import { ok, err } from '../factories/index.js';
 import { pipe } from '../composition/pipe.js';
-import type { IResultOfT } from '../../types/IResultOfT.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('asyncBindThrough', () => {
     it('preserves original value when callback succeeds', async () => {
@@ -60,10 +60,10 @@ describe('asyncBindThrough', () => {
         type AppErr = { kind: 'NotFound' } | { kind: 'Validation'; msg: string };
         const result = await asyncBindThrough(
             async (x: string): Promise<IResultOfT<unknown, AppErr>> => err({ kind: 'Validation', msg: 'invalid' }),
-            ok<string, never>('hello'),
+            ok<string>('hello') as IResultOfT<string, never>,
         );
         expect(result.isSuccess).toBe(false);
-        if(!result.isSuccess) expect(result.error.kind).toBe('Validation');
+        if(!result.isSuccess) expect((result.error as { kind: string }).kind).toBe('Validation');
     });
 
     it('works with pipe composition', async () => {
@@ -85,7 +85,7 @@ describe('asyncBindThrough', () => {
         // it through.
         type InputErr = { kind: 'Input'; id: string };
         type BindErr = { kind: 'Bind'; reason: string };
-        const source = ok<string, InputErr>('hello');
+        const source = ok<string>('hello') as IResultOfT<string, InputErr>;
         const result = await asyncBindThrough(
             async (_x: string): Promise<IResultOfT<unknown, BindErr>> => err({ kind: 'Bind', reason: 'nope' }),
             source,

@@ -111,14 +111,14 @@ describe('IResultOfT (value)', () => {
     });
 
     it('err creates failure with error', () => {
-        const r = err<string, string>('error');
+        const r = err<string>('error');
         expect(r.isSuccess).toBe(false);
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('error');
     });
 
     it('value is undefined on failure variant', () => {
-        const r = err<string, string>('fail');
+        const r = err<string>('fail');
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
             // .value doesn't exist on failure variant
@@ -143,7 +143,7 @@ describe('IResultOfT (value)', () => {
     });
 
     it('narrowing: isSuccess lets else branch access error', () => {
-        const r = err<number, string>('fail');
+        const r = err<string>('fail');
         if (r.isSuccess) {
             expect(r.value).toBe(42);
         } else {
@@ -152,7 +152,7 @@ describe('IResultOfT (value)', () => {
     });
 
     it('narrowing: isFailure narrows to failure variant', () => {
-        const r = err<number, string>('fail');
+        const r = err<string>('fail');
         if (r.isFailure) {
             expect(r.error).toBe('fail');
         }
@@ -172,9 +172,9 @@ describe('IResultOfT (value)', () => {
 
     it('explicit error type generic works', () => {
         type CustomError = { message: string; code: number };
-        const r = err<number, CustomError>({ message: 'fail', code: 500 });
+        const r = err<CustomError>({ message: 'fail', code: 500 });
         if (r.isFailure) {
-            expect(r.error.code).toBe(500);
+            expect((r.error as unknown as CustomError).code).toBe(500);
         }
     });
 
@@ -183,17 +183,19 @@ describe('IResultOfT (value)', () => {
             | { kind: 'NotFound'; resource: string }
             | { kind: 'Validation'; field: string };
 
-        const r1 = err<string, ApiError>({ kind: 'NotFound', resource: 'user' });
+        const r1 = err<ApiError>({ kind: 'NotFound', resource: 'user' });
         if (r1.isFailure) {
-            if (r1.error.kind === 'NotFound') {
-                expect(r1.error.resource).toBe('user');
+            const err1 = r1.error as unknown as ApiError;
+            if (err1.kind === 'NotFound') {
+                expect(err1.resource).toBe('user');
             }
         }
 
-        const r2 = err<string, ApiError>({ kind: 'Validation', field: 'email' });
+        const r2 = err<ApiError>({ kind: 'Validation', field: 'email' });
         if (r2.isFailure) {
-            if (r2.error.kind === 'Validation') {
-                expect(r2.error.field).toBe('email');
+            const err2 = r2.error as unknown as ApiError;
+            if (err2.kind === 'Validation') {
+                expect(err2.field).toBe('email');
             }
         }
     });
@@ -204,7 +206,7 @@ describe('IResultOfT (value)', () => {
     });
 
     it('isFailure on value result', () => {
-        const r = err<number, string>('fail');
+        const r = err<string>('fail');
         expect(r.isFailure).toBe(true);
     });
 });

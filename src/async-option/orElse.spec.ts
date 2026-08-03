@@ -39,7 +39,7 @@ describe('AsyncOption orElse', () => {
 
     it('calls the fallback function when original is None and processes returned Promise<IOption> (Some)', async () => {
         const fallback = vi.fn(() => Promise.resolve(ofSome('alternative')));
-        const ao = orElse(fallback, fromOption(ofNone<string>()));
+        const ao = orElse(fallback, fromOption(ofNone()));
         const result = await ao.run();
 
         expect(result.isSome).toBe(true);
@@ -50,8 +50,8 @@ describe('AsyncOption orElse', () => {
     });
 
     it('calls the fallback function when original is None and processes returned Promise<IOption> (None)', async () => {
-        const fallback = vi.fn(() => Promise.resolve(ofNone<string>()));
-        const ao = orElse(fallback, fromOption(ofNone<string>()));
+        const fallback = vi.fn(() => Promise.resolve(ofNone()));
+        const ao = orElse(fallback, fromOption(ofNone()));
         const result = await ao.run();
 
         expect(result.isNone).toBe(true);

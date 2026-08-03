@@ -37,7 +37,7 @@ describe('toJSON — value Result', () => {
     });
 
     it('Failure serializes via JSON.stringify', () => {
-        const r = err<number, string>('nope');
+        const r = err<string>('nope');
         const parsed = JSON.parse(JSON.stringify(r));
         expect(parsed).toMatchObject({ isSuccess: false, error: 'nope' });
     });

@@ -22,7 +22,7 @@ describe('AsyncResult containsErr', () => {
 
     it('uses reference equality for object errors', async () => {
         const e = { code: 7 };
-        expect(await containsErr<typeof e, number>(e, fromResult(err<number, typeof e>(e)))).toBe(true);
-        expect(await containsErr({ code: 7 } as typeof e, fromResult(err<number, typeof e>(e)))).toBe(false);
+        expect(await containsErr<number, typeof e>(e, fromResult(err<typeof e>(e)))).toBe(true);
+        expect(await containsErr<number, typeof e>({ code: 7 } as typeof e, fromResult(err<typeof e>(e)))).toBe(false);
     });
 });

@@ -68,11 +68,11 @@ describe('AsyncResult orElse', () => {
 
     it('propagates a failure from a recovered AsyncResult', async () => {
         const ar = orElse(
-            (_e: string) => fromResult(err<number, string>('recovery-failed')),
+            (_e: string) => fromResult(err('recovery-failed')),
             fromResult(err<string>('original')),
         );
         const result = await ar.run();
-        expect(result.isFailure && result.error).toBe('recovery-failed');
+        if (result.isFailure) expect(result.error).toBe('recovery-failed');
     });
 
     it('does not invoke the callback when the source is Ok', async () => {

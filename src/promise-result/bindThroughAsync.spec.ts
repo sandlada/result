@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { bindThroughAsync } from './index.js';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('bindThroughAsync', () => {
     it('passes through success when inner callback returns success (curried)', async () => {
@@ -22,7 +23,7 @@ describe('bindThroughAsync', () => {
     it('returns inner error when callback returns failure', async () => {
         const r = await bindThroughAsync(
             async () => err<string>('inner'),
-            Promise.resolve(ok<number, string>(21)),
+            Promise.resolve(ok<number>(21) as IResultOfT<number, string>),
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('inner');
@@ -40,7 +41,7 @@ describe('bindThroughAsync', () => {
     it('propagates callback exceptions (does not catch)', async () => {
         await expect(bindThroughAsync(
             async () => { throw 'cb err'; },
-            Promise.resolve(ok<number, string>(21)),
+            Promise.resolve(ok<number>(21) as IResultOfT<number, string>),
         )).rejects.toBe('cb err');
     });
 
@@ -56,7 +57,7 @@ describe('bindThroughAsync', () => {
         type BindErr = { kind: 'Bind'; reason: string };
         const r = await bindThroughAsync<number, void, CustomErr, BindErr>(
             async (_x: number) => err<BindErr>({ kind: 'Bind', reason: 'nope' }),
-            Promise.resolve(ok<number, CustomErr>(5)),
+            Promise.resolve(ok<number>(5) as IResultOfT<number, CustomErr>),
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {

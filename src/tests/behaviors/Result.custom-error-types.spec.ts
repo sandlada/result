@@ -5,7 +5,8 @@ import type { IResultOfT } from '../../types/IResultOfT.js';
 
 type AppError =
     | { kind: 'NotFound'; resource: string; id: string }
-    | { kind: 'Validation'; fields: Record<string, string> };
+    | { kind: 'Validation'; fields: Record<string, string> }
+    | { kind: 'Unauthorized'; reason: string };
 
 class DomainError extends Error {
     constructor(
@@ -20,15 +21,16 @@ class DomainError extends Error {
 describe('Discriminated union error', () => {
     describe('Validation error', () => {
         it('creates failure with validation error', () => {
-            const r = err<string, AppError>({
+            const r = err<AppError>({
                 kind: 'Validation',
                 fields: { id: 'Required' },
             });
             expect(r.isFailure).toBe(true);
             if (r.isFailure) {
-                expect(r.error.kind).toBe('Validation');
-                if (r.error.kind === 'Validation') {
-                    expect(r.error.fields.id).toBe('Required');
+                const error = r.error as unknown as AppError;
+                expect(error.kind).toBe('Validation');
+                if (error.kind === 'Validation') {
+                    expect(error.fields.id).toBe('Required');
                 }
             }
         });
@@ -36,16 +38,17 @@ describe('Discriminated union error', () => {
 
     describe('NotFound error', () => {
         it('creates failure with NotFound error', () => {
-            const r = err<string, AppError>({
+            const r = err<AppError>({
                 kind: 'NotFound',
                 resource: 'User',
                 id: '42',
             });
             if (r.isFailure) {
-                expect(r.error.kind).toBe('NotFound');
-                if (r.error.kind === 'NotFound') {
-                    expect(r.error.resource).toBe('User');
-                    expect(r.error.id).toBe('42');
+                const error = r.error as unknown as AppError;
+                expect(error.kind).toBe('NotFound');
+                if (error.kind === 'NotFound') {
+                    expect(error.resource).toBe('User');
+                    expect(error.id).toBe('42');
                 }
             }
         });
@@ -53,14 +56,15 @@ describe('Discriminated union error', () => {
 
     describe('Unauthorized error', () => {
         it('creates failure with Unauthorized error', () => {
-            const r = err<string, AppError>({
+            const r = err<AppError>({
                 kind: 'Unauthorized',
                 reason: 'Token expired',
             });
             if (r.isFailure) {
-                expect(r.error.kind).toBe('Unauthorized');
-                if (r.error.kind === 'Unauthorized') {
-                    expect(r.error.reason).toBe('Token expired');
+                const error = r.error as unknown as AppError;
+                expect(error.kind).toBe('Unauthorized');
+                if (error.kind === 'Unauthorized') {
+                    expect(error.reason).toBe('Token expired');
                 }
             }
         });
@@ -68,23 +72,24 @@ describe('Discriminated union error', () => {
 
     describe('Exhaustiveness checking', () => {
         it('switch covers all error variants', () => {
-            const result: IResultOfT<string, AppError> = err<string, AppError>({
+            const result: IResultOfT<string, AppError> = err<AppError>({
                 kind: 'NotFound',
                 resource: 'User',
                 id: '1',
-            });
+            }) as unknown as IResultOfT<string, AppError>;
 
             let message = '';
             if (result.isFailure) {
-                switch (result.error.kind) {
+                const error = result.error as unknown as AppError;
+                switch (error.kind) {
                     case 'NotFound':
-                        message = `Missing ${result.error.resource} ${result.error.id}`;
+                        message = `Missing ${error.resource} ${error.id}`;
                         break;
                     case 'Validation':
-                        message = `Invalid input: ${JSON.stringify(result.error.fields)}`;
+                        message = `Invalid input: ${JSON.stringify(error.fields)}`;
                         break;
                     case 'Unauthorized':
-                        message = `Access denied: ${result.error.reason}`;
+                        message = `Access denied: ${error.reason}`;
                         break;
                 }
             }
@@ -94,7 +99,7 @@ describe('Discriminated union error', () => {
 
     describe('Success path with discriminated union', () => {
         it('returns success with value', () => {
-            const r = ok<{ id: number; name: string }>({ id: 1, name: 'Alice' });
+            const r = ok({ id: 1, name: 'Alice' }) as unknown as IResultOfT<{ id: number; name: string }, never>;
             expect(r.isSuccess).toBe(true);
             if (r.isSuccess) expect(r.value.name).toBe('Alice');
         });
@@ -103,23 +108,24 @@ describe('Discriminated union error', () => {
 
 describe('Class-based error', () => {
     it('creates failure with DomainError', () => {
-        const r = err<string, DomainError>(
+        const r = err<DomainError>(
             new DomainError('Invalid email format', 'INVALID_EMAIL'),
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
-            expect(r.error).toBeInstanceOf(DomainError);
-            expect(r.error).toBeInstanceOf(Error);
-            expect(r.error.code).toBe('INVALID_EMAIL');
-            expect(r.error.message).toBe('Invalid email format');
+            const error = r.error as unknown as DomainError;
+            expect(error).toBeInstanceOf(DomainError);
+            expect(error).toBeInstanceOf(Error);
+            expect(error.code).toBe('INVALID_EMAIL');
+            expect(error.message).toBe('Invalid email format');
         }
     });
 
     it('DomainError retains name property', () => {
-        const r = err<string, DomainError>(
+        const r = err<DomainError>(
             new DomainError('oops', 'ERR'),
         );
-        if (r.isFailure) expect(r.error.name).toBe('DomainError');
+        if (r.isFailure) expect((r.error as unknown as DomainError).name).toBe('DomainError');
     });
 
     it('success path with DomainError', () => {
@@ -131,41 +137,46 @@ describe('Class-based error', () => {
     it('multiple DomainError instances are distinct', () => {
         const e1 = new DomainError('first', 'E1');
         const e2 = new DomainError('second', 'E2');
-        const r1 = err<string, DomainError>(e1);
-        const r2 = err<string, DomainError>(e2);
+        const r1 = err<DomainError>(e1);
+        const r2 = err<DomainError>(e2);
         if (r1.isFailure && r2.isFailure) {
-            expect(r1.error).not.toBe(r2.error);
-            expect(r1.error.code).toBe('E1');
-            expect(r2.error.code).toBe('E2');
+            const err1 = r1.error as unknown as DomainError;
+            const err2 = r2.error as unknown as DomainError;
+            expect(err1).not.toBe(err2);
+            expect(err1.code).toBe('E1');
+            expect(err2.code).toBe('E2');
         }
     });
 });
 
 describe('Plain object error', () => {
+    type TimeoutError = { reason: string; retryAfter: number };
+
     it('passes any object as error', () => {
-        const r = err<number, { reason: string; retryAfter: number }>({
+        const r = err<TimeoutError>({
             reason: 'timeout',
             retryAfter: 5000,
         });
         if (r.isFailure) {
-            expect(r.error.reason).toBe('timeout');
-            expect(r.error.retryAfter).toBe(5000);
+            const error = r.error as unknown as TimeoutError;
+            expect(error.reason).toBe('timeout');
+            expect(error.retryAfter).toBe(5000);
         }
     });
 
     it('plain object error is not an Error instance', () => {
-        const r = err<number, { reason: string }>({ reason: 'oops' });
+        const r = err<{ reason: string }>({ reason: 'oops' });
         if (r.isFailure) expect(r.error).not.toBeInstanceOf(Error);
     });
 
     it('deeply nested plain objects work', () => {
-        const r = err<string, {
+        const r = err<{
             code: string;
             detail: { inner: { value: number } };
         }>({
             code: 'DEEP',
             detail: { inner: { value: 42 } },
         });
-        if (r.isFailure) expect(r.error.detail.inner.value).toBe(42);
+        if (r.isFailure) expect((r.error as unknown as { detail: { inner: { value: number } } }).detail.inner.value).toBe(42);
     });
 });

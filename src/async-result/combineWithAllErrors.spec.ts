@@ -30,9 +30,9 @@ describe('AsyncResult combineWithAllErrors', () => {
     it('collects all errors when every result fails', async () => {
         const e1 = new Error('e1');
         const e2 = new Error('e2');
-        const ar = combineWithAllErrors([
-            fromResult(err<number, Error>(e1)),
-            fromResult(err<number, Error>(e2)),
+        const ar = combineWithAllErrors<number, Error>([
+            fromResult(err(e1)),
+            fromResult(err(e2)),
         ]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
@@ -62,8 +62,8 @@ describe('AsyncResult combineWithAllErrors', () => {
         type VErr = { field: string; message: string };
         const ar = combineWithAllErrors<string, VErr>([
             fromResult(ok('valid') as unknown as IResultOfT<string, VErr>),
-            fromResult(err<string, VErr>({ field: 'name', message: 'required' })),
-            fromResult(err<string, VErr>({ field: 'email', message: 'invalid' })),
+            fromResult(err<VErr>({ field: 'name', message: 'required' })),
+            fromResult(err<VErr>({ field: 'email', message: 'invalid' })),
         ]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
@@ -95,7 +95,7 @@ describe('AsyncResult combineWithAllErrors', () => {
             fromResult(err('e2')),
         ]);
         const result = await ar.run();
-        expect(result.isFailure && result.error).toEqual(['e1', 'e2']);
+        if (result.isFailure) expect(result.error).toEqual(['e1', 'e2']);
     });
 
     it('returns a single-element error array for a single failure', async () => {
@@ -105,6 +105,6 @@ describe('AsyncResult combineWithAllErrors', () => {
             fromResult(ok(3)),
         ]);
         const result = await ar.run();
-        expect(result.isFailure && result.error).toEqual(['only']);
+        if (result.isFailure) expect(result.error).toEqual(['only']);
     });
 });

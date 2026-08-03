@@ -13,7 +13,7 @@ describe('expectErr (void result)', () => {
     it('throws TypeError with custom message on success', () => {
         const r = ok();
         try {
-            expectErr('Expected failure', r);
+            expectErr('Expected failure', r as unknown as IResultOfT<unknown, never>);
         } catch (e: unknown) {
             expect(e).toBeInstanceOf(TypeError);
             expect((e as TypeError).message).toBe('Expected failure');
@@ -24,7 +24,7 @@ describe('expectErr (void result)', () => {
 describe('expectErr (value result)', () => {
     it('returns the error on failure', () => {
         const errVal = new Error('bad');
-        const r = err<number>(errVal);
+        const r = err<Error>(errVal);
         expect(expectErr('not needed', r)).toBe(errVal);
     });
 
@@ -42,7 +42,7 @@ describe('expectErr (value result)', () => {
 describe('expectErr (FP operator / curried)', () => {
     it('returns error on failure', () => {
         const errVal = new Error('boom');
-        const r: IResultOfT<number> = err<number>(errVal);
+        const r: IResultOfT<number> = err<Error>(errVal);
         expect(expectErr('not needed', r)).toBe(errVal);
     });
 
@@ -74,7 +74,7 @@ describe('expectErr (FP operator / curried)', () => {
     });
 
     it('exact error type returned on failure (Group B)', () => {
-        class CustomError extends Error { public readonly code: number; }
+        class CustomError extends Error { public readonly code: number = 0; }
         const r = err(new CustomError());
         const result = expectErr('msg', r);
         expect(result).toBeInstanceOf(CustomError);

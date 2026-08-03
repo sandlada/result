@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { asyncTap } from './index.js';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('asyncTap', () => {
     it('calls side-effect on success and returns original Result', async () => {
@@ -9,7 +10,7 @@ describe('asyncTap', () => {
             side = v;
         });
 
-        const original = ok<number, string>(5);
+        const original = ok<number>(5) as IResultOfT<number, string>;
         const r = await asyncTap(mockFn, original);
 
         expect(mockFn).toHaveBeenCalledOnce();
@@ -46,7 +47,7 @@ describe('asyncTap', () => {
             side = v;
         });
 
-        const original = ok<number, string>(5);
+        const original = ok<number>(5) as IResultOfT<number, string>;
         const tapFn = asyncTap(mockFn);
         const r = await tapFn(original);
 
@@ -62,7 +63,7 @@ describe('asyncTap', () => {
             throw error;
         });
 
-        const original = ok<number, Error>(5);
+        const original = ok<number>(5) as IResultOfT<number, Error>;
         const r = await asyncTap(throwingFn, original);
 
         expect(throwingFn).toHaveBeenCalledOnce();
@@ -78,7 +79,7 @@ describe('asyncTap', () => {
             return Promise.reject(error);
         });
 
-        const original = ok<number, Error>(5);
+        const original = ok<number>(5) as IResultOfT<number, Error>;
         const r = await asyncTap(rejectingFn, original);
 
         expect(rejectingFn).toHaveBeenCalledOnce();
@@ -90,7 +91,7 @@ describe('asyncTap', () => {
 
     it('catches sync throw from callback', async () => {
         const fn = (() => { throw new Error('sync-boom'); }) as unknown as (v: number) => Promise<void>;
-        const r = await asyncTap(fn, ok<number, Error>(5));
+        const r = await asyncTap(fn, ok<number>(5) as IResultOfT<number, Error>);
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
     });
@@ -99,7 +100,7 @@ describe('asyncTap', () => {
         let invokedSync = false;
         const r = asyncTap(async (_v: number) => {
             invokedSync = true;
-        }, ok<number, string>(5));
+        }, ok<number>(5) as IResultOfT<number, string>);
         expect(invokedSync).toBe(true);
         expect(r).toBeInstanceOf(Promise);
     });
@@ -108,7 +109,7 @@ describe('asyncTap', () => {
         // tap is identity on success — the input Result must be returned
         // verbatim. Any object identity check passes iff the implementation
         // is `Promise.resolve(r)` rather than a clone.
-        const original = ok<number, string>(42);
+        const original = ok<number>(42) as IResultOfT<number, string>;
         const r = await asyncTap(async (_x: number) => { /* noop */ }, original);
         expect(r).toBe(original);
     });

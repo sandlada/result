@@ -26,7 +26,7 @@
  */
 
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { ctx } from './ctx.js';
+import { ctx, type PathSegment } from './ctx.js';
 
 /**
  * Push `segment` onto the current path frame and return `r` unchanged.
@@ -34,9 +34,9 @@ import { ctx } from './ctx.js';
  * - Push happens immediately on call; passing `r` is optional.
  * - Returns `r` when supplied; otherwise returns `void`.
  */
-export function withPath(segment: string): void;
-export function withPath<T, E>(segment: string, r: IResultOfT<T, E>): IResultOfT<T, E>;
-export function withPath<T, E>(segment: string, r?: IResultOfT<T, E>): void | IResultOfT<T, E> {
+export function withPath(segment: PathSegment): void;
+export function withPath<T, E>(segment: PathSegment, r: IResultOfT<T, E>): IResultOfT<T, E>;
+export function withPath<T, E>(segment: PathSegment, r?: IResultOfT<T, E>): void | IResultOfT<T, E> {
     ctx.push(segment);
     return r;
 }

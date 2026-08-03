@@ -49,14 +49,14 @@ describe('Interface hierarchy', () => {
         expectTypeOf<R>().toMatchTypeOf<IResult>();
     });
 
-    it('IResultOfT without TError defaults to Error', () => {
+    it('IResultOfT without TError defaults to unknown', () => {
         type R = IResultOfT<number>;
-        expectTypeOf<R>().toMatchTypeOf<IResultOfT<number, Error>>();
+        expectTypeOf<R>().toMatchTypeOf<IResultOfT<number, unknown>>();
     });
 
-    it('IResult without TError defaults to Error', () => {
+    it('IResult without TError defaults to unknown', () => {
         type R = IResult;
-        expectTypeOf<R>().toMatchTypeOf<IResult<Error>>();
+        expectTypeOf<R>().toMatchTypeOf<IResult<unknown>>();
     });
 });
 

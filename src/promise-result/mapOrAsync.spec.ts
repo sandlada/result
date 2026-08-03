@@ -63,7 +63,7 @@ describe('mapOrAsync', () => {
         // `mapOrAsync` returns `Promise<B>` where B is the default's type.
         // Even when the mapper would return a different shape, the default
         // wins on any error path.
-        const v = await mapOrAsync(0, async (_x: number) => `string-result`, asyncErr<string>('boom'));
+        const v = await mapOrAsync(0, async (_x: number) => 0, asyncErr<string>('boom'));
         expect(v).toBe(0);
     });
 });

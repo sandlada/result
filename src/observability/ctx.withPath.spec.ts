@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { pipe } from '../composition/index.js';
 import { ok, err } from '../factories/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { ctx, getPath, withPath, tapErrContext } from './index.js';
 
 const inScope = <T>(fn: () => T): T => ctx.run(fn);
@@ -55,8 +56,10 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
     it('tapErrContext invokes fn only on failure', () => {
         const seen: Array<{ err: unknown; path: ReadonlyArray<string | number> }> = [];
         inScope(() => {
-            const r1 = tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('boom'));
-            const r2 = tapErrContext(() => { seen.push({ err: 'should not run', path: [] }); }, ok(42));
+            // The callback is sync, so the return value is the sync branch —
+            // assert the non-Promise arm so isFailure/isSuccess are accessible.
+            const r1 = tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('boom')) as IResultOfT<never, string>;
+            const r2 = tapErrContext(() => { seen.push({ err: 'should not run', path: [] }); }, ok(42)) as IResultOfT<number, never>;
             expect(r1.isFailure).toBe(true);
             expect(r2.isSuccess).toBe(true);
         });

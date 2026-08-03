@@ -42,7 +42,7 @@ describe('sync FP interop', () => {
 
         const AppResult = {
             Success: <T>(value: T) => ok(value) as unknown as IResultOfT<T, AppError>,
-            Failure: <T>(error: AppError) => err<T, AppError>(error),
+            Failure: <T>(error: AppError) => err<AppError>(error) as unknown as IResultOfT<T, AppError>,
         };
 
         const r = AppResult.Success(10);
@@ -75,7 +75,7 @@ describe('sync FP interop', () => {
         const fpOk = unwrapOr(0, ok(42));
         expect(fpOk).toBe(42);
 
-        const fpFail = unwrapOr(99, err<number, string>('bad'));
+        const fpFail = unwrapOr(99, err<string>('bad'));
         expect(fpFail).toBe(99);
     });
 });
@@ -249,11 +249,11 @@ describe('edge conditions', () => {
         type E1 = { kind: 'A' };
         type E2 = { kind: 'B' };
 
-        const r = err<number, E1>({ kind: 'A' });
+        const r = err<E1>({ kind: 'A' });
 
         const mapped = bind(
-            (_v: number): IResultOfT<number, E2> => err<number, E2>({ kind: 'B' }),
-            r,
+            (_v: number): IResultOfT<number, E2> => err<E2>({ kind: 'B' }) as unknown as IResultOfT<number, E2>,
+            r as unknown as IResultOfT<number, E1>,
         );
 
         expect(mapped.isSuccess).toBe(false);

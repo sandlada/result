@@ -23,8 +23,9 @@ describe('inspect', () => {
         const r = inspect(ok(1));
         expect(r.kind === 'ok').toBe(true);
         if (r.kind === 'err') {
-            // @ts-expect-error — narrowing works
-            r.error;
+            // After narrowing to the err branch, the ok-side `value` is gone.
+            // @ts-expect-error — narrowing excludes the success variant's value
+            r.value;
         }
     });
 

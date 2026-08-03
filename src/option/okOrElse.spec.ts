@@ -32,11 +32,11 @@ describe('Option — okOrElse', () => {
     });
 
     it('catches errorFn throw and converts to Err', () => {
-        const result = okOrElse<number, Error>(
+        const result = okOrElse<Error>(
             () => { throw new Error('errFn-boom'); },
         )(ofNone() as IOption<number>);
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('errFn-boom');
+        if (result.isFailure) expect(result.error.message).toBe('errFn-boom');
     });
 
     it('does NOT call errorFn on Some — short-circuit (Group C)', () => {
@@ -52,7 +52,7 @@ describe('Option — okOrElse', () => {
     });
 
     it('catches non-Error throws and converts to Err (Group D)', () => {
-        const result = okOrElse<number, unknown>(
+        const result = okOrElse<unknown>(
             () => { throw 'string-throw'; },
         )(ofNone() as IOption<number>);
         expect(result.isFailure).toBe(true);
