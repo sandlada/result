@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { existsAsync } from './index.js';
 import { ok, err } from '../factories/index.js';
 
@@ -37,5 +37,24 @@ describe('existsAsync', () => {
 
     it('propagates async predicate rejection (does not catch)', async () => {
         await expect(existsAsync(async () => { throw new Error('boom'); }, Promise.resolve(ok(42)))).rejects.toThrow('boom');
+    });
+
+    it('does not invoke the predicate on a failure source', async () => {
+        const pred = vi.fn(async (x: number) => x > 10);
+        const r = await existsAsync(pred, Promise.resolve(err<string>('pre-fail')));
+        expect(pred).not.toHaveBeenCalled();
+        expect(r).toBe(false);
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const pending = new Promise<ReturnType<typeof ok<number>>>(() => { /* never */ });
+        const result = existsAsync(isEven, pending);
+        expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('propagates outer Promise rejection verbatim', async () => {
+        await expect(
+            existsAsync(isEven, Promise.reject(new Error('outer-reject'))),
+        ).rejects.toThrow('outer-reject');
     });
 });

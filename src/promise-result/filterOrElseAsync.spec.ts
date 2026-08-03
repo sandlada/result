@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { filterOrElseAsync } from './index.js';
 import { ok, err } from '../factories/index.js';
 
@@ -63,5 +63,26 @@ describe('filterOrElseAsync', () => {
             () => { throw new Error('errorFn boom'); },
             Promise.resolve(ok(5)),
         )).rejects.toThrow('errorFn boom');
+    });
+
+    it('does not invoke the predicate on an Err source', async () => {
+        const pred = vi.fn(async (x: number) => x > 10);
+        const eFn = vi.fn(async (x: number) => `${x} bad`);
+        const r = await filterOrElseAsync(pred, eFn, Promise.resolve(err<string>('pre-fail')));
+        expect(pred).not.toHaveBeenCalled();
+        expect(eFn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+    });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const pending = new Promise<ReturnType<typeof ok<number>>>(() => { /* never */ });
+        const result = filterOrElseAsync(isEven, errorFn, pending);
+        expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('propagates outer Promise rejection verbatim', async () => {
+        await expect(
+            filterOrElseAsync(isEven, errorFn, Promise.reject(new Error('outer-reject'))),
+        ).rejects.toThrow('outer-reject');
     });
 });

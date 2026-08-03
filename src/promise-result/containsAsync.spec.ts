@@ -31,4 +31,23 @@ describe('containsAsync', () => {
         expect(r1).toBe(true);
         expect(r2).toBe(false);
     });
+
+    it('returns a Promise immediately on construction (eager)', () => {
+        const pending = new Promise<ReturnType<typeof ok<number>>>(() => { /* never */ });
+        const result = containsAsync(42, pending);
+        expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('propagates outer Promise rejection verbatim', async () => {
+        await expect(
+            containsAsync(42, Promise.reject(new Error('outer-reject'))),
+        ).rejects.toThrow('outer-reject');
+    });
+
+    it('returns false on NaN (correct semantics)', async () => {
+        // Per IEEE 754, NaN !== NaN. containsAsync uses `===`, so it returns
+        // false even when the input value matches.
+        const r = await containsAsync(NaN, Promise.resolve(ok(NaN)));
+        expect(r).toBe(false);
+    });
 });

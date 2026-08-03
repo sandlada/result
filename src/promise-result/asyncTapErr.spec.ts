@@ -94,4 +94,32 @@ describe('asyncTapErr', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('sync-boom');
     });
+
+    it('starts the async callback synchronously on construction (eager)', () => {
+        let invokedSync = false;
+        const r = asyncTapErr(async (_e: string) => {
+            invokedSync = true;
+        }, err<string>('boom'));
+        expect(invokedSync).toBe(true);
+        expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('returns the *original* Result object by reference on both branches', async () => {
+        // tapErr is identity — the input Result must be returned verbatim.
+        const onOk = ok<number, string>(42);
+        const onErr = err<string>('boom');
+        const rOk = await asyncTapErr(async (_e: string) => { /* noop */ }, onOk);
+        const rErr = await asyncTapErr(async (_e: string) => { /* noop */ }, onErr);
+        expect(rOk).toBe(onOk);
+        expect(rErr).toBe(onErr);
+    });
+
+    it('passes the original error value to the callback (lifting from sync)', async () => {
+        let captured: unknown = undefined;
+        const f = vi.fn(async (e: { code: number; msg: string }) => {
+            captured = e;
+        });
+        await asyncTapErr(f, err<{ code: number; msg: string }>({ code: 5, msg: 'tap' }));
+        expect(captured).toEqual({ code: 5, msg: 'tap' });
+    });
 });
