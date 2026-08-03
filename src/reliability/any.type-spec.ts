@@ -22,4 +22,26 @@ describe('any types', () => {
         const _check: AsyncResult<number[], string[]> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves literal error types as an E[] array', () => {
+        type Err = 'upstream' | 'downstream';
+        const r = any<number, Err>([fromResult(ok(1))]);
+        const _check: AsyncResult<number[], Err[]> = r;
+        expectTypeOf(_check).toEqualTypeOf<AsyncResult<number[], Err[]>>();
+    });
+
+    it('input is readonly AsyncResult<T, E>[]', () => {
+        // The source declares `readonly AsyncResult<T, E>[]`.
+        const mutable: AsyncResult<number, string>[] = [fromResult(ok(1))];
+        const r = any(mutable);
+        const _check: AsyncResult<number[], string[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('success branch returns T[] (not T)', () => {
+        const r = any([fromResult(ok(1)), fromResult(ok(2))]);
+        // The success value is an array, even with a single input.
+        const _check: AsyncResult<number[], string[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

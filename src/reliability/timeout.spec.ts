@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { timeout } from './index.js';
 
 const asyncOk = <T>(value: T, ms: number) =>
@@ -104,6 +104,74 @@ describe('timeout (lazy)', () => {
         const r = await promise;
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error.kind).toBe('Timeout');
+    });
+
+    describe('with fake timers', () => {
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('fires the timer at exactly the configured ms and returns Err(Timeout)', async () => {
+            vi.useFakeTimers();
+            const ar = { run: () => new Promise<never>(() => { /* never settles */ }) };
+            const promise = timeout(100, ar).run();
+            // Advance to just before — not yet fired.
+            await vi.advanceTimersByTimeAsync(99);
+            // Advance to exactly the configured ms.
+            await vi.advanceTimersByTimeAsync(1);
+            const r = await promise;
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                expect(r.error.kind).toBe('Timeout');
+                expect(r.error.ms).toBe(100);
+            }
+        });
+
+        it('resolves with Ok when inner settles before the timer fires', async () => {
+            vi.useFakeTimers();
+            const ar = {
+                run: () => Promise.resolve({
+                    isSuccess: true as const,
+                    isFailure: false as const,
+                    value: 42,
+                }),
+            };
+            const r = await timeout(1000, ar).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(42);
+        });
+
+        it('passes the configured ms to a custom onTimeout factory', async () => {
+            vi.useFakeTimers();
+            const ar = { run: () => new Promise<never>(() => { /* never settles */ }) };
+            const factory = vi.fn((ms: number) => ({ kind: 'Custom' as const, ms }));
+            const promise = timeout(50, ar, factory).run();
+            await vi.advanceTimersByTimeAsync(50);
+            const r = await promise;
+            expect(factory).toHaveBeenCalledWith(50);
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                expect(r.error.kind).toBe('Custom');
+                expect(r.error.ms).toBe(50);
+            }
+        });
+
+        it('clears the timer when the inner settles first (no stray timer fires)', async () => {
+            vi.useFakeTimers();
+            const factory = vi.fn((ms: number) => ({ kind: 'Timeout' as const, ms }));
+            const ar = {
+                run: () => Promise.resolve({
+                    isSuccess: true as const,
+                    isFailure: false as const,
+                    value: 7,
+                }),
+            };
+            const r = await timeout(100, ar, factory).run();
+            expect(r.isSuccess).toBe(true);
+            // Advance well past the timer window — must be a no-op.
+            await vi.advanceTimersByTimeAsync(500);
+            expect(factory).not.toHaveBeenCalled();
+        });
     });
 
 });

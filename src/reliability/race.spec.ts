@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { race } from './index.js';
 import { ok, err } from '../factories/index.js';
 
@@ -124,5 +124,88 @@ describe('race', () => {
         const r = await race([ar1, ar2]).run();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('err1');
+    });
+
+    describe('with fake timers', () => {
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('returns the first Ok regardless of input order (deterministic)', async () => {
+            vi.useFakeTimers();
+            // First in input order would normally resolve later.
+            const r = race([
+                arFrom(500, ok('slow-first')),
+                arFrom(10, ok('fast-second')),
+                arFrom(100, ok('middle-third')),
+            ]);
+            const promise = r.run();
+            await vi.advanceTimersByTimeAsync(500);
+            const result = await promise;
+            expect(result.isSuccess).toBe(true);
+            if (result.isSuccess) expect(result.value).toBe('fast-second');
+        });
+
+        it('returns input-index-0 Err when all fail even if it settles last', async () => {
+            vi.useFakeTimers();
+            const r = race([
+                arFrom(500, err('first-index-0')),  // index 0, slow
+                arFrom(10, err('fast')),             // fast but loses
+                arFrom(100, err('middle')),
+            ]);
+            const promise = r.run();
+            await vi.advanceTimersByTimeAsync(500);
+            const result = await promise;
+            expect(result.isFailure).toBe(true);
+            if (result.isFailure) expect(result.error).toBe('first-index-0');
+        });
+
+        it('surfaces the fastest Promise rejection when all thunks reject', async () => {
+            vi.useFakeTimers();
+            const r = race([
+                { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('late')), 500)) },
+                { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('early')), 10)) },
+            ]);
+            const promise = r.run();
+            await vi.advanceTimersByTimeAsync(500);
+            const result = await promise;
+            expect(result.isFailure).toBe(true);
+            if (result.isFailure) expect((result.error as Error).message).toBe('early');
+        });
+
+        it('does not call any .run() until the consumer calls .run() on race', () => {
+            const ar1 = { run: vi.fn(() => Promise.resolve(ok(1))) };
+            const ar2 = { run: vi.fn(() => Promise.resolve(ok(2))) };
+            race([ar1, ar2]);
+            expect(ar1.run).not.toHaveBeenCalled();
+            expect(ar2.run).not.toHaveBeenCalled();
+        });
+
+        it('invokes every input .run() exactly once when the race runs', async () => {
+            const ar1 = { run: vi.fn(() => Promise.resolve(ok(1))) };
+            const ar2 = { run: vi.fn(() => Promise.resolve(err('nope'))) };
+            await race([ar1, ar2]).run();
+            expect(ar1.run).toHaveBeenCalledTimes(1);
+            expect(ar2.run).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    it('returns the input-index-0 Err if every Err has the same timing', async () => {
+        // Two equal-time errors; input index 0 should win.
+        const r = await race([
+            arFrom(20, err('index-0')),
+            arFrom(20, err('index-1')),
+        ]).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('index-0');
+    });
+
+    it('first settled Ok wins even if it is not index 0', async () => {
+        const r = await race([
+            arFrom(50, err('index-0-loses')),
+            arFrom(5, ok('index-1-wins')),
+        ]).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe('index-1-wins');
     });
 });
