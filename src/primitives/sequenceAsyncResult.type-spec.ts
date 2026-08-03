@@ -26,8 +26,7 @@ describe('sequenceAsyncResult types', () => {
 
     it('returns AsyncResult<T[], E> on empty input with explicit generics (Step 14.2 — boundary)', () => {
         const r = sequenceAsyncResult<number, string>([]);
-        const _check: AsyncResult<readonly number[], string> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number[], string>>();
     });
 
     it('preserves T type verbatim — heterogeneous aggregation (Step 14.2 — value channel)', () => {
@@ -46,7 +45,6 @@ describe('sequenceAsyncResult types', () => {
     it('accepts readonly array input — type-shape', () => {
         const input: readonly AsyncResult<number, never>[] = [fromResult(ok(1)), fromResult(ok(2))];
         const r = sequenceAsyncResult(input);
-        const _check: AsyncResult<readonly number[], never> = r;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number[], never>>();
     });
 });
