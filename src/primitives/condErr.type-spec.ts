@@ -20,4 +20,26 @@ describe('condErr types', () => {
         const _check: IResultOfT<number, Error> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('predicate type follows okValue', () => {
+        const r = condErr(
+            (s: string) => s.length > 0,
+            'hi',
+            'empty',
+        );
+        const _check: IResultOfT<string, string> = r;
+        expectTypeOf(_check).toBeObject();
+        // Negative check — predicate expects string, not number.
+        // @ts-expect-error wrong predicate signature
+        condErr((n: number) => n > 0, 'not a number', 'err');
+    });
+
+    it('narrowing on isSuccess exposes value with original T', () => {
+        const r = condErr((n: number) => n > 0, 42, 'too small');
+        if (r.isSuccess) {
+            expectTypeOf(r.value).toEqualTypeOf<number>();
+        } else {
+            expectTypeOf(r.error).toEqualTypeOf<string>();
+        }
+    });
 });

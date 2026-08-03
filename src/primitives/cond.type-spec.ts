@@ -20,4 +20,36 @@ describe('cond types', () => {
         const _check: IResultOfT<number, Error> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves structural object T on success', () => {
+        const r = cond(
+            (v: { id: number }) => v.id > 0,
+            { code: 'BAD' },
+            { id: 7, label: 'ok' },
+        );
+        const _check: IResultOfT<{ id: number; label: string }, { code: string }> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('narrowing on isSuccess exposes value with original T', () => {
+        const r = cond((n: number) => n > 0, 'bad', 5);
+        if (r.isSuccess) {
+            expectTypeOf(r.value).toEqualTypeOf<number>();
+        } else {
+            expectTypeOf(r.error).toEqualTypeOf<string>();
+        }
+    });
+
+    it('predicate parameter type matches T inferred from value', () => {
+        const r = cond(
+            (s: string) => s.length > 0,
+            'empty',
+            'hi',
+        );
+        const _check: IResultOfT<string, string> = r;
+        expectTypeOf(_check).toBeObject();
+        // Negative check — predicate expects string, not number.
+        // @ts-expect-error wrong predicate signature
+        cond((n: number) => n > 0, 'bad', 'not a number');
+    });
 });
