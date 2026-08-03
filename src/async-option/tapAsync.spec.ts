@@ -41,4 +41,10 @@ describe('AsyncOption tapAsync', () => {
         expect(result.isSome).toBe(true);
         if (result.isSome) expect(result.value).toBe(99);
     });
+
+    it('catches non-Error throw reason and turns to None', async () => {
+        const ao = tapAsync(async () => { throw 'string-err'; }, fromOption(ofSome(42)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
 });

@@ -69,4 +69,21 @@ describe('AsyncOption filter', () => {
         const result = await ao.run();
         expect(result.isNone).toBe(true);
     });
+
+    it('catches non-Error throw reason and turns to None', async () => {
+        const ao = filter(() => { throw 'string-err'; }, fromOption(ofSome(21)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
+
+    it('returns the same reference when input is None (no allocation)', async () => {
+        // filter passes the None through unchanged. We expect identity preservation
+        // to avoid surprising allocations on the railway.
+        const none = ofNone<number>();
+        const ao = filter((x: number) => x > 0, fromOption(none));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+        // The returned IOption must be the same object reference as the input.
+        expect(result).toBe(none);
+    });
 });

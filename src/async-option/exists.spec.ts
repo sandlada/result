@@ -29,4 +29,16 @@ describe('AsyncOption exists', () => {
         const result = await positive(fromOption(ofSome(42)));
         expect(result).toBe(true);
     });
+
+    it('propagates sync throw from async predicate (does not catch)', async () => {
+        // exists returns a Promise<boolean>; sync throws from the predicate
+        // bubble up as a rejected Promise. Pin the propagation contract.
+        const result = exists((() => { throw new Error('boom'); }) as (x: number) => boolean, fromOption(ofSome(1)));
+        await expect(result).rejects.toThrow('boom');
+    });
+
+    it('propagates rejection from async predicate (does not catch)', async () => {
+        const result = exists(async () => { throw new Error('rej'); }, fromOption(ofSome(1)));
+        await expect(result).rejects.toThrow('rej');
+    });
 });

@@ -39,4 +39,10 @@ describe('AsyncOption mapAsync', () => {
             expect(result.value).toBe(42);
         }
     });
+
+    it('catches non-Error throw reason and turns to None', async () => {
+        const ao = mapAsync(async () => { throw 'string-err'; }, fromOption(ofSome(1)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
 });

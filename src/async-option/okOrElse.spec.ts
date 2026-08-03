@@ -31,4 +31,24 @@ describe('AsyncOption okOrElse', () => {
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect(r.error).toBe('lazy');
     });
+
+    it('converts sync throw from onNone to Err (canonical catch+convert)', async () => {
+        // The source explicitly catches sync throws from onNone and converts
+        // them to Err with the thrown value as the error.
+        const r = await okOrElse(() => { throw new Error('onNone err'); }, ofNone<number>()).run();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect(r.error).toBeInstanceOf(Error);
+    });
+
+    it('converts async rejection from onNone to Err (canonical catch+convert)', async () => {
+        const r = await okOrElse(async () => { throw new Error('rej'); }, ofNone<number>()).run();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect((r.error as Error).message).toBe('rej');
+    });
+
+    it('is curried', async () => {
+        const r = await okOrElse(() => 'lazy')(ofNone<number>()).run();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect(r.error).toBe('lazy');
+    });
 });

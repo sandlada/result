@@ -96,4 +96,10 @@ describe('AsyncOption orElse', () => {
         }
         expect(fallback).toHaveBeenCalledOnce();
     });
+
+    it('catches non-Error throw reason and returns None', async () => {
+        const ao = orElse(() => { throw 'string-err'; }, fromOption(ofNone()));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
 });

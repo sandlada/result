@@ -21,4 +21,12 @@ describe('fromOption types', () => {
         const _check: AsyncOption<never> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves generic T (union types survive the lift)', () => {
+        // Verify the lift does not widen T — the inferred T matches the input.
+        type Status = 'ok' | 'err';
+        const r = fromOption(ofSome<Status>('ok'));
+        const _check: AsyncOption<Status> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

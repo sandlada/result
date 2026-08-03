@@ -46,4 +46,18 @@ describe('AsyncOption tap', () => {
         expect(result.isSome).toBe(true);
         if(result.isSome) expect(result.value).toBe(42);
     });
+
+    it('catches non-Error throw reason and turns to None', async () => {
+        const ao = tap(() => { throw 'string-err'; }, fromOption(ofSome(42)));
+        const result = await ao.run();
+        expect(result.isNone).toBe(true);
+    });
+
+    it('passes through None without calling fn', async () => {
+        const fn = vi.fn();
+        const ao = tap(fn, fromOption(ofNone()));
+        const result = await ao.run();
+        expect(fn).not.toHaveBeenCalled();
+        expect(result.isNone).toBe(true);
+    });
 });

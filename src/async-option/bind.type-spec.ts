@@ -22,4 +22,10 @@ describe('bind types', () => {
         const _check: (ao: AsyncOption<string>) => AsyncOption<number> = fn;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('curried form accepts fn returning Promise<IOption<U>>', () => {
+        const fn = bind((x: number) => Promise.resolve(ofSome(x.toString())));
+        const _check: (ao: AsyncOption<number>) => AsyncOption<string> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
 });

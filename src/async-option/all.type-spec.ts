@@ -22,4 +22,17 @@ describe('all types', () => {
         const _check: AsyncOption<number[]> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('widens heterogeneous element types to a union T', () => {
+        const r = all([ofSome(1), ofSome('a')]);
+        // Heterogeneous arrays widen T to the union of element types.
+        const _check: AsyncOption<(string | number)[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('returns AsyncOption<never[]> for empty array literal', () => {
+        const r = all([]);
+        const _check: AsyncOption<never[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

@@ -38,4 +38,12 @@ describe('AsyncOption contains', () => {
         expect(result1).toBe(true);
         expect(result2).toBe(false);
     });
+
+    it('curried form produces a callable that reuses the value', async () => {
+        const has42 = contains(42);
+        const r1 = await has42(fromOption(ofSome(42)));
+        const r2 = await has42(fromOption(ofSome(43)));
+        expect(r1).toBe(true);
+        expect(r2).toBe(false);
+    });
 });

@@ -73,4 +73,12 @@ describe('AsyncOption match', () => {
             none: () => 'none'
         }, ao)).rejects.toThrow('async some error');
     });
+
+    it('propagates rejected promises from async none handler', async () => {
+        const ao = from(() => Promise.resolve(ofNone()));
+        await expect(match({
+            some: () => 'some',
+            none: () => Promise.reject(new Error('async none error')),
+        }, ao)).rejects.toThrow('async none error');
+    });
 });
