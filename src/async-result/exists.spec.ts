@@ -29,4 +29,11 @@ describe('AsyncResult exists', () => {
         const result = await positive(fromResult(ok(42)));
         expect(result).toBe(true);
     });
+
+    it('does not invoke the predicate on failure', async () => {
+        let called = false;
+        const ar = exists((_x: number) => { called = true; return true; }, fromResult(err<string>('skip')));
+        await ar;
+        expect(called).toBe(false);
+    });
 });

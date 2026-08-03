@@ -23,4 +23,30 @@ describe('AsyncResult swapAsync', () => {
         expect(ar).toBeDefined();
         expect(ar.run).toBeInstanceOf(Function);
     });
+
+    it('does not invoke source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok(1)); } };
+        swapAsync(lazy);
+        expect(called).toBe(false);
+    });
+
+    it('swapping twice returns to the original Ok shape', async () => {
+        const ar = swapAsync(swapAsync(fromResult(ok(99))));
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe(99);
+    });
+
+    it('swapping twice returns to the original Err shape', async () => {
+        const ar = swapAsync(swapAsync(fromResult(err<number, string>('orig'))));
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe('orig');
+    });
+
+    it('preserves structured payload through swap', async () => {
+        type VErr = { code: number };
+        const ar = swapAsync(fromResult(err<number, VErr>({ code: 7 })));
+        const result = await ar.run();
+        expect(result.isSuccess && result.value.code).toBe(7);
+    });
 });

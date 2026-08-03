@@ -13,4 +13,19 @@ describe('flatten types', () => {
         const _check: AsyncResult<number, string> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves structured error types through flatten', () => {
+        type VErr = { code: number };
+        const inner: AsyncResult<string, VErr> = fromResult(ok('a') as IResultOfT<string, VErr>);
+        const outer: AsyncResult<AsyncResult<string, VErr>, VErr> = fromResult({ isSuccess: true as const, isFailure: false as const, value: inner } as IResultOfT<AsyncResult<string, VErr>, VErr>);
+        const r = flatten(outer);
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<string, VErr>>();
+    });
+
+    it('narrows both the inner T and the outer E', () => {
+        const inner: AsyncResult<string, string> = fromResult(ok('a') as IResultOfT<string, string>);
+        const outer: AsyncResult<AsyncResult<string, string>, number> = fromResult({ isSuccess: true as const, isFailure: false as const, value: inner } as IResultOfT<AsyncResult<string, string>, number>);
+        const r = flatten(outer);
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<string, number>>();
+    });
 });

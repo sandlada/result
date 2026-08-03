@@ -17,4 +17,23 @@ describe('or types', () => {
         const _check: AsyncResult<string, string | number> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('unifies structured error types via union', () => {
+        type VErrA = { code: number };
+        type VErrB = { reason: string };
+        const r = or(
+            fromResult(ok(1) as IResultOfT<number, VErrA>),
+            fromResult(ok(2) as IResultOfT<number, VErrB>),
+        );
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number, VErrA | VErrB>>();
+    });
+
+    it('T is invariant between the two inputs (must be the same type)', () => {
+        // Both inputs must share the same T; otherwise TypeScript rejects.
+        const r = or(
+            fromResult(ok(1) as IResultOfT<number, string>),
+            fromResult(ok(2) as IResultOfT<number, number>),
+        );
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number, string | number>>();
+    });
 });

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
+import { fromPromise } from '../../src/async-result/fromPromise.js';
+import { from } from '../../src/async-result/from.js';
 import { andThrough } from '../../src/async-result/andThrough.js';
 
 describe('AsyncResult andThrough', () => {
@@ -47,5 +49,42 @@ describe('AsyncResult andThrough', () => {
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
         if(result.isFailure) expect((result.error as Error).message).toBe('boom');
+    });
+
+    // ── Mixed-carrier recovery (brief Step 8.1) ───────────────────────────
+    it('accepts a from() thunk carrier', async () => {
+        const ar = andThrough(
+            (v: number) => from(() => Promise.resolve(ok(v * 2))),
+            fromResult(ok(7)),
+        );
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe(7);
+    });
+
+    it('accepts a fromPromise() carrier', async () => {
+        const ar = andThrough(
+            (v: number) => fromPromise(() => Promise.resolve(v * 2)),
+            fromResult(ok(7)),
+        );
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe(7);
+    });
+
+    it('propagates a failure from a fromPromise() carrier', async () => {
+        const ar = andThrough(
+            (_v: number) => fromPromise(() => Promise.reject(new Error('fail'))),
+            fromResult(ok(1)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && (result.error as Error).message).toBe('fail');
+    });
+
+    it('catches async callback rejection and converts to err(caught)', async () => {
+        const ar = andThrough(
+            async (_v: number) => { throw new Error('async-boom'); },
+            fromResult(ok(1)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && (result.error as Error).message).toBe('async-boom');
     });
 });

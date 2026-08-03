@@ -74,4 +74,46 @@ describe('AsyncResult bimap', () => {
         expect(result.isFailure).toBe(true);
         if(result.isFailure) expect((result.error as Error).message).toBe('err-boom');
     });
+
+    it('catches async handler rejection on success', async () => {
+        const ar = bimap(
+            async () => { throw new Error('async-ok-boom'); },
+            (e: string) => e,
+            fromResult(ok(1)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && (result.error as Error).message).toBe('async-ok-boom');
+    });
+
+    it('catches async handler rejection on failure', async () => {
+        const ar = bimap(
+            (x: number) => x,
+            async () => { throw new Error('async-err-boom'); },
+            fromResult(err('orig')),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && (result.error as Error).message).toBe('async-err-boom');
+    });
+
+    it('does not invoke onOk when the source is Err', async () => {
+        let called = false;
+        const ar = bimap(
+            () => { called = true; return 0; },
+            (e: string) => e,
+            fromResult(err('skip')),
+        );
+        await ar.run();
+        expect(called).toBe(false);
+    });
+
+    it('does not invoke onErr when the source is Ok', async () => {
+        let called = false;
+        const ar = bimap(
+            (x: number) => x,
+            () => { called = true; return ''; },
+            fromResult(ok(7)),
+        );
+        await ar.run();
+        expect(called).toBe(false);
+    });
 });

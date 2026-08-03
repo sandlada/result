@@ -30,4 +30,23 @@ describe('AsyncResult catchErr', () => {
         const result = await catchErr((e: string) => e.length, fromResult(err('boom'))).run();
         expect(result).toEqual(ok(4));
     });
+
+    it('does not invoke the recovery function on Ok', async () => {
+        let called = false;
+        const ar = catchErr((_e: string) => { called = true; return 0; }, fromResult(ok(42)));
+        await ar.run();
+        expect(called).toBe(false);
+    });
+
+    it('passes the original error to the recovery function', async () => {
+        let received: unknown;
+        const ar = catchErr((e: string) => { received = e; return 0; }, fromResult(err('oops')));
+        await ar.run();
+        expect(received).toBe('oops');
+    });
+
+    it('returns a Promise from catchErr', () => {
+        const p = catchErr((_e: string) => 0, fromResult(ok(1))).run();
+        expect(p).toBeInstanceOf(Promise);
+    });
 });

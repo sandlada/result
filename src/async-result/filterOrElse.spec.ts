@@ -101,4 +101,39 @@ describe('AsyncResult filterOrElse', () => {
         expect(result.isFailure).toBe(true);
         if(!result.isSuccess) expect((result.error as Error).message).toBe('errorFn boom');
     });
+
+    it('does not invoke errorFn when predicate holds on success', async () => {
+        let called = false;
+        const ar = filterOrElse(
+            (_x: number) => true,
+            (_x: number) => { called = true; return 'never'; },
+            fromResult(ok(7)),
+        );
+        await ar.run();
+        expect(called).toBe(false);
+    });
+
+    it('does not invoke predicate or errorFn when source is Err', async () => {
+        let predCalled = false;
+        let errCalled = false;
+        const ar = filterOrElse(
+            (_x: number) => { predCalled = true; return true; },
+            (_x: number) => { errCalled = true; return 'x'; },
+            fromResult(err<string>('orig')),
+        );
+        await ar.run();
+        expect(predCalled).toBe(false);
+        expect(errCalled).toBe(false);
+    });
+
+    it('preserves the failure type byte-for-byte on Err pass-through', async () => {
+        const original = err<number, Error>(new Error('orig'));
+        const ar = filterOrElse<number, Error>(
+            (_x: number) => true,
+            (_x: number) => new Error('replacement'),
+            fromResult(original),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe(original.error);
+    });
 });

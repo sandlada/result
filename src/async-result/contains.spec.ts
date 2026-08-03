@@ -24,4 +24,16 @@ describe('AsyncResult contains', () => {
         const result = await is42(fromResult(ok(42)));
         expect(result).toBe(true);
     });
+
+    it('uses Object.is-style reference equality for object values', async () => {
+        const obj = { x: 1 };
+        const ar = fromResult(ok(obj));
+        expect(await contains(obj, ar)).toBe(true);
+        expect(await contains({ x: 1 }, ar)).toBe(false);
+    });
+
+    it('returns a Promise', () => {
+        const p = contains(42, fromResult(ok(42)));
+        expect(p).toBeInstanceOf(Promise);
+    });
 });

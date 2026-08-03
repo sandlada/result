@@ -42,4 +42,18 @@ describe('AsyncResult mapErrAsync', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('CURRIED');
     });
+
+    it('does not invoke fn on success', async () => {
+        let called = false;
+        const ar = mapErrAsync(async () => { called = true; return 0; }, fromResult(ok(7)));
+        await ar.run();
+        expect(called).toBe(false);
+    });
+
+    it('passes the original error to fn on failure', async () => {
+        let received: unknown;
+        const ar = mapErrAsync(async (e: string) => { received = e; return e.length; }, fromResult(err('boom')));
+        await ar.run();
+        expect(received).toBe('boom');
+    });
 });

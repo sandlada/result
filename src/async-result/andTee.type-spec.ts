@@ -25,4 +25,16 @@ describe('andTee types', () => {
         const _check: AsyncResult<number, string> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('accepts an async side-effect callback (returns Promise<unknown>)', () => {
+        const fn = andTee<number, string>(async (_v: number) => 0);
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('E stays exactly the same type — no widening via andTee', () => {
+        type VErr = { code: number };
+        const ar: AsyncResult<number, VErr> = fromResult(ok(1) as IResultOfT<number, VErr>);
+        const r = andTee<number, VErr>((_v: number) => {}, ar);
+        expectTypeOf(r).toEqualTypeOf<AsyncResult<number, VErr>>();
+    });
 });

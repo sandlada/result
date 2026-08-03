@@ -44,4 +44,11 @@ describe('AsyncResult tapAsync', () => {
         expect(result.isSuccess).toBe(true);
         if (result.isSuccess) expect(result.value).toBe(123);
     });
+
+    it('does not invoke the source.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok(1)); } };
+        tapAsync<number, string>(async () => {}, lazy);
+        expect(called).toBe(false);
+    });
 });

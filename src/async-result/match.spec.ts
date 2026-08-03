@@ -36,4 +36,22 @@ describe('AsyncResult match', () => {
         }, fromResult(ok(5)));
         expect(promise).toBeInstanceOf(Promise);
     });
+
+    it('does not call err handler on Ok', async () => {
+        let errCalled = false;
+        await match({
+            ok: (x: number) => x,
+            err: () => { errCalled = true; return 0; },
+        }, fromResult(ok(1)));
+        expect(errCalled).toBe(false);
+    });
+
+    it('does not call ok handler on Err', async () => {
+        let okCalled = false;
+        await match({
+            ok: () => { okCalled = true; return 0; },
+            err: () => -1,
+        }, fromResult(err<string>('x')));
+        expect(okCalled).toBe(false);
+    });
 });

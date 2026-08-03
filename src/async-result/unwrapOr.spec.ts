@@ -24,4 +24,9 @@ describe('AsyncResult unwrapOr', () => {
         const promise = unwrapOr(0, fromResult(ok(5)));
         expect(promise).toBeInstanceOf(Promise);
     });
+
+    it('curried form falls back to default on Err', async () => {
+        const getOrZero = unwrapOr(0);
+        expect(await getOrZero(fromResult(err<string>('x')))).toBe(0);
+    });
 });

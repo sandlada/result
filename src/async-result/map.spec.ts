@@ -31,4 +31,16 @@ describe('AsyncResult map', () => {
         // Simply creating should not throw
         expect(ar).toBeDefined();
     });
+
+    it('preserves E unchanged (failure type is invariant under map)', async () => {
+        const ar = map((x: number) => x.toString(), fromResult(err<number, number>(7)));
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe(7);
+    });
+
+    it('narrowing: maps number to string preserves the error type', async () => {
+        const ar = map<string, number, Error>((n: number) => `n=${n}`, fromResult(err<number, Error>(new Error('x'))));
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBeInstanceOf(Error);
+    });
 });

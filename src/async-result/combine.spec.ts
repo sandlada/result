@@ -30,4 +30,44 @@ describe('AsyncResult combine', () => {
         expect(ar).toBeDefined();
         // Should not throw — run() is not called
     });
+
+    // ── Lazy execution (brief Step 8.1) ────────────────────────────────────
+    it('does not invoke any source.run() on construction', () => {
+        let calls = 0;
+        const items = [
+            { run: () => { calls++; return Promise.resolve(ok(1)); } },
+            { run: () => { calls++; return Promise.resolve(ok(2)); } },
+            { run: () => { calls++; return Promise.resolve(ok(3)); } },
+        ];
+        combine(items);
+        expect(calls).toBe(0);
+    });
+
+    it('invokes all source.run() exactly once on run()', async () => {
+        let calls = 0;
+        const items = [
+            { run: () => { calls++; return Promise.resolve(ok(1)); } },
+            { run: () => { calls++; return Promise.resolve(ok(2)); } },
+        ];
+        const ar = combine(items);
+        await ar.run();
+        expect(calls).toBe(2);
+    });
+
+    it('starts no source computation until run() is called', async () => {
+        let started = false;
+        const items = [
+            { run: () => { started = true; return Promise.resolve(ok(1)); } },
+        ];
+        const ar = combine(items);
+        expect(started).toBe(false);
+        await ar.run();
+        expect(started).toBe(true);
+    });
+
+    it('preserves the order of source carriers', async () => {
+        const ar = combine([fromResult(ok('a')), fromResult(ok('b')), fromResult(ok('c'))]);
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toEqual(['a', 'b', 'c']);
+    });
 });

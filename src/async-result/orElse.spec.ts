@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../src/factories/index.js';
 import { fromResult } from '../../src/async-result/fromResult.js';
+import { fromPromise } from '../../src/async-result/fromPromise.js';
+import { from } from '../../src/async-result/from.js';
 import { orElse } from '../../src/async-result/orElse.js';
 
 describe('AsyncResult orElse', () => {
@@ -43,5 +45,43 @@ describe('AsyncResult orElse', () => {
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
+    });
+
+    // ── Mixed-carrier recovery (brief Step 8.1) ───────────────────────────
+    it('recovers with a from() thunk carrier', async () => {
+        const ar = orElse(
+            (e: string) => from(() => Promise.resolve(ok(`from-thunk: ${e}`))),
+            fromResult(err('boom')),
+        );
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe('from-thunk: boom');
+    });
+
+    it('recovers with a fromPromise() carrier', async () => {
+        const ar = orElse(
+            (e: string) => fromPromise(() => Promise.resolve(`fromPromise: ${e}`)),
+            fromResult(err('boom')),
+        );
+        const result = await ar.run();
+        expect(result.isSuccess && result.value).toBe('fromPromise: boom');
+    });
+
+    it('propagates a failure from a recovered AsyncResult', async () => {
+        const ar = orElse(
+            (_e: string) => fromResult(err<number, string>('recovery-failed')),
+            fromResult(err<string>('original')),
+        );
+        const result = await ar.run();
+        expect(result.isFailure && result.error).toBe('recovery-failed');
+    });
+
+    it('does not invoke the callback when the source is Ok', async () => {
+        let called = false;
+        const ar = orElse((_e: string) => {
+            called = true;
+            return fromResult(ok(0));
+        }, fromResult(ok(42)));
+        await ar.run();
+        expect(called).toBe(false);
     });
 });

@@ -22,4 +22,16 @@ describe('AsyncResult and', () => {
         await and(fromResult(err<string>('a')), res2).run();
         expect(evaluated).toBe(false);
     });
+
+    it('returns res2 Err when res1 is Ok but res2 is Err', async () => {
+        const r = await and(fromResult(ok(1)), fromResult(err<string>('b'))).run();
+        expect(r.isFailure && r.error).toBe('b');
+    });
+
+    it('does not invoke res1.run() on construction', () => {
+        let called = false;
+        const lazy = { run: () => { called = true; return Promise.resolve(ok(1)); } };
+        and(lazy, fromResult(ok(2)));
+        expect(called).toBe(false);
+    });
 });

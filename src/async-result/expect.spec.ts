@@ -13,4 +13,14 @@ describe('AsyncResult expect', () => {
         await expect(expectOk('config must be valid', fromResult(err('boom'))))
             .rejects.toThrow(/config must be valid.*boom/);
     });
+
+    it('returns a Promise (no sync throw)', () => {
+        const p = expectOk('msg', fromResult(ok(42)));
+        expect(p).toBeInstanceOf(Promise);
+    });
+
+    it('stringifies non-string errors', async () => {
+        const e = expectOk('boom', fromResult(err<number, number>(7)));
+        await expect(e).rejects.toThrow(/boom: 7/);
+    });
 });
