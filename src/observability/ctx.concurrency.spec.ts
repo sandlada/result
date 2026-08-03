@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ctx, getPath, polyfillStore } from './ctx.js';
+import { ctx, getPath, polyfillStore, type PathSegment } from './ctx.js';
 
 const delay = (ms = 0): Promise<void> =>
     new Promise((resolve) => {
@@ -249,5 +249,105 @@ describe('observability/ctx (concurrency)', () => {    it('isolates two concurre
         );
         await Promise.all(tasks);
         expect(getPath()).toEqual([]);
+    });
+
+    it('path survives multiple awaits across microtasks', async () => {
+        const path = await ctx.run(async () => {
+            ctx.push('start');
+            await Promise.resolve();
+            ctx.push('mid1');
+            await Promise.resolve();
+            await Promise.resolve();
+            ctx.push('mid2');
+            await Promise.resolve();
+            return getPath();
+        });
+        expect(path).toEqual(['start', 'mid1', 'mid2']);
+        expect(getPath()).toEqual([]);
+    });
+
+    it('mixed sync and async concurrent ctx.run scopes maintain isolation', async () => {
+        // Some scopes use ctx.run(sync) and some use ctx.run(async); each
+        // must observe only its own segments.
+        const observed: Array<{ label: string; path: ReadonlyArray<PathSegment> }> = [];
+        await Promise.all([
+            ctx.run(() => {
+                ctx.push('sync-A');
+                observed.push({ label: 'sync-A', path: getPath() });
+                ctx.push('sync-A2');
+                observed.push({ label: 'sync-A2', path: getPath() });
+            }),
+            ctx.run(async () => {
+                ctx.push('async-B');
+                await delay(1);
+                observed.push({ label: 'async-B', path: getPath() });
+            }),
+            ctx.run(() => {
+                ctx.push('sync-C');
+                observed.push({ label: 'sync-C', path: getPath() });
+            }),
+        ]);
+        const find = (label: string) => observed.find((o) => o.label === label)!;
+        expect(find('sync-A').path).toEqual(['sync-A']);
+        expect(find('sync-A2').path).toEqual(['sync-A', 'sync-A2']);
+        expect(find('async-B').path).toEqual(['async-B']);
+        expect(find('sync-C').path).toEqual(['sync-C']);
+        expect(getPath()).toEqual([]);
+    });
+
+    it('nested concurrent scopes in two parent scopes do not interleave', async () => {
+        await Promise.all([
+            ctx.run(async () => {
+                ctx.push('p1');
+                await delay(2);
+                await ctx.run(async () => {
+                    ctx.push('c1');
+                    await delay(1);
+                    expect(getPath()).toEqual(['p1', 'c1']);
+                });
+                expect(getPath()).toEqual(['p1']);
+            }),
+            ctx.run(async () => {
+                ctx.push('p2');
+                await delay(1);
+                await ctx.run(async () => {
+                    ctx.push('c2');
+                    await delay(2);
+                    expect(getPath()).toEqual(['p2', 'c2']);
+                });
+                expect(getPath()).toEqual(['p2']);
+            }),
+        ]);
+        expect(getPath()).toEqual([]);
+    });
+
+    it('frame is released even when async fn returns synchronously-settled thenable', async () => {
+        // A thenable that resolves on its `.then` invocation immediately
+        // exercises the synchronous-thenable branch in ctx.run's thenable
+        // handling. Frame should still be released.
+        const alreadyFulfilled = Promise.resolve('already');
+        const result = await ctx.run(async () => {
+            ctx.push('pre');
+            const r = await alreadyFulfilled;
+            ctx.push('post');
+            return r;
+        });
+        expect(result).toBe('already');
+        expect(getPath()).toEqual([]);
+    });
+
+    it('polyfillStore.run restores frame when fn returns a non-thenable sync value', () => {
+        const f1 = { stack: ['a'] as Array<PathSegment>, parent: null };
+        const r = polyfillStore.run(f1, () => 99);
+        expect(r).toBe(99);
+        expect(polyfillStore.getStore()).toBeUndefined();
+    });
+
+    it('polyfillStore.run with no active frame before still returns frame correctly', () => {
+        const f1 = { stack: [] as Array<PathSegment>, parent: null };
+        polyfillStore.run(f1, () => {
+            expect(polyfillStore.getStore()).toBe(f1);
+        });
+        expect(polyfillStore.getStore()).toBeUndefined();
     });
 });

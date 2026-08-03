@@ -8,10 +8,11 @@
  * called; you do not need to invoke a returned curried function. Combine with
  * `ctx.run(fn)` for lexically scoped paths.
  *
- * **Leak warning**: calling `withPath(segment)` outside of a `ctx.run(fn)` scope
- * permanently appends `segment` to the process-global path stack. There is no
- * automatic cleanup for standalone use — in long-running services this leaks.
- * Always wrap standalone calls in `ctx.run`.
+ * **Out-of-scope behavior**: calling `withPath(segment)` outside of any active
+ * `ctx.run(fn)` scope is a **silent no-op** — the segment is discarded and
+ * `getPath()` remains empty. There is no process-global path stack to leak
+ * into; standalone calls simply have no observable effect. Wrap standalone
+ * calls in `ctx.run` when you actually want the segment recorded.
  *
  * @example
  * ```ts

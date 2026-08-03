@@ -21,4 +21,17 @@ describe('withPath types', () => {
         const _check: IResultOfT<string, Error> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves literal type for numeric values', () => {
+        const literalOk = ok(42 as const);
+        const r = withPath('lit', literalOk);
+        // The value type should remain the literal/narrowed type from input.
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<42, never>>();
+    });
+
+    it('preserves union error types', () => {
+        const errVal: IResultOfT<number, string | Error> = err('boom') as IResultOfT<number, string | Error>;
+        const r = withPath('u', errVal);
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string | Error>>();
+    });
 });

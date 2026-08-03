@@ -106,4 +106,70 @@ describe('format', () => {
         });
         expect(format(ok(hostile), { maxDepth: 5 })).toBe('Ok([Unserializable])');
     });
+
+    it('renders bigint values', () => {
+        expect(format(ok(9007199254740993n))).toBe('Ok(9007199254740993)');
+        expect(format(err(0n))).toBe('Err(0)');
+    });
+
+    it('renders nested arrays inside objects at the configured depth', () => {
+        expect(format(ok({ list: [1, 2, 3] }), { maxDepth: 2 })).toBe('Ok({"list": [1, 2, 3]})');
+        // depth=1: list at depth 1 is at the limit, rendered as '[...]'.
+        expect(format(ok({ list: [1, 2, 3] }), { maxDepth: 1 })).toBe('Ok({"list": [...]})');
+    });
+
+    it('emits a closing paren before the first newline in a stack trace', () => {
+        // Regression: when the body contains '\n' (an Error stack), the
+        // closing ')' must come *before* the newline so the stack starts
+        // cleanly on its own line.
+        const e = new Error('with stack');
+        const out = format(err(e), { includeStack: true });
+        const newlineIdx = out.indexOf('\n');
+        expect(out.substring(newlineIdx - 1, newlineIdx)).toBe(')');
+    });
+
+    it('renders arrays containing null and undefined elements', () => {
+        expect(format(ok([null, undefined, 1]))).toBe('Ok([null, undefined, 1])');
+    });
+
+    it('renders nested empty objects and arrays at depth 1', () => {
+        // At depth=1 the empty containers themselves are at the limit and
+        // get truncated to their depth markers — depth applies uniformly
+        // to objects and arrays regardless of whether they are empty.
+        expect(format(ok({ a: {}, b: [] }), { maxDepth: 1 })).toBe('Ok({"a": {...}, "b": [...]})');
+        // depth=2 lets the empty containers render fully.
+        expect(format(ok({ a: {}, b: [] }), { maxDepth: 2 })).toBe('Ok({"a": {}, "b": []})');
+        // depth=0 truncates immediately.
+        expect(format(ok({ a: {} }), { maxDepth: 0 })).toBe('Ok({...})');
+    });
+
+    it('handles boolean values inside object', () => {
+        expect(format(ok({ on: true, off: false }))).toBe('Ok({"on": true, "off": false})');
+    });
+
+    it('renders Err containing an Error with includeStack=false', () => {
+        const e = new Error('quiet');
+        const out = format(err(e), { includeStack: false });
+        expect(out).toBe('Err(Error: quiet)');
+        expect(out.includes('at')).toBe(false);
+    });
+
+    it('renders an Error subclass by its concrete name', () => {
+        class CustomError extends Error {
+            constructor(msg: string) {
+                super(msg);
+                this.name = 'CustomError';
+            }
+        }
+        expect(format(err(new CustomError('specific')))).toBe('Err(CustomError: specific)');
+    });
+
+    it('does not mutate the input result', () => {
+        const r = ok({ a: 1, b: { c: 2 } });
+        const before = JSON.stringify(r);
+        format(r);
+        format(r, { maxDepth: 0 });
+        format(r, { maxDepth: 10 });
+        expect(JSON.stringify(r)).toBe(before);
+    });
 });

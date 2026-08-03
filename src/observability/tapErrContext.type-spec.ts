@@ -38,4 +38,36 @@ describe('tapErrContext types', () => {
         const errVal: IResultOfT<number, string> = err('boom') as IResultOfT<number, string>;
         tapErrContext(fn, errVal);
     });
+
+    it('curried form accepts async callback', () => {
+        const fn = tapErrContext<number, string>(async (e) => {
+            // async callback is allowed; its return is awaited.
+            expectTypeOf(e).toEqualTypeOf<string>();
+        });
+        expectTypeOf(fn).toBeFunction();
+    });
+
+    it('ErrContext.path is ReadonlyArray (cannot mutate)', () => {
+        const ctx: ErrContext = { path: ['a', 'b'] };
+        // The compiler rejects mutating methods on PathStack.
+        // @ts-expect-error - readonly arrays do not support push
+        ctx.path.push('c');
+        // @ts-expect-error - readonly arrays do not support splice
+        ctx.path.splice(0, 1);
+        // Index access works but produces PathSegment (which can be undefined).
+        const first = ctx.path[0];
+        if (first !== undefined) {
+            expectTypeOf(first).toEqualTypeOf<string | number>();
+        }
+    });
+
+    it('preserves narrowed generic types in callback', () => {
+        type CustomErr = { kind: 'network'; status: number };
+        const errVal: IResultOfT<string, CustomErr> = err({ kind: 'network', status: 500 }) as IResultOfT<string, CustomErr>;
+        tapErrContext((e) => {
+            // The error parameter type is narrowed to CustomErr.
+            expectTypeOf(e.kind).toEqualTypeOf<'network'>();
+            expectTypeOf(e.status).toBeNumber();
+        }, errVal);
+    });
 });
