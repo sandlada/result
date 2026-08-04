@@ -21,7 +21,7 @@ export function map<T, U>(fn: (value: T) => U): (opt: IOption<T>) => IOption<U> 
         try {
             return ofSome(fn(opt.value));
         } catch {
-            return ofNone() as unknown as IOption<U>;
+            return ofNone<U>();
         }
     };
 }

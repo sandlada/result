@@ -24,7 +24,7 @@ export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> 
             try {
                 fn(opt.value);
             } catch {
-                return ofNone() as unknown as IOption<T>;
+                return ofNone<T>();
             }
         }
         return opt;

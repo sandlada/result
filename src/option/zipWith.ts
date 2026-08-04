@@ -23,11 +23,11 @@ export function zipWith<A, B, C>(
     fn: (a: A, b: B) => C,
 ): (optA: IOption<A>, optB: IOption<B>) => IOption<C> {
     return (optA, optB) => {
-        if(!optA.isSome || !optB.isSome) return ofNone() as unknown as IOption<C>;
+        if(!optA.isSome || !optB.isSome) return ofNone<C>();
         try {
             return ofSome(fn(optA.value, optB.value)) as unknown as IOption<C>;
         } catch {
-            return ofNone() as unknown as IOption<C>;
+            return ofNone<C>();
         }
     };
 }

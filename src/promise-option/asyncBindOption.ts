@@ -31,13 +31,13 @@ export function asyncBindOption<T, U>(
     opt?: IOption<T>,
 ): Promise<IOption<U>> | ((opt: IOption<T>) => Promise<IOption<U>>) {
     if (opt === undefined) return (opt: IOption<T>) => asyncBindOption(fn, opt);
-    if (!opt.isSome) return Promise.resolve(ofNone());
+    if (!opt.isSome) return Promise.resolve(ofNone<U>());
     try {
         return fn(opt.value).then(
             inner => inner,
-            () => ofNone() as unknown as IOption<U>,
+            () => ofNone<U>(),
         );
     } catch {
-        return Promise.resolve(ofNone() as unknown as IOption<U>);
+        return Promise.resolve(ofNone<U>());
     }
 }

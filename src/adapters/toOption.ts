@@ -17,7 +17,7 @@ import { ofNone } from '../option/ofNone.js';
 import { ofSome } from '../option/ofSome.js';
 
 export function toOption<A, E>(r: IResultOfT<A, E>): IOption<A> {
-    if(!r.isSuccess) return ofNone() as unknown as IOption<A>;
+    if(!r.isSuccess) return ofNone<A>();
     return ofSome(r.value);
 }
 

@@ -37,7 +37,7 @@ export function traverseArray<A, B>(
     for (let i = 0; i < len; i++) {
         const r = fn(items[i]!, i);
         if (!r.isSome) {
-            return ofNone() as unknown as IOption<B[]>;
+            return ofNone<B[]>();
         }
         result[i] = r.value;
     }

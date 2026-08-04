@@ -34,9 +34,9 @@ export function filterAsyncOption<T>(
         if (!inner.isSome) return inner;
         try {
             if (await predicate(inner.value)) return inner;
-            return ofNone();
+            return ofNone<T>();
         } catch {
-            return ofNone() as unknown as IOption<T>;
+            return ofNone<T>();
         }
     });
 }

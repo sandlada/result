@@ -28,7 +28,7 @@ export function all<T>(
             const opts = await Promise.all(aos.map(a => a.run()));
             const values: T[] = [];
             for (const opt of opts) {
-                if (!opt.isSome) return ofNone() as unknown as IOption<T[]>;
+                if (!opt.isSome) return ofNone<T[]>();
                 values.push(opt.value);
             }
             return ofSome(values);

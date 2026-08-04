@@ -118,7 +118,7 @@ describe('AsyncOption', () => {
         it('orElse should recover from None', async () => {
             const ao = orElse(
                 () => fromOption(ofSome(99)),
-                fromOption(ofNone() as unknown as IOption<number>),
+                fromOption(ofNone<number>()),
             );
             const result = await ao.run();
             if (result.isSome) expect(result.value).toBe(99);
@@ -132,14 +132,14 @@ describe('AsyncOption', () => {
             const noneVal = await match({
                 some: (v: number) => `got ${v}`,
                 none: () => 'none',
-            }, fromOption(ofNone() as unknown as IOption<number>));
+            }, fromOption(ofNone<number>()));
             expect(someVal).toBe('got 42');
             expect(noneVal).toBe('none');
         });
 
         it('unwrapOr should return value or default', async () => {
             const v1 = await unwrapOr(0, fromOption(ofSome(42)));
-            const v2 = await unwrapOr(0, fromOption(ofNone() as unknown as IOption<number>));
+            const v2 = await unwrapOr(0, fromOption(ofNone<number>()));
             expect(v1).toBe(42);
             expect(v2).toBe(0);
         });

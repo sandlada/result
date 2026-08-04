@@ -22,7 +22,7 @@ export function bind<T, U>(
         try {
             return fn(opt.value);
         } catch {
-            return ofNone() as unknown as IOption<U>;
+            return ofNone<U>();
         }
     };
 }

@@ -26,9 +26,9 @@ export function all<T extends readonly [IOption<unknown>, ...IOption<unknown>[]]
 > {
     const values: unknown[] = [];
     for(const opt of options) {
-        if(!opt.isSome) return ofNone() as unknown as IOption<never> as unknown as IOption<
+        if(!opt.isSome) return ofNone<
             { [K in keyof T]: T[K] extends IOption<infer V> ? V : never }
-        >;
+        >();
         values.push(opt.value);
     }
     return ofSome(values) as unknown as IOption<

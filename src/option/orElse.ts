@@ -22,7 +22,7 @@ export function orElse<T>(
         try {
             return fn();
         } catch {
-            return ofNone() as unknown as IOption<T>;
+            return ofNone<T>();
         }
     };
 }

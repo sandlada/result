@@ -33,9 +33,9 @@ export function asyncTapOption<T>(
     try {
         return fn(opt.value).then(
             () => opt,
-            () => ofNone() as unknown as IOption<T>,
+            () => ofNone<T>(),
         );
     } catch {
-        return Promise.resolve(ofNone() as unknown as IOption<T>);
+        return Promise.resolve(ofNone<T>());
     }
 }

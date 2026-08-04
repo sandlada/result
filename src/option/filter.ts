@@ -21,9 +21,9 @@ export function filter<T>(
     return opt => {
         if(!opt.isSome) return opt as unknown as IOption<T>;
         try {
-            if(!predicate(opt.value)) return ofNone() as unknown as IOption<T>;
+            if(!predicate(opt.value)) return ofNone<T>();
         } catch {
-            return ofNone() as unknown as IOption<T>;
+            return ofNone<T>();
         }
         return opt;
     };

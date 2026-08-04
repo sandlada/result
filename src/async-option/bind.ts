@@ -34,7 +34,7 @@ export function bind<T, U>(
     return {
         run: async (): Promise<IOption<U>> => {
             const opt = await ao.run();
-            if (!opt.isSome) return ofNone();
+            if (!opt.isSome) return ofNone<U>();
             try {
                 const next = await fn(opt.value);
                 if (isAsyncCarrier(next)) {
@@ -42,7 +42,7 @@ export function bind<T, U>(
                 }
                 return next as unknown as IOption<U>;
             } catch {
-                return ofNone();
+                return ofNone<U>();
             }
         },
     };

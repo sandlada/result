@@ -36,7 +36,7 @@ export function zipWith<A, B, C>(
     return {
         run: async () => {
             const [opt1, opt2] = await Promise.all([ao1.run(), ao2.run()]);
-            if (!opt1.isSome || !opt2.isSome) return ofNone() as unknown as IOption<C>;
+            if (!opt1.isSome || !opt2.isSome) return ofNone<C>();
             return { isSome: true as const, isNone: false as const, value: await fn(opt1.value, opt2.value) };
         },
     };
