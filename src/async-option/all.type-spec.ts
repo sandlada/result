@@ -24,7 +24,7 @@ describe('all types', () => {
     });
 
     it('rejects heterogeneous element types unless T is given explicitly', () => {
-        // CONTRACT (pinned): `all<T>(aos: readonly AsyncOption<T>[])` binds a
+        // CONTRACT GAP (pinned): `all<T>(aos: readonly AsyncOption<T>[])` binds a
         // *single* `T`. A mixed array literal does NOT widen `T` to a union —
         // inference picks one candidate and the rest fail to assign.
         // @ts-expect-error AsyncOption<number> is not assignable to AsyncOption<string>
@@ -35,7 +35,7 @@ describe('all types', () => {
     });
 
     it('returns AsyncOption<unknown[]> for an empty array literal', () => {
-        // CONTRACT (pinned): an empty array literal gives TypeScript no
+        // CONTRACT GAP (pinned): an empty array literal gives TypeScript no
         // inference candidate for `T`, so it falls back to `unknown` — not
         // `never`. `all<never>([])` is the way to get `AsyncOption<never[]>`.
         const r = all([]);

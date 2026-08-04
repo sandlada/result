@@ -1,8 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { allSettled } from './index.js';
 import { ok, err } from '../factories/index.js';
 
 describe('allSettled', () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     it('collects every outcome in input order', async () => {
         const ar1 = { run: () => Promise.resolve(ok(1)) };
         const ar2 = { run: () => Promise.resolve(err<string>('a')) };
@@ -57,11 +65,15 @@ describe('allSettled', () => {
     });
 
     it('preserves input order in the output even when results arrive out of order', async () => {
-        const r = await allSettled([
+        const ar = allSettled([
             { run: () => new Promise<ReturnType<typeof ok<number>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(1)), 50)) },
             { run: () => Promise.resolve(err<string>('fast-fail')) },
             { run: () => new Promise<ReturnType<typeof ok<number>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(3)), 10)) },
-        ]).run();
+        ]);
+        const promise = ar.run();
+        // Drive both scheduled timers (10ms first, then 50ms).
+        await vi.advanceTimersByTimeAsync(50);
+        const r = await promise;
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) {
             expect(r.value).toEqual([
@@ -105,10 +117,14 @@ describe('allSettled', () => {
     });
 
     it('captures rejected-promise rejections as { ok: false, error: rejection }', async () => {
-        const r = await allSettled([
+        const ar = allSettled([
             { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)) },
             { run: () => Promise.resolve(ok('ok')) },
-        ]).run();
+        ]);
+        const promise = ar.run();
+        // Drive the scheduled rejection.
+        await vi.advanceTimersByTimeAsync(5);
+        const r = await promise;
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) {
             expect(r.value[0]!.ok).toBe(false);

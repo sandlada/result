@@ -35,9 +35,12 @@ describe('promise-result combineWithAllErrors', () => {
         if (!r.isSuccess) expect(r.error).toEqual(['first', 'second', 'third']);
     });
 
-    it('combines Ok values even when some inputs are Err (aggregation)', async () => {
-        // Mixed case: the Ok values are still collected, and the errors
-        // are accumulated. This is the validation-aggregation semantic.
+    it('aggregates errors and returns Err(errors[]) when any input is Err', async () => {
+        // Mixed case: when ANY input is Err, the overall result is Err and the
+        // errors are accumulated. The Ok values from the mixed input are
+        // DISCARDED on error — the earlier comment claimed they were "still
+        // collected", which was incorrect; only errors are surfaced in the
+        // Err branch.
         const r = await combineWithAllErrors([
             Promise.resolve(ok(1)),
             Promise.resolve(err<string>('a')),

@@ -25,7 +25,12 @@ describe('unsafeUnwrap', () => {
         expect(() => unsafeUnwrap(err(new Error('oops')))).toThrow('oops');
     });
 
-    it('throws TypeError (the raw error, NOT a wrapper) on failure (Group D)', () => {
+    it('throws the raw error value verbatim (no wrapper) on failure (Group D)', () => {
+        // Earlier wording said "throws TypeError"; the function does NOT throw
+        // a TypeError — it re-throws whatever the Err holds, with no wrapping.
+        // The test uses a TypeError instance only to demonstrate the "no
+        // wrapper" property; the same shape would hold for an `Error`,
+        // `RangeError`, a string, a number, or any other value.
         const e = new TypeError('t');
         try { unsafeUnwrap(err(e)); } catch (caught: unknown) {
             expect(caught).toBe(e);
