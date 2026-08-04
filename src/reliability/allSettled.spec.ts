@@ -58,9 +58,9 @@ describe('allSettled', () => {
 
     it('preserves input order in the output even when results arrive out of order', async () => {
         const r = await allSettled([
-            { run: () => new Promise<ReturnType<typeof ok<number, string>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(1)), 50)) },
+            { run: () => new Promise<ReturnType<typeof ok<number>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(1)), 50)) },
             { run: () => Promise.resolve(err<string>('fast-fail')) },
-            { run: () => new Promise<ReturnType<typeof ok<number, string>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(3)), 10)) },
+            { run: () => new Promise<ReturnType<typeof ok<number>> | ReturnType<typeof err<string>>>((resolve) => setTimeout(() => resolve(ok(3)), 10)) },
         ]).run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) {

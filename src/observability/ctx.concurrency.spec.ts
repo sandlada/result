@@ -75,7 +75,8 @@ describe('observability/ctx (polyfill store)', () => {
                 expect(current).toBe(inner);
                 expect(current?.parent).toBe(outer);
                 const segments: Array<string | number> = [];
-                let f: { stack: Array<string | number>; parent: { stack: Array<string | number>; parent: unknown } | null } | null = current ?? null;
+                type FrameLike = { stack: Array<string | number>; parent: FrameLike | null };
+                let f: FrameLike | null = current as unknown as FrameLike | null;
                 while (f !== null) {
                     segments.unshift(...f.stack);
                     f = f.parent;
