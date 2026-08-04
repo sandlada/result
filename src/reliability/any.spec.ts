@@ -1,8 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { any } from './index.js';
 import { ok, err } from '../factories/index.js';
 
 describe('any', () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     it('collects all successes when at least one Ok', async () => {
         const ar1 = { run: () => Promise.resolve(ok(1)) };
         const ar2 = { run: () => Promise.resolve(err<string>('a')) };
@@ -38,7 +46,11 @@ describe('any', () => {
         // implementation must defend against an upstream bug.
         const rejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)) };
         const good = { run: () => new Promise<typeof ok<number, string>>((resolve) => setTimeout(() => resolve(ok(7)), 10)) };
-        const r = await any([rejected, good]).run();
+        const ar = any([rejected, good]);
+        const promise = ar.run();
+        // Drive the scheduled rejection (5ms) and resolution (10ms).
+        await vi.advanceTimersByTimeAsync(10);
+        const r = await promise;
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toEqual([7]);
     });
@@ -46,7 +58,11 @@ describe('any', () => {
     it('captures rejections even when every thunk rejects', async () => {
         const rejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom1')), 5)) };
         const otherRejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom2')), 10)) };
-        const r = await any([rejected, otherRejected]).run();
+        const ar = any([rejected, otherRejected]);
+        const promise = ar.run();
+        // Drive the scheduled rejection (10ms).
+        await vi.advanceTimersByTimeAsync(10);
+        const r = await promise;
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
             expect(r.error.length).toBe(2);
@@ -61,7 +77,11 @@ describe('any', () => {
         const slow = { run: () => new Promise<typeof ok<number, string>>((resolve) => {
             setTimeout(() => { slowInvoked = true; resolve(err('slow-fail')); }, 5);
         }) };
-        const r = await any([fast, slow]).run();
+        const ar = any([fast, slow]);
+        const promise = ar.run();
+        // Drive the scheduled timer so `slow` resolves.
+        await vi.advanceTimersByTimeAsync(5);
+        const r = await promise;
         expect(r.isSuccess).toBe(true);
         expect(fastInvoked).toBe(true);
         expect(slowInvoked).toBe(true);

@@ -64,7 +64,11 @@ describe('orThrowWith', () => {
         expect(() => unwrap(err('x'))).toThrow('x');
     });
 
-    it('orThrow — throws TypeError on failure with raw error (Group D)', () => {
+    it('orThrow — re-throws the raw error value on failure, no wrapper (Group D)', () => {
+        // Earlier wording said "throws TypeError"; the function does NOT throw
+        // a TypeError — it re-throws whatever the Err holds, with no wrapping.
+        // The test uses an Error instance only to exercise the "no wrapper"
+        // property; the same shape would hold for any other thrown value.
         const errVal = new Error('boom');
         expect(() => orThrow(err(errVal))).toThrow(errVal);
     });

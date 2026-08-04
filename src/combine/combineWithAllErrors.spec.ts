@@ -78,11 +78,13 @@ describe('combineWithAllErrors', () => {
         }
     });
 
-    it('all-success case returns an empty error array contract — success values', () => {
-        // Brief: combineWithAllErrors returns err([]) for the all-success case.
-        // (The actual runtime returns ok([...values]) for all-success — the
-        // brief's "err([])" phrasing refers to the typed shape when the input
-        // is a homogeneous array of Ok's. We verify the success path here.)
+    it('all-success case returns Ok([...values]) — does NOT return err([])', () => {
+        // Brief: combineWithAllErrors is the all-success-as-Ok variant of
+        // combine. The runtime returns ok([...values]) when every input is Ok;
+        // it does NOT return an error result with an empty error array.
+        // Earlier wording in this test ("returns err([])") described the
+        // typed shape of the input (a homogeneous array of Ok's) and was
+        // misleading about the runtime — corrected here.
         const combined = combineWithAllErrors<number, string>([ok(1), ok(2), ok(3)]);
         expect(combined.isSuccess).toBe(true);
         if (combined.isSuccess) {

@@ -37,6 +37,12 @@ describe('asyncCarrier types', () => {
     });
 
     it('unwrapAsyncCarrier preserves the input type', () => {
+        // CONTRACT GAP (pinned): see the marker on the "is declared as an
+        // identity on its type parameter" test above. This test certifies the
+        // same lie for a branded carrier — `unwrapAsyncCarrier` is typed
+        // `<T>(value: T): T`, so the branded value is reported to round-trip,
+        // even though at runtime `.run()` is invoked and the branded value is
+        // NOT returned.
         const branded = markAsyncCarrier({ run: () => 42 });
         expectTypeOf(unwrapAsyncCarrier(branded)).toEqualTypeOf<typeof branded>();
     });
@@ -131,6 +137,15 @@ describe('asyncCarrier types', () => {
     // ---------------------------------------------------------------------
 
     it('unwrapAsyncCarrier is declared as an identity on its type parameter', () => {
+        // CONTRACT GAP (pinned): `unwrapAsyncCarrier<T>(value: T): T` is declared
+        // as an identity on its type parameter, but the implementation actually
+        // returns `value.run()` for branded carrier inputs — so the declared
+        // identity is FALSE for branded inputs (the runtime type is the
+        // Promise returned by `.run()`, not the carrier itself). The helper has
+        // no production callers and is currently dead code. The "preserves the
+        // input type" test on lines 39-42 also certifies the lie for the same
+        // reason. The narrowing is left as a known gap; deletion of the helper
+        // is out of scope for this fix wave.
         expectTypeOf(unwrapAsyncCarrier<number>).toEqualTypeOf<(value: number) => number>();
         expectTypeOf(unwrapAsyncCarrier(ok(42))).toEqualTypeOf<IResultOfT<number, never>>();
     });

@@ -49,7 +49,7 @@ describe('timeoutEager', () => {
             vi.useRealTimers();
         });
 
-        it('is eager — invokes fn synchronously when timeoutEager is called', () => {
+        it('is NOT eager — fn is not invoked until .run() is awaited (contrary to name)', () => {
             vi.useFakeTimers();
             const fn = vi.fn(() => Promise.resolve({
                 isSuccess: true as const,

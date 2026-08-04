@@ -37,7 +37,7 @@ describe('all types', () => {
         const r = all([]);
         expectTypeOf(r).toBeObject();
         if (r.isSuccess) {
-            // Pinned: an un-`as const` empty array literal infers
+            // CONTRACT GAP (pinned): an un-`as const` empty array literal infers
             // `T = unknown[]`, so the mapped value type is `unknown[]` —
             // it is neither `readonly` nor `never[]`.
             expectTypeOf(r.value).toEqualTypeOf<unknown[]>();
