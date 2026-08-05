@@ -4,7 +4,7 @@
  * Re-exports all retry/timeout/concurrency helpers for production-grade ROP pipelines.
  */
 
-export { retry, type RetryOptions } from './retry.js';
+export { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';
 export { retryLazy } from './retryLazy.js';
 export { timeout, type TimeoutError } from './timeout.js';
 export { timeoutEager } from './timeoutEager.js';

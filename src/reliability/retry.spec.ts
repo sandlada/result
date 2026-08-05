@@ -87,34 +87,36 @@ describe('retry', () => {
     });
 
     it('catches sync throw from fn and converts to Err', async () => {
-        const fn = vi.fn(() => { throw new Error('sync-throw'); });
+        const boom = new Error('sync-throw');
+        const fn = vi.fn(() => { throw boom; });
         const r = await retry(fn, { times: 1 });
         expect(fn).toHaveBeenCalledTimes(2);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('sync-throw');
+        if (r.isFailure) expect(r.error).toEqual({ kind: 'Thrown', thrown: boom });
     });
 
     it('catches promise rejection from fn and converts to Err', async () => {
-        const fn = vi.fn(async () => { throw new Error('rejected'); });
+        const boom = new Error('rejected');
+        const fn = vi.fn(async () => { throw boom; });
         const r = await retry(fn, { times: 1 });
         expect(fn).toHaveBeenCalledTimes(2);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('rejected');
+        if (r.isFailure) expect(r.error).toEqual({ kind: 'Thrown', thrown: boom });
     });
 
-    it('uses constructor.name when an Error with empty message is thrown', async () => {
+    it('preserves an Error subclass instance with an empty message', async () => {
         class CustomBoom extends Error {}
         const fn = vi.fn(() => { throw new CustomBoom(); });
         const r = await retry(fn, { times: 0 });
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('CustomBoom');
+        if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBeInstanceOf(CustomBoom);
     });
 
-    it('wraps a non-Error throw value via String()', async () => {
+    it('preserves a non-Error throw value without stringifying it', async () => {
         const fn = vi.fn(() => { throw 'plain string'; });
         const r = await retry(fn, { times: 0 });
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('plain string');
+        if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBe('plain string');
     });
 
     it('does not invoke fn when signal is already aborted', async () => {
@@ -259,18 +261,19 @@ describe('retry', () => {
         expect(fn).toHaveBeenCalledTimes(3);
     });
 
-    it('passes the raw thrown Error.message (not the Error instance) for a real Error throw', async () => {
-        const fn = vi.fn(() => { throw new TypeError('bad-type'); });
+    it('preserves the thrown Error instance (not just its message) for a real Error throw', async () => {
+        const boom = new TypeError('bad-type');
+        const fn = vi.fn(() => { throw boom; });
         const r = await retry(fn, { times: 0 });
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('bad-type');
+        if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBe(boom);
     });
 
-    it('stringifies a non-Error throw value', async () => {
+    it('preserves a thrown number as a number', async () => {
         const fn = vi.fn(() => { throw 42; });
         const r = await retry(fn, { times: 0 });
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('42');
+        if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBe(42);
     });
 
     // ---- Bug 1 contract: never returns undefined ----
@@ -324,5 +327,110 @@ describe('retry', () => {
             const e = r.error as { kind?: unknown };
             expect(e.kind).toBe('Custom');
         }
+    });
+
+    describe('thrown-error identity', () => {
+        type DomainError = { readonly kind: 'Transient' | 'Fatal' };
+
+        it('hands shouldRetry a structured error, not a stringified one', async () => {
+            const seen: unknown[] = [];
+            const fn = () => { throw new Error('boom'); };
+            await retry<number, DomainError>(fn, {
+                times: 2,
+                shouldRetry: (e) => { seen.push(e); return true; },
+            });
+            expect(seen[0]).toEqual({ kind: 'Thrown', thrown: expect.any(Error) });
+        });
+
+        it('keeps retrying a thrown failure when shouldRetry says so', async () => {
+            // The stringify-and-cast bug made every predicate that inspected the
+            // error shape return false, silently disabling retry on throws.
+            const fn = vi.fn(() => { throw new Error('transient-blip'); });
+            await retry<number, DomainError>(fn, {
+                times: 3,
+                shouldRetry: (e) => 'kind' in e && e.kind === 'Thrown',
+            });
+            expect(fn).toHaveBeenCalledTimes(4);
+        });
+
+        it('preserves the original Error instance, stack and cause', async () => {
+            const original = new TypeError('bad-type', { cause: 'root-cause' });
+            const r = await retry(() => { throw original; }, { times: 0 });
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                const e = r.error as { kind: string; thrown: unknown };
+                expect(e.kind).toBe('Thrown');
+                expect(e.thrown).toBe(original);
+                expect((e.thrown as TypeError).cause).toBe('root-cause');
+                expect((e.thrown as TypeError).stack).toBeDefined();
+            }
+        });
+
+        it('preserves a non-Error throw verbatim rather than stringifying it', async () => {
+            const r = await retry(() => { throw 42; }, { times: 0 });
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBe(42);
+        });
+
+        it('lets onThrow map the throw onto the caller error type', async () => {
+            const fn = () => { throw new Error('boom'); };
+            const r = await retry<number, DomainError, DomainError>(fn, {
+                times: 0,
+                onThrow: (): DomainError => ({ kind: 'Transient' }),
+            });
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toEqual({ kind: 'Transient' });
+        });
+    });
+
+    describe('never rejects, even when a caller hook throws', () => {
+        it('survives a throwing shouldRetry', async () => {
+            const r = await retry(() => err('nope'), {
+                times: 2,
+                shouldRetry: () => { throw new Error('predicate exploded'); },
+            });
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                expect((r.error as { thrown: unknown }).thrown).toBeInstanceOf(Error);
+            }
+        });
+
+        it('survives a throwing onRetry', async () => {
+            const r = await retry(() => err('nope'), {
+                times: 2,
+                onRetry: () => { throw new Error('hook exploded'); },
+            });
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('survives a throwing delayMs', async () => {
+            const r = await retry(() => err('nope'), {
+                times: 2,
+                delayMs: () => { throw new Error('backoff exploded'); },
+            });
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('survives a throwing onAborted', async () => {
+            const controller = new AbortController();
+            controller.abort();
+            const r = await retry(() => ok(1), {
+                signal: controller.signal,
+                onAborted: () => { throw new Error('factory exploded'); },
+            });
+            expect(r.isFailure).toBe(true);
+        });
+    });
+
+    it('floors a fractional `times` instead of scheduling a delay after the last attempt', async () => {
+        vi.useFakeTimers();
+        const fn = vi.fn(() => err('nope'));
+        const delayMs = vi.fn(() => 1000);
+        const p = retry(fn, { times: 0.5, delayMs });
+        await vi.advanceTimersByTimeAsync(5000);
+        await p;
+        vi.useRealTimers();
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(delayMs).not.toHaveBeenCalled();
     });
 });

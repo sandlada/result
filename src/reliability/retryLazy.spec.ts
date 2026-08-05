@@ -69,13 +69,14 @@ describe('retryLazy', () => {
     });
 
     it('converts a thrown Error from the inner run() into Err (no escape)', async () => {
+        const inner = new Error('inner');
         const ar = {
             run: async () => {
-                throw new Error('inner');
+                throw inner;
             },
         };
         const result = await retryLazy(ar, { times: 0, shouldRetry: () => false }).run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect(result.error).toBe('inner');
+        if (result.isFailure) expect(result.error).toEqual({ kind: 'Thrown', thrown: inner });
     });
 });

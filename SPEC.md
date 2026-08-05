@@ -236,11 +236,11 @@ Retry / timeout / concurrency primitives for production pipelines.
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `retry` | Eager bounded retry. When the loop never invokes the user function (pre-aborted signal or invalid `times`), `Err.error` is whatever `onAborted` returns — the developer defines the error shape, not the library. `E` is preserved (no widening on the return type). | [src/reliability/retry.ts](./src/reliability/retry.ts) |
-| `retryLazy` | Lazy thunk wrap of `retry`; same `onAborted` contract. | [src/reliability/retryLazy.ts](./src/reliability/retryLazy.ts) |
+| `retry` | Eager bounded retry. Resolves `IResultOfT<T, E \| TE \| AE>`: `E` from your `fn`, `TE` when something *throws* (default `ThrownError`, preserving the thrown value verbatim), `AE` when the loop never runs `fn` (default `AbortedError`). Supply `onThrow` / `onAborted` to collapse both onto your own `E`. Never rejects — throws escaping `fn` **or** any caller hook become `Err`. | [src/reliability/retry.ts](./src/reliability/retry.ts) |
+| `retryLazy` | Lazy thunk wrap of `retry`; same `E \| TE \| AE` contract. | [src/reliability/retryLazy.ts](./src/reliability/retryLazy.ts) |
 | `timeout` | Lazy race against `setTimeout`. | [src/reliability/timeout.ts](./src/reliability/timeout.ts) |
 | `timeoutEager` | Eager counterpart. | [src/reliability/timeoutEager.ts](./src/reliability/timeoutEager.ts) |
-| `race` | First `Ok` wins. | [src/reliability/race.ts](./src/reliability/race.ts) |
+| `race` | First `Ok` wins; all-`Err` resolves to the lowest input index. A literal non-empty array keeps `E`; a dynamically-sized one widens to `E \| EmptyInputsError` (override via `onEmpty`). | [src/reliability/race.ts](./src/reliability/race.ts) |
 | `any` | Collect all successes (or all errors if none). | [src/reliability/any.ts](./src/reliability/any.ts) |
 | `allSettled` | Always `Ok`; per-thunk outcomes in input order. | [src/reliability/allSettled.ts](./src/reliability/allSettled.ts) |
 

@@ -3,9 +3,10 @@
  * execution until the returned thunk is `run()`. Use when an existing AsyncResult
  * pipeline should retry transparently without changing upstream code.
  *
- * **Error identity stripping**: like {@link retry}, thrown `Error` instances are
- * converted to their `.message` (or `.constructor.name`) and non-Error throws
- * are stringified. The original `Error` object, stack, and `cause` are discarded.
+ * **Error identity**: like {@link retry}, a thrown value is preserved verbatim
+ * inside a `ThrownError` (`{ kind: 'Thrown', thrown }`) — the original `Error`
+ * instance, its `stack` and its `cause` all survive. Pass `onThrow` to map the
+ * throw onto your own error type.
  *
  * **Attempt numbering**: the `attempt` parameter passed to `shouldRetry` and
  * `onRetry` is **zero-based** (0 = first retry attempt after the initial call).
@@ -24,22 +25,22 @@
 
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { retry, type RetryOptions } from './retry.js';
+import { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';
 
 /**
  * Wraps an `AsyncResult` to add retry semantics without executing it.
  * The returned thunk defers work until `.run()` is called.
  *
- * When the retry loop never invokes `ar.run` (pre-aborted signal, or invalid
- * `times`), the resolved `Err.error` is whatever `options.onAborted(...)`
- * returns — same contract as the eager {@link retry}.
+ * Error channels mirror the eager {@link retry}: `E | TE | AE`, where `TE`
+ * covers throws and `AE` covers the never-ran case. Supply `onThrow` /
+ * `onAborted` to collapse them onto your own error type.
  */
-export function retryLazy<T, E>(
+export function retryLazy<T, E, TE = ThrownError, AE = AbortedError>(
     ar: AsyncResult<T, E>,
-    options: RetryOptions<E> = {},
-): AsyncResult<T, E> {
+    options: RetryOptions<E, TE, AE> = {},
+): AsyncResult<T, E | TE | AE> {
     const arRun = ar.run;
     return {
-        run: (): Promise<IResultOfT<T, E>> => retry(arRun, options),
+        run: (): Promise<IResultOfT<T, E | TE | AE>> => retry(arRun, options),
     };
 }

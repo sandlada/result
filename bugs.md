@@ -12,30 +12,6 @@ any error shape — no library-defined `Error` subclass is forced.
 
 ---
 
-## High Severity
-
-### 4. `src/reliability/retry.ts` — `defaultAbortedSentinel` lies about runtime shape
-- **API**: `src/reliability/retry.ts` / exported `retry`
-- **Problem case**: When the loop never invokes `fn` (pre-aborted signal / negative `times`) and
-  no `onAborted` factory is supplied, the library fabricates:
-  ```ts
-  const defaultAbortedSentinel = (reason, times) =>
-      ({ kind: 'Aborted' as const, reason, times });
-  // ... cast through `E`:
-  const error: E = options.onAborted?.(reason, times) ??
-      (defaultAbortedSentinel(reason, times) as unknown as E);
-  ```
-  If the developer declares `E = MyDomainError` (e.g. `{ kind: 'ValidationError' | 'NotFound' }`)
-  the cast is a type lie — the returned `Err` is typed `IResultOfT<T, MyDomainError>` but the
-  runtime `error` is `{ kind: 'Aborted', reason, times }` (an unknown shape to the developer).
-  Discriminated-union narrowing at the call site will misfire.
-- **Expected**: Either (a) widen the return type to `IResultOfT<T, E | AbortedSentinel>` so the
-  developer can discriminate the abort case at the type level, or (b) require `onAborted` when
-  `E` does not structurally accommodate `AbortSentinel`.
-- **Severity**: high (type-lying on the failure path is the most dangerous failure mode)
-
----
-
 ## Medium Severity
 
 ### 6. `src/option/all.ts` — tuple-only input, no array overload

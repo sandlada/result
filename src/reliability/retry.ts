@@ -5,21 +5,18 @@
  * function up to `times + 1` times. Use `shouldRetry` to filter transient errors
  * (timeouts, network blips) and `signal` to abort the retry loop.
  *
- * **Error identity**: thrown `Error` instances are converted to their `.message`
- * (or `.constructor.name` when the message is empty). Non-Error throws are
- * stringified via `String(thrown)`. The original `Error` object, stack, and
- * `cause` are **discarded**. If you need to preserve the original, wrap your
- * function with `tryCatch` and pass the result through.
+ * **Error identity**: a value thrown by `fn` is preserved **verbatim** inside a
+ * {@link ThrownError} (`{ kind: 'Thrown', thrown }`), so the original `Error`
+ * instance, its `stack` and its `cause` all survive. Pass `onThrow` to map the
+ * throw onto your own error type instead.
  *
  * **Aborted / no-attempt cases**: when the loop never invokes `fn` (a
  * pre-aborted `signal` or a non-finite / negative `times`), the resolved `Err`
- * is constructed with whatever `onAborted` returns, cast through `E`. If you
- * want the error category to match your `E` type, provide `onAborted` —
- * otherwise the library falls back to a plain-object sentinel
- * (`{ kind: 'Aborted', reason, times }`) that is **not** exported as a type
- * (you'll need to widen `E` at your access site if you want compile-time
- * `kind` checks). The `E` in `Promise<IResultOfT<T, E>>` is preserved without
- * widening — the developer owns the error shape.
+ * carries an {@link AbortedError} (`{ kind: 'Aborted', reason, times }`).
+ * Pass `onAborted` to substitute your own shape.
+ *
+ * Both channels are *additive* on the return type — `IResultOfT<T, E | TE | AE>` —
+ * so the library never claims a fabricated value is one of your `E`s.
  *
  * @example
  * ```ts
@@ -28,9 +25,18 @@
  * const r = await retry(() => tryFetch(`/api/u/${id}`), {
  *   times: 3,
  *   delayMs: n => 50 * (n + 1), // linear backoff
- *   shouldRetry: e => e.kind === 'Transient',
- *   onAborted: (reason) => ({ kind: 'Aborted', reason }),  // <- define your own error shape
+ *   shouldRetry: e => 'kind' in e && e.kind === 'Transient',
  * });
+ * // r.error: MyError | ThrownError | AbortedError — each separately narrowable.
+ * ```
+ *
+ * @example Collapsing every channel onto one domain error
+ * ```ts
+ * const r = await retry<User, MyError, MyError, MyError>(fetchUser, {
+ *   onThrow:   (thrown) => ({ kind: 'Unexpected', thrown }),
+ *   onAborted: (reason) => ({ kind: 'Cancelled', reason }),
+ * });
+ * // r.error: MyError
  * ```
  *
  * @note Ready for Product
@@ -43,27 +49,40 @@ import { err } from '../factories/err.js';
  * Options for {@link retry} and {@link retryLazy}.
  *
  * Each field has a sensible default; only set the knobs you actually need.
+ *
+ * @typeParam E  — the error type your `fn` returns in its `Err`.
+ * @typeParam TE — the error produced when `fn` (or one of these hooks) *throws*.
+ *                 Defaults to {@link ThrownError}; override with `onThrow`.
+ * @typeParam AE — the error produced when the loop never runs `fn` at all.
+ *                 Defaults to {@link AbortedError}; override with `onAborted`.
  */
-export interface RetryOptions<E = unknown> {
-    /** Maximum retry attempts (excluding the first attempt). Default `3`. */
+export interface RetryOptions<E = unknown, TE = ThrownError, AE = AbortedError> {
+    /**
+     * Maximum retry attempts (excluding the first attempt). Default `3`.
+     * Fractional values are floored — `times: 2.7` performs 3 attempts total.
+     */
     readonly times?: number;
     /**
      * Delay between attempts in milliseconds.
      * Either a fixed number or a function of (zero-based attempt index, last error).
      * Default `0` (no delay). Negative values are clamped to `0`.
      */
-    readonly delayMs?: number | ((attempt: number, error: E) => number);
+    readonly delayMs?: number | ((attempt: number, error: E | TE) => number);
     /**
      * Predicate that decides whether to retry after a given failure.
      * Return `false` to stop retrying immediately and return the last result.
      * Default: always retry.
+     *
+     * Receives `E | TE` because a throw from `fn` is a real failure your policy
+     * has to classify — supply `onThrow` to collapse both into one shape.
      */
-    readonly shouldRetry?: (error: E, attempt: number) => boolean;
+    readonly shouldRetry?: (error: E | TE, attempt: number) => boolean;
     /**
-     * Optional hook invoked **after** the delay, **before** the next attempt.
-     * Useful for logging or metrics; the value it returns is ignored.
+     * Optional hook invoked **after** `shouldRetry` approves a retry and
+     * **before** the backoff delay begins. Useful for logging or metrics
+     * ("will retry in Nms"); the value it returns is ignored.
      */
-    readonly onRetry?: (error: E, attempt: number) => void;
+    readonly onRetry?: (error: E | TE, attempt: number) => void;
     /**
      * Abort signal. If `signal.aborted` becomes `true` during the delay window,
      * the loop exits and the last result is returned (the supplied function is
@@ -71,22 +90,45 @@ export interface RetryOptions<E = unknown> {
      */
     readonly signal?: AbortSignal;
     /**
+     * Optional factory that converts a value thrown by `fn` (or by one of the
+     * hooks above) into your own error type, collapsing `E | TE` back to `E`.
+     * Without it the library preserves the thrown value verbatim inside a
+     * {@link ThrownError}.
+     */
+    readonly onThrow?: (thrown: unknown) => TE;
+    /**
      * Optional factory invoked when the retry loop exits without ever calling
      * `fn` (pre-aborted signal or non-finite / negative `times`). The returned
-     * value becomes the `error` of the resolved `Err`. The developer defines
-     * their own error shape — the library does NOT export a canonical type
-     * for this case. Without `onAborted` the library falls back to a plain
-     * `{ kind: 'Aborted', reason, times }` object literal cast through `E`.
+     * value becomes the `error` of the resolved `Err`. Without it the library
+     * falls back to {@link AbortedError}.
      */
-    readonly onAborted?: (reason: unknown, times: number) => E;
+    readonly onAborted?: (reason: unknown, times: number) => AE;
 }
 
 /**
- * Internal default sentinel for the no-attempt case. Not exported as a type —
- * the developer owns their `E` shape (via `onAborted`).
+ * Default shape of the error produced when `fn` throws instead of returning an
+ * `Err`. The original thrown value is preserved verbatim in `thrown`, so the
+ * `Error` instance, its `stack` and its `cause` all survive.
  */
-const defaultAbortedSentinel = (reason: unknown, times: number) =>
-    ({ kind: 'Aborted' as const, reason, times });
+export interface ThrownError {
+    readonly kind: 'Thrown';
+    readonly thrown: unknown;
+}
+
+/**
+ * Default shape of the error produced when the retry loop never invokes `fn`
+ * (pre-aborted signal, or a non-finite / negative `times`).
+ */
+export interface AbortedError {
+    readonly kind: 'Aborted';
+    readonly reason: unknown;
+    readonly times: number;
+}
+
+const defaultOnThrow = (thrown: unknown): ThrownError => ({ kind: 'Thrown', thrown });
+
+const defaultOnAborted = (reason: unknown, times: number): AbortedError =>
+    ({ kind: 'Aborted', reason, times });
 
 const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
     new Promise((resolve) => {
@@ -105,59 +147,70 @@ const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
         signal?.addEventListener('abort', onAbort, { once: true });
     });
 
-const computeDelay = <E>(
-    delayMs: RetryOptions<E>['delayMs'],
+const computeDelay = <E, TE>(
+    delayMs: RetryOptions<E, TE>['delayMs'],
     attempt: number,
-    error: E,
+    error: E | TE,
 ): number => {
     const raw = typeof delayMs === 'function' ? delayMs(attempt, error) : (delayMs ?? 0);
     return Math.max(0, raw);
 };
 
 /**
- * Convert any value rejected or thrown by the user function into an `Err`.
- * Note: this **strips** `Error` identity — see the `@fileoverview` note about
- * error identity. The thrown value is converted to a `string` and cast to `E`.
+ * Convert any value thrown by the user function into an `Err`, preserving the
+ * original value so the `Error` instance, `stack` and `cause` all survive.
  */
-const toErrFailure = <E>(thrown: unknown): IResultOfT<never, E> => {
-    const wrapped = thrown instanceof Error ? thrown.message || thrown.constructor.name : String(thrown);
-    return err(wrapped as unknown as E) as unknown as IResultOfT<never, E>;
-};
-
-const safeInvoke = async <T, E>(
+const safeInvoke = async <T, E, TE>(
     fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
-): Promise<IResultOfT<T, E>> => {
+    toThrown: (thrown: unknown) => IResultOfT<never, TE>,
+): Promise<IResultOfT<T, E | TE>> => {
     try {
         return await fn();
     } catch (thrown) {
-        return toErrFailure<E>(thrown);
+        return toThrown(thrown);
     }
 };
 
 /**
  * Runs a fallible function, retrying on failure up to `options.times` times.
  *
- * Synchronous throws AND promise rejections from `fn` are both converted to
- * `Err` so the returned promise never rejects — matching the AsyncResult
- * contract used elsewhere in the library.
+ * Synchronous throws AND promise rejections from `fn` are converted to `Err`,
+ * as are throws escaping `shouldRetry`, `onRetry`, `delayMs`, `onThrow` and
+ * `onAborted`. The returned promise therefore never rejects — matching the
+ * AsyncResult contract used elsewhere in the library.
  *
  * The retry loop respects `AbortSignal` between attempts only; it cannot
  * interrupt an in-flight invocation.
  *
- * When the loop never invokes `fn` (pre-aborted signal, or `times` is
- * non-finite / negative), the resolved `Err.error` is whatever
- * `options.onAborted(reason, times)` returns, cast through `E`. Provide
- * `onAborted` so the error's runtime shape matches your declared `E`. When
- * `onAborted` is absent, the library falls back to a plain object literal
- * `{ kind: 'Aborted', reason, times }` (not exported as a type) cast through
- * `E` — the developer stays in charge of how to discriminate the abort case
- * at the call site.
+ * **Error channels** — the resolved error is `E | TE | AE`, where each arm is
+ * separately discriminable and separately collapsible:
+ * - `E` — an `Err` your `fn` returned.
+ * - `TE` — something *threw*. Defaults to {@link ThrownError}, which keeps the
+ *   thrown value verbatim; pass `onThrow` to fold it into `E`.
+ * - `AE` — the loop never ran `fn` at all. Defaults to {@link AbortedError};
+ *   pass `onAborted` to fold it into `E`.
+ *
+ * If a caller-supplied `onThrow` / `onAborted` factory itself throws, the
+ * library falls back to the corresponding default sentinel rather than
+ * rejecting — a broken factory must not take the whole contract down.
  */
-export async function retry<T, E>(
+export async function retry<T, E, TE = ThrownError, AE = AbortedError>(
     fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
-    options: RetryOptions<E> = {},
-): Promise<IResultOfT<T, E>> {
-    const times = options.times ?? 3;
+    options: RetryOptions<E, TE, AE> = {},
+): Promise<IResultOfT<T, E | TE | AE>> {
+    const requested = options.times ?? 3;
+
+    // Funnel every throw — from `fn` or from a caller hook — through one place,
+    // so the never-rejects contract holds no matter who misbehaves.
+    const toThrown = (thrown: unknown): IResultOfT<never, TE> => {
+        if (options.onThrow === undefined) return err(defaultOnThrow(thrown) as unknown as TE);
+        try {
+            return err(options.onThrow(thrown));
+        } catch {
+            return err(defaultOnThrow(thrown) as unknown as TE);
+        }
+    };
+
     // Pre-loop guard: bail with an `Err` before running any `fn` at all.
     // Why before the loop: the loop only assigns `lastResult` AFTER
     // `safeInvoke` returns, so `attempt <= times` failing (negative / NaN
@@ -165,29 +218,46 @@ export async function retry<T, E>(
     // pre-aborted `signal` would otherwise exit with `lastResult ===
     // undefined`, violating the never-undefined contract for the resolved
     // `Err`.
-    if (!Number.isFinite(times) || times < 0 || options.signal?.aborted) {
+    if (!Number.isFinite(requested) || requested < 0 || options.signal?.aborted) {
         // Defensive read: `AbortSignal.reason` is runtime-standard since
         // Node 18 and Chrome 100, but some ambient typings (incl. the one
         // vitest 4's typecheck pass uses) don't declare it yet. The cast
         // keeps both sides happy.
         const reason = (options.signal as { reason?: unknown } | undefined)?.reason;
-        // The developer owns the error shape via `onAborted`; when absent
-        // we fall back to a plain object literal that is NOT exported as a
-        // type. `E` is preserved (no widening on the return type).
-        const error: E = options.onAborted?.(reason, times) ?? (defaultAbortedSentinel(reason, times) as unknown as E);
-        return err(error) as unknown as IResultOfT<T, E>;
+        if (options.onAborted === undefined) {
+            return err(defaultOnAborted(reason, requested) as unknown as AE);
+        }
+        try {
+            return err(options.onAborted(reason, requested));
+        } catch {
+            return err(defaultOnAborted(reason, requested) as unknown as AE);
+        }
     }
+
+    // Floor after the guard: a fractional `times` would otherwise never satisfy
+    // `attempt === times`, so the loop would schedule a backoff delay that no
+    // attempt ever follows.
+    const times = Math.floor(requested);
     const shouldRetry = options.shouldRetry ?? (() => true);
-    let lastResult: IResultOfT<T, E> | undefined;
+    let lastResult: IResultOfT<T, E | TE> | undefined;
     for (let attempt = 0; attempt <= times; attempt++) {
         if (options.signal?.aborted) break;
-        lastResult = await safeInvoke(fn);
+        lastResult = await safeInvoke(fn, toThrown);
         if (lastResult.isSuccess) return lastResult;
         if (attempt === times) break;
-        if (!shouldRetry(lastResult.error, attempt)) break;
-        if (options.onRetry) options.onRetry(lastResult.error, attempt);
-        const delay = computeDelay(options.delayMs, attempt, lastResult.error);
+
+        const error = lastResult.error;
+        let delay: number;
+        try {
+            if (!shouldRetry(error, attempt)) break;
+            if (options.onRetry) options.onRetry(error, attempt);
+            delay = computeDelay(options.delayMs, attempt, error);
+        } catch (thrown) {
+            // A broken retry policy is itself a failure worth surfacing —
+            // reporting it beats silently returning the last attempt's error.
+            return toThrown(thrown);
+        }
         await sleep(delay, options.signal);
     }
-    return lastResult as IResultOfT<T, E>;
+    return lastResult as IResultOfT<T, E | TE | AE>;
 }

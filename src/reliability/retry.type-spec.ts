@@ -1,22 +1,37 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { retry, type RetryOptions } from './retry.js';
+import { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('retry types', () => {
-    it('returns Promise<IResultOfT<T, E>> (E preserved — no library-defined widening)', async () => {
+    it('surfaces the throw and abort channels instead of hiding them inside E', () => {
+        // Regression guard for the `as unknown as E` lies: `retry` fabricates an
+        // error in two cases (fn threw / loop never ran), and both must be
+        // visible in the type rather than masquerading as the caller's E.
         const p = retry<number, string>(() => ({ isSuccess: true as const, isFailure: false as const, value: 42 }));
-        const _check: Promise<IResultOfT<number, string>> = p;
-        expectTypeOf(_check).toBeObject();
+        expectTypeOf(p).not.toEqualTypeOf<Promise<IResultOfT<number, string>>>();
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, string | ThrownError | AbortedError>>>();
     });
 
-    it('preserves T from the wrapped function', async () => {
+    it('preserves T from the wrapped function', () => {
         const p = retry<string, Error>(() => ({
             isSuccess: true as const,
             isFailure: false as const,
             value: 'hi',
         }));
-        const _check: Promise<IResultOfT<string, Error>> = p;
+        const _check: Promise<IResultOfT<string, Error | ThrownError | AbortedError>> = p;
         expectTypeOf(_check).toBeObject();
+    });
+
+    it('collapses every channel onto one domain error when both factories are supplied', () => {
+        type AppError = { readonly kind: 'Transient' | 'Cancelled' | 'Unexpected' };
+        const p = retry<number, AppError, AppError, AppError>(
+            () => ({ isSuccess: true as const, isFailure: false as const, value: 1 }),
+            {
+                onThrow: (): AppError => ({ kind: 'Unexpected' }),
+                onAborted: (): AppError => ({ kind: 'Cancelled' }),
+            },
+        );
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, AppError>>>();
     });
 
     it('RetryOptions has optional fields with sensible types', () => {
@@ -26,50 +41,55 @@ describe('retry types', () => {
             shouldRetry: (e) => e === 'transient',
             onRetry: () => { /* side effect */ },
             signal: new AbortController().signal,
-            // Developer defines their own error shape here. With `E = string`,
-            // the factory must return a string.
-            onAborted: () => 'aborted',
+            onThrow: (thrown): ThrownError => ({ kind: 'Thrown', thrown }),
+            onAborted: (reason, times): AbortedError => ({ kind: 'Aborted', reason, times }),
         };
         expectTypeOf(opts).toBeObject();
+    });
+
+    it('policy hooks see the throw channel too, so it cannot be silently ignored', () => {
+        // The old signature typed these `(error: E) => …` while handing them a
+        // stringified throw at runtime, which silently broke every predicate.
+        const opts: RetryOptions<string> = {};
+        expectTypeOf(opts.shouldRetry).toEqualTypeOf<((error: string | ThrownError, attempt: number) => boolean) | undefined>();
+        expectTypeOf(opts.onRetry).toEqualTypeOf<((error: string | ThrownError, attempt: number) => void) | undefined>();
+        expectTypeOf(opts.delayMs).toEqualTypeOf<number | ((attempt: number, error: string | ThrownError) => number) | undefined>();
     });
 
     it('delayMs accepts both a number and a function of (attempt, error)', () => {
         const numberOpts: RetryOptions<string> = { delayMs: 50 };
         const fnOpts: RetryOptions<string> = {
-            delayMs: (attempt: number, error: string) => 10 * attempt + error.length,
+            delayMs: (attempt, error) => 10 * attempt + String(error).length,
         };
-        expectTypeOf(numberOpts.delayMs).toEqualTypeOf<number | ((attempt: number, error: string) => number) | undefined>();
-        expectTypeOf(fnOpts.delayMs).toEqualTypeOf<number | ((attempt: number, error: string) => number) | undefined>();
+        expectTypeOf(numberOpts.delayMs).toEqualTypeOf<number | ((attempt: number, error: string | ThrownError) => number) | undefined>();
+        expectTypeOf(fnOpts.delayMs).toEqualTypeOf<number | ((attempt: number, error: string | ThrownError) => number) | undefined>();
     });
 
-    it('shouldRetry predicate receives (error, attempt) and returns boolean', () => {
-        const opts: RetryOptions<string> = {
-            shouldRetry: (error: string, attempt: number): boolean => attempt < 3 && error === 'transient',
+    it('onThrow lets the developer own the throw shape', () => {
+        const objectErr: RetryOptions<string, { kind: 'Boom' }> = {
+            onThrow: () => ({ kind: 'Boom' as const }),
         };
-        expectTypeOf(opts.shouldRetry).toEqualTypeOf<((error: string, attempt: number) => boolean) | undefined>();
+        expectTypeOf(objectErr.onThrow).toEqualTypeOf<((thrown: unknown) => { kind: 'Boom' }) | undefined>();
     });
 
-    it('onRetry hook receives (error, attempt) and may return void', () => {
-        const opts: RetryOptions<string> = {
-            onRetry: (error: string, attempt: number): void => { void error; void attempt; },
-        };
-        expectTypeOf(opts.onRetry).toEqualTypeOf<((error: string, attempt: number) => void) | undefined>();
-    });
-
-    it('onAborted factory is typed to return E (developer owns the shape)', () => {
-        const stringErr: RetryOptions<string> = {
-            // The factory's return type matches the surrounding E (`string`).
+    it('onAborted lets the developer own the abort shape', () => {
+        const stringErr: RetryOptions<string, ThrownError, string> = {
             onAborted: () => 'aborted-message',
         };
-        const numberErr: RetryOptions<number> = {
-            onAborted: () => 42,
-        };
-        const objectErr: RetryOptions<{ kind: 'Aborted' }> = {
-            onAborted: () => ({ kind: 'Aborted' as const }),
+        const objectErr: RetryOptions<string, ThrownError, { kind: 'Cancelled' }> = {
+            onAborted: () => ({ kind: 'Cancelled' as const }),
         };
         expectTypeOf(stringErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => string) | undefined>();
-        expectTypeOf(numberErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => number) | undefined>();
-        expectTypeOf(objectErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => { kind: 'Aborted' }) | undefined>();
+        expectTypeOf(objectErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => { kind: 'Cancelled' }) | undefined>();
+    });
+
+    it('the default sentinels are discriminable at the call site', () => {
+        const thrown: ThrownError = { kind: 'Thrown', thrown: new Error('x') };
+        const aborted: AbortedError = { kind: 'Aborted', reason: 'why', times: 3 };
+        expectTypeOf(thrown.kind).toEqualTypeOf<'Thrown'>();
+        expectTypeOf(thrown.thrown).toEqualTypeOf<unknown>();
+        expectTypeOf(aborted.kind).toEqualTypeOf<'Aborted'>();
+        expectTypeOf(aborted.times).toEqualTypeOf<number>();
     });
 
     it('signal field accepts an AbortSignal', () => {
@@ -79,22 +99,21 @@ describe('retry types', () => {
 
     it('all RetryOptions fields are readonly', () => {
         type Keys = keyof RetryOptions<string>;
-        // The fields are typed `readonly?` — verify the structural shape.
         const opts: RetryOptions<string> = {};
-        expectTypeOf<Keys>().toEqualTypeOf<'times' | 'delayMs' | 'shouldRetry' | 'onRetry' | 'signal' | 'onAborted'>();
+        expectTypeOf<Keys>().toEqualTypeOf<'times' | 'delayMs' | 'shouldRetry' | 'onRetry' | 'signal' | 'onThrow' | 'onAborted'>();
         expectTypeOf(opts).toBeObject();
     });
 
     it('preserves literal error types through shouldRetry', () => {
         type Err = 'transient' | 'fatal';
         const opts: RetryOptions<Err> = {
-            shouldRetry: (e): e is 'transient' => e === 'transient',
+            shouldRetry: (e) => e === 'transient',
         };
         const r = retry<number, Err>(() => ({
             isSuccess: true as const,
             isFailure: false as const,
             value: 1,
         }), opts);
-        expectTypeOf(r).toEqualTypeOf<Promise<IResultOfT<number, Err>>>();
+        expectTypeOf(r).toEqualTypeOf<Promise<IResultOfT<number, Err | ThrownError | AbortedError>>>();
     });
 });
