@@ -102,4 +102,14 @@ describe('AsyncOption orElse', () => {
         const result = await ao.run();
         expect(result.isNone).toBe(true);
     });
+
+    it('supports cross-type recovery — fallback value type is independent of input', async () => {
+        const ao = orElse(
+            () => fromOption(ofSome('anonymous' as string)),
+            fromOption(ofNone<number>()),
+        );
+        const result = await ao.run();
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe('anonymous');
+    });
 });
