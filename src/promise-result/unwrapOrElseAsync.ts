@@ -5,6 +5,10 @@
  *
  * Returns `Promise<A>` (just the inner value).
  *
+ * The default value type `D` is independent of the success type `A` — the error
+ * handler may project to a different shape (`(e) => null`, `(e) => defaultUser`,
+ * etc.) and the result widens to `A | D`.
+ *
  * @example
  * ```ts
  * import { unwrapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result';
@@ -16,17 +20,17 @@
  */
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function unwrapOrElseAsync<A, E>(
-    onErr: (e: E) => A | Promise<A>,
-): (r: Promise<IResultOfT<A, E>>) => Promise<A>;
-export function unwrapOrElseAsync<A, E>(
-    onErr: (e: E) => A | Promise<A>,
+export function unwrapOrElseAsync<A, E, D = A>(
+    onErr: (e: E) => D | Promise<D>,
+): (r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
+export function unwrapOrElseAsync<A, E, D>(
+    onErr: (e: E) => D | Promise<D>,
     r: Promise<IResultOfT<A, E>>,
-): Promise<A>;
-export function unwrapOrElseAsync<A, E>(
-    onErr: (e: E) => A | Promise<A>,
+): Promise<A | D>;
+export function unwrapOrElseAsync<A, E, D = A>(
+    onErr: (e: E) => D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,
-): Promise<A> | ((r: Promise<IResultOfT<A, E>>) => Promise<A>) {
-    if(r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrElseAsync(onErr, r);
-    return r.then(async inner => inner.isSuccess ? inner.value : await onErr(inner.error));
+): Promise<A | D> | ((r: Promise<IResultOfT<A, E>>) => Promise<A | D>) {
+    if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrElseAsync<A, E, D>(onErr, r);
+    return r.then(async (inner): Promise<A | D> => inner.isSuccess ? inner.value : await onErr(inner.error));
 }

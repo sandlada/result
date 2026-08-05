@@ -7,6 +7,10 @@
  * `Promise<IResultOfT<A, unknown>>` signature was a bug — `unwrapOr` semantically
  * unwraps.
  *
+ * The default value type `D` is independent of the success type `A`, so a wider
+ * or sentinel value can be supplied as a fallback — e.g. `unwrapOrAsync<null>(null)`
+ * for a `Promise<IResultOfT<User, NetworkError>>` resolves to `Promise<User | null>`.
+ *
  * @example
  * ```ts
  * import { unwrapOrAsync, asyncOk, asyncErr } from '@sandlada/result';
@@ -20,17 +24,17 @@
 
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function unwrapOrAsync<A>(
-    defaultValue: A | Promise<A>,
-): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A>;
-export function unwrapOrAsync<A, E>(
-    defaultValue: A | Promise<A>,
+export function unwrapOrAsync<A, D = A>(
+    defaultValue: D | Promise<D>,
+): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
+export function unwrapOrAsync<A, E, D = A>(
+    defaultValue: D | Promise<D>,
     r: Promise<IResultOfT<A, E>>,
-): Promise<A>;
-export function unwrapOrAsync<A, E>(
-    defaultValue: A | Promise<A>,
+): Promise<A | D>;
+export function unwrapOrAsync<A, E, D = A>(
+    defaultValue: D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,
-): Promise<A> | ((r: Promise<IResultOfT<A, E>>) => Promise<A>) {
-    if(r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrAsync(defaultValue, r);
-    return r.then(async inner => inner.isSuccess ? inner.value : await defaultValue);
+): Promise<A | D> | ((r: Promise<IResultOfT<A, E>>) => Promise<A | D>) {
+    if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrAsync<A, E, D>(defaultValue, r);
+    return r.then(async (inner): Promise<A | D> => inner.isSuccess ? inner.value : await defaultValue);
 }

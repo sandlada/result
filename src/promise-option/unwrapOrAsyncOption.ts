@@ -3,6 +3,11 @@ import type { IOption } from '../types/Option.js';
 /**
  * @fileoverview Extracts the value on success from an async option, or returns a default on failure.
  *
+ * The default value type `D` is independent of the success type `T`, so a wider
+ * or sentinel value can be supplied as a fallback — e.g.
+ * `unwrapOrAsyncOption<number, null>(null)` for a `Promise<IOption<User>>` resolves
+ * to `Promise<User | null>`.
+ *
  * @example
  * ```ts
  * import { unwrapOrAsyncOption } from '@sandlada/result';
@@ -13,17 +18,17 @@ import type { IOption } from '../types/Option.js';
  *
  * @note Ready for Product
  */
-export function unwrapOrAsyncOption<T>(
-    defaultValue: T | Promise<T>,
-): (r: Promise<IOption<T>>) => Promise<T>;
-export function unwrapOrAsyncOption<T>(
-    defaultValue: T | Promise<T>,
+export function unwrapOrAsyncOption<T, D = T>(
+    defaultValue: D | Promise<D>,
+): (r: Promise<IOption<T>>) => Promise<T | D>;
+export function unwrapOrAsyncOption<T, D>(
+    defaultValue: D | Promise<D>,
     r: Promise<IOption<T>>,
-): Promise<T>;
-export function unwrapOrAsyncOption<T>(
-    defaultValue: T | Promise<T>,
+): Promise<T | D>;
+export function unwrapOrAsyncOption<T, D = T>(
+    defaultValue: D | Promise<D>,
     r?: Promise<IOption<T>>,
-): Promise<T> | ((r: Promise<IOption<T>>) => Promise<T>) {
-    if (r === undefined) return (r: Promise<IOption<T>>) => unwrapOrAsyncOption(defaultValue, r);
-    return r.then(async inner => inner.isSome ? inner.value : await defaultValue);
+): Promise<T | D> | ((r: Promise<IOption<T>>) => Promise<T | D>) {
+    if (r === undefined) return (r: Promise<IOption<T>>) => unwrapOrAsyncOption<T, D>(defaultValue, r);
+    return r.then(async (inner): Promise<T | D> => inner.isSome ? inner.value : await defaultValue);
 }
