@@ -22,4 +22,17 @@ describe('tap types', () => {
         const result = tap((v: number): void => { void v; }, input);
         if (result.isFailure) expectTypeOf(result.error).toEqualTypeOf<'boom'>();
     });
+
+    it('curried form accepts optional errorFn', () => {
+        const fn = tap((v: number): void => { void v; }, (t) => String(t));
+        const _check: (r: IResultOfT<number, Error>) => IResultOfT<number, Error> = fn;
+        expectTypeOf(_check).toBeFunction();
+    });
+
+    it('direct form accepts optional errorFn', () => {
+        const input = ok(42) as IResultOfT<number, string>;
+        const result = tap((v: number): void => { void v; }, input, (t) => `caught:${String(t)}`);
+        const _check: IResultOfT<number, string> = result;
+        expectTypeOf(_check).toBeObject();
+    });
 });

@@ -64,5 +64,30 @@ describe('tap', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('string-throw');
     });
+
+    it('uses errorFn to customise throw payload (curried)', () => {
+        const result = tap(
+            (_v: number) => { throw 'string-throw'; },
+            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }) as { kind: 'SideEffect'; payload: string },
+        )(ok(1));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) {
+            expect(result.error.kind).toBe('SideEffect');
+            expect(result.error.payload).toBe('string-throw');
+        }
+    });
+
+    it('uses errorFn to customise throw payload (direct)', () => {
+        const result = tap(
+            (_v: number) => { throw 'string-throw'; },
+            ok(1),
+            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }) as { kind: 'SideEffect'; payload: string },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) {
+            expect(result.error.kind).toBe('SideEffect');
+            expect(result.error.payload).toBe('string-throw');
+        }
+    });
 });
 
