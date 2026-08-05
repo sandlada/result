@@ -26,4 +26,11 @@ describe('all types', () => {
         const _check: IOption<readonly [number]> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('array overload yields IOption<T[]> for runtime-sized arrays', () => {
+        const opts: IOption<number>[] = [ofSome(1), ofSome(2), ofSome(3)];
+        const r = all(opts);
+        const _check: IOption<number[]> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });

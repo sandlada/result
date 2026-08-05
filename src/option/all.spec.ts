@@ -80,4 +80,24 @@ describe('Option — all', () => {
             expectTypeOf(r3.value.length).toEqualTypeOf<3>();
         }
     });
+
+    it('accepts runtime-sized array', () => {
+        const opts: IOption<number>[] = [ofSome(1), ofSome(2), ofSome(3)];
+        const result = all(opts);
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toEqual([1, 2, 3]);
+    });
+
+    it('array overload short-circuits on first None', () => {
+        const opts: IOption<number>[] = [ofSome(1), ofNone(), ofSome(3)];
+        const result = all(opts);
+        expect(result.isSome).toBe(false);
+    });
+
+    it('array overload returns Some([]) for empty input', () => {
+        const opts: IOption<number>[] = [];
+        const result = all(opts);
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toEqual([]);
+    });
 });
