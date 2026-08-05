@@ -37,4 +37,18 @@ describe('okOrElse types', () => {
         const r = fn(ofSome(42));
         expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
     });
+
+    it('return type is widened to IResultOfT<T, E | Error> for honest catch payload', () => {
+        const fn = okOrElse(() => 'default');
+        const r = fn(ofSome(42));
+        // The widened error type is the contract: the catch-block may surface an
+        // arbitrary Error even when the user's E is something narrower.
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string | Error>>();
+    });
+
+    it('widened error still admits Error-only when E = never', () => {
+        const fn = okOrElse(() => 'x' as never);
+        const r = fn(ofSome(42));
+        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, Error>>();
+    });
 });
