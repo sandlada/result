@@ -34,4 +34,4 @@ export { transpose } from './transpose.js';
 export { unwrap } from './unwrap.js';
 export { unwrapOr } from './unwrapOr.js';
 export { unwrapOrElse } from './unwrapOrElse.js';
-export { zipWith } from './zipWith.js';
+export { zipWith, zipWith3, zipWith4 } from './zipWith.js';
