@@ -20,9 +20,9 @@ export default defineConfig({
             ],
             reporter: ['text', 'lcov', 'json-summary'],
             // Per-glob thresholds. observability holds a strict 100% gate.
-            // reliability keeps a relaxed branches threshold because two
-            // genuinely-unreachable defensive guards remain (race.ts:55
-            // `firstError ?? r` fallback and timeout.ts:51 timer race guard).
+            // reliability keeps a relaxed branches threshold because a
+            // genuinely-unreachable defensive guard remains (timeout.ts:51
+            // timer race guard).
             thresholds: {
                 'src/composition/**': {
                     statements: 94,

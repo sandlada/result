@@ -33,13 +33,22 @@ describe('race', () => {
         expect(r.isSuccess).toBe(true);
     });
 
-    it('handles empty input (returns Err with sentinel Error)', async () => {
-        const r = await race([]).run();
-        expect(r.isFailure).toBe(true);
-        if (r.isFailure) {
-            expect(r.error).toBeInstanceOf(Error);
-            expect((r.error as Error).message).toBe('race: no inputs');
-        }
+    describe('empty input', () => {
+        it('returns the documented EmptyInputs sentinel, not a fabricated Error', async () => {
+            const r = await race([]).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toEqual({ kind: 'EmptyInputs' });
+        });
+
+        it('lets the caller supply the empty-input error via onEmpty', async () => {
+            type AppError = { readonly tag: 'NoCandidates' };
+            const r = await race<number, AppError, AppError>(
+                [],
+                (): AppError => ({ tag: 'NoCandidates' }),
+            ).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toEqual({ tag: 'NoCandidates' });
+        });
     });
 
     it('does not run any thunk until .run()', () => {
@@ -207,5 +216,68 @@ describe('race', () => {
         ]).run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe('index-1-wins');
+    });
+
+    // A Promise rejection from an input violates the AsyncResult contract (an
+    // AsyncResult must resolve to Ok/Err, never reject). A rejection therefore
+    // signals an upstream bug and must never outrank a legitimate domain `Err`,
+    // no matter which one happens to arrive first.
+    describe('Err vs. Promise rejection precedence', () => {
+        const rejectAfter = (ms: number, message: string) => ({
+            run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+        });
+
+        it('keeps a real Err when a later input rejects', async () => {
+            const r = await race([
+                arFrom(5, err('domain-error')),
+                rejectAfter(40, 'upstream-bug'),
+            ]).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('domain-error');
+        });
+
+        it('keeps a real Err when an earlier input rejects', async () => {
+            const r = await race([
+                rejectAfter(5, 'upstream-bug'),
+                arFrom(40, err('domain-error')),
+            ]).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('domain-error');
+        });
+
+        it('honours input-index-0 Err precedence when a rejection is also present', async () => {
+            const r = await race([
+                arFrom(60, err('index-0')),
+                rejectAfter(5, 'upstream-bug'),
+                arFrom(20, err('index-2')),
+            ]).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('index-0');
+        });
+    });
+
+    it('selects the earliest-arriving rejection even if the system clock steps backwards', async () => {
+        // `Date.now()` is wall-clock and non-monotonic: an NTP correction can make a
+        // later arrival carry a smaller timestamp. Rejection ordering must not depend
+        // on it.
+        let clock = 1_000_000;
+        const nowSpy = vi.spyOn(Date, 'now').mockImplementation(() => (clock -= 1_000));
+
+        let rejectFirst!: (e: unknown) => void;
+        let rejectSecond!: (e: unknown) => void;
+        const first = { run: () => new Promise<never>((_, reject) => { rejectFirst = reject; }) };
+        const second = { run: () => new Promise<never>((_, reject) => { rejectSecond = reject; }) };
+
+        const promise = race([first, second]).run();
+        rejectFirst(new Error('first-arrival'));
+        await Promise.resolve();
+        await Promise.resolve();
+        rejectSecond(new Error('second-arrival'));
+
+        const r = await promise;
+        nowSpy.mockRestore();
+
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('first-arrival');
     });
 });

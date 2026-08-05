@@ -14,47 +14,6 @@ any error shape — no library-defined `Error` subclass is forced.
 
 ## High Severity
 
-### 1. `src/option/unwrapOr.ts` — locks default value type to option's value type
-- **API**: `src/option/unwrapOr.ts` / exported `unwrapOr`
-- **Problem case**: A single `T` generic forces the default to match the option's value type exactly.
-  The canonical "fall back to a wider / sentinel value" pattern is blocked:
-  ```ts
-  const userOpt: IOption<User> = getUser();
-  pipe(userOpt, unwrapOr(null));          // ERROR — T = null, expects IOption<null>
-  pipe(userOpt, unwrapOr(defaultUser));   // ERROR — T = DefaultUser, not User
-  ```
-- **Expected**: `<T, D = T>(defaultValue: D): (opt: IOption<T>) => T | D` so the dev can pick a
-  default value of a different (often wider) type.
-- **Severity**: high (real type lock that breaks the documented developer-typed pattern)
-
-### 2. `src/option/orElse.ts` — locks fallback option type to input option type
-- **API**: `src/option/orElse.ts` / exported `orElse`
-- **Problem case**: Single `T` requires the fallback `IOption` to have the same value type as the
-  input, blocking the canonical "recover with broader / different value" pattern:
-  ```ts
-  pipe(ofNone<number>(), orElse<number>(() => ofSome('fallback'))); // type mismatch
-  pipe(ofSome<number>(1), orElse<number>(() => ofSome('fallback'))); // type mismatch
-  ```
-- **Expected**: `<T, U>(fn: () => IOption<U>): (opt: IOption<T>) => IOption<T | U>`.
-- **Severity**: high (same lock as `unwrapOr`)
-
-### 3. `src/operators/catchErr.ts` — locks recovered type to input value type
-- **API**: `src/operators/catchErr.ts` / exported `catchErr`
-- **Problem case**:
-  ```ts
-  export function catchErr<A, E>(
-      onErr: (e: E) => A,
-  ): (r: IResultOfT<A, E>) => IResultOfT<A, never>;
-  ```
-  The handler must return the SAME `A` the input carries — preventing the common
-  "catch error → produce a different shape" recovery:
-  ```ts
-  catchErr<Config, string>(e => ({ kind: 'Default', reason: e }));
-  // error: object literal's `reason` and `kind` are missing on type `Config`
-  ```
-- **Expected**: `<A, B, E>(onErr: (e: E) => B): (r: IResultOfT<A, E>) => IResultOfT<A | B, never>`.
-- **Severity**: high
-
 ### 4. `src/reliability/retry.ts` — `defaultAbortedSentinel` lies about runtime shape
 - **API**: `src/reliability/retry.ts` / exported `retry`
 - **Problem case**: When the loop never invokes `fn` (pre-aborted signal / negative `times`) and
@@ -74,22 +33,6 @@ any error shape — no library-defined `Error` subclass is forced.
   developer can discriminate the abort case at the type level, or (b) require `onAborted` when
   `E` does not structurally accommodate `AbortSentinel`.
 - **Severity**: high (type-lying on the failure path is the most dangerous failure mode)
-
-### 5. `src/reliability/race.ts` — empty case fabricates `Error` and casts through `E`
-- **API**: `src/reliability/race.ts` / exported `race`
-- **Problem case**:
-  ```ts
-  if (runs.length === 0) {
-      return err(new Error('race: no inputs') as unknown as E) as IResultOfT<T, E>;
-  }
-  ```
-  The library creates a built-in `Error` object and claims it is the developer's custom error
-  type `E`. If the developer has declared `E = AppError | NetworkError | …` there is no
-  built-in `Error` in that union — the cast is a lie, and `r.error instanceof Error` will pass
-  at runtime but the discriminated-union narrowing at the call site will misfire.
-- **Expected**: Provide an `onEmpty?: () => E` factory (mirroring `timeout`'s `onTimeout`),
-  default to widening the error type to `E | { kind: 'EmptyInputs' }`.
-- **Severity**: high
 
 ---
 
