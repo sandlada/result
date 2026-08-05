@@ -20,11 +20,12 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { combine } from '../combine/combine.js';
 
 /**
- * Alias of `combine`: convert `[IResultOfT<T, E>]` into `IResultOfT<T[], E>`,
- * short-circuiting on the first failure.
+ * Alias of `combine`: convert `[IResultOfT<T, E>]` into `IResultOfT<readonly T[], E>`,
+ * short-circuiting on the first failure. The `readonly` modifier matches
+ * `combine`'s tuple-overload output for runtime-sized `readonly` arrays.
  */
 export function sequence<T, E>(
     results: readonly IResultOfT<T, E>[],
-): IResultOfT<T[], E> {
-    return combine(results);
+): IResultOfT<readonly T[], E> {
+    return combine(results) as IResultOfT<readonly T[], E>;
 }
