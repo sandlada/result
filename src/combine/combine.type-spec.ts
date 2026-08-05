@@ -40,4 +40,16 @@ describe('combine types', () => {
         const _check: IResultOfT<readonly number[], never> = r;
         expectTypeOf(_check).toBeObject();
     });
+
+    it('preserves heterogeneous tuple types', () => {
+        const r = combine([ok(1), ok('a')]);
+        const _check: IResultOfT<[number, string], never> = r;
+        expectTypeOf(_check).toBeObject();
+    });
+
+    it('preserves heterogeneous tuple error union', () => {
+        const r = combine([ok(1), err<string>('a'), ok(true)]);
+        const _check: IResultOfT<[number, string, boolean], string> = r;
+        expectTypeOf(_check).toBeObject();
+    });
 });
