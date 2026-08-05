@@ -3,7 +3,7 @@ import { retry, type RetryOptions } from './retry.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('retry types', () => {
-    it('returns Promise<IResultOfT<T, E>>', async () => {
+    it('returns Promise<IResultOfT<T, E>> (E preserved — no library-defined widening)', async () => {
         const p = retry<number, string>(() => ({ isSuccess: true as const, isFailure: false as const, value: 42 }));
         const _check: Promise<IResultOfT<number, string>> = p;
         expectTypeOf(_check).toBeObject();
@@ -26,6 +26,9 @@ describe('retry types', () => {
             shouldRetry: (e) => e === 'transient',
             onRetry: () => { /* side effect */ },
             signal: new AbortController().signal,
+            // Developer defines their own error shape here. With `E = string`,
+            // the factory must return a string.
+            onAborted: () => 'aborted',
         };
         expectTypeOf(opts).toBeObject();
     });
@@ -53,6 +56,22 @@ describe('retry types', () => {
         expectTypeOf(opts.onRetry).toEqualTypeOf<((error: string, attempt: number) => void) | undefined>();
     });
 
+    it('onAborted factory is typed to return E (developer owns the shape)', () => {
+        const stringErr: RetryOptions<string> = {
+            // The factory's return type matches the surrounding E (`string`).
+            onAborted: () => 'aborted-message',
+        };
+        const numberErr: RetryOptions<number> = {
+            onAborted: () => 42,
+        };
+        const objectErr: RetryOptions<{ kind: 'Aborted' }> = {
+            onAborted: () => ({ kind: 'Aborted' as const }),
+        };
+        expectTypeOf(stringErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => string) | undefined>();
+        expectTypeOf(numberErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => number) | undefined>();
+        expectTypeOf(objectErr.onAborted).toEqualTypeOf<((reason: unknown, times: number) => { kind: 'Aborted' }) | undefined>();
+    });
+
     it('signal field accepts an AbortSignal', () => {
         const opts: RetryOptions<string> = { signal: new AbortController().signal };
         expectTypeOf(opts.signal).toEqualTypeOf<AbortSignal | undefined>();
@@ -62,7 +81,7 @@ describe('retry types', () => {
         type Keys = keyof RetryOptions<string>;
         // The fields are typed `readonly?` — verify the structural shape.
         const opts: RetryOptions<string> = {};
-        expectTypeOf<Keys>().toEqualTypeOf<'times' | 'delayMs' | 'shouldRetry' | 'onRetry' | 'signal'>();
+        expectTypeOf<Keys>().toEqualTypeOf<'times' | 'delayMs' | 'shouldRetry' | 'onRetry' | 'signal' | 'onAborted'>();
         expectTypeOf(opts).toBeObject();
     });
 

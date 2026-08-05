@@ -29,6 +29,10 @@ import { retry, type RetryOptions } from './retry.js';
 /**
  * Wraps an `AsyncResult` to add retry semantics without executing it.
  * The returned thunk defers work until `.run()` is called.
+ *
+ * When the retry loop never invokes `ar.run` (pre-aborted signal, or invalid
+ * `times`), the resolved `Err.error` is whatever `options.onAborted(...)`
+ * returns — same contract as the eager {@link retry}.
  */
 export function retryLazy<T, E>(
     ar: AsyncResult<T, E>,

@@ -11,6 +11,16 @@
  * `cause` are **discarded**. If you need to preserve the original, wrap your
  * function with `tryCatch` and pass the result through.
  *
+ * **Aborted / no-attempt cases**: when the loop never invokes `fn` (a
+ * pre-aborted `signal` or a non-finite / negative `times`), the resolved `Err`
+ * is constructed with whatever `onAborted` returns, cast through `E`. If you
+ * want the error category to match your `E` type, provide `onAborted` —
+ * otherwise the library falls back to a plain-object sentinel
+ * (`{ kind: 'Aborted', reason, times }`) that is **not** exported as a type
+ * (you'll need to widen `E` at your access site if you want compile-time
+ * `kind` checks). The `E` in `Promise<IResultOfT<T, E>>` is preserved without
+ * widening — the developer owns the error shape.
+ *
  * @example
  * ```ts
  * import { retry } from '@sandlada/result/reliability';
@@ -19,6 +29,7 @@
  *   times: 3,
  *   delayMs: n => 50 * (n + 1), // linear backoff
  *   shouldRetry: e => e.kind === 'Transient',
+ *   onAborted: (reason) => ({ kind: 'Aborted', reason }),  // <- define your own error shape
  * });
  * ```
  *
@@ -59,7 +70,23 @@ export interface RetryOptions<E = unknown> {
      * never re-invoked past that point).
      */
     readonly signal?: AbortSignal;
+    /**
+     * Optional factory invoked when the retry loop exits without ever calling
+     * `fn` (pre-aborted signal or non-finite / negative `times`). The returned
+     * value becomes the `error` of the resolved `Err`. The developer defines
+     * their own error shape — the library does NOT export a canonical type
+     * for this case. Without `onAborted` the library falls back to a plain
+     * `{ kind: 'Aborted', reason, times }` object literal cast through `E`.
+     */
+    readonly onAborted?: (reason: unknown, times: number) => E;
 }
+
+/**
+ * Internal default sentinel for the no-attempt case. Not exported as a type —
+ * the developer owns their `E` shape (via `onAborted`).
+ */
+const defaultAbortedSentinel = (reason: unknown, times: number) =>
+    ({ kind: 'Aborted' as const, reason, times });
 
 const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
     new Promise((resolve) => {
@@ -116,12 +143,40 @@ const safeInvoke = async <T, E>(
  *
  * The retry loop respects `AbortSignal` between attempts only; it cannot
  * interrupt an in-flight invocation.
+ *
+ * When the loop never invokes `fn` (pre-aborted signal, or `times` is
+ * non-finite / negative), the resolved `Err.error` is whatever
+ * `options.onAborted(reason, times)` returns, cast through `E`. Provide
+ * `onAborted` so the error's runtime shape matches your declared `E`. When
+ * `onAborted` is absent, the library falls back to a plain object literal
+ * `{ kind: 'Aborted', reason, times }` (not exported as a type) cast through
+ * `E` — the developer stays in charge of how to discriminate the abort case
+ * at the call site.
  */
 export async function retry<T, E>(
     fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
     options: RetryOptions<E> = {},
 ): Promise<IResultOfT<T, E>> {
     const times = options.times ?? 3;
+    // Pre-loop guard: bail with an `Err` before running any `fn` at all.
+    // Why before the loop: the loop only assigns `lastResult` AFTER
+    // `safeInvoke` returns, so `attempt <= times` failing (negative / NaN
+    // times) or the first loop iteration's signal check hitting a
+    // pre-aborted `signal` would otherwise exit with `lastResult ===
+    // undefined`, violating the never-undefined contract for the resolved
+    // `Err`.
+    if (!Number.isFinite(times) || times < 0 || options.signal?.aborted) {
+        // Defensive read: `AbortSignal.reason` is runtime-standard since
+        // Node 18 and Chrome 100, but some ambient typings (incl. the one
+        // vitest 4's typecheck pass uses) don't declare it yet. The cast
+        // keeps both sides happy.
+        const reason = (options.signal as { reason?: unknown } | undefined)?.reason;
+        // The developer owns the error shape via `onAborted`; when absent
+        // we fall back to a plain object literal that is NOT exported as a
+        // type. `E` is preserved (no widening on the return type).
+        const error: E = options.onAborted?.(reason, times) ?? (defaultAbortedSentinel(reason, times) as unknown as E);
+        return err(error) as unknown as IResultOfT<T, E>;
+    }
     const shouldRetry = options.shouldRetry ?? (() => true);
     let lastResult: IResultOfT<T, E> | undefined;
     for (let attempt = 0; attempt <= times; attempt++) {
@@ -134,5 +189,5 @@ export async function retry<T, E>(
         const delay = computeDelay(options.delayMs, attempt, lastResult.error);
         await sleep(delay, options.signal);
     }
-    return lastResult as unknown as IResultOfT<T, E>;
+    return lastResult as IResultOfT<T, E>;
 }

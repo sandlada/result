@@ -171,7 +171,7 @@ Apply to `Promise<IResultOfT<T, E>>` and `Promise<IOption<T>>`. Callbacks may be
 | `flattenAsyncOption` | Flatten `Promise<IOption<IOption>>`. | [src/promise-option/flattenAsyncOption.ts](./src/promise-option/flattenAsyncOption.ts) |
 | **Lift sync `IOption` → async** | | |
 | `asyncBindOption` / `asyncTapOption` | Bridge sync Option → async. | [src/promise-option/asyncBindOption.ts](./src/promise-option/asyncBindOption.ts), [src/promise-option/asyncTapOption.ts](./src/promise-option/asyncTapOption.ts) |
-| `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption` | Async lift on sync Option. | [src/promise-option/asyncMapOption.ts](./src/promise-option/asyncMapOption.ts), [src/promise-option/asyncOrElseOption.ts](./src/promise-option/asyncOrElseOption.ts), [src/promise-option/asyncMatchOption.ts](./src/promise-option/asyncMatchOption.ts) |
+| `asyncMapOption` / `asyncOrElseOption` / `asyncMatchOption` | Async lift on sync Option. `asyncMapOption` converts a *sync* mapper throw into `None` but still propagates a *rejected* mapper Promise (matches the spec-pinned "no catch in the lift family" contract for async rejection). | [src/promise-option/asyncMapOption.ts](./src/promise-option/asyncMapOption.ts), [src/promise-option/asyncOrElseOption.ts](./src/promise-option/asyncOrElseOption.ts), [src/promise-option/asyncMatchOption.ts](./src/promise-option/asyncMatchOption.ts) |
 
 > **Note:** `unwrapOrAsync` / `unwrapOrElseAsync` previously returned `Promise<IResultOfT<A, unknown>>`; they now return `Promise<A>` (the bare unwrapped value), matching the Rust-style semantics implied by the name. Default values or error-handler rejections now propagate via the outer Promise's rejection channel rather than being wrapped as `Err`.
 
@@ -236,8 +236,8 @@ Retry / timeout / concurrency primitives for production pipelines.
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `retry` | Eager bounded retry. | [src/reliability/retry.ts](./src/reliability/retry.ts) |
-| `retryLazy` | Lazy thunk wrap of `retry`. | [src/reliability/retryLazy.ts](./src/reliability/retryLazy.ts) |
+| `retry` | Eager bounded retry. When the loop never invokes the user function (pre-aborted signal or invalid `times`), `Err.error` is whatever `onAborted` returns — the developer defines the error shape, not the library. `E` is preserved (no widening on the return type). | [src/reliability/retry.ts](./src/reliability/retry.ts) |
+| `retryLazy` | Lazy thunk wrap of `retry`; same `onAborted` contract. | [src/reliability/retryLazy.ts](./src/reliability/retryLazy.ts) |
 | `timeout` | Lazy race against `setTimeout`. | [src/reliability/timeout.ts](./src/reliability/timeout.ts) |
 | `timeoutEager` | Eager counterpart. | [src/reliability/timeoutEager.ts](./src/reliability/timeoutEager.ts) |
 | `race` | First `Ok` wins. | [src/reliability/race.ts](./src/reliability/race.ts) |

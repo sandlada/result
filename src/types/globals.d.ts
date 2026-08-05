@@ -21,6 +21,8 @@ interface AbortSignalEventMap {
 
 interface AbortSignal {
     readonly aborted: boolean;
+    readonly reason?: unknown;
+    throwIfAborted(): void;
     addEventListener(type: 'abort', listener: (this: AbortSignal, ev: Event) => unknown, options?: boolean | { once?: boolean }): void;
     removeEventListener(type: 'abort', listener: (this: AbortSignal, ev: Event) => unknown, options?: boolean | { once?: boolean } | Event): void;
 }

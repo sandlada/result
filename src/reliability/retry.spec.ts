@@ -272,4 +272,57 @@ describe('retry', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('42');
     });
+
+    // ---- Bug 1 contract: never returns undefined ----
+
+    it('returns Err({ kind: "Aborted" }) when signal is already aborted', async () => {
+        const fn = vi.fn(() => ok(1));
+        const controller = new AbortController();
+        controller.abort();
+        const r = await retry(fn, { times: 3, signal: controller.signal });
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as { kind?: unknown };
+            expect(e.kind).toBe('Aborted');
+        }
+    });
+
+    it('returns Err({ kind: "Aborted" }) for negative times without invoking fn', async () => {
+        const fn = vi.fn(() => ok(1));
+        const r = await retry(fn, { times: -1 });
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as { kind?: unknown };
+            expect(e.kind).toBe('Aborted');
+        }
+    });
+
+    it('returns Err({ kind: "Aborted" }) for NaN times without invoking fn', async () => {
+        const fn = vi.fn(() => ok(1));
+        const r = await retry(fn, { times: Number.NaN });
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as { kind?: unknown };
+            expect(e.kind).toBe('Aborted');
+        }
+    });
+
+    it('honors a custom onAborted factory for pre-aborted signal', async () => {
+        const fn = vi.fn(() => ok(1));
+        const controller = new AbortController();
+        controller.abort();
+        const r = await retry(fn, {
+            signal: controller.signal,
+            onAborted: (reason) => ({ kind: 'Custom', reason }),
+        });
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            const e = r.error as { kind?: unknown };
+            expect(e.kind).toBe('Custom');
+        }
+    });
 });

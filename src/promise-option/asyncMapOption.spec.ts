@@ -63,4 +63,16 @@ describe('promise-result asyncMapOption', () => {
         const o = await asyncMapOption(async (x: number) => x.toString(), ofNone());
         expect(o.isNone).toBe(true);
     });
+
+    // ---- Bug 2 contract: synchronous mapper throw becomes None ----
+
+    it('converts a synchronous mapper throw into None (does not escape)', async () => {
+        // The prior implementation `f(o.value).then(v => ofSome(v))` had no
+        // try/catch around `f(o.value)`, so a sync throw escaped as a
+        // synchronous exception at the call site. The async-rejection case
+        // is intentionally still propagated (see test above); the sync-throw
+        // case was an accidental gap, not a deliberate "no catch" stance.
+        const o = await asyncMapOption(<T>(_x: T) => { throw new Error('sync-boom'); }, ofSome(1));
+        expect(o.isNone).toBe(true);
+    });
 });
