@@ -36,7 +36,7 @@ export function orElseAsyncOption<T>(
         try {
             return await f();
         } catch {
-            return ofNone();
+            return ofNone<T>();
         }
     });
 }

@@ -26,7 +26,7 @@ export function asyncMapOption<A, B>(
     o?: IOption<A>,
 ): Promise<IOption<B>> | ((o: IOption<A>) => Promise<IOption<B>>) {
     if (o === undefined) return (o: IOption<A>) => asyncMapOption(f, o);
-    if (o.isNone) return Promise.resolve(ofNone());
+    if (o.isNone) return Promise.resolve(ofNone<B>());
     // Bind `f(o.value)` into a local so a *synchronous* throw becomes `None`
     // via try/catch, while a *rejected* Promise is left to propagate through
     // the success-only `.then` (matching the documented "no catch in the lift

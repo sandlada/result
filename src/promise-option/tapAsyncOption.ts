@@ -33,7 +33,7 @@ export function tapAsyncOption<T>(
             try {
                 await fn(inner.value);
             } catch {
-                return ofNone();
+                return ofNone<T>();
             }
         }
         return inner;

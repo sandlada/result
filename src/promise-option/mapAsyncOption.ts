@@ -29,11 +29,11 @@ export function mapAsyncOption<T, U>(
 ): Promise<IOption<U>> | ((r: Promise<IOption<T>>) => Promise<IOption<U>>) {
     if (r === undefined) return (r: Promise<IOption<T>>) => mapAsyncOption(f, r);
     return r.then(async inner => {
-        if (!inner.isSome) return ofNone();
+        if (!inner.isSome) return ofNone<U>();
         try {
             return ofSome(await f(inner.value));
         } catch {
-            return ofNone();
+            return ofNone<U>();
         }
     });
 }

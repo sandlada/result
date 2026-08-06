@@ -32,11 +32,11 @@ export function bindAsyncOption<T, U>(
 ): Promise<IOption<U>> | ((r: Promise<IOption<T>>) => Promise<IOption<U>>) {
     if (r === undefined) return (r: Promise<IOption<T>>) => bindAsyncOption(f, r);
     return r.then(async inner => {
-        if (!inner.isSome) return ofNone();
+        if (!inner.isSome) return ofNone<U>();
         try {
             return await f(inner.value);
         } catch {
-            return ofNone();
+            return ofNone<U>();
         }
     });
 }
