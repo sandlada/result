@@ -5,6 +5,10 @@
  * `err(caughtError)` with the error type widened to `F | Error`. Pass `errorFn`
  * to customise how the thrown value maps onto your error union.
  *
+ * The curried form defers `<A2, E2>` to the application site so an input
+ * with a different value or error type than the callbacks' parameter types
+ * still typechecks — mirrors `map` / `mapErr`'s design.
+ *
  * @example
  * ```ts
  * import { bimap, ok } from '@sandlada/result';
@@ -18,17 +22,23 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
 
+// Curried — `<A2, E2>` are deferred to the application site so a wider
+// input type still typechecks. Mirrors the design of `map` / `mapErr`.
 export function bimap<A, E, C, F>(
     onOk: (a: A) => C,
     onErr: (e: E) => F,
     errorFn?: (thrown: unknown) => unknown,
-): (r: IResultOfT<A, E>) => IResultOfT<C, F>;
+): <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>) => IResultOfT<C, F>;
+
+// Direct — both input and output are inferred at the call site.
 export function bimap<A, E, C, F>(
     onOk: (a: A) => C,
     onErr: (e: E) => F,
     r: IResultOfT<A, E>,
     errorFn?: (thrown: unknown) => F,
 ): IResultOfT<C, F>;
+
+// Implementation signature — `unknown` opts out of strict overload-shape checks.
 export function bimap<A, E, C, F>(
     onOk: (a: A) => C,
     onErr: (e: E) => F,
@@ -37,7 +47,7 @@ export function bimap<A, E, C, F>(
 ): IResultOfT<C, F> | ((r: IResultOfT<A, E>) => IResultOfT<C, F>) {
     if (rOrErrorFn === undefined || typeof rOrErrorFn === 'function') {
         const eFn = typeof rOrErrorFn === 'function' ? rOrErrorFn : undefined;
-        return (r: IResultOfT<A, E>): IResultOfT<C, F> => {
+        return <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>): IResultOfT<C, F> => {
             try {
                 if (r.isSuccess) return ok(onOk(r.value)) as unknown as IResultOfT<C, F>;
                 return err(onErr(r.error)) as unknown as IResultOfT<C, F>;
