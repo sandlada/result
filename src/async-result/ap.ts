@@ -3,8 +3,12 @@
  * AsyncResult to a value wrapped in an AsyncResult. If either is a failure, the
  * first failure propagates.
  *
- * Mirrors the sync `ap` from `@sandlada/result/operators` for AsyncResult
- * pipelines, matching the fp-ts `Apply` shape.
+ * The function-result and value-result are allowed to have **different** error
+ * types — the combined error widens to `E | F`. Matches the sync `ap` from
+ * `@sandlada/result/operators`.
+ *
+ * Mirrors the sync `ap` for AsyncResult pipelines, matching the fp-ts
+ * `Apply` shape.
  *
  * @example
  * ```ts
@@ -14,7 +18,7 @@
  * const applied = await ap(fromResult(ok((x: number) => x * 2)), fromResult(ok(21))).run();
  * // Ok(42)
  * ```
-  *
+ *
  * @note Ready for Product
  */
 
@@ -22,28 +26,26 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 
-export function ap<A, B, E>(
+export function ap<A, B, E, F>(
     fnResult: AsyncResult<(a: A) => B, E>,
-): (result: AsyncResult<A, E>) => AsyncResult<B, E>;
-export function ap<A, B, E>(
+): (result: AsyncResult<A, F>) => AsyncResult<B, E | F>;
+export function ap<A, B, E, F>(
     fnResult: AsyncResult<(a: A) => B, E>,
-    result: AsyncResult<A, E>,
-): AsyncResult<B, E>;
-export function ap<A, B, E>(
+    result: AsyncResult<A, F>,
+): AsyncResult<B, E | F>;
+export function ap<A, B, E, F>(
     fnResult: AsyncResult<(a: A) => B, E>,
-    result?: AsyncResult<A, E>,
-): AsyncResult<B, E> | ((result: AsyncResult<A, E>) => AsyncResult<B, E>) {
-    if (result === undefined) return (r: AsyncResult<A, E>): AsyncResult<B, E> => ap(fnResult, r);
+    result?: AsyncResult<A, F>,
+): AsyncResult<B, E | F> | ((result: AsyncResult<A, F>) => AsyncResult<B, E | F>) {
+    if (result === undefined) return (r: AsyncResult<A, F>): AsyncResult<B, E | F> => ap(fnResult, r);
     return {
-        run: async (): Promise<IResultOfT<B, E>> => {
+        run: async (): Promise<IResultOfT<B, E | F>> => {
             const fnR = await fnResult.run();
-            if (!fnR.isSuccess) return fnR as unknown as IResultOfT<B, E>;
+            if (!fnR.isSuccess) return fnR as unknown as IResultOfT<B, E | F>;
             const valR = await result.run();
-            if (!valR.isSuccess) return valR as unknown as IResultOfT<B, E>;
-            // Synchronous throw from `fnR.value(...)` propagates via the outer
-            // Promise rejection (the surrounding `async` wrapper re-throws).
+            if (!valR.isSuccess) return valR as unknown as IResultOfT<B, E | F>;
             const value = fnR.value(valR.value);
-            return ok(value) as unknown as IResultOfT<B, E>;
+            return ok(value) as unknown as IResultOfT<B, E | F>;
         },
     };
 }
