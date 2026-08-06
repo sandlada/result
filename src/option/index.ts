@@ -21,4 +21,4 @@ export { tap } from './tap.js';
 export { transpose } from './transpose.js';
 export { unwrapOr } from './unwrapOr.js';
 export { zipWith } from './zipWith.js';
-export { traverseArray } from './traverseArray.js';
+export { traverseArray, traverse } from './traverseArray.js';
