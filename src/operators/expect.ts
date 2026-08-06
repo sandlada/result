@@ -20,15 +20,19 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function expect<A, E>(msg: string): (r: IResultOfT<A, E>) => A;
 export function expect<A, E>(msg: string, r: IResultOfT<A, E>): A;
-export function expect<A, E>(msg: string, r: IResultOfT<A, E>, throwingFn?: (info: { message: string; value: E }) => Error): A | ((r: IResultOfT<A, E>) => A) {
-    if (arguments.length < 2 || (r as unknown) === undefined) {
-        // Curried form — type-narrowed via overloads above.
-        return (r: IResultOfT<A, E>): A => {
-            if (!r.isSuccess) {
-                throw new TypeError(`${msg}: ${String(r.error)}`);
-            }
-            return r.value;
-        };
+export function expect<A, E>(
+    msg: string,
+    r: IResultOfT<A, E>,
+    throwingFn: (info: { message: string; value: E }) => Error,
+): A;
+// Implementation signature — `unknown` opts out of strict overload-shape checks.
+export function expect<A, E>(
+    msg: string,
+    r?: IResultOfT<A, E>,
+    throwingFn?: (info: { message: string; value: E }) => Error,
+): A | ((r: IResultOfT<A, E>) => A) {
+    if (r === undefined) {
+        return (r2: IResultOfT<A, E>): A => expect(msg, r2);
     }
     if (!r.isSuccess) {
         if (throwingFn) {

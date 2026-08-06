@@ -20,14 +20,18 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function expectErr<A, E>(msg: string): (r: IResultOfT<A, E>) => E;
 export function expectErr<A, E>(msg: string, r: IResultOfT<A, E>): E;
-export function expectErr<A, E>(msg: string, r: IResultOfT<A, E>, throwingFn?: (info: { message: string; value: A }) => Error): E | ((r: IResultOfT<A, E>) => E) {
-    if (arguments.length < 2 || (r as unknown) === undefined) {
-        return (r: IResultOfT<A, E>): E => {
-            if (r.isSuccess) {
-                throw new TypeError(msg);
-            }
-            return r.error;
-        };
+export function expectErr<A, E>(
+    msg: string,
+    r: IResultOfT<A, E>,
+    throwingFn: (info: { message: string; value: A }) => Error,
+): E;
+export function expectErr<A, E>(
+    msg: string,
+    r?: IResultOfT<A, E>,
+    throwingFn?: (info: { message: string; value: A }) => Error,
+): E | ((r: IResultOfT<A, E>) => E) {
+    if (r === undefined) {
+        return (r2: IResultOfT<A, E>): E => expectErr(msg, r2);
     }
     if (r.isSuccess) {
         if (throwingFn) {
