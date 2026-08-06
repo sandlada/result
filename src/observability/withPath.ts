@@ -8,6 +8,10 @@
  * called; you do not need to invoke a returned curried function. Combine with
  * `ctx.run(fn)` for lexically scoped paths.
  *
+ * The curried form (`withPath(segment)` returning a unary function) lets the
+ * operator slot directly into `pipe` without an arrow wrapper, matching the
+ * shape of `tap`, `map`, `bind`, etc.
+ *
  * **Out-of-scope behavior**: calling `withPath(segment)` outside of any active
  * `ctx.run(fn)` scope is a **silent no-op** — the segment is discarded and
  * `getPath()` remains empty. There is no process-global path stack to leak
@@ -19,6 +23,10 @@
  * import { withPath } from '@sandlada/result/observability';
  * import { pipe } from '@sandlada/result';
  *
+ * // Direct form
+ * const r = withPath('fetchUser', getUser(id));
+ *
+ * // Curried form — slots directly into `pipe`
  * const r = pipe(getUser(id), withPath('fetchUser'), withPath(`id:${id}`));
  * ```
  *
@@ -29,14 +37,22 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ctx, type PathSegment } from './ctx.js';
 
 /**
- * Push `segment` onto the current path frame and return `r` unchanged.
- *
- * - Push happens immediately on call; passing `r` is optional.
- * - Returns `r` when supplied; otherwise returns `void`.
+ * Push `segment` onto the current path frame and return a curried operator.
+ * Use this form when you want `withPath(segment)` to slot into `pipe`
+ * directly, mirroring `tap(segment)` / `map(segment)`.
  */
-export function withPath(segment: PathSegment): void;
+export function withPath(segment: PathSegment): <T, E>(r: IResultOfT<T, E>) => IResultOfT<T, E>;
+
+/**
+ * Direct form — push `segment` and return `r` unchanged.
+ */
 export function withPath<T, E>(segment: PathSegment, r: IResultOfT<T, E>): IResultOfT<T, E>;
-export function withPath<T, E>(segment: PathSegment, r?: IResultOfT<T, E>): void | IResultOfT<T, E> {
+
+// Implementation signature — `unknown` opts out of strict overload-shape checks.
+export function withPath(segment: PathSegment, r?: IResultOfT<unknown, unknown>): unknown {
     ctx.push(segment);
+    if (r === undefined) {
+        return <T, E>(next: IResultOfT<T, E>): IResultOfT<T, E> => next;
+    }
     return r;
 }
