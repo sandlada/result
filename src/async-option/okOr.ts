@@ -1,6 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
-import { ofSome, ofNone } from '../option/index.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok, err } from '../factories/index.js';
 
 /**
@@ -31,14 +31,14 @@ export function okOr<T, E>(
 ): AsyncResult<T, E> | ((ao: AsyncOption<T>) => AsyncResult<T, E>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => okOr(error, ao);
     return {
-        run: async () => {
+        run: async (): Promise<IResultOfT<T, E>> => {
             const opt = await ao.run();
-            return (opt.isSome
-                ? ok(opt.value)
-                : err(error)) as unknown as Awaited<ReturnType<AsyncResult<T, E>['run']>>;
+            // Build the carrier explicitly as IResultOfT<T, E> so the type
+            // matches the runtime shape without an `Awaited<ReturnType<...>>`
+            // cast that relies on AsyncResult<T, E>['run'] shape.
+            return opt.isSome
+                ? ok<T>(opt.value)
+                : err<E>(error);
         },
     };
 }
-
-// Avoid unused-import warnings if some symbols are only used in JSDoc examples.
-void ofSome; void ofNone;

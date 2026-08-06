@@ -1,5 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok, err } from '../factories/index.js';
 
 /**
@@ -30,13 +31,13 @@ export function okOrElse<T, E>(
 ): AsyncResult<T, E> | ((ao: AsyncOption<T>) => AsyncResult<T, E>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => okOrElse(onNone, ao);
     return {
-        run: async () => {
+        run: async (): Promise<IResultOfT<T, E>> => {
             const opt = await ao.run();
-            if (opt.isSome) return ok(opt.value) as unknown as Awaited<ReturnType<AsyncResult<T, E>['run']>>;
+            if (opt.isSome) return ok<T>(opt.value);
             try {
-                return err(await onNone()) as unknown as Awaited<ReturnType<AsyncResult<T, E>['run']>>;
+                return err<E>(await onNone());
             } catch (e: unknown) {
-                return err(e as E) as unknown as Awaited<ReturnType<AsyncResult<T, E>['run']>>;
+                return err<E>(e as E);
             }
         },
     };
