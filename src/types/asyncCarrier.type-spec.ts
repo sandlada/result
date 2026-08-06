@@ -36,6 +36,16 @@ describe('asyncCarrier types', () => {
         expectTypeOf(isAsyncCarrier(42)).toEqualTypeOf<boolean>();
     });
 
+    it('isAsyncCarrier narrows its argument via a type predicate', () => {
+        // After Task L5 (bugs.md #44): isAsyncCarrier returns a TS type
+        // predicate so the guard exposes `.run` without an explicit cast.
+        const value: unknown = { run: () => Promise.resolve(1) };
+        if (isAsyncCarrier(value)) {
+            // No more `value.run` @ts-expect-error — the guard narrows.
+            expectTypeOf(value.run).toBeFunction();
+        }
+    });
+
     it('unwrapAsyncCarrier preserves the input type', () => {
         // CONTRACT GAP (pinned): see the marker on the "is declared as an
         // identity on its type parameter" test above. This test certifies the
@@ -119,17 +129,6 @@ describe('asyncCarrier types', () => {
         expectTypeOf(isAsyncCarrier).toEqualTypeOf<(value: unknown) => boolean>();
         expectTypeOf(isAsyncCarrier(value)).toEqualTypeOf<boolean>();
         expectTypeOf(isAsyncCarrier(undefined)).toEqualTypeOf<boolean>();
-    });
-
-    it('isAsyncCarrier is a plain boolean check and does not narrow its argument', () => {
-        // Documents the current declared contract: callers must cast after the
-        // check, which is what `unwrapAsyncCarrier` and the async-* modules do.
-        const value: unknown = { run: () => Promise.resolve(1) };
-        if (isAsyncCarrier(value)) {
-            expectTypeOf(value).toEqualTypeOf<unknown>();
-            // @ts-expect-error the guard does not narrow, so `.run` is not visible
-            value.run;
-        }
     });
 
     // ---------------------------------------------------------------------

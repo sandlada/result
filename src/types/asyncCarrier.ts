@@ -61,6 +61,11 @@ export const markAsyncCarrier = <T extends object>(carrier: T): T & BrandedAsync
  * Returns `true` when `value` is structurally a lazy AsyncResult or AsyncOption
  * carrier — i.e. a non-null object that has a callable `.run` function.
  *
+ * Returns a TypeScript type predicate `value is { run: () => unknown }` so
+ * downstream guards narrow the input and expose `.run` without an explicit
+ * cast. Use `unwrapAsyncCarrier` (or your own narrowing) to read the value
+ * at the call site.
+ *
  * Order of checks:
  * 1. **Brand first** — if the value was produced by a library factory
  *    (`markAsyncCarrier` was applied), accept it immediately. This is the
@@ -73,7 +78,7 @@ export const markAsyncCarrier = <T extends object>(carrier: T): T & BrandedAsync
  * Does **not** validate that `.run()` actually returns the expected Promise type;
  * callers must cast the result themselves.
  */
-export const isAsyncCarrier = (value: unknown): boolean => {
+export const isAsyncCarrier = (value: unknown): value is { run: () => unknown } => {
     if (value === null || typeof value !== 'object') return false;
     // Brand check (fast path for library-built carriers).
     if ((value as { [ASYNC_CARRIER_BRAND]?: unknown })[ASYNC_CARRIER_BRAND] === true) {
