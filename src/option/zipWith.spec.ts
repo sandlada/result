@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
-import { zipWith } from '../../src/option/index.js';
+import { zipWith, zipWith3, zipWith4 } from '../../src/option/index.js';
 
 describe('Option — zipWith', () => {
     it('both Some returns Some(fn(a, b))', () => {
@@ -90,5 +90,35 @@ describe('Option — zipWith', () => {
         if (result.isSome) {
             expectTypeOf(result.value).toEqualTypeOf<{ sum: number }>();
         }
+    });
+});
+
+describe('Option — zipWith3', () => {
+    it('all Some returns Some(fn(a, b, c))', () => {
+        const z = zipWith3((a: number, b: number, c: number) => a + b + c);
+        expect(z(ofSome(1), ofSome(2), ofSome(3)).isSome).toBe(true);
+        if (z(ofSome(1), ofSome(2), ofSome(3)).isSome) {
+            expect((z(ofSome(1), ofSome(2), ofSome(3)) as { value: number }).value).toBe(6);
+        }
+    });
+
+    it('returns None if any is None', () => {
+        const z = zipWith3((a: number, b: number, c: number) => a + b + c);
+        expect(z(ofSome(1), ofNone() as IOption<number>, ofSome(3)).isNone).toBe(true);
+    });
+});
+
+describe('Option — zipWith4', () => {
+    it('all Some returns Some(fn(a, b, c, d))', () => {
+        const z = zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d);
+        expect(z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)).isSome).toBe(true);
+        if (z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)).isSome) {
+            expect((z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)) as { value: number }).value).toBe(10);
+        }
+    });
+
+    it('returns None if any is None', () => {
+        const z = zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d);
+        expect(z(ofSome(1), ofSome(2), ofSome(3), ofNone() as IOption<number>).isNone).toBe(true);
     });
 });
