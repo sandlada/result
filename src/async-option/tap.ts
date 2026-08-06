@@ -40,7 +40,7 @@ export function tap<T>(
                     fn(opt.value);
                 } catch {
                     // Project policy: tap side-effects that throw convert to None.
-                    return ofNone();
+                    return ofNone<T>();
                 }
             }
             return opt;

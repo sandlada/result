@@ -32,11 +32,11 @@ export function map<T, U>(
     return {
         run: async (): Promise<IOption<U>> => {
             const opt = await ao.run();
-            if (!opt.isSome) return ofNone();
+            if (!opt.isSome) return ofNone<U>();
             try {
                 return ofSome(fn(opt.value));
             } catch {
-                return ofNone();
+                return ofNone<U>();
             }
         },
     };

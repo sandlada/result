@@ -70,7 +70,7 @@ export function orElse(
                     }
                     return next as IOption<T | unknown>;
                 } catch {
-                    return ofNone() as IOption<T | unknown>;
+                    return ofNone<T | unknown>() as IOption<T | unknown>;
                 }
             },
         })) as unknown;
@@ -87,7 +87,7 @@ export function orElse(
                 }
                 return next as IOption<unknown>;
             } catch {
-                return ofNone();
+                return ofNone<unknown>();
             }
         },
     };
