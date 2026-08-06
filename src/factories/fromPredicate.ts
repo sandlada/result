@@ -16,7 +16,7 @@
  * const r2 = isPositive(5);
  * // r2 = Ok(5)
  * ```
-  *
+ *
  * @note Ready for Product
  */
 
@@ -36,16 +36,15 @@ export function fromPredicate<T, E>(
 export function fromPredicate<T, E>(
     predicate: (v: T) => boolean,
     errorOnFalse: E,
-    value?: T,
+    ...rest: [] | [T]
 ): IResultOfT<T, E> | ((value: T) => IResultOfT<T, E>) {
-    // Use `arguments.length` to distinguish the 2-argument curried form
+    // Use rest-args length to distinguish the 2-argument curried form
     // (`fromPredicate(p, err)`) from the 3-argument direct form
-    // (`fromPredicate(p, err, value)`). This works even when `T` includes
-    // `undefined` (e.g. `fromPredicate(p, err, undefined)`) because we count
-    // arguments, not whether they are defined. The pattern matches the
-    // canonical "data + function" curried overload used throughout the library.
-    if(arguments.length < 3) return (value: T): IResultOfT<T, E> => fromPredicate(predicate, errorOnFalse, value);
-    if(predicate(value!)) return ok(value!) as unknown as IResultOfT<T, E>;
+    // (`fromPredicate(p, err, value)`). Rest-args keeps the implementation
+    // arrow-friendly and avoids relying on `arguments`, which is brittle
+    // under strict-mode bundlers and many transpilers.
+    if (rest.length === 0) return (value: T): IResultOfT<T, E> => fromPredicate(predicate, errorOnFalse, value);
+    const [value] = rest;
+    if (predicate(value)) return ok(value) as unknown as IResultOfT<T, E>;
     return err(errorOnFalse) as unknown as IResultOfT<T, E>;
 }
-

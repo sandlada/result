@@ -18,12 +18,14 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function ok(): IResult<never>;
 export function ok<T>(value: T): IResultOfT<T, never>;
-export function ok<T>(value?: T): IResult<never> | IResultOfT<T, never> {
-    // Use `arguments.length` to distinguish the no-argument form (`ok()`) from
-    // the value-carrying form (`ok(value)`). This works even when `T` includes
-    // `undefined` (e.g. `ok(undefined)`) because we count arguments, not whether
-    // they are defined.
-    if(arguments.length === 0) return { isSuccess: true as const, isFailure: false as const };
-    return { isSuccess: true as const, isFailure: false as const, value: value! } as unknown as IResultOfT<T, never>;
+export function ok<T>(...args: [] | [T]): IResult<never> | IResultOfT<T, never> {
+    // Distinguish the no-argument form (`ok()`) from the value-carrying form
+    // (`ok(value)`) by checking the rest-args tuple length. Rest-args keeps
+    // the implementation arrow-friendly and avoids relying on `arguments`,
+    // which is brittle under strict-mode bundlers and many transpilers.
+    if (args.length === 0) {
+        return { isSuccess: true as const, isFailure: false as const };
+    }
+    const [value] = args;
+    return { isSuccess: true as const, isFailure: false as const, value: value as T } as unknown as IResultOfT<T, never>;
 }
-
