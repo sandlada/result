@@ -8,6 +8,12 @@
  * Pass `errorFn` to customise how the thrown value maps onto your error type
  * (canonical tap/tee policy — see AGENTS.md).
  *
+ * **Phantom types — `B`, `F`**: These generics appear only to type `fn`'s
+ * callback return (`IResultOfT<B, F>`). The operator **discards** `fn`'s
+ * return value entirely; the produced carrier uses the input's `A`, `E`
+ * types. They are intentionally inert — callers who rely on `B`/`F` for
+ * constraint resolution will be surprised.
+ *
  * @example
  * ```ts
  * import { andTee, pipe, ok, err } from '@sandlada/result';
@@ -28,15 +34,33 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
+/**
+ * Curried form.
+ *
+ * @typeParam A — Input value type (carried through).
+ * @typeParam B — **Phantom**: callback's success type, ignored at runtime.
+ * @typeParam F — **Phantom**: callback's error type, ignored at runtime.
+ * @typeParam E — Input error type (carried through).
+ */
 export function andTee<A, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
     errorFn?: (thrown: unknown) => unknown,
 ): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E>;
+
+/**
+ * Direct form.
+ *
+ * @typeParam A — Input value type (carried through).
+ * @typeParam B — **Phantom**: callback's success type, ignored at runtime.
+ * @typeParam F — **Phantom**: callback's error type, ignored at runtime.
+ * @typeParam E — Input error type (carried through).
+ */
 export function andTee<A, E, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
     r: IResultOfT<A, E>,
     errorFn?: (thrown: unknown) => E,
 ): IResultOfT<A, E>;
+
 export function andTee<A, E, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
