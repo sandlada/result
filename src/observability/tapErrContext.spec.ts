@@ -6,28 +6,28 @@ import { ctx, getPath, withPath, tapErrContext } from './index.js';
 describe('tapErrContext', () => {
     const inScope = <T>(fn: () => T): T => ctx.run(fn);
 
-    it('does not invoke fn on Ok result', () => {
+    it('does not invoke fn on Ok result', async () => {
         let called = false;
-        inScope(() => {
-            tapErrContext(() => { called = true; }, ok(42));
+        await inScope(async () => {
+            await tapErrContext(() => { called = true; }, ok(42));
         });
         expect(called).toBe(false);
     });
 
-    it('invokes fn on Err result with the error', () => {
+    it('invokes fn on Err result with the error', async () => {
         const seen: Array<{ err: unknown }> = [];
-        inScope(() => {
-            tapErrContext((errVal) => { seen.push({ err: errVal }); }, err('boom'));
+        await inScope(async () => {
+            await tapErrContext((errVal) => { seen.push({ err: errVal }); }, err('boom'));
         });
         expect(seen).toEqual([{ err: 'boom' }]);
     });
 
-    it('snapshot of path is captured at the time of error', () => {
+    it('snapshot of path is captured at the time of error', async () => {
         const seen: Array<{ path: ReadonlyArray<string | number> }> = [];
-        inScope(() => {
+        await inScope(async () => {
             withPath('outer');
             withPath('inner');
-            tapErrContext((_e, ctx) => { seen.push({ path: ctx.path }); }, err('oh'));
+            await tapErrContext((_e, ctx) => { seen.push({ path: ctx.path }); }, err('oh'));
             // Push another segment AFTER calling tapErrContext — the
             // callback must not see this segment in its captured path.
             withPath('after-tap');
@@ -36,23 +36,24 @@ describe('tapErrContext', () => {
         expect(seen).toEqual([{ path: ['outer', 'inner'] }]);
     });
 
-    it('returns the result unchanged on success', () => {
-        inScope(() => {
-            // Sync callback → sync return; assert non-Promise arm for narrowing.
-            const r = tapErrContext(() => { /* never */ }, ok(99)) as IResultOfT<number, never>;
-            expect(r.isSuccess).toBe(true);
-            if (r.isSuccess) expect(r.value).toBe(99);
+    it('returns the result unchanged on success', async () => {
+        const r = await inScope(async () => {
+            return await tapErrContext(() => { /* never */ }, ok(99));
         });
+        const rTyped: IResultOfT<number, never> = r;
+        expect(rTyped.isSuccess).toBe(true);
+        if (rTyped.isSuccess) expect(rTyped.value).toBe(99);
     });
 
-    it('returns the result unchanged on failure (sync callback)', () => {
+    it('returns the result unchanged on failure (sync callback)', async () => {
         const original = err('boom');
-        inScope(() => {
-            // Sync callback → sync return; assert non-Promise arm for narrowing.
-            const r = tapErrContext(() => { /* saw it */ }, original) as IResultOfT<never, string>;
-            expect(r).toBe(original);
-            expect(r.isFailure).toBe(true);
+        const r = await inScope(async () => {
+            return await tapErrContext(() => { /* saw it */ }, original);
         });
+        // After Task L31 fix, the result is wrapped in a Promise — the
+        // original carrier still equals the resolved value.
+        expect(r).toBe(original);
+        expect(r.isFailure).toBe(true);
     });
 
     it('awaits async callback then returns the result', async () => {
@@ -69,17 +70,16 @@ describe('tapErrContext', () => {
         if (r.isFailure) expect(r.error).toBe('async boom');
     });
 
-    it('curried form (no result) returns a function that defers the callback', () => {
+    it('curried form (no result) returns a function that defers the callback', async () => {
         const seen: Array<{ err: unknown; path: ReadonlyArray<string | number> }> = [];
-        inScope(() => {
+        await inScope(async () => {
             const fn = tapErrContext<number, string>((errVal, ctx) => {
                 seen.push({ err: errVal, path: ctx.path });
             });
             withPath('curried');
-            // Sync callback → sync return; assert non-Promise arm for narrowing.
-            const r1 = fn(ok(1)) as IResultOfT<number, string>;
+            const r1 = await fn(ok(1));
             expect(r1.isSuccess).toBe(true);
-            const r2 = fn(err('curried boom')) as IResultOfT<number, string>;
+            const r2 = await fn(err('curried boom'));
             expect(r2.isFailure).toBe(true);
         });
         expect(seen).toEqual([{ err: 'curried boom', path: ['curried'] }]);
@@ -99,11 +99,11 @@ describe('tapErrContext', () => {
         expect(r.isFailure).toBe(true);
     });
 
-    it('ErrContext.path is a frozen snapshot (cannot be mutated)', () => {
+    it('ErrContext.path is a frozen snapshot (cannot be mutated)', async () => {
         let captured: ReadonlyArray<string | number> | null = null;
-        inScope(() => {
+        await inScope(async () => {
             withPath('x');
-            tapErrContext((_e, ctx) => {
+            await tapErrContext((_e, ctx) => {
                 captured = ctx.path;
             }, err('boom'));
         });
@@ -111,25 +111,29 @@ describe('tapErrContext', () => {
         expect(Object.isFrozen(captured)).toBe(true);
     });
 
-    it('callback thrown error propagates to caller', () => {
-        expect(() =>
-            inScope(() => {
-                tapErrContext(() => {
-                    throw new Error('callback boom');
-                }, err('trigger'));
-            }),
-        ).toThrow('callback boom');
+    it('callback thrown error propagates to caller (rejects the outer Promise)', async () => {
+        await expect(
+            (async () => {
+                await inScope(async () => {
+                    return await tapErrContext(() => {
+                        throw new Error('callback boom');
+                    }, err('trigger'));
+                });
+            })(),
+        ).rejects.toThrow('callback boom');
     });
 
-    it('callback throwing a non-Error value propagates verbatim', () => {
+    it('callback throwing a non-Error value propagates verbatim', async () => {
         // eslint-disable-next-line @typescript-eslint/no-throw-literal
-        expect(() =>
-            inScope(() => {
-                tapErrContext(() => {
-                    throw 'string boom';
-                }, err('trigger'));
-            }),
-        ).toThrow('string boom');
+        await expect(
+            (async () => {
+                await inScope(async () => {
+                    return await tapErrContext(() => {
+                        throw 'string boom';
+                    }, err('trigger'));
+                });
+            })(),
+        ).rejects.toThrow('string boom');
     });
 
     it('async callback rejection rejects the returned promise', async () => {
@@ -150,7 +154,7 @@ describe('tapErrContext', () => {
             withPath('outer');
             await ctx.run(async () => {
                 withPath('inner');
-                tapErrContext((_e, c) => { observed.push(c.path); }, err('x'));
+                await tapErrContext((_e, c) => { observed.push(c.path); }, err('x'));
             });
         });
         expect(observed).toEqual([['outer', 'inner']]);
