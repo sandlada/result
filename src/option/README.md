@@ -22,4 +22,4 @@
 - [`tap`](./tap.ts): 對 `Some` 狀態執行同步副作用。
 - [`transpose`](./transpose.ts): 轉換 Option 內部結構。
 - [`unwrapOr`](./unwrapOr.ts): 解包 `Some`，若為 `None` 則返回預設值。
-- [`zipWith`](./zipWith.ts): 組合兩個 Option 的值。
+- [`zipWith`](./zipWith.ts): 組合 N≥2 個 Option 的值（variadic；arity 2–10 顯式定義，>10 透過 mapped type 推導）。

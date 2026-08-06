@@ -34,4 +34,4 @@
 - [`unwrap`](./unwrap.ts): 解包 `Some` 的值，若為 `None` 則拋出異常。
 - [`unwrapOr`](./unwrapOr.ts): 解包 `Some` 的值，若為 `None` 則返回預設值。
 - [`unwrapOrElse`](./unwrapOrElse.ts): 解包 `Some` 的值，若為 `None` 則執行回調生成預設值。
-- [`zipWith`](./zipWith.ts): 將兩個 `AsyncOption` 的值進行組合。
+- [`zipWith`](./zipWith.ts): 將 N≥2 個 `AsyncOption` 的值進行組合（variadic；arity 2–10 顯式定義，>10 透過 mapped type 推導）。

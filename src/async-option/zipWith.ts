@@ -1,129 +1,96 @@
-import type { AsyncOption } from '../types/AsyncOption.js';
-import type { IOption } from '../types/Option.js';
-import { ofNone } from '../option/ofNone.js';
-
 /**
- * Combines two `AsyncOption`s with a function. If either is `None`, returns `None`;
- * otherwise applies the function to both inner values.
+ * @fileoverview Combines N AsyncOptions (N ≥ 2) with a function. If all
+ * resolve to Some, returns `AsyncOption<Some(fn(a, b, ...))>`. If any
+ * resolves to None, returns `AsyncOption<None>`. Async rejections from the
+ * callback propagate (they are not caught).
+ *
+ * The arity of `fn` fixes the number of AsyncOptions accepted — variadic via
+ * tuple inference. The catch-all mapped-type variadic handles every arity ≥ 2
+ * in a single pair of overloads.
+ *
+ * **Design note (type safety):** This file intentionally does NOT declare
+ * per-arity overloads. TypeScript's function-type bivariance would let a
+ * 2-argument `fn` match a 3-argument overload (with the third parameter
+ * silently ignored), and a 0-argument `fn` match a 2-argument curried form.
+ * The single variadic below avoids both holes: `T` is inferred from `fn`'s
+ * actual parameter list, and the constraint `readonly [unknown, unknown,
+ * ...unknown[]]` requires ≥ 2 elements.
  *
  * @example
  * ```ts
- * import { ofSome, ofNone } from '@sandlada/result/async-option';
- * import { zipWith } from '@sandlada/result/async-option';
+ * import { zipWith, ofSome, ofNone } from '@sandlada/result/async-option';
  *
- * const r1 = await zipWith((a: number, b: number) => a + b, ofSome(1), ofSome(2)).run(); // Some(3)
- * const r2 = await zipWith((a: number, b: number) => a + b, ofSome(1), ofNone<number>()).run(); // None
+ * // Arity 2
+ * const r1 = await zipWith((a: number, b: number) => a + b, ofSome(1), ofSome(2)).run();
+ * // Some(3)
+ *
+ * // Arity 5
+ * const r2 = await zipWith(
+ *     (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+ *     ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5),
+ * ).run();
+ * // Some(15)
  * ```
  *
  * @note Ready for Product
  */
-export function zipWith<A, B, C>(
-    fn: (a: A, b: B) => C | Promise<C>,
-): (ao1: AsyncOption<A>, ao2: AsyncOption<B>) => AsyncOption<C>;
-export function zipWith<A, B, C>(
-    fn: (a: A, b: B) => C | Promise<C>,
-    ao1: AsyncOption<A>,
-    ao2: AsyncOption<B>,
-): AsyncOption<C>;
-export function zipWith<A, B, C>(
-    fn: (a: A, b: B) => C | Promise<C>,
-    ao1?: AsyncOption<A>,
-    ao2?: AsyncOption<B>,
-): AsyncOption<C> | ((ao1: AsyncOption<A>, ao2: AsyncOption<B>) => AsyncOption<C>) {
-    if (ao1 === undefined || ao2 === undefined) {
-        return (a: AsyncOption<A>, b: AsyncOption<B>) => zipWith(fn, a, b);
-    }
-    return {
-        run: async (): Promise<IOption<C>> => {
-            const [opt1, opt2] = await Promise.all([ao1.run(), ao2.run()]);
-            if (!opt1.isSome || !opt2.isSome) return ofNone<C>();
-            return { isSome: true as const, isNone: false as const, value: await fn(opt1.value, opt2.value) };
-        },
-    };
-}
 
-/**
- * Combines three `AsyncOption`s with a function. If any is `None`, returns `None`;
- * otherwise applies the function to all three inner values.
- *
- * @example
- * ```ts
- * import { ofSome } from '@sandlada/result/async-option';
- * import { zipWith3 } from '@sandlada/result/async-option';
- *
- * const r = await zipWith3(
- *     (a: number, b: number, c: number) => a + b + c,
- *     ofSome(1), ofSome(2), ofSome(3),
- * ).run(); // Some(6)
- * ```
- */
-export function zipWith3<A, B, C, D>(
-    fn: (a: A, b: B, c: C) => D | Promise<D>,
-): (ao1: AsyncOption<A>, ao2: AsyncOption<B>, ao3: AsyncOption<C>) => AsyncOption<D>;
-export function zipWith3<A, B, C, D>(
-    fn: (a: A, b: B, c: C) => D | Promise<D>,
-    ao1: AsyncOption<A>,
-    ao2: AsyncOption<B>,
-    ao3: AsyncOption<C>,
-): AsyncOption<D>;
-export function zipWith3<A, B, C, D>(
-    fn: (a: A, b: B, c: C) => D | Promise<D>,
-    ao1?: AsyncOption<A>,
-    ao2?: AsyncOption<B>,
-    ao3?: AsyncOption<C>,
-): AsyncOption<D> | ((ao1: AsyncOption<A>, ao2: AsyncOption<B>, ao3: AsyncOption<C>) => AsyncOption<D>) {
-    if (ao1 === undefined || ao2 === undefined || ao3 === undefined) {
-        return (a: AsyncOption<A>, b: AsyncOption<B>, c: AsyncOption<C>) => zipWith3(fn, a, b, c);
-    }
-    return {
-        run: async (): Promise<IOption<D>> => {
-            const [opt1, opt2, opt3] = await Promise.all([ao1.run(), ao2.run(), ao3.run()]);
-            if (!opt1.isSome || !opt2.isSome || !opt3.isSome) return ofNone<D>();
-            return { isSome: true as const, isNone: false as const, value: await fn(opt1.value, opt2.value, opt3.value) };
-        },
-    };
-}
+import type { AsyncOption } from '../types/AsyncOption.js';
+import type { IOption, IOptionSome } from '../types/Option.js';
+import { ofNone } from '../option/ofNone.js';
 
-/**
- * Combines four `AsyncOption`s with a function. If any is `None`, returns `None`;
- * otherwise applies the function to all four inner values.
- *
- * @example
- * ```ts
- * import { ofSome } from '@sandlada/result/async-option';
- * import { zipWith4 } from '@sandlada/result/async-option';
- *
- * const r = await zipWith4(
- *     (a: number, b: number, c: number, d: number) => a + b + c + d,
- *     ofSome(1), ofSome(2), ofSome(3), ofSome(4),
- * ).run(); // Some(10)
- * ```
- */
-export function zipWith4<A, B, C, D, E>(
-    fn: (a: A, b: B, c: C, d: D) => E | Promise<E>,
-): (ao1: AsyncOption<A>, ao2: AsyncOption<B>, ao3: AsyncOption<C>, ao4: AsyncOption<D>) => AsyncOption<E>;
-export function zipWith4<A, B, C, D, E>(
-    fn: (a: A, b: B, c: C, d: D) => E | Promise<E>,
-    ao1: AsyncOption<A>,
-    ao2: AsyncOption<B>,
-    ao3: AsyncOption<C>,
-    ao4: AsyncOption<D>,
-): AsyncOption<E>;
-export function zipWith4<A, B, C, D, E>(
-    fn: (a: A, b: B, c: C, d: D) => E | Promise<E>,
-    ao1?: AsyncOption<A>,
-    ao2?: AsyncOption<B>,
-    ao3?: AsyncOption<C>,
-    ao4?: AsyncOption<D>,
-): AsyncOption<E> | ((ao1: AsyncOption<A>, ao2: AsyncOption<B>, ao3: AsyncOption<C>, ao4: AsyncOption<D>) => AsyncOption<E>) {
-    if (ao1 === undefined || ao2 === undefined || ao3 === undefined || ao4 === undefined) {
-        return (a: AsyncOption<A>, b: AsyncOption<B>, c: AsyncOption<C>, d: AsyncOption<D>) => zipWith4(fn, a, b, c, d);
+// ── Variadic ─────────────────────────────────────────────────────────────────
+
+export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
+    fn: (...args: T) => R | Promise<R>,
+): (...aos: { [K in keyof T]: AsyncOption<T[K]> }) => AsyncOption<R>;
+export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
+    fn: (...args: T) => R | Promise<R>,
+    ...aos: { [K in keyof T]: AsyncOption<T[K]> }
+): AsyncOption<R>;
+
+// ── Implementation ───────────────────────────────────────────────────────────
+// Same constraint as the public overloads so the implementation cannot be
+// called with arity < 2. Return type is a union: the AsyncOption (direct
+// form) or the curried function (when only `fn` was provided). The public
+// overloads give callers the narrower type.
+//
+// The inner recursive call uses `any` casts because the implementation
+// signature is generic over T and the recursive spread doesn't carry the
+// same tuple information. This is internal — type honesty lives at the
+// public overloads above.
+
+export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
+    fn: (...args: T) => R | Promise<R>,
+    ...aos: { [K in keyof T]: AsyncOption<T[K]> }
+): AsyncOption<R> | ((...rest: AsyncOption<unknown>[]) => AsyncOption<R>) {
+    // Curried form — only `fn` was provided; return a partial application.
+    if (aos.length === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return ((...rest: AsyncOption<unknown>[]): AsyncOption<R> =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (zipWith as any)(fn, ...rest)) as unknown as (
+            ...rest: AsyncOption<unknown>[]
+        ) => AsyncOption<R>;
+    }
+    // Defensive guard against arity < 2 — return a thunk that resolves to None.
+    if (aos.length < 2) {
+        return { run: async (): Promise<IOption<R>> => ofNone() as IOption<R> };
     }
     return {
-        run: async (): Promise<IOption<E>> => {
-            const [opt1, opt2, opt3, opt4] = await Promise.all([ao1.run(), ao2.run(), ao3.run(), ao4.run()]);
-            if (!opt1.isSome || !opt2.isSome || !opt3.isSome || !opt4.isSome) return ofNone<E>();
-            return { isSome: true as const, isNone: false as const, value: await fn(opt1.value, opt2.value, opt3.value, opt4.value) };
+        run: async (): Promise<IOption<R>> => {
+            const opts = await Promise.all(aos.map((a) => a.run()));
+            for (const opt of opts) {
+                if (!opt.isSome) return ofNone() as IOption<R>;
+            }
+            const values = opts.map((o) => (o as IOptionSome<unknown>).value);
+            // Async rejections from `fn` propagate — not caught (matches pre-merge behavior).
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return {
+                isSome: true as const,
+                isNone: false as const,
+                value: (await (fn as any)(...values)) as R,
+            };
         },
     };
 }

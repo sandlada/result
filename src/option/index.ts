@@ -20,5 +20,5 @@ export { orElse } from './orElse.js';
 export { tap } from './tap.js';
 export { transpose } from './transpose.js';
 export { unwrapOr } from './unwrapOr.js';
-export { zipWith, zipWith3, zipWith4 } from './zipWith.js';
+export { zipWith } from './zipWith.js';
 export { traverseArray, traverse } from './traverseArray.js';

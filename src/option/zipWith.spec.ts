@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import type { IOption } from '../../src/types/Option.js';
-import { zipWith, zipWith3, zipWith4 } from '../../src/option/index.js';
+import { zipWith } from '../../src/option/index.js';
 
 describe('Option — zipWith', () => {
     it('both Some returns Some(fn(a, b))', () => {
@@ -93,32 +93,86 @@ describe('Option — zipWith', () => {
     });
 });
 
-describe('Option — zipWith3', () => {
-    it('all Some returns Some(fn(a, b, c))', () => {
-        const z = zipWith3((a: number, b: number, c: number) => a + b + c);
-        expect(z(ofSome(1), ofSome(2), ofSome(3)).isSome).toBe(true);
-        if (z(ofSome(1), ofSome(2), ofSome(3)).isSome) {
-            expect((z(ofSome(1), ofSome(2), ofSome(3)) as { value: number }).value).toBe(6);
-        }
+describe('Option — zipWith (variadic arity > 2)', () => {
+    it('arity 3: all Some returns Some(fn(a, b, c))', () => {
+        const z = zipWith((a: number, b: number, c: number) => a + b + c);
+        const r = z(ofSome(1), ofSome(2), ofSome(3));
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(6);
     });
 
-    it('returns None if any is None', () => {
-        const z = zipWith3((a: number, b: number, c: number) => a + b + c);
+    it('arity 3: any None short-circuits to None', () => {
+        const z = zipWith((a: number, b: number, c: number) => a + b + c);
         expect(z(ofSome(1), ofNone() as IOption<number>, ofSome(3)).isNone).toBe(true);
     });
-});
 
-describe('Option — zipWith4', () => {
-    it('all Some returns Some(fn(a, b, c, d))', () => {
-        const z = zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d);
-        expect(z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)).isSome).toBe(true);
-        if (z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)).isSome) {
-            expect((z(ofSome(1), ofSome(2), ofSome(3), ofSome(4)) as { value: number }).value).toBe(10);
+    it('arity 5: all Some returns Some(fn(a..e))', () => {
+        const z = zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+        );
+        const r = z(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5));
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(15);
+    });
+
+    it('arity 5: any None short-circuits to None', () => {
+        const z = zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+        );
+        expect(z(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofNone() as IOption<number>).isNone).toBe(true);
+    });
+
+    it('arity 7: heterogeneous types preserved across the tuple', () => {
+        const z = zipWith(
+            (a: number, b: string, c: boolean, d: number, e: string, f: boolean, g: number) =>
+                `${a}-${b}-${c}-${d}-${e}-${f}-${g}`,
+        );
+        const r = z(ofSome(1), ofSome('a'), ofSome(true), ofSome(2), ofSome('b'), ofSome(false), ofSome(3));
+        expect(r.isSome).toBe(true);
+        if (r.isSome) {
+            expect(r.value).toBe('1-a-true-2-b-false-3');
+            expectTypeOf(r.value).toEqualTypeOf<string>();
         }
     });
 
-    it('returns None if any is None', () => {
-        const z = zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d);
-        expect(z(ofSome(1), ofSome(2), ofSome(3), ofNone() as IOption<number>).isNone).toBe(true);
+    it('arity 7: any None short-circuits to None', () => {
+        const z = zipWith(
+            (a: number, b: number, c: number, d: number, e: number, f: number, g: number) =>
+                a + b + c + d + e + f + g,
+        );
+        expect(
+            z(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5), ofSome(6), ofNone() as IOption<number>).isNone,
+        ).toBe(true);
+    });
+
+    it('arity > 10 falls through to the catch-all variadic', () => {
+        const z = zipWith(
+            (a: number, b: number, c: number, d: number, e: number,
+             f: number, g: number, h: number, i: number, j: number,
+             k: number, l: number) =>
+                a + b + c + d + e + f + g + h + i + j + k + l,
+        );
+        const r = z(
+            ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5), ofSome(6),
+            ofSome(7), ofSome(8), ofSome(9), ofSome(10), ofSome(11), ofSome(12),
+        );
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(78);
+    });
+
+    it('curried form works for arity 5', () => {
+        const z = zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a * b * c * d * e,
+        );
+        const r = z(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5));
+        if (r.isSome) expect(r.value).toBe(120);
+    });
+
+    it('does not call fn when any operand is None at arity 5', () => {
+        const fn = vi.fn(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+        );
+        zipWith(fn)(ofSome(1), ofSome(2), ofNone() as IOption<number>, ofSome(4), ofSome(5));
+        expect(fn).toHaveBeenCalledTimes(0);
     });
 });

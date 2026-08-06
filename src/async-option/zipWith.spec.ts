@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, expectTypeOf } from 'vitest';
 import { ofSome } from './ofSome.js';
 import { ofNone } from './ofNone.js';
-import { zipWith, zipWith3, zipWith4 } from './zipWith.js';
+import { zipWith } from './zipWith.js';
+import type { AsyncOption } from '../types/AsyncOption.js';
 
 describe('AsyncOption zipWith', () => {
     it('combines two Somes', async () => {
@@ -41,38 +42,86 @@ describe('AsyncOption zipWith', () => {
         await expect(zipWith(async (a: number, b: number) => { throw new Error('rej'); }, ofSome(1), ofSome(2)).run())
             .rejects.toThrow('rej');
     });
+});
 
-    it('zipWith3 combines three Somes', async () => {
-        const r = await zipWith3((a: number, b: number, c: number) => a + b + c, ofSome(1), ofSome(2), ofSome(3)).run();
+describe('AsyncOption zipWith (variadic arity > 2)', () => {
+    it('arity 3 combines three Somes', async () => {
+        const r = await zipWith(
+            (a: number, b: number, c: number) => a + b + c,
+            ofSome(1), ofSome(2), ofSome(3),
+        ).run();
         expect(r.isSome).toBe(true);
         if (r.isSome) expect(r.value).toBe(6);
     });
 
-    it('zipWith3 returns None if any operand is None', async () => {
-        const r = await zipWith3((a: number, b: number, c: number) => a + b + c, ofSome(1), ofNone<number>(), ofSome(3)).run();
+    it('arity 3 returns None if any operand is None', async () => {
+        const r = await zipWith(
+            (a: number, b: number, c: number) => a + b + c,
+            ofSome(1), ofNone<number>(), ofSome(3),
+        ).run();
         expect(r.isNone).toBe(true);
     });
 
-    it('zipWith3 is curried', async () => {
-        const fn = zipWith3((a: number, b: number, c: number) => a + b + c);
+    it('arity 3 is curried', async () => {
+        const fn = zipWith((a: number, b: number, c: number) => a + b + c);
         const r = await fn(ofSome(1), ofSome(2), ofSome(3)).run();
         if (r.isSome) expect(r.value).toBe(6);
     });
 
-    it('zipWith4 combines four Somes', async () => {
-        const r = await zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d, ofSome(1), ofSome(2), ofSome(3), ofSome(4)).run();
+    it('arity 5 combines five Somes', async () => {
+        const r = await zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+            ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5),
+        ).run();
         expect(r.isSome).toBe(true);
-        if (r.isSome) expect(r.value).toBe(10);
+        if (r.isSome) expect(r.value).toBe(15);
     });
 
-    it('zipWith4 returns None if any operand is None', async () => {
-        const r = await zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d, ofSome(1), ofSome(2), ofSome(3), ofNone<number>()).run();
+    it('arity 5 returns None if any operand is None', async () => {
+        const r = await zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+            ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofNone<number>(),
+        ).run();
         expect(r.isNone).toBe(true);
     });
 
-    it('zipWith4 is curried', async () => {
-        const fn = zipWith4((a: number, b: number, c: number, d: number) => a + b + c + d);
-        const r = await fn(ofSome(1), ofSome(2), ofSome(3), ofSome(4)).run();
-        if (r.isSome) expect(r.value).toBe(10);
+    it('arity 7: heterogeneous types preserved', async () => {
+        const fn = zipWith(
+            (a: number, b: string, c: boolean, d: number, e: string, f: boolean, g: number) =>
+                `${a}-${b}-${c}-${d}-${e}-${f}-${g}`,
+        );
+        const r = await fn(
+            ofSome(1), ofSome('a'), ofSome(true), ofSome(2), ofSome('b'), ofSome(false), ofSome(3),
+        ).run();
+        expect(r.isSome).toBe(true);
+        if (r.isSome) {
+            expect(r.value).toBe('1-a-true-2-b-false-3');
+            expectTypeOf(r.value).toEqualTypeOf<string>();
+        }
+    });
+
+    it('arity > 10 falls through to the catch-all variadic', async () => {
+        const r = await zipWith(
+            (a: number, b: number, c: number, d: number, e: number,
+             f: number, g: number, h: number, i: number, j: number,
+             k: number, l: number) =>
+                a + b + c + d + e + f + g + h + i + j + k + l,
+            ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5), ofSome(6),
+            ofSome(7), ofSome(8), ofSome(9), ofSome(10), ofSome(11), ofSome(12),
+        ).run();
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(78);
+    });
+
+    it('arity 5 curried form returns a function with the right signature', () => {
+        const fn = zipWith(
+            (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+        );
+        const _check: (
+            ao1: AsyncOption<number>, ao2: AsyncOption<number>,
+            ao3: AsyncOption<number>, ao4: AsyncOption<number>,
+            ao5: AsyncOption<number>,
+        ) => AsyncOption<number> = fn;
+        expectTypeOf(_check).toBeFunction();
     });
 });

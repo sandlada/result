@@ -205,7 +205,7 @@ Operators return a new `AsyncResult` without executing. Terminal operators (`mat
 | `bind` / `orElse` | Monadic chain / recovery. | [src/async-option/bind.ts](./src/async-option/bind.ts), [src/async-option/orElse.ts](./src/async-option/orElse.ts) |
 | `tap` / `tapAsync` | Side-effects on Some. | [src/async-option/tap.ts](./src/async-option/tap.ts), [src/async-option/tapAsync.ts](./src/async-option/tapAsync.ts) |
 | `filter` / `flatten` | Filter / flatten. | [src/async-option/filter.ts](./src/async-option/filter.ts), [src/async-option/flatten.ts](./src/async-option/flatten.ts) |
-| `zipWith` / `all` | Combine two / many AsyncOptions. | [src/async-option/zipWith.ts](./src/async-option/zipWith.ts), [src/async-option/all.ts](./src/async-option/all.ts) |
+| `zipWith` / `all` | Combine N≥2 AsyncOptions with a function (variadic, arity 2–10 explicit, >10 via mapped type) / combine many. | [src/async-option/zipWith.ts](./src/async-option/zipWith.ts), [src/async-option/all.ts](./src/async-option/all.ts) |
 | `okOr` / `okOrElse` | AsyncOption → AsyncResult bridge. | [src/async-option/okOr.ts](./src/async-option/okOr.ts), [src/async-option/okOrElse.ts](./src/async-option/okOrElse.ts) |
 | `transpose` | Swap `AsyncOption<AsyncResult>` ↔ `AsyncResult<AsyncOption>`. | [src/async-option/transpose.ts](./src/async-option/transpose.ts) |
 | `contains` / `exists` / `isSome` / `isNone` | Predicate queries. | [src/async-option/contains.ts](./src/async-option/contains.ts), [src/async-option/exists.ts](./src/async-option/exists.ts), [src/async-option/isSome.ts](./src/async-option/isSome.ts), [src/async-option/isNone.ts](./src/async-option/isNone.ts) |
@@ -228,7 +228,7 @@ Curried data-last operators on `IOption<T>`. When imported via the main barrel, 
 | `okOr` / `okOrElse` | Option → Result. | [src/option/okOr.ts](./src/option/okOr.ts), [src/option/okOrElse.ts](./src/option/okOrElse.ts) |
 | `transpose` | Swap `IOption<IResultOfT>` ↔ `IResultOfT<IOption>`. | [src/option/transpose.ts](./src/option/transpose.ts) |
 | `all` | Combine Options (short-circuit on None). | [src/option/all.ts](./src/option/all.ts) |
-| `zipWith` | Combine two Options with a function. | [src/option/zipWith.ts](./src/option/zipWith.ts) |
+| `zipWith` | Combine N≥2 Options with a function (variadic, arity 2–10 explicit, >10 via mapped type). | [src/option/zipWith.ts](./src/option/zipWith.ts) |
 
 ### Reliability — `src/reliability/`
 
