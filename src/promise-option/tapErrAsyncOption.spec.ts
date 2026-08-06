@@ -3,50 +3,57 @@ import { ofSome, ofNone } from '../option/index.js';
 import { tapErrAsyncOption } from './tapErrAsyncOption.js';
 
 describe('promise-result tapErrAsyncOption', () => {
-    it('calls fn on None', async () => {
+    it('calls fnNone on None', async () => {
         const fn = vi.fn();
-        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
-        expect(fn).toHaveBeenCalled();
+        const fnNone = vi.fn();
+        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone()), fnNone);
+        expect(fn).not.toHaveBeenCalled();
+        expect(fnNone).toHaveBeenCalled();
         expect(r.isNone).toBe(true);
     });
 
-    it('does not call fn on Some', async () => {
+    it('calls fn on Some with the inner value', async () => {
         const fn = vi.fn();
         const r = await tapErrAsyncOption(fn, Promise.resolve(ofSome(42)));
-        expect(fn).not.toHaveBeenCalled();
+        expect(fn).toHaveBeenCalledWith(42);
         expect(r.isSome).toBe(true);
+    });
+
+    it('does not call fn on None', async () => {
+        const fn = vi.fn();
+        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isNone).toBe(true);
     });
 
     it('is curried', async () => {
         const fn = vi.fn();
-        await tapErrAsyncOption(fn)(Promise.resolve(ofNone()));
-        expect(fn).toHaveBeenCalled();
+        const fnNone = vi.fn();
+        const tapper = tapErrAsyncOption(fn, fnNone);
+        await tapper(Promise.resolve(ofNone()));
+        expect(fnNone).toHaveBeenCalled();
     });
 
-    it('passes undefined to the callback on None (H1 fix contract)', async () => {
-        // The callback's parameter is `T | undefined` because on the None
-        // path there's no payload — the runtime always passes `undefined`.
-        // This test pins the H1 (contract) fix committed earlier.
+    it('treats absent fnNone as no-op (callback not required)', async () => {
         const fn = vi.fn();
-        await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
-        expect(fn).toHaveBeenCalledWith(undefined);
+        const r = await tapErrAsyncOption(fn, Promise.resolve(ofNone()));
+        expect(fn).not.toHaveBeenCalled();
+        expect(r.isNone).toBe(true);
     });
 
-    it('does not catch sync throws from the callback (propagates verbatim)', async () => {
-        // tapErrAsyncOption intentionally does NOT wrap the await fn(...) in
-        // a try/catch. A sync throw from the side-effect propagates via the
-        // outer `.then`.
-        const fn = vi.fn(() => { throw new Error('side-effect-boom'); });
-        await expect(
-            tapErrAsyncOption(fn, Promise.resolve(ofNone())),
-        ).rejects.toThrow('side-effect-boom');
-    });
-
-    it('does not catch async rejection from the callback (propagates verbatim)', async () => {
+    it('does not catch async rejection from fn (propagates verbatim)', async () => {
         const fn = vi.fn(async () => { throw new Error('async-side-boom'); });
         await expect(
-            tapErrAsyncOption(fn, Promise.resolve(ofNone())),
+            tapErrAsyncOption(fn, Promise.resolve(ofSome(42))),
         ).rejects.toThrow('async-side-boom');
+    });
+
+    it('does not catch async rejection from fnNone (propagates verbatim)', async () => {
+        const fn = vi.fn();
+        const fnNone = vi.fn(async () => { throw new Error('async-none-boom'); });
+        await expect(
+            tapErrAsyncOption(fn, Promise.resolve(ofNone()), fnNone),
+        ).rejects.toThrow('async-none-boom');
     });
 
     it('propagates outer Promise rejection verbatim', async () => {
@@ -54,21 +61,20 @@ describe('promise-result tapErrAsyncOption', () => {
             setTimeout(() => reject(new Error('outer-reject')), 5);
         });
         const fn = vi.fn();
-        await expect(tapErrAsyncOption(fn, outer)).rejects.toThrow('outer-reject');
+        const fnNone = vi.fn();
+        await expect(tapErrAsyncOption(fn, outer, fnNone)).rejects.toThrow('outer-reject');
         expect(fn).not.toHaveBeenCalled();
+        expect(fnNone).not.toHaveBeenCalled();
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        const r = tapErrAsyncOption((v: number | undefined) => { void v; }, Promise.resolve(ofNone()));
+        const r = tapErrAsyncOption((v: number) => { void v; }, Promise.resolve(ofNone()));
         expect(r).toBeInstanceOf(Promise);
     });
 
     it('returns the original Option by reference on Some (no wrapping)', async () => {
-        // tapErrAsyncOption short-circuits on Some and returns the input
-        // Option directly — no wrapping occurs, so the runtime reference is
-        // identical to the input.
         const original = ofSome(42);
-        const r = await tapErrAsyncOption((v: number | undefined) => { void v; }, Promise.resolve(original));
+        const r = await tapErrAsyncOption((v: number) => { void v; }, Promise.resolve(original));
         expect(r).toBe(original);
         expect(r.isSome).toBe(true);
         if (r.isSome) expect(r.value).toBe(42);
