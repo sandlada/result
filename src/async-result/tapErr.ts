@@ -3,15 +3,23 @@
  * and passes the original result through unchanged.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
- * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
- * Pass `errorFn` to customise how the thrown value maps onto your error union.
+ * The callback may be sync or async — `fn` is awaited internally so async
+ * rejections surface before the original result is returned.
+ *
+ * **Throw policy**: If `fn` throws or rejects, the result converts to
+ * `err(caughtError)`. Pass `errorFn` to customise how the thrown value maps
+ * onto your error union.
  *
  * @example
  * ```ts
  * import { err } from '@sandlada/result';
  * import { fromResult, tapErr } from '@sandlada/result/async-result';
  *
+ * // Sync callback
  * const ar = tapErr((e: string) => console.log('err:', e), fromResult(err('oops')));
+ *
+ * // Async callback — also supported
+ * const ar2 = tapErr(async (e: string) => await persist(e), fromResult(err('oops')));
  * ```
  *
  * @note Ready for Product
@@ -21,16 +29,16 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
     errorFn?: (thrown: unknown) => unknown,
 ): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<T, E>;
 export function tapErr<T, E>(
-    fn: (error: E) => void,
+    fn: (error: E) => void | Promise<void>,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<T, E> | ((ar: AsyncResult<T, E>) => AsyncResult<T, E>) {
@@ -41,7 +49,7 @@ export function tapErr<T, E>(
                 const r = await ar.run();
                 if (!r.isSuccess) {
                     try {
-                        fn(r.error);
+                        await fn(r.error);
                     } catch (thrown: unknown) {
                         const innerError = eFn
                             ? eFn(thrown)
@@ -59,7 +67,7 @@ export function tapErr<T, E>(
             const r = await ar.run();
             if (!r.isSuccess) {
                 try {
-                    fn(r.error);
+                    await fn(r.error);
                 } catch (thrown: unknown) {
                     const innerError = errorFn
                         ? errorFn(thrown)
