@@ -7,22 +7,21 @@
  * cannot be mutated at runtime or via TypeScript.
  *
  * Generic over `T` so the result can be substituted into any `IOption<T>`
- * slot. `T` defaults to `never` because `None` carries no value, and `never`
- * is the bottom type assignable to any slot. **Important**: `never` is the
- * *default* inference, not a coercion — TypeScript does not auto-widen
- * `IOption<never>` to `IOption<X>`. Callers who need a specific `T` should
- * provide it explicitly (`ofNone<X>()`) or rely on contextual typing from
- * the surrounding declaration.
+ * slot. `T` defaults to `unknown` so a bare `ofNone()` slots into any
+ * `IOption<X>` declaration via contextual typing — letting the surrounding
+ * `const x: IOption<number> = ofNone()` flow without an explicit generic.
  *
  * @example
  * ```ts
- * import { ofNone, ofSome } from '@sandlada/result/option';
+ * import { ofNone } from '@sandlada/result/option';
  *
- * // Default inference — IOption<never> assignable to IOption<X> via explicit
- * // generic only. Without the generic, this errors:
- * const a: IOption<number> = ofNone<number>(); // Some(none) → fine
+ * // Contextual typing widens `unknown` to `number` here.
+ * const a: IOption<number> = ofNone();
  *
- * // Equivalent under the hood: every call returns the same frozen object.
+ * // Explicit generic still works when no contextual type is available.
+ * const b = ofNone<string>();
+ *
+ * // Every call returns the same frozen object.
  * const x = ofNone<number>();
  * const y = ofNone<string>();
  * x === y; // true
@@ -48,13 +47,12 @@ const NONE: IOptionNone = Object.freeze({
  * the type parameter `T`. The `T` parameter is purely a type-level slot
  * marker; the runtime payload carries no value.
  *
- * @typeParam T — The "would-be" value type. Defaults to `never` because
- *   `None` has no value, and `never` is the bottom type. When the inferred
- *   default (`IOption<never>`) doesn't match the surrounding slot, supply
- *   the type parameter explicitly (e.g. `ofNone<number>()`).
+ * @typeParam T — The "would-be" value type. Defaults to `unknown` so that
+ *   contextual typing (e.g. `const x: IOption<number> = ofNone()`) can flow
+ *   without an explicit generic argument.
  *
  * @note Ready for Product
  */
-export function ofNone<T = never>(): IOption<T> {
+export function ofNone<T = unknown>(): IOption<T> {
     return NONE as IOption<T>;
 }
