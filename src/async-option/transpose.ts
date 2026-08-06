@@ -32,10 +32,9 @@ export function transpose<T, E>(
         run: async (): Promise<IResultOfT<AsyncOption<T>, E>> => {
             const opt = await ao.run();
             if (!opt.isSome) {
-                // `syncOfNone()` returns `IOptionNone` (a unit literal with no
-                // payload). Cast through `unknown` rather than `never` so the
-                // type honesty is visible — same convention as ofNone.ts.
-                const noneAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfNone() as unknown as IOption<T>) };
+                // `syncOfNone<T>()` already returns the correctly-parameterized
+                // IOption<T> — no cast needed when the type argument is supplied.
+                const noneAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfNone<T>()) };
                 return { isSuccess: true as const, isFailure: false as const, value: noneAo };
             }
             const inner = await opt.value.run();
