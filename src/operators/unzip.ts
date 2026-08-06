@@ -9,7 +9,7 @@
  * unzip(ok([1, 'a'])); // [Ok(1), Ok('a')]
  * unzip(err('e')); // [Err('e'), Err('e')]
  * ```
-  *
+ *
  * @note Ready for Product
  */
 
@@ -20,10 +20,17 @@ export function unzip<A, B, E>(
     r: IResultOfT<readonly [A, B], E>,
 ): [IResultOfT<A, E>, IResultOfT<B, E>] {
     if (r.isSuccess) {
-        return [
-            ok(r.value[0]) as unknown as IResultOfT<A, E>,
-            ok(r.value[1]) as unknown as IResultOfT<B, E>,
-        ];
+        // Build per-slot carriers explicitly as IResultOfT<X, E> literals.
+        // The phantom `never` track on the value side is intentional — both
+        // slots come from one Ok(...) source, but the type system needs
+        // explicit construction to widen them to A and B.
+        const slotA: IResultOfT<A, E> = { isSuccess: true as const, isFailure: false as const, value: r.value[0] };
+        const slotB: IResultOfT<B, E> = { isSuccess: true as const, isFailure: false as const, value: r.value[1] };
+        return [slotA, slotB];
     }
-    return [r as unknown as IResultOfT<A, E>, r as unknown as IResultOfT<B, E>];
+    // On failure both slots carry the same error — project the original
+    // failure to each slot type. Structural narrowing on `r.isSuccess`
+    // justifies the cast; this preserves the by-reference identity the
+    // test suite asserts on.
+    return [r, r] as unknown as [IResultOfT<A, E>, IResultOfT<B, E>];
 }

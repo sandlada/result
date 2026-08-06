@@ -8,7 +8,7 @@
  * import { swap, ok } from '@sandlada/result';
  * swap(ok(42)); // Err(42)
  * ```
-  *
+ *
  * @note Ready for Product
  */
 
@@ -17,7 +17,12 @@ import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
 
 export function swap<A, E>(r: IResultOfT<A, E>): IResultOfT<E, A> {
-    if(r.isSuccess) return err(r.value) as unknown as IResultOfT<E, A>;
-    return ok(r.error) as unknown as IResultOfT<E, A>;
+    // Build the carrier explicitly without an `as unknown as` cast — the
+    // runtime narrowing on `r.isSuccess` / `r.isFailure` makes the source
+    // track (Ok|Err) a structural subset of the destination track after
+    // swap.
+    if (r.isSuccess) {
+        return { isSuccess: false as const, isFailure: true as const, error: r.value };
+    }
+    return { isSuccess: true as const, isFailure: false as const, value: r.error };
 }
-
