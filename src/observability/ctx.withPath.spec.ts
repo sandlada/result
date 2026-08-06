@@ -53,13 +53,13 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
         });
     });
 
-    it('tapErrContext invokes fn only on failure', () => {
+    it('tapErrContext invokes fn only on failure', async () => {
         const seen: Array<{ err: unknown; path: ReadonlyArray<string | number> }> = [];
-        inScope(() => {
-            // The callback is sync, so the return value is the sync branch —
-            // assert the non-Promise arm so isFailure/isSuccess are accessible.
-            const r1 = tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('boom')) as IResultOfT<never, string>;
-            const r2 = tapErrContext(() => { seen.push({ err: 'should not run', path: [] }); }, ok(42)) as IResultOfT<number, never>;
+        await inScope(async () => {
+            // After the L31 fix, tapErrContext always returns Promise<IResultOfT<T, E>> —
+            // the sync callback path is wrapped in Promise.resolve(r) for type-stability.
+            const r1 = await tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('boom'));
+            const r2 = await tapErrContext(() => { seen.push({ err: 'should not run', path: [] }); }, ok(42));
             expect(r1.isFailure).toBe(true);
             expect(r2.isSuccess).toBe(true);
         });
@@ -67,14 +67,14 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
         expect(seen[0]!.err).toBe('boom');
     });
 
-    it('tapErrContext sees the path breadcrumb', () => {
+    it('tapErrContext sees the path breadcrumb', async () => {
         const seen: Array<{ err: unknown; path: ReadonlyArray<string | number> }> = [];
-        inScope(() => {
+        await inScope(async () => {
             withPath('outer');
             withPath('inner');
             const captured = getPath();
             expect(captured).toEqual(['outer', 'inner']);
-            tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('oh'));
+            await tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('oh'));
         });
         expect(seen).toEqual([{ err: 'oh', path: ['outer', 'inner'] }]);
     });
