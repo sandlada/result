@@ -23,8 +23,8 @@
 import type { IOption } from '../types/Option.js';
 
 export interface Partitioned<T> {
-    readonly some: T[];
-    readonly noneIndices: number[];
+    readonly some: readonly T[];
+    readonly noneIndices: readonly number[];
 }
 
 /**
@@ -40,5 +40,7 @@ export function partitionOption<T>(opts: readonly IOption<T>[]): Partitioned<T> 
         if (o.isSome) some.push(o.value);
         else noneIndices.push(i);
     }
-    return { some, noneIndices };
+    // Cast at the boundary — the Partitioned contract surfaces the values as
+    // readonly, matching the rest of the library's combinator types.
+    return { some: some as readonly T[], noneIndices: noneIndices as readonly number[] };
 }
