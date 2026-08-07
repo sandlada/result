@@ -57,5 +57,27 @@ describe('map', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('string-throw');
     });
+
+    it('uses errorFn to map thrown errors in direct call', () => {
+        const throwing = () => { throw new Error('boom'); };
+        const result = map(
+            throwing,
+            ok(5),
+            (thrown) => `mapped: ${(thrown as Error).message}`
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('mapped: boom');
+    });
+
+    it('uses errorFn to map thrown errors in curried call', () => {
+        const throwing = () => { throw new Error('boom'); };
+        const mappedFn = map(
+            throwing,
+            (thrown) => `mapped: ${(thrown as Error).message}`
+        );
+        const result = mappedFn(ok(5));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('mapped: boom');
+    });
 });
 

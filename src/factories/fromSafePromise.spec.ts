@@ -94,6 +94,28 @@ describe('fromSafePromise', () => {
         }
     });
 
+    it('uses the provided errorFn to map a rejection', async () => {
+        class CustomError extends Error {
+            public readonly code = 'CUSTOM_ERROR';
+            constructor(public readonly original: unknown) {
+                super('Custom error message');
+            }
+        }
+
+        const r = await fromSafePromise(
+            Promise.reject('raw error'),
+            (e) => new CustomError(e)
+        );
+
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error).toBeInstanceOf(CustomError);
+            expect((r.error as CustomError).original).toBe('raw error');
+            expect((r.error as CustomError).code).toBe('CUSTOM_ERROR');
+            expect((r.error as CustomError).message).toBe('Custom error message');
+        }
+    });
+
     // ─── Behavioural edges ─────────────────────────────────────────────────
 
     it('preserves falsy resolved values (0, false, empty string, null)', async () => {
