@@ -38,8 +38,8 @@ import { asyncOk } from '../factories/asyncOk.js';
 export async function* safeTryAsync<T, E>(
     result: AsyncResult<T, E> | Promise<IResultOfT<T, E>>,
 ): AsyncGenerator<IResultOfT<never, E>, T | undefined, unknown> {
-    const isAsyncResult = (res: any): res is AsyncResult<T, E> =>
-        res !== null && typeof res === 'object' && 'run' in res && typeof res.run === 'function';
+    const isAsyncResult = (res: unknown): res is AsyncResult<T, E> =>
+        res !== null && typeof res === 'object' && 'run' in res && typeof (res as Record<'run', unknown>).run === 'function';
 
     const r = isAsyncResult(result) ? await result.run() : await result;
     if (r.isSuccess) return r.value;
