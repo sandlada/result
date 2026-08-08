@@ -19,6 +19,14 @@
  * );
  * await p(30); // Ok(60)
  * ```
+ *
+ * @throws {TypeError} If called with zero functions.
+ * @throws {unknown} If any composed step throws synchronously or rejects
+ *                   asynchronously, the thrown/rejected value is captured
+ *                   into the returned failure's `error` field — but its
+ *                   static type widens to `unknown`, not the declared `E`.
+ *                   Use `tryCatchAsync(..., errorFn)` per step if you need
+ *                   typed errors.
   *
  * @note Ready for Product
  */
@@ -82,6 +90,13 @@ export function composeKAsync(
     // value through the pre-built pipeline instead of re-walking it. Each step
     // wraps its awaited result in `Promise.resolve` so `bindAsync`'s signature
     // (`Promise<IResultOfT>`) is honored even when an upstream fn is sync.
+    //
+    // A sync throw from any step (including reduce-intermediate steps, not
+    // just `head`) is caught by the outer try/catch and converted to a
+    // failure result with `error: unknown`. This is the documented G1 type
+    // lie — the declared error type `E` does not reflect the actual runtime
+    // error type when a step throws synchronously. Wrap throwing steps in
+    // `tryCatchAsync(..., errorFn)` if you need typed errors.
     const [head, ...rest] = fns;
     const composed = rest.reduce(
         (acc, fn) => async (a: unknown) => bindAsync(fn, Promise.resolve(await acc(a))),

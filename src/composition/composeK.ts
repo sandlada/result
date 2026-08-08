@@ -29,6 +29,12 @@
  * );
  * p(30); // Ok(60)
  * ```
+ *
+ * @throws {TypeError} If called with zero functions.
+ * @throws {unknown} If any composed step throws synchronously, the thrown value
+ *                   is captured into the returned failure's `error` field — but
+ *                   its static type widens to `unknown`, not the declared `E`.
+ *                   Use `tryCatch(..., errorFn)` per step if you need typed errors.
   *
  * @note Ready for Product
  */

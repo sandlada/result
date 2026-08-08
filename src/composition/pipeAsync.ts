@@ -48,6 +48,23 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
     fn9: (i: I) => J, fn10: (j: J) => K,
 ): Promise<K>;
 export async function pipeAsync(value: unknown, ...fns: Array<(arg: unknown) => unknown>): Promise<unknown> {
+    // This implementation intentionally does NOT auto-unwrap thenables
+    // between steps. Each step receives the previous step's raw output
+    // (which may be a Promise). This matches the documented contract:
+    // - curried operators like `mapAsync(f)` and `bindAsync(f)` expect a
+    //   Promise input and handle awaiting internally;
+    // - raw async functions in the chain expect the caller to manage await;
+    // - mixed sync/async chains pass Promises as values to the next step.
+    //
+    // Auto-unwrapping was considered but rejected because it breaks
+    // legitimate usage with curried `mapAsync`/`bindAsync` operators (see
+    // pipeAsync.spec.ts "threads AsyncResult carriers through the chain in
+    // order"). Auto-unwrap would resolve the Promise before passing it to
+    // the next curried operator, which then receives an IResultOfT instead
+    // of a Promise<IResultOfT> and fails with "r.then is not a function".
+    //
+    // Consumers who need auto-unwrap can wrap with their own helper:
+    //     const awaitPipe = (...args) => pipeAsync(...args).then(v => v);
     let acc = value;
     for (let i = 0; i < fns.length; i++) {
         acc = fns[i]!(acc);

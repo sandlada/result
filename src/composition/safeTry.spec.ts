@@ -212,4 +212,47 @@ describe('safeTry / fromSafeTry', () => {
             /yielded more than once/,
         );
     });
+
+    // ─── Cleanup error isolation ──────────────────────────────────────────
+
+    it('preserves original failure when user finally throws during cleanup', () => {
+        // User-defined `finally` block throwing during cleanup must NOT shadow
+        // the primary failure yielded via safeTry.
+        const gen = function* () {
+            try {
+                yield* safeTry(err<string>('primary-failure'));
+                return 'unreachable';
+            } finally {
+                throw new Error('cleanup-error-should-be-swallowed');
+            }
+        };
+        const r = fromSafeTry(gen);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('primary-failure');
+    });
+
+    it('propagates cleanup errors that fire AFTER the body returns', () => {
+        // Variant: success path body returns, finally throws — the cleanup
+        // error propagates because there is no primary failure to preserve.
+        const gen = function* () {
+            try {
+                return 42;
+            } finally {
+                throw new Error('cleanup-throws-after-return');
+            }
+        };
+        expect(() => fromSafeTry(gen)).toThrow('cleanup-throws-after-return');
+    });
+
+    // ─── Undefined success sentinel ───────────────────────────────────────
+
+    it('error message guides users toward ok(undefined) for legitimate undefined success', () => {
+        const gen = function* () {
+            return undefined;
+        };
+        expect(() => fromSafeTry(gen)).toThrow(
+            /If you intended undefined as a legitimate success value/,
+        );
+        expect(() => fromSafeTry(gen)).toThrow(/wrap it explicitly/);
+    });
 });

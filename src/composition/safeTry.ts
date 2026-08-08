@@ -75,14 +75,35 @@ export function fromSafeTry<T, E>(
         const first = iterator.next();
         if (first.done) {
             // Success path: generator returned without yielding.
+            // `undefined` cannot be a legitimate success value because
+            // the success-path return type is `T`, not `T | undefined`. The
+            // sentinel collision is unavoidable; the error message guides users
+            // toward `ok(undefined)` if they need to return undefined as a value.
             if (first.value === undefined) {
-                throw new Error('safeTry: generator returned undefined without yielding — did you forget to yield a failure?');
+                throw new Error(
+                    'safeTry: generator returned undefined without yielding. ' +
+                    'If you intended undefined as a legitimate success value, ' +
+                    'wrap it explicitly: `return ok(undefined);`. ' +
+                    'Otherwise, your generator likely forgot to `return` a value ' +
+                    'or to `yield* safeTry(...)` a failure.',
+                );
             }
             return ok(first.value) as unknown as IResultOfT<T, E>;
         }
         // A failure was yielded via safeTry. Ensure the generator is closed.
+        // Swallow cleanup errors so they do not shadow the original failure:
+        // a user-defined `finally` block that throws during cleanup is a
+        // secondary concern; the primary failure (yielded via safeTry) must
+        // reach the caller. The outer catch below would re-attempt closure
+        // (idempotent for standard generators) and re-throw the original
+        // error, but inlining the swallow here keeps the failure path linear
+        // and avoids a redundant second `iterator.return` call.
         if (typeof iterator.return === 'function') {
-            iterator.return(undefined!);
+            try {
+                iterator.return(undefined!);
+            } catch {
+                /* swallow cleanup errors — primary failure takes precedence */
+            }
         }
         // Verify the generator doesn't yield again — safeTry should yield at most once.
         const check = iterator.next();

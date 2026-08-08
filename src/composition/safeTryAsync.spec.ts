@@ -99,7 +99,7 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         await expect(fromSafeTryAsync(async function* () {
             yield* safeTryAsync(asyncOk(1));
             return undefined;
-        } as never).run()).rejects.toThrow('safeTryAsync: generator returned undefined without yielding — did you forget to yield a failure?');
+        } as never).run()).rejects.toThrow(/safeTryAsync: generator returned undefined without yielding\./);
     });
 
     it('throws when an iterator yields more than once', async () => {
@@ -204,6 +204,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     });
 
     it('identifies non-AsyncResult completely normal objects correctly but failed at runtime with non-result shape', async () => {
+        // Malformed resolved values now throw a TypeError instead of silently
+        // yielding a shape-invalid failure result.
         const fakePromise = Promise.resolve({}) as any;
 
         const result = fromSafeTryAsync(async function* () {
@@ -211,11 +213,13 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             return a ?? 0;
         });
 
-        const r = await result.run();
-        expect(r.isSuccess).toBe(undefined);
+        await expect(result.run()).rejects.toThrow(
+            /safeTryAsync: resolved value is not a valid IResultOfT/,
+        );
     });
 
     it('identifies bare objects with run property not matching function completely normal objects correctly but failed at runtime with non-result shape', async () => {
+        // Non-IResultOfT shapes are rejected with an explicit error.
         const fakePromise = Promise.resolve({}) as any;
         fakePromise.run = 123;
 
@@ -224,29 +228,34 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             return a ?? 0;
         });
 
-        const r = await result.run();
-        expect(r.isSuccess).toBe(undefined);
+        await expect(result.run()).rejects.toThrow(
+            /safeTryAsync: resolved value is not a valid IResultOfT/,
+        );
     });
 
     it('identifies bare objects with run property strictly returning a bare promise without isSuccess', async () => {
+        // `{ value: 'hello' }` is missing isSuccess — rejected.
         const fakePromise = Promise.resolve({ value: 'hello' }) as any;
         const result = fromSafeTryAsync(async function* () {
             const a: string | undefined = yield* safeTryAsync(fakePromise);
             return a ?? '';
         });
 
-        const r = await result.run();
-        expect(r.isSuccess).toBe(undefined);
+        await expect(result.run()).rejects.toThrow(
+            /safeTryAsync: resolved value is not a valid IResultOfT/,
+        );
     });
 
     it('identifies bare promise missing isSuccess', async () => {
+        // `Promise.resolve({})` is missing isSuccess — rejected.
         const fakePromise = Promise.resolve({}) as any;
         const result = fromSafeTryAsync(async function* () {
             const a: string | undefined = yield* safeTryAsync(fakePromise);
             return a ?? '';
         });
-        const r = await result.run();
-        expect(r.isSuccess).toBe(undefined);
+        await expect(result.run()).rejects.toThrow(
+            /safeTryAsync: resolved value is not a valid IResultOfT/,
+        );
     });
 
     it('handles falsy result inputs gracefully', async () => {
@@ -302,6 +311,9 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     });
 
     it('identifies result successfully with falsy type mapping gracefully (checking condition on isAsyncResult)', async () => {
+        // `{ run: 123 }` is not AsyncResult (run is not a function), and
+        // `await 123` resolves to `123` which is not an object with isSuccess.
+        // Should throw.
         // Line 34 uncovered branch
         const fakePromise = { run: 123 } as any;
         const result = fromSafeTryAsync(async function* () {
@@ -309,8 +321,9 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             return a ?? 0;
         });
 
-        const r = await result.run();
-        expect(r.isSuccess).toBe(undefined);
+        await expect(result.run()).rejects.toThrow(
+            /safeTryAsync: resolved value is not a valid IResultOfT/,
+        );
     });
 
     it('preserves falsy success values (0, false, "")', async () => {
@@ -355,5 +368,48 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         const res = await r.run();
         expect(res.isSuccess).toBe(true);
         if (res.isSuccess) expect(res.value).toBe(7);
+    });
+
+    // ─── Cleanup error isolation ──────────────────────────────────────────
+
+    it('preserves original failure when user finally throws during cleanup', async () => {
+        const gen = async function* () {
+            try {
+                yield* safeTryAsync(asyncErr<string>('primary-failure'));
+                return 'unreachable';
+            } finally {
+                throw new Error('cleanup-error-should-be-swallowed');
+            }
+        };
+        const r = await fromSafeTryAsync(gen).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('primary-failure');
+    });
+
+    // ─── AsyncResult discriminator ────────────────────────────────────────
+
+    it('rejects Promise with a `.run` property (not AsyncResult)', async () => {
+        // A Promise-like object with `.run` attached must NOT be misclassified
+        // as AsyncResult. The discriminator excludes thenables.
+        const fakePromise = Promise.resolve(ok(99)) as { run?: unknown; then: unknown };
+        (fakePromise as { run: unknown }).run = async () => ok(123);
+        const r = await fromSafeTryAsync(async function* () {
+            const a: number | undefined = yield* safeTryAsync(fakePromise as never);
+            return a ?? 0;
+        }).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toBe(99);  // Promise's resolved value, not run()'s
+    });
+
+    // ─── Shape validation ─────────────────────────────────────────────────
+
+    it('rejects Promise<{ value: x }> (missing isSuccess) with explicit error', async () => {
+        const fakePromise = Promise.resolve({ value: 'hello' }) as any;
+        await expect(
+            fromSafeTryAsync(async function* () {
+                const a: string | undefined = yield* safeTryAsync(fakePromise);
+                return a ?? '';
+            }).run(),
+        ).rejects.toThrow(/not a valid IResultOfT/);
     });
 });
