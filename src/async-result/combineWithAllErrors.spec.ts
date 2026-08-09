@@ -9,7 +9,7 @@ describe('AsyncResult combineWithAllErrors', () => {
         const ar = combineWithAllErrors([fromResult(ok(1)), fromResult(ok(2)), fromResult(ok(3))]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(true);
-        if(result.isSuccess) expect(result.value).toEqual([1, 2, 3]);
+        if (result.isSuccess) expect(result.value).toEqual([1, 2, 3]);
     });
 
     it('collects all errors when some fail (no short-circuit)', async () => {
@@ -21,7 +21,7 @@ describe('AsyncResult combineWithAllErrors', () => {
         ]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
-        if(!result.isSuccess) {
+        if (!result.isSuccess) {
             expect(result.error).toHaveLength(2);
             expect(result.error).toEqual(['fail-a', 'fail-b']);
         }
@@ -36,7 +36,7 @@ describe('AsyncResult combineWithAllErrors', () => {
         ]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
-        if(!result.isSuccess) {
+        if (!result.isSuccess) {
             expect(result.error).toHaveLength(2);
             expect(result.error).toEqual([e1, e2]);
         }
@@ -46,7 +46,7 @@ describe('AsyncResult combineWithAllErrors', () => {
         const ar = combineWithAllErrors([]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(true);
-        if(result.isSuccess) expect(result.value).toEqual([]);
+        if (result.isSuccess) expect(result.value).toEqual([]);
     });
 
     it('is lazy — does not execute until .run() is called', () => {
@@ -67,44 +67,45 @@ describe('AsyncResult combineWithAllErrors', () => {
         ]);
         const result = await ar.run();
         expect(result.isSuccess).toBe(false);
-        if(!result.isSuccess) {
+        if (!result.isSuccess) {
             expect(result.error).toHaveLength(2);
             expect(result.error[0]!.field).toBe('name');
             expect(result.error[1]!.field).toBe('email');
         }
     });
 
-    // ── Lazy execution (brief Step 8.1) ────────────────────────────────────
-    it('does not invoke any source.run() on construction', () => {
-        let calls = 0;
-        const items = [
-            { run: () => { calls++; return Promise.resolve(ok(1)); } },
-            { run: () => { calls++; return Promise.resolve(err(2)); } },
-            { run: () => { calls++; return Promise.resolve(ok(3)); } },
-        ];
-        combineWithAllErrors(items);
-        expect(calls).toBe(0);
-    });
+    describe('Lazy execution', () => {
+        it('does not invoke any source.run() on construction', () => {
+            let calls = 0;
+            const items = [
+                { run: () => { calls++; return Promise.resolve(ok(1)); } },
+                { run: () => { calls++; return Promise.resolve(err(2)); } },
+                { run: () => { calls++; return Promise.resolve(ok(3)); } },
+            ];
+            combineWithAllErrors(items);
+            expect(calls).toBe(0);
+        });
 
-    it('aggregates only the failures (successes do not leak into errors)', async () => {
-        const ar = combineWithAllErrors([
-            fromResult(ok('a')),
-            fromResult(ok('b')),
-            fromResult(err('e1')),
-            fromResult(ok('c')),
-            fromResult(err('e2')),
-        ]);
-        const result = await ar.run();
-        if (result.isFailure) expect(result.error).toEqual(['e1', 'e2']);
-    });
+        it('aggregates only the failures (successes do not leak into errors)', async () => {
+            const ar = combineWithAllErrors([
+                fromResult(ok('a')),
+                fromResult(ok('b')),
+                fromResult(err('e1')),
+                fromResult(ok('c')),
+                fromResult(err('e2')),
+            ]);
+            const result = await ar.run();
+            if (result.isFailure) expect(result.error).toEqual(['e1', 'e2']);
+        });
 
-    it('returns a single-element error array for a single failure', async () => {
-        const ar = combineWithAllErrors([
-            fromResult(ok(1)),
-            fromResult(err('only')),
-            fromResult(ok(3)),
-        ]);
-        const result = await ar.run();
-        if (result.isFailure) expect(result.error).toEqual(['only']);
+        it('returns a single-element error array for a single failure', async () => {
+            const ar = combineWithAllErrors([
+                fromResult(ok(1)),
+                fromResult(err('only')),
+                fromResult(ok(3)),
+            ]);
+            const result = await ar.run();
+            if (result.isFailure) expect(result.error).toEqual(['only']);
+        });
     });
 });

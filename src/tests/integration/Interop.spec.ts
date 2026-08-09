@@ -6,8 +6,6 @@ import { composeK, pipe, pipeAsync } from '../../composition/index.js';
 import { combine } from '../../combine/index.js';
 import { mapAsync, bindAsync, matchAsync } from '../../promise-result/index.js';
 
-// ── Sync FP deep interop ─────────────────────────────────────────────
-
 describe('sync FP interop', () => {
     it('full FP pipe with ok entry', () => {
         const result = pipe(
@@ -80,8 +78,6 @@ describe('sync FP interop', () => {
     });
 });
 
-// ── Async FP deep interop ─────────────────────────────────────────────
-
 describe('async FP interop', () => {
     it('tryCatchAsync → FP mapAsync → bindAsync → matchAsync', async () => {
         const ar = tryCatchAsync(async () => 21);
@@ -138,8 +134,6 @@ describe('async FP interop', () => {
         expect(result).toBe(21);
     });
 });
-
-// ── Sync / Async cross-boundary ──────────────────────────────────────
 
 describe('sync ↔ async cross-boundary', () => {
     it('sync tryCatch → async pipeline', async () => {
@@ -209,8 +203,6 @@ describe('sync ↔ async cross-boundary', () => {
         if (result.isSuccess) expect(result.value).toBe(21);
     });
 });
-
-// ── Edge conditions ────────────────────────────────────────────────────
 
 describe('edge conditions', () => {
     it('ok(undefined) vs ok() in FP pipe', () => {

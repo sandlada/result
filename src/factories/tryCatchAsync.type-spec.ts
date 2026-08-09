@@ -30,7 +30,7 @@ describe('tryCatchAsync types', () => {
         expectTypeOf(p).toExtend<Promise<IResultOfT<unknown, AppError>>>();
     });
 
-    // ─── Default-error and mapper contract ─────────────────────────────────
+// Default-error and mapper contract
 
     it('default E is `unknown` when errorFn is omitted', () => {
         const p = tryCatchAsync(async () => 1);

@@ -4,7 +4,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('condErr types', () => {
     it('returns the inverse value-aware IResultOfT<T, E>', () => {
-        // CONTRACT GAP (pinned): the Task 14 brief describes `condErr` as the
+        // KNOWN GAP: the original design brief described `condErr` as the
         // inverse of an undefined-valued `cond`, but the public signature and
         // implementation return `IResultOfT<T, E>` and preserve `okValue` on success.
         // Pinned rather than "fixed" because changing this would break the public API.

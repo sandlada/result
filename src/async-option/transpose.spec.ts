@@ -31,20 +31,21 @@ describe('AsyncOption transpose', () => {
         }
     });
 
-    // ── Direction (brief Step 9.1) ───────────────────────────────────────────
-    // transpose swaps AsyncOption<AsyncResult<T, E>> into AsyncResult<AsyncOption<T>, E>.
-    // The inner Some value must be wrapped in a fresh AsyncOption thunk so that
-    // it is lazy: `.run()` yields the lifted value as Some, not the value itself.
-    it('wraps the inner Some(v) in a fresh AsyncOption thunk (lazy)', async () => {
-        const r = await transpose(ofSome(fromResult(ok(42)))).run();
-        expect(r.isSuccess).toBe(true);
-        if (r.isSuccess) {
-            // The AsyncOption<T> must be a { run(): Promise<IOption<T>> } carrier.
-            expect(typeof r.value.run).toBe('function');
-            const inner = await r.value.run();
-            expect(inner.isSome).toBe(true);
-            if (inner.isSome) expect(inner.value).toBe(42);
-        }
+    describe('Direction', () => {
+        // transpose swaps AsyncOption<AsyncResult<T, E>> into AsyncResult<AsyncOption<T>, E>.
+        // The inner Some value must be wrapped in a fresh AsyncOption thunk so that
+        // it is lazy: `.run()` yields the lifted value as Some, not the value itself.
+        it('wraps the inner Some(v) in a fresh AsyncOption thunk (lazy)', async () => {
+            const r = await transpose(ofSome(fromResult(ok(42)))).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) {
+                // The AsyncOption<T> must be a { run(): Promise<IOption<T>> } carrier.
+                expect(typeof r.value.run).toBe('function');
+                const inner = await r.value.run();
+                expect(inner.isSome).toBe(true);
+                if (inner.isSome) expect(inner.value).toBe(42);
+            }
+        });
     });
 
     it('wraps the inner Ok(Some(v)) branch correctly: outer.value is AsyncOption<inner-AO>', async () => {

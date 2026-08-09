@@ -40,7 +40,7 @@ describe('reduce', () => {
         if (r.isSuccess) expect(r.value).toBe(10);
     });
 
-    it('passes zero-based index to the reducer (Step 14.2 — index contract)', () => {
+    it('passes zero-based index to the reducer (index contract)', () => {
         const seen: number[] = [];
         const r = reduce(
             (_acc: number, _n: number, i: number) => {
@@ -54,7 +54,7 @@ describe('reduce', () => {
         expect(seen).toEqual([0, 1, 2, 3]);
     });
 
-    it('does not invoke the reducer when a source failure is at index 0 (Step 14.2 — short-circuit before reducer)', () => {
+    it('does not invoke the reducer when a source failure is at index 0 (short-circuit before reducer)', () => {
         let reducerCalls = 0;
         const r = reduce(
             (_a: number, _n: number) => {
@@ -68,7 +68,7 @@ describe('reduce', () => {
         expect(reducerCalls).toBe(0);
     });
 
-    it('does not invoke the reducer after the reducer itself returns Err (Step 14.2 — short-circuit on reducer Err)', () => {
+    it('does not invoke the reducer after the reducer itself returns Err (short-circuit on reducer Err)', () => {
         let calls = 0;
         const r = reduce(
             (_acc: number, n: number) => {
@@ -86,7 +86,7 @@ describe('reduce', () => {
         if (r.isFailure) expect(r.error).toBe('zero not allowed');
     });
 
-    it('accumulates correctly with non-numeric Acc (Step 14.2 — Acc type flexibility)', () => {
+    it('accumulates correctly with non-numeric Acc (Acc type flexibility)', () => {
         const r = reduce<string, never, number>(
             (acc, s) => ok(acc + s.length),
             0,
@@ -96,14 +96,14 @@ describe('reduce', () => {
         if (r.isSuccess) expect(r.value).toBe(2 + 5 + 2);
     });
 
-    it('accepts a readonly array input (Step 14.2 — readonly contract)', () => {
+    it('accepts a readonly array input (readonly contract)', () => {
         const input: readonly IResultOfT<number, never>[] = [ok(1), ok(2), ok(3)];
         const r = reduce((acc: number, n: number) => ok(acc + n), 0, input);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(6);
     });
 
-    it('source failure short-circuit preserves source error identity (Step 14.2 — error channel)', () => {
+    it('source failure short-circuit preserves source error identity (error channel)', () => {
         const sentinel = { code: 'E_BAD' };
         const r = reduce(
             (acc: number, _n: number) => ok(acc + 1),
@@ -114,7 +114,7 @@ describe('reduce', () => {
         if (r.isFailure) expect(r.error).toBe(sentinel);
     });
 
-    it('returns Ok(initial) on empty input — initial value is returned verbatim (Step 14.2 — empty boundary)', () => {
+    it('returns Ok(initial) on empty input — initial value is returned verbatim (empty boundary)', () => {
         const sentinel = { count: 0, name: 'init' };
         const r = reduce(
             (acc: typeof sentinel, _n: number) => ok(acc),

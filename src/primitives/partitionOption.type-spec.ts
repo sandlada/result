@@ -22,21 +22,21 @@ describe('partitionOption types', () => {
         expectTypeOf(p.noneIndices).toEqualTypeOf<number[]>();
     });
 
-    it('preserves structural T across mixed payloads (Step 14.2 — value channel)', () => {
+    it('preserves structural T across mixed payloads (value channel)', () => {
         interface Item { id: number; label: string }
         const r = partitionOption([ofSome({ id: 1, label: 'a' } satisfies Item), ofNone()]);
         const _check: Partitioned<Item> = r;
         expectTypeOf(_check).toBeObject();
     });
 
-    it('noneIndices is always number[] regardless of T (Step 14.2 — index type)', () => {
+    it('noneIndices is always number[] regardless of T (index type)', () => {
         const r = partitionOption([ofSome('x')]);
         if (true) {
             expectTypeOf(r.noneIndices).toEqualTypeOf<number[]>();
         }
     });
 
-    it('some on Partitioned<T> carries exactly T[] (Step 14.2 — value array type)', () => {
+    it('some on Partitioned<T> carries exactly T[] (value array type)', () => {
         const r = partitionOption([ofSome(7 as number)]);
         if (true) {
             expectTypeOf(r.some).toEqualTypeOf<number[]>();
@@ -50,7 +50,7 @@ describe('partitionOption types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('preserves inferred T even when None elements outnumber Some (Step 14.2 — T cardinality)', () => {
+    it('preserves inferred T even when None elements outnumber Some (T cardinality)', () => {
         const r = partitionOption([ofNone(), ofNone(), ofSome(1)]);
         const _check: Partitioned<number> = r;
         expectTypeOf(_check.some).toEqualTypeOf<number[]>();

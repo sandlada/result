@@ -33,7 +33,7 @@ describe('unwrapOr types', () => {
         expectTypeOf(r).toEqualTypeOf<number>();
     });
 
-    // ── Curried form: type flows through deferred <T> ─────────────────────
+// Curried form: type flows through deferred <T>
 
     it('curried form: default 0 produces a function whose return narrows T by call site', () => {
         const fn = unwrapOr(0);
@@ -65,7 +65,7 @@ describe('unwrapOr types', () => {
         expectTypeOf(r).toEqualTypeOf<'default'>();
     });
 
-    // ── Cross-shape default type contract (regression for the bug). ─────────
+// Cross-shape default type contract (regression for the bug).
 
     it('null default permitted for a non-null option type (curried)', () => {
         const userOpt: IOption<User> = ofSome({ name: 'Alice' });

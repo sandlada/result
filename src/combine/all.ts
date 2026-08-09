@@ -16,9 +16,9 @@
  * `combine/all` accepts an empty tuple (`readonly IResultOfT<unknown, unknown>[]`)
  * and returns `Ok([])`. The sibling `option/all` deliberately keeps the stricter
  * `readonly [IOption<unknown>, ...IOption<unknown>[]]` constraint and REJECTS
- * the empty tuple. The Task 5 fix relaxed the `combine/all` constraint so that
+ * the empty tuple. The `combine/all` constraint was relaxed so that
  * `all([])` typechecks; the `option/all` constraint is left as-is because its
- * Task 4 tests pin that exact contract. See `combine/all.type-spec.ts` for the
+ * tests pin the stricter contract. See `combine/all.type-spec.ts` for the
  * regression test.
  */
 

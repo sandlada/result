@@ -21,7 +21,7 @@ describe('cond', () => {
         if (r.isSuccess) expect(r.value).toBe(original);
     });
 
-    it('predicate is invoked exactly once with the value (Step 14.2 — call-by-value contract)', () => {
+    it('predicate is invoked exactly once with the value (call-by-value contract)', () => {
         let calls = 0;
         const r = cond(
             (n: number) => {
@@ -35,19 +35,19 @@ describe('cond', () => {
         expect(r.isSuccess).toBe(true);
     });
 
-    it('preserves reference identity for object values on success (Step 14.2 — value pass-through)', () => {
+    it('preserves reference identity for object values on success (value pass-through)', () => {
         const original = { id: 7 };
         const r = cond((v: typeof original) => v.id === 7, 'bad', original);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(original);
     });
 
-    it('accepts undefined as a value argument when T includes undefined (Step 14.2 — value channel)', () => {
+    it('accepts undefined as a value argument when T includes undefined (value channel)', () => {
         const r = cond((v: undefined) => v === undefined, 'fail', undefined);
         expect(r.isSuccess).toBe(true);
     });
 
-    it('does not evaluate predicate when the function is not called (Step 14.2 — laziness)', () => {
+    it('does not evaluate predicate when the function is not called (laziness)', () => {
         // Side-effecting predicate is observable only when cond runs.
         let side = 0;
         const r = cond(
@@ -62,7 +62,7 @@ describe('cond', () => {
         expect(r.isSuccess).toBe(true);
     });
 
-    it('object-shaped error is preserved verbatim on the failure branch (Step 14.2 — error channel)', () => {
+    it('object-shaped error is preserved verbatim on the failure branch (error channel)', () => {
         const errObj = { code: 'E_BAD', meta: { id: 7 } };
         const r = cond((n: number) => n > 0, errObj, -1);
         expect(r.isFailure).toBe(true);
@@ -72,7 +72,7 @@ describe('cond', () => {
         }
     });
 
-    it('does not mutate the value argument (Step 14.2 — purity)', () => {
+    it('does not mutate the value argument (purity)', () => {
         const sentinel = { count: 0 };
         cond((v: typeof sentinel) => v.count < 0, 'bad', sentinel);
         expect(sentinel).toEqual({ count: 0 });

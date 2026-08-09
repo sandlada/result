@@ -30,25 +30,25 @@ describe('partitionOption', () => {
         expect(b.noneIndices).toEqual([0, 1]);
     });
 
-    it('None at index 0 captures zero (Step 14.2 — boundary)', () => {
+    it('None at index 0 captures zero (boundary)', () => {
         const r = partitionOption([ofNone(), ofSome(1)]);
         expect(r.some).toEqual([1]);
         expect(r.noneIndices).toEqual([0]);
     });
 
-    it('Some only — noneIndices is empty (Step 14.2 — boundary)', () => {
+    it('Some only — noneIndices is empty (boundary)', () => {
         const r = partitionOption([ofSome(1), ofSome(2), ofSome(3)]);
         expect(r.some).toEqual([1, 2, 3]);
         expect(r.noneIndices).toEqual([]);
     });
 
-    it('None only — some is empty (Step 14.2 — boundary)', () => {
+    it('None only — some is empty (boundary)', () => {
         const r = partitionOption([ofNone(), ofNone(), ofNone()]);
         expect(r.some).toEqual([]);
         expect(r.noneIndices).toEqual([0, 1, 2]);
     });
 
-    it('preserves Some value order (Step 14.2 — value order)', () => {
+    it('preserves Some value order (value order)', () => {
         const r = partitionOption([
             ofSome(3),
             ofNone(),
@@ -61,7 +61,7 @@ describe('partitionOption', () => {
         expect(r.noneIndices).toEqual([1, 3]);
     });
 
-    it('noneIndices follow original index order (Step 14.2 — index order)', () => {
+    it('noneIndices follow original index order (index order)', () => {
         const r = partitionOption([
             ofSome(0),
             ofNone(),
@@ -72,7 +72,7 @@ describe('partitionOption', () => {
         expect(r.noneIndices).toEqual([1, 2, 4]);
     });
 
-    it('preserves Some reference identity (Step 14.2 — value channel)', () => {
+    it('preserves Some reference identity (value channel)', () => {
         const obj1 = { id: 1 };
         const obj2 = { id: 2 };
         const r = partitionOption([ofSome(obj1), ofNone(), ofSome(obj2)]);
@@ -81,12 +81,12 @@ describe('partitionOption', () => {
         expect(r.some[1]).toBe(obj2);
     });
 
-    it('returns plain object shape with two keys (Step 14.2 — shape contract)', () => {
+    it('returns plain object shape with two keys (shape contract)', () => {
         const r = partitionOption([ofSome(1)]);
         expect(Object.keys(r).sort()).toEqual(['noneIndices', 'some']);
     });
 
-    it('single-element mixed partition (Step 14.2 — boundary)', () => {
+    it('single-element mixed partition (boundary)', () => {
         const a = partitionOption([ofSome(7)]);
         expect(a.some).toEqual([7]);
         expect(a.noneIndices).toEqual([]);
@@ -95,7 +95,7 @@ describe('partitionOption', () => {
         expect(b.noneIndices).toEqual([0]);
     });
 
-    it('does not treat `false`/`0`/`""` Some payloads as falsy (Step 14.2 — falsy payload)', () => {
+    it('does not treat `false`/`0`/`""` Some payloads as falsy (falsy payload)', () => {
         const r = partitionOption<string>([
             ofSome(0) as IOption<string>,
             ofSome(''),

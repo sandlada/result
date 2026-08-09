@@ -7,7 +7,7 @@ type AppError =
     | { kind: 'NotFound'; id: string }
     | { kind: 'Validation'; fields: Record<string, string> };
 
-// ─── 1. Branching ───────────────────────────────────────────────
+// 1. Branching
 
 describe('Branching (if/else)', () => {
     it('success branch: value accessible', () => {

@@ -39,7 +39,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption, IOptionSome } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
-// ── Variadic ─────────────────────────────────────────────────────────────────
+// Variadic
 
 export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
     fn: (...args: T) => R | Promise<R>,
@@ -49,7 +49,7 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
     ...aos: { [K in keyof T]: AsyncOption<T[K]> }
 ): AsyncOption<R>;
 
-// ── Implementation ───────────────────────────────────────────────────────────
+// Implementation
 // Same constraint as the public overloads so the implementation cannot be
 // called with arity < 2. Return type is a union: the AsyncOption (direct
 // form) or the curried function (when only `fn` was provided). The public

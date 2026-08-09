@@ -4,7 +4,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('cond types', () => {
     it('returns the value-aware IResultOfT<T, E>', () => {
-        // CONTRACT GAP (pinned): the Task 14 brief describes `cond` as returning
+        // KNOWN GAP: the original design brief described `cond` as returning
         // `IResultOfT<undefined, E>`, but the public signature and implementation
         // return `IResultOfT<T, E>` and carry the original value through on success.
         // Pinned rather than "fixed" because changing this would break the public API.

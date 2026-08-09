@@ -33,7 +33,7 @@ describe('sequence types', () => {
         expectTypeOf(r).toEqualTypeOf<IResultOfT<number[], never>>();
     });
 
-    it('preserves E type verbatim — heterogeneous aggregation (Step 14.2 — error channel)', () => {
+    it('preserves E type verbatim — heterogeneous aggregation (error channel)', () => {
         const r = sequence<number, Error>([ok(1), err<Error>(new Error('boom'))]);
         const _check: IResultOfT<number[], Error> = r;
         expectTypeOf(_check).toBeObject();

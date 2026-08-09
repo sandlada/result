@@ -30,7 +30,7 @@ describe('tryCatch types', () => {
         expectTypeOf(r).toMatchTypeOf<IResultOfT<unknown, AppError>>();
     });
 
-    // ─── Default error type ────────────────────────────────────────────────
+// Default error type
 
     it('default E is `unknown` (the documented no-mapper contract)', () => {
         // The mapper overload is optional; when omitted, E defaults to `unknown`.

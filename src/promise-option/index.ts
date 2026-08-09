@@ -3,19 +3,17 @@
  *
  * Mirrors the structure of `promise-result/` but for the Option type.
  * Callbacks may be sync or async; predicates use catch+convert policy.
- *
- * @see ./README.md for full operator catalogue.
  */
 
-// ── Convenience factories (pre-resolved Promise<IResultOfT>) ─────────────────
+// Convenience factories (pre-resolved Promise<IResultOfT>)
 export { asyncOk } from '../factories/asyncOk.js';
 export { asyncErr } from '../factories/asyncErr.js';
 
-// ── Sync `IOption` constructors ─────────────────────────────────────────────
+// Sync `IOption` constructors
 export { ofSome } from '../option/ofSome.js';
 export { ofNone } from '../option/ofNone.js';
 
-// ── Result-flavored: operate on `Promise<IOption<T>>` with sync-or-async fn ─
+// Result-flavored: operate on `Promise<IOption<T>>` with sync-or-async fn
 export { bindAsyncOption } from './bindAsyncOption.js';
 export { containsAsyncOption } from './containsAsyncOption.js';
 export { existsAsyncOption } from './existsAsyncOption.js';
@@ -31,7 +29,7 @@ export { tapErrAsyncOption } from './tapErrAsyncOption.js';
 export { unwrapOrAsyncOption } from './unwrapOrAsyncOption.js';
 export { unwrapOrElseAsyncOption } from './unwrapOrElseAsyncOption.js';
 
-// ── Lift: operate on sync `IOption<T>` with async fn ───────────────────────
+// Lift: operate on sync `IOption<T>` with async fn
 export { asyncBindOption } from './asyncBindOption.js';
 export { asyncMapOption } from './asyncMapOption.js';
 export { asyncMatchOption } from './asyncMatchOption.js';

@@ -102,7 +102,6 @@ const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────
 // Polyfill store — used only when AsyncLocalStorage is not exposed as a
 // global (older runtimes, browser bundles without an async_hooks polyfill).
 //
@@ -114,7 +113,6 @@ const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
 //   - Concurrent async flows: degrades to a thread-local pointer. This
 //     matches the original implementation's behavior and is documented as
 //     a known limitation. Bundling a real ALS polyfill restores isolation.
-// ─────────────────────────────────────────────────────────────────────────
 
 /**
  * @internal
@@ -170,7 +168,6 @@ export const polyfillStore = ((): FrameStore => {
     };
 })();
 
-// ─────────────────────────────────────────────────────────────────────────
 // Store resolution — pick AsyncLocalStorage when available, else polyfill.
 //
 // Detection covers three shapes, in order:
@@ -186,7 +183,6 @@ export const polyfillStore = ((): FrameStore => {
 // `lib: ["ESNext"]` in tsconfig means Node ambient types aren't loaded,
 // so we declare a minimal structural interface and resolve the
 // constructor at runtime.
-// ─────────────────────────────────────────────────────────────────────────
 
 interface AsyncLocalStorageLike<T> {
     run<R>(store: T, fn: () => R): R;

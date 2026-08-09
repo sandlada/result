@@ -4,14 +4,14 @@
  * Re-exports all AsyncOption factories and operators.
  */
 
-// ── Constructors ─────────────────────────────────────────────────────────────
+// Constructors
 export { from } from './from.js';
 export { fromPromise } from './fromPromise.js';
 export { fromOption } from './fromOption.js';
 export { ofSome } from './ofSome.js';
 export { ofNone } from './ofNone.js';
 
-// ── Operators ────────────────────────────────────────────────────────────────
+// Operators
 export { all } from './all.js';
 export { bind } from './bind.js';
 export { contains } from './contains.js';

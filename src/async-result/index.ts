@@ -4,12 +4,12 @@
  * Re-exports all AsyncResult factories and operators.
  */
 
-// ── Factories ───────────────────────────────────────────────────────────────
+// Factories
 export { from } from './from.js';
 export { fromPromise } from './fromPromise.js';
 export { fromResult } from './fromResult.js';
 
-// ── Operators ───────────────────────────────────────────────────────────────
+// Operators
 export { and } from './and.js';
 export { andTee } from './andTee.js';
 export { andThrough } from './andThrough.js';

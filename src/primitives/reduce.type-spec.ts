@@ -34,7 +34,7 @@ describe('reduce types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('reducer receives (Acc, T, index: number) signature (Step 14.2 — callback signature)', () => {
+    it('reducer receives (Acc, T, index: number) signature (callback signature)', () => {
         const r = reduce<number, never, number>(
             (acc: number, n: number, i: number) => ok(acc + n + i),
             0,
@@ -47,7 +47,7 @@ describe('reduce types', () => {
         reduce<number, never, number>((acc: number, n: number, i: string) => ok(acc + n + i.length), 0, [ok(1)]);
     });
 
-    it('preserves Acc type across Err branch (Step 14.2 — Acc + error channel preservation)', () => {
+    it('preserves Acc type across Err branch (Acc + error channel preservation)', () => {
         const r = reduce<number, Error, { count: number }>(
             (acc, n) => (n === 0 ? err<Error>(new Error('zero')) : ok(acc)),
             { count: 0 },

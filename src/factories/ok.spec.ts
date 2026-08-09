@@ -3,7 +3,7 @@ import type { IResult } from '../../src/types/IResult.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { ok } from './index.js';
 
-// ─── ok() — void success ───────────────────────────────────────────────────
+// ok() — void success
 
 describe('ok()', () => {
     it('returns a success result', () => {
@@ -51,7 +51,7 @@ describe('ok()', () => {
     });
 });
 
-// ─── ok<T>(value) — value success ──────────────────────────────────────────
+// ok<T>(value) — value success
 
 describe('ok<T>(value)', () => {
     it('returns a success result carrying a value', () => {
@@ -123,7 +123,7 @@ describe('ok<T>(value)', () => {
     });
 });
 
-// ─── ok consistency ────────────────────────────────────────────────────────
+// ok consistency
 
 describe('ok consistency', () => {
     it('ok<T>(val) produces isSuccess: true, isFailure: false', () => {

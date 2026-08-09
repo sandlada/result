@@ -50,8 +50,8 @@ describe('tapErrContext', () => {
         const r = await inScope(async () => {
             return await tapErrContext(() => { /* saw it */ }, original);
         });
-        // After Task L31 fix, the result is wrapped in a Promise — the
-        // original carrier still equals the resolved value.
+        // The result is wrapped in a Promise — the original carrier still
+        // equals the resolved value.
         expect(r).toBe(original);
         expect(r.isFailure).toBe(true);
     });

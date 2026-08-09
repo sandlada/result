@@ -3,8 +3,6 @@ import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { unwrapErr } from './index.js';
 
-// ─── Void result ───────────────────────────────────────────────────────────
-
 describe('unwrapErr (void result)', () => {
     it('returns the error on failure', () => {
         const errVal = new Error('boom');
@@ -19,8 +17,6 @@ describe('unwrapErr (void result)', () => {
     });
 });
 
-// ─── Value result ──────────────────────────────────────────────────────────
-
 describe('unwrapErr (value result)', () => {
     it('returns the error on failure', () => {
         const errVal = new Error('nope');
@@ -34,8 +30,6 @@ describe('unwrapErr (value result)', () => {
         expect(() => unwrapErr(r)).toThrow('success');
     });
 });
-
-// ─── FP operator form ──────────────────────────────────────────────────────
 
 describe('unwrapErr (FP operator)', () => {
     it('returns error on failure', () => {

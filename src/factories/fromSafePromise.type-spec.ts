@@ -18,7 +18,7 @@ describe('fromSafePromise types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<boolean, Error>>>();
     });
 
-    // ─── Non-configurable error type ───────────────────────────────────────
+// Non-configurable error type
 
     it('rejects an explicit E type parameter — the error type is fixed', () => {
         // fromSafePromise does not expose an E type parameter; callers cannot

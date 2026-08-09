@@ -1,14 +1,12 @@
 /**
  * @sandlada/result — main entry.
  *
- * Type-focused barrel. Its only runtime export is `moduleMarker`, which keeps
- * this entry and its sourcemap materialized. Functional runtime values are
- * imported from the dedicated subpath packages (`./factories`, `./operators`, `./option`,
- * `./async-result`, `./async-option`, `./promise-result`, `./promise-option`,
- * `./composition`, `./adapters`, `./combine`, `./reliability`,
- * `./observability`, `./primitives`).
- *
- * Rationale: see `ARCH.md` ADR 9.
+ * Type-focused barrel. Its only runtime export is the empty default object,
+ * which keeps this entry and its sourcemap materialized in the build artifact.
+ * Functional runtime values are imported from the dedicated subpath packages
+ * (`./factories`, `./operators`, `./option`, `./async-result`, `./async-option`,
+ * `./promise-result`, `./promise-option`, `./composition`, `./adapters`,
+ * `./combine`, `./reliability`, `./observability`, `./primitives`).
  */
 
 export type {

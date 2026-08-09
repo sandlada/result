@@ -41,7 +41,7 @@ import type { IOption, IOptionSome } from '../types/Option.js';
 import { ofNone } from './ofNone.js';
 import { ofSome } from './ofSome.js';
 
-// ── Variadic ─────────────────────────────────────────────────────────────────
+// Variadic
 // `T extends readonly [unknown, unknown, ...unknown[]]` enforces arity ≥ 2 at
 // the type level. `{ [K in keyof T]: IOption<T[K]> }` maps each position to
 // its IOption type, preserving heterogeneous tuple types. Arity 0 and 1 fail
@@ -60,7 +60,7 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
     ...options: { [K in keyof T]: IOption<T[K]> }
 ): IOption<R>;
 
-// ── Implementation ───────────────────────────────────────────────────────────
+// Implementation
 // The public overloads carry the type honesty. The implementation signature
 // uses the same `T extends readonly [unknown, unknown, ...unknown[]]`
 // constraint so the implementation cannot be called with arity < 2 — this

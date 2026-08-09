@@ -45,7 +45,7 @@ describe('ok types', () => {
         }
     });
 
-    // ─── Discrimination between ok() and ok(undefined) ─────────────────────
+// Discrimination between ok() and ok(undefined)
 
     it('ok() with no arguments yields the void success carrier (no value key on the success branch)', () => {
         // The overload `ok()` returns `IResult<never>`. The success branch of

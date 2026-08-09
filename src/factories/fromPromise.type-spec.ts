@@ -30,7 +30,7 @@ describe('fromPromise types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, AppError>>>();
     });
 
-    // ─── Default-error and mapper contract ─────────────────────────────────
+// Default-error and mapper contract
 
     it('default E is `unknown` when errorFn is omitted (catches any rejection)', () => {
         // Document the contract: callers may pass any rejecting Promise and

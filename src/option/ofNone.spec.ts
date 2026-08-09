@@ -71,8 +71,6 @@ describe('ofNone()', () => {
         expect(Object.keys(opt)).toEqual(['isSome', 'isNone']);
     });
 
-    // --- Singleton guarantees ---
-
     it('returns the same reference on every call (singleton)', () => {
         // All ofNone<T>() calls — regardless of T — share the same frozen
         // runtime object. Reference equality is intentional: None is a

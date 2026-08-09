@@ -19,7 +19,7 @@ describe('asyncErr types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<never, AppError>>>();
     });
 
-    // ─── Async policy ──────────────────────────────────────────────────────
+// Async policy
 
     it('does not require a callback argument — the function takes exactly one error', () => {
         const p = asyncErr(1);

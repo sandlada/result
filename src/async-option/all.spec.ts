@@ -39,7 +39,7 @@ describe('AsyncOption all', () => {
         // first None". The implementation uses `Promise.all`, which means every
         // carrier is evaluated concurrently regardless of None. The tail
         // carrier here MUST be counted even though its result is discarded.
-        // Pin the actual contract. (Same pattern as Task 8 mapAsync propagation.)
+        // Pin the actual contract — same pattern as `mapAsync` propagation.
         let runs = 0;
         const none = ofNone<number>();
         const tail = from(() => {

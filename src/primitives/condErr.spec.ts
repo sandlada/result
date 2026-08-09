@@ -14,7 +14,7 @@ describe('condErr', () => {
         if (r.isSuccess) expect(r.value).toBe('no-at');
     });
 
-    it('predicate receives the okValue exactly once (Step 14.2 — call-by-value)', () => {
+    it('predicate receives the okValue exactly once (call-by-value)', () => {
         let calls = 0;
         const r = condErr(
             (s: string) => {
@@ -29,7 +29,7 @@ describe('condErr', () => {
         expect(r.isSuccess).toBe(true);
     });
 
-    it('preserves reference identity on success branch (Step 14.2 — value channel)', () => {
+    it('preserves reference identity on success branch (value channel)', () => {
         const original = { id: 1, name: 'a' };
         const r = condErr(
             (v: typeof original) => v.id === 0,
@@ -40,7 +40,7 @@ describe('condErr', () => {
         if (r.isSuccess) expect(r.value).toBe(original);
     });
 
-    it('object error is preserved verbatim on the failure branch (Step 14.2 — error channel)', () => {
+    it('object error is preserved verbatim on the failure branch (error channel)', () => {
         const errObj = { code: 'E_INVALID' };
         const r = condErr(
             (s: string) => s === 'bad',
@@ -51,7 +51,7 @@ describe('condErr', () => {
         if (r.isFailure) expect(r.error).toBe(errObj);
     });
 
-    it('accepts undefined as okValue when T includes undefined (Step 14.2 — value channel)', () => {
+    it('accepts undefined as okValue when T includes undefined (value channel)', () => {
         const r = condErr(
             (v: undefined) => v !== undefined,
             undefined,
@@ -61,7 +61,7 @@ describe('condErr', () => {
         if (r.isSuccess) expect(r.value).toBeUndefined();
     });
 
-    it('does not invoke predicate on failure path that goes the other way (Step 14.2 — predicate evaluation)', () => {
+    it('does not invoke predicate on failure path that goes the other way (predicate evaluation)', () => {
         // This verifies call count is exactly 1 regardless of branch.
         let calls = 0;
         const r = condErr(

@@ -51,23 +51,24 @@ describe('AsyncResult andThrough', () => {
         if(result.isFailure) expect((result.error as Error).message).toBe('boom');
     });
 
-    // ── Mixed-carrier recovery (brief Step 8.1) ───────────────────────────
-    it('accepts a from() thunk carrier', async () => {
-        const ar = andThrough(
-            (v: number) => from(() => Promise.resolve(ok(v * 2))),
-            fromResult(ok(7)),
-        );
-        const result = await ar.run();
-        expect(result.isSuccess && result.value).toBe(7);
-    });
+    describe('Mixed-carrier recovery', () => {
+        it('accepts a from() thunk carrier', async () => {
+            const ar = andThrough(
+                (v: number) => from(() => Promise.resolve(ok(v * 2))),
+                fromResult(ok(7)),
+            );
+            const result = await ar.run();
+            expect(result.isSuccess && result.value).toBe(7);
+        });
 
-    it('accepts a fromPromise() carrier', async () => {
-        const ar = andThrough(
-            (v: number) => fromPromise(() => Promise.resolve(v * 2)),
-            fromResult(ok(7)),
-        );
-        const result = await ar.run();
-        expect(result.isSuccess && result.value).toBe(7);
+        it('accepts a fromPromise() carrier', async () => {
+            const ar = andThrough(
+                (v: number) => fromPromise(() => Promise.resolve(v * 2)),
+                fromResult(ok(7)),
+            );
+            const result = await ar.run();
+            expect(result.isSuccess && result.value).toBe(7);
+        });
     });
 
     it('propagates a failure from a fromPromise() carrier', async () => {

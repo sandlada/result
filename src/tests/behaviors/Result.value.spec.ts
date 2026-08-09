@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from '../../factories/index.js';
 
-// ── Void Result ──────────────────────────────────────────────────────
-
 describe('IResult (void)', () => {
     it('ok() creates a success with isSuccess=true', () => {
         const r = ok();
@@ -67,8 +65,6 @@ describe('IResult (void)', () => {
         }
     });
 });
-
-// ── Value Result ─────────────────────────────────────────────────────
 
 describe('IResultOfT (value)', () => {
     it('ok(value) creates success with value', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ok, err } from './index.js';
 
-// ─── err(error) — void failure ─────────────────────────────────────────────
+// err(error) — void failure
 
 describe('err(error)', () => {
     it('returns a failure result', () => {
@@ -57,7 +57,7 @@ describe('err(error)', () => {
     });
 });
 
-// ─── err<E>(error) — typed error ───────────────────────────────────────────
+// err<E>(error) — typed error
 
 describe('err<E>(error) typed', () => {
     it('accepts a custom error type parameter', () => {
@@ -104,8 +104,6 @@ describe('err<E>(error) typed', () => {
         if (r.isFailure) expect(r.error).toBe('boom');
     });
 });
-
-// ─── Factory consistency ───────────────────────────────────────────────────
 
 describe('Factory consistency', () => {
     it('err produces isSuccess: false, isFailure: true', () => {

@@ -276,8 +276,6 @@ describe('retry', () => {
         if (r.isFailure) expect((r.error as { thrown: unknown }).thrown).toBe(42);
     });
 
-    // ---- Bug 1 contract: never returns undefined ----
-
     it('returns Err({ kind: "Aborted" }) when signal is already aborted', async () => {
         const fn = vi.fn(() => ok(1));
         const controller = new AbortController();

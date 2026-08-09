@@ -27,24 +27,25 @@ describe('bind types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    // ── Mixed-carrier return types (brief Step 8.1) ────────────────────────
-    it('callback returning AsyncResult<U, E> is accepted', () => {
-        const fn = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>));
-        expectTypeOf(fn).toBeFunction();
-    });
+    describe('Mixed-carrier return types', () => {
+        it('callback returning AsyncResult<U, E> is accepted', () => {
+            const fn = bind<number, number, string>((x) => fromResult(ok(x * 2) as IResultOfT<number, string>));
+            expectTypeOf(fn).toBeFunction();
+        });
 
-    it('callback returning Promise<IResultOfT<U, E>> is accepted', () => {
-        const fn = bind<number, number, string>((x) => Promise.resolve(ok(x * 2) as IResultOfT<number, string>));
-        expectTypeOf(fn).toBeFunction();
-    });
+        it('callback returning Promise<IResultOfT<U, E>> is accepted', () => {
+            const fn = bind<number, number, string>((x) => Promise.resolve(ok(x * 2) as IResultOfT<number, string>));
+            expectTypeOf(fn).toBeFunction();
+        });
 
-    it('callback returning from() thunk carrier is accepted', () => {
-        const fn = bind<number, number, string>((x) => from(() => Promise.resolve(ok(x * 2) as IResultOfT<number, string>)));
-        expectTypeOf(fn).toBeFunction();
-    });
+        it('callback returning from() thunk carrier is accepted', () => {
+            const fn = bind<number, number, string>((x) => from(() => Promise.resolve(ok(x * 2) as IResultOfT<number, string>)));
+            expectTypeOf(fn).toBeFunction();
+        });
 
-    it('callback returning fromPromise() carrier is accepted', () => {
-        const fn = bind<number, number, string>((x) => fromPromise(() => Promise.resolve(x * 2)));
-        expectTypeOf(fn).toBeFunction();
+        it('callback returning fromPromise() carrier is accepted', () => {
+            const fn = bind<number, number, string>((x) => fromPromise(() => Promise.resolve(x * 2)));
+            expectTypeOf(fn).toBeFunction();
+        });
     });
 });

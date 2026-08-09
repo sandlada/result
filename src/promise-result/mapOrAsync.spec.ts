@@ -67,7 +67,6 @@ describe('mapOrAsync', () => {
         expect(v).toBe(0);
     });
 
-    // ─── BUG-009 regression: onErr observer must receive the real thrown value ─────
     describe('BUG-009: onErr observer receives the real thrown value (not undefined)', () => {
         it('sync mapper throws → onErr sees the Error (not undefined)', async () => {
             const observed: unknown[] = [];

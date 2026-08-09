@@ -32,13 +32,13 @@ describe('lift', () => {
         expect(parseLen('x').isSuccess).toBe(true);
     });
 
-    it('passes arguments through to the wrapped function (Step 14.2 — argument forwarding)', () => {
+    it('passes arguments through to the wrapped function (argument forwarding)', () => {
         const add = lift((x: number, y: number) => x + y);
         expect(add(2, 3).isSuccess).toBe(true);
         if (add(2, 3).isSuccess) expect((add(2, 3) as { value: number }).value).toBe(5);
     });
 
-    it('errorFn receives the original thrown value (Step 14.2 — errorFn contract)', () => {
+    it('errorFn receives the original thrown value (errorFn contract)', () => {
         const sentinel = new Error('boom');
         const f = lift(
             (n: number) => {
@@ -52,7 +52,7 @@ describe('lift', () => {
         if (r.isFailure) expect(r.error).toBe(sentinel);
     });
 
-    it('errorFn can map an unknown error to a string label (Step 14.2 — E channel mapping)', () => {
+    it('errorFn can map an unknown error to a string label (E channel mapping)', () => {
         const f = lift(
             (n: number) => {
                 if (n < 0) throw new Error('neg');
@@ -65,14 +65,14 @@ describe('lift', () => {
         if (r.isFailure) expect(r.error).toBe('caught: Error: neg');
     });
 
-    it('zero-argument function is supported (Step 14.2 — variadic args)', () => {
+    it('zero-argument function is supported (variadic args)', () => {
         const make = lift(() => 42);
         const r = make();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
     });
 
-    it('thrown non-Error values still propagate when no errorFn is supplied (Step 14.2 — escape policy)', () => {
+    it('thrown non-Error values still propagate when no errorFn is supplied (escape policy)', () => {
         const f = lift((n: number) => {
             if (n < 0) throw 'string thrown';
             return n;
@@ -81,7 +81,7 @@ describe('lift', () => {
         expect(f(1).isSuccess).toBe(true);
     });
 
-    it('does not swallow thrown values when errorFn is supplied (Step 14.2 — errorFn side-effect-free)', () => {
+    it('does not swallow thrown values when errorFn is supplied (errorFn side-effect-free)', () => {
         const f = lift(
             (n: number) => {
                 if (n < 0) throw new Error('always');
@@ -94,7 +94,7 @@ describe('lift', () => {
         if (r.isFailure) expect(r.error).toBe('err');
     });
 
-    it('errorFn returning `never` produces a function whose E is `never` at the type level (Step 14.2 — E channel narrowing)', () => {
+    it('errorFn returning `never` produces a function whose E is `never` at the type level (E channel narrowing)', () => {
         const f = lift(
             (n: number) => n.toString(),
             (_e: unknown): never => {
@@ -106,7 +106,7 @@ describe('lift', () => {
         if (r.isSuccess) expect(r.value).toBe('7');
     });
 
-    it('re-entrance: throw and recovery (Step 14.2 — error capture repeatability)', () => {
+    it('re-entrance: throw and recovery (error capture repeatability)', () => {
         const f = lift(
             (n: number) => {
                 if (n % 2 === 0) throw new Error('even');

@@ -29,7 +29,7 @@ describe('fromPredicate types', () => {
         expectTypeOf(r).toMatchTypeOf<IResultOfT<User, string>>();
     });
 
-    // ─── Curried / direct discrimination ───────────────────────────────────
+// Curried / direct discrimination
 
     it('the curried form returns a function (not an IResultOfT) when value is omitted', () => {
         // Two-argument form must return a function — verifies the discrimination.

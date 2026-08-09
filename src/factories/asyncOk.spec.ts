@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { IResult } from '../../src/types/IResult.js';
 import { asyncOk } from './index.js';
 
-// ─── asyncOk<T>(value) — value success ─────────────────────────────────────
+// asyncOk<T>(value) — value success
 
 describe('asyncOk<T>(value)', () => {
     it('returns a resolved Promise with a success result', async () => {
@@ -62,7 +62,7 @@ describe('asyncOk<T>(value)', () => {
     });
 });
 
-// ─── asyncOk async policy ──────────────────────────────────────────────────
+// asyncOk async policy
 
 describe('asyncOk async policy', () => {
     it('does not invoke any user callback during construction', () => {
@@ -98,7 +98,7 @@ describe('asyncOk async policy', () => {
     });
 });
 
-// ─── asyncOk consistency ───────────────────────────────────────────────────
+// asyncOk consistency
 
 describe('asyncOk consistency', () => {
     it('asyncOk<T>(val) produces isSuccess: true, isFailure: false', async () => {

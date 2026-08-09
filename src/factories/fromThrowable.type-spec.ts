@@ -37,7 +37,7 @@ describe('fromThrowable types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    // ─── Default-error and mapper contract ─────────────────────────────────
+// Default-error and mapper contract
 
     it('default E is `unknown` when errorFn is omitted', () => {
         const safe = fromThrowable((x: number) => x);

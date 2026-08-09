@@ -370,46 +370,46 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         if (res.isSuccess) expect(res.value).toBe(7);
     });
 
-    // ─── Cleanup error isolation ──────────────────────────────────────────
-
-    it('preserves original failure when user finally throws during cleanup', async () => {
-        const gen = async function* () {
-            try {
-                yield* safeTryAsync(asyncErr<string>('primary-failure'));
-                return 'unreachable';
-            } finally {
-                throw new Error('cleanup-error-should-be-swallowed');
-            }
-        };
-        const r = await fromSafeTryAsync(gen).run();
-        expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error).toBe('primary-failure');
+    describe('Cleanup error isolation', () => {
+        it('preserves original failure when user finally throws during cleanup', async () => {
+            const gen = async function* () {
+                try {
+                    yield* safeTryAsync(asyncErr<string>('primary-failure'));
+                    return 'unreachable';
+                } finally {
+                    throw new Error('cleanup-error-should-be-swallowed');
+                }
+            };
+            const r = await fromSafeTryAsync(gen).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('primary-failure');
+        });
     });
 
-    // ─── AsyncResult discriminator ────────────────────────────────────────
-
-    it('rejects Promise with a `.run` property (not AsyncResult)', async () => {
-        // A Promise-like object with `.run` attached must NOT be misclassified
-        // as AsyncResult. The discriminator excludes thenables.
-        const fakePromise = Promise.resolve(ok(99)) as { run?: unknown; then: unknown };
-        (fakePromise as { run: unknown }).run = async () => ok(123);
-        const r = await fromSafeTryAsync(async function* () {
-            const a: number | undefined = yield* safeTryAsync(fakePromise as never);
-            return a ?? 0;
-        }).run();
-        expect(r.isSuccess).toBe(true);
-        if (r.isSuccess) expect(r.value).toBe(99);  // Promise's resolved value, not run()'s
+    describe('AsyncResult discriminator', () => {
+        it('rejects Promise with a `.run` property (not AsyncResult)', async () => {
+            // A Promise-like object with `.run` attached must NOT be misclassified
+            // as AsyncResult. The discriminator excludes thenables.
+            const fakePromise = Promise.resolve(ok(99)) as { run?: unknown; then: unknown };
+            (fakePromise as { run: unknown }).run = async () => ok(123);
+            const r = await fromSafeTryAsync(async function* () {
+                const a: number | undefined = yield* safeTryAsync(fakePromise as never);
+                return a ?? 0;
+            }).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(99);  // Promise's resolved value, not run()'s
+        });
     });
 
-    // ─── Shape validation ─────────────────────────────────────────────────
-
-    it('rejects Promise<{ value: x }> (missing isSuccess) with explicit error', async () => {
-        const fakePromise = Promise.resolve({ value: 'hello' }) as any;
-        await expect(
-            fromSafeTryAsync(async function* () {
-                const a: string | undefined = yield* safeTryAsync(fakePromise);
-                return a ?? '';
-            }).run(),
-        ).rejects.toThrow(/not a valid IResultOfT/);
+    describe('Shape validation', () => {
+        it('rejects Promise<{ value: x }> (missing isSuccess) with explicit error', async () => {
+            const fakePromise = Promise.resolve({ value: 'hello' }) as any;
+            await expect(
+                fromSafeTryAsync(async function* () {
+                    const a: string | undefined = yield* safeTryAsync(fakePromise);
+                    return a ?? '';
+                }).run(),
+            ).rejects.toThrow(/not a valid IResultOfT/);
+        });
     });
 });

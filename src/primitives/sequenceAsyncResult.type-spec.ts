@@ -24,18 +24,18 @@ describe('sequenceAsyncResult types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('returns AsyncResult<T[], E> on empty input with explicit generics (Step 14.2 — boundary)', () => {
+    it('returns AsyncResult<T[], E> on empty input with explicit generics (boundary)', () => {
         const r = sequenceAsyncResult<number, string>([]);
         expectTypeOf(r).toEqualTypeOf<AsyncResult<number[], string>>();
     });
 
-    it('preserves T type verbatim — heterogeneous aggregation (Step 14.2 — value channel)', () => {
+    it('preserves T type verbatim — heterogeneous aggregation (value channel)', () => {
         const r = sequenceAsyncResult<string, Error>([fromResult(ok('a'))]);
         const _check: AsyncResult<string[], Error> = r;
         expectTypeOf(_check).toBeObject();
     });
 
-    it('returning run() yields a Promise<IResultOfT<T[], E>> (Step 14.2 — promise semantics)', async () => {
+    it('returning run() yields a Promise<IResultOfT<T[], E>> (promise semantics)', async () => {
         const r = sequenceAsyncResult([fromResult(ok(1))]);
         const p = r.run();
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number[], never>>>();

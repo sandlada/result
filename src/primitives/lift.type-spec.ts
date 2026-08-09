@@ -45,7 +45,7 @@ describe('lift types', () => {
         expectTypeOf(_check).toBeFunction();
     });
 
-    it('errorFn signature is `(error: unknown) => E` (Step 14.2 — errorFn input)', () => {
+    it('errorFn signature is `(error: unknown) => E` (errorFn input)', () => {
         const safe = lift(
             (s: string) => s.length,
             // negative: predicate must accept unknown, not some narrower type without subtyping
@@ -57,7 +57,7 @@ describe('lift types', () => {
         lift((s: string) => s.length, (e: number) => e);
     });
 
-    it('preserves 3+ argument signatures (Step 14.2 — multi-arg)', () => {
+    it('preserves 3+ argument signatures (multi-arg)', () => {
         const safe = lift((a: number, b: number, c: number) => a + b + c);
         const args: Parameters<typeof safe> = [1, 2, 3];
         expectTypeOf(args.length).toEqualTypeOf<3>();

@@ -38,7 +38,7 @@ describe('err types', () => {
         expectTypeOf(r).toMatchTypeOf<IResultOfT<never, CustomError>>();
     });
 
-    // ─── Value-branch accessibility ────────────────────────────────────────
+// Value-branch accessibility
 
     it('the success branch of err() carries a `never` value', () => {
         // `err()` returns `IResultOfT<never, E>`. Narrowing on `isSuccess` is

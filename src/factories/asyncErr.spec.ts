@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { asyncOk, asyncErr } from './index.js';
 
-// ─── asyncErr(error) — void failure ────────────────────────────────────────
-
 describe('asyncErr(error)', () => {
     it('returns a resolved Promise with a failure result', async () => {
         const r = await asyncErr('oops');
@@ -42,7 +40,7 @@ describe('asyncErr(error)', () => {
     });
 });
 
-// ─── asyncErr<E>(error) — typed error ──────────────────────────────────────
+// asyncErr<E>(error) — typed error
 
 describe('asyncErr<E>(error) typed', () => {
     it('accepts a custom error type parameter', async () => {
@@ -88,7 +86,7 @@ describe('asyncErr<E>(error) typed', () => {
     });
 });
 
-// ─── asyncErr async policy ─────────────────────────────────────────────────
+// asyncErr async policy
 
 describe('asyncErr async policy', () => {
     it('does not invoke any user callback during construction', async () => {
@@ -119,8 +117,6 @@ describe('asyncErr async policy', () => {
         }
     });
 });
-
-// ─── Factory consistency ───────────────────────────────────────────────────
 
 describe('Factory consistency', () => {
     it('asyncErr produces isSuccess: false, isFailure: true', async () => {

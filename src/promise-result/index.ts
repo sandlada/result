@@ -6,18 +6,18 @@
  * For `Promise<IOption<T>>` operators, see `../promise-option/index.js` (subpath `./promise-option`).
  */
 
-// ── Convenience factories (pre-resolved Promise<IResultOfT>) ─────────────────
+// Convenience factories (pre-resolved Promise<IResultOfT>)
 export { asyncOk } from '../factories/asyncOk.js';
 export { asyncErr } from '../factories/asyncErr.js';
 
-// ── Sync operators (operate on `Promise<IResultOfT>`, sync fn) ───────────────
+// Sync operators (operate on `Promise<IResultOfT>`, sync fn)
 export { flatten } from './flatten.js';
 export { map } from './map.js';
 export { mapErr } from './mapErr.js';
 export { unwrapOr } from './unwrapOr.js';
 export { unwrapOrElse } from './unwrapOrElse.js';
 
-// ── Async operators (operate on `Promise<IResultOfT>`, sync-or-async fn) ────
+// Async operators (operate on `Promise<IResultOfT>`, sync-or-async fn)
 export { bimapAsync } from './bimapAsync.js';
 export { bindAsync } from './bindAsync.js';
 export { bindThroughAsync } from './bindThroughAsync.js';
@@ -38,7 +38,7 @@ export { unwrapOrAsync } from './unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';
 export { catchErrAsync } from './catchErrAsync.js';
 
-// ── Lift operators (operate on sync `IResultOfT`, async fn) ──────────────────
+// Lift operators (operate on sync `IResultOfT`, async fn)
 export { asyncBind } from './asyncBind.js';
 export { asyncBindThrough } from './asyncBindThrough.js';
 export { asyncMap } from './asyncMap.js';
@@ -46,7 +46,7 @@ export { asyncOrElse } from './asyncOrElse.js';
 export { asyncTap } from './asyncTap.js';
 export { asyncTapErr } from './asyncTapErr.js';
 
-// ── Combinators ──────────────────────────────────────────────────────────────
+// Combinators
 export { ap } from './ap.js';
 export { combine } from './combine.js';
 export { combineWithAllErrors } from './combineWithAllErrors.js';

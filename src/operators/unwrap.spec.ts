@@ -3,8 +3,6 @@ import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../../src/types/IResultOfT.js';
 import { unwrap } from './index.js';
 
-// ─── Void result ───────────────────────────────────────────────────────────
-
 describe('unwrap (void result)', () => {
     it('succeeds on a success result (no return)', () => {
         const r = ok() as unknown as IResultOfT<unknown, never>;
@@ -37,8 +35,6 @@ describe('unwrap (void result)', () => {
     });
 });
 
-// ─── Value result ──────────────────────────────────────────────────────────
-
 describe('unwrap (value result)', () => {
     it('returns the value on success', () => {
         const r = ok(42);
@@ -60,8 +56,6 @@ describe('unwrap (value result)', () => {
         }
     });
 });
-
-// ─── FP operator form ──────────────────────────────────────────────────────
 
 describe('unwrap (FP operator)', () => {
     it('returns value on success', () => {

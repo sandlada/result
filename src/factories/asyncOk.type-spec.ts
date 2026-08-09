@@ -18,7 +18,7 @@ describe('asyncOk types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<{ id: number; name: string }, never>>>();
     });
 
-    // ─── Async policy ──────────────────────────────────────────────────────
+// Async policy
 
     it('the awaited value type equals the argument type on the success branch', async () => {
         const p = asyncOk({ a: 1, b: 'x' });

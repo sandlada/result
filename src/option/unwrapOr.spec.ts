@@ -59,43 +59,45 @@ describe('unwrapOr', () => {
         expect(unwrapOr(99)(ofNone())).toBe(unwrapOr(99, ofNone()));
     });
 
-    // ── Cross-type default: T and D are independent (regression for the bug). ───
+    describe('Cross-type default', () => {
+        // T and D are independent (regression for the bug).
 
-    it('allow the default to differ in type from the option value (curried)', () => {
-        const userOpt: IOption<User> = ofSome({ name: 'Alice' });
-        const fallback: DefaultUser = { name: 'Guest', isGuest: true };
-        const result = unwrapOr(fallback)(userOpt);
-        expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
-        expect(result).toEqual({ name: 'Alice' });
-    });
+        it('allow the default to differ in type from the option value (curried)', () => {
+            const userOpt: IOption<User> = ofSome({ name: 'Alice' });
+            const fallback: DefaultUser = { name: 'Guest', isGuest: true };
+            const result = unwrapOr(fallback)(userOpt);
+            expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
+            expect(result).toEqual({ name: 'Alice' });
+        });
 
-    it('allow `null` as default for a non-null option (curried)', () => {
-        const userOpt: IOption<User> = ofSome({ name: 'Alice' });
-        const result = unwrapOr(null)(userOpt);
-        expectTypeOf(result).toEqualTypeOf<User | null>();
-        expect(result).toEqual({ name: 'Alice' });
-    });
+        it('allow `null` as default for a non-null option (curried)', () => {
+            const userOpt: IOption<User> = ofSome({ name: 'Alice' });
+            const result = unwrapOr(null)(userOpt);
+            expectTypeOf(result).toEqualTypeOf<User | null>();
+            expect(result).toEqual({ name: 'Alice' });
+        });
 
-    it('cross-type default returns the default on None (curried)', () => {
-        const userOpt: IOption<User> = ofNone();
-        const fallback: DefaultUser = { name: 'Guest', isGuest: true };
-        const result = unwrapOr(fallback)(userOpt);
-        expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
-        expect(result).toBe(fallback);
-    });
+        it('cross-type default returns the default on None (curried)', () => {
+            const userOpt: IOption<User> = ofNone();
+            const fallback: DefaultUser = { name: 'Guest', isGuest: true };
+            const result = unwrapOr(fallback)(userOpt);
+            expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
+            expect(result).toBe(fallback);
+        });
 
-    it('allow the default to differ in type from the option value (direct)', () => {
-        const userOpt: IOption<User> = ofSome({ name: 'Alice' });
-        const fallback: DefaultUser = { name: 'Guest', isGuest: true };
-        const result = unwrapOr(fallback, userOpt);
-        expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
-        expect(result).toEqual({ name: 'Alice' });
-    });
+        it('allow the default to differ in type from the option value (direct)', () => {
+            const userOpt: IOption<User> = ofSome({ name: 'Alice' });
+            const fallback: DefaultUser = { name: 'Guest', isGuest: true };
+            const result = unwrapOr(fallback, userOpt);
+            expectTypeOf(result).toEqualTypeOf<User | DefaultUser>();
+            expect(result).toEqual({ name: 'Alice' });
+        });
 
-    it('cross-type default returns the default on None (direct)', () => {
-        const userOpt: IOption<User> = ofNone();
-        const result = unwrapOr('fallback', userOpt);
-        expectTypeOf(result).toEqualTypeOf<User | string>();
-        expect(result).toBe('fallback');
+        it('cross-type default returns the default on None (direct)', () => {
+            const userOpt: IOption<User> = ofNone();
+            const result = unwrapOr('fallback', userOpt);
+            expectTypeOf(result).toEqualTypeOf<User | string>();
+            expect(result).toBe('fallback');
+        });
     });
 });
