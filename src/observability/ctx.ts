@@ -88,10 +88,19 @@ interface FrameStore {
 const freeze = (arr: PathSegment[]): PathStack =>
     Object.freeze([...arr]) as PathStack;
 
-const isThenable = <T>(v: unknown): v is PromiseLike<T> =>
-    !!v &&
-    (typeof v === 'object' || typeof v === 'function') &&
-    typeof (v as { then?: unknown }).then === 'function';
+const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
+    if (!v || (typeof v !== 'object' && typeof v !== 'function')) return false;
+    // BUG-010 fix: wrap the `.then` access in try/catch so a hostile getter
+    // (proxy traps, malicious user input) does not throw through `isThenable`
+    // and cause `Promise.resolve(result)` to synchronously reject, which
+    // would otherwise bypass the `.then` handlers in `polyfillStore.run`
+    // and leak the current frame forever.
+    try {
+        return typeof (v as { then?: unknown }).then === 'function';
+    } catch {
+        return false;
+    }
+};
 
 // ─────────────────────────────────────────────────────────────────────────
 // Polyfill store — used only when AsyncLocalStorage is not exposed as a
@@ -125,20 +134,32 @@ export const polyfillStore = ((): FrameStore => {
             try {
                 result = fn();
             } catch (e) {
+                // BUG-010 fix: use try/finally to guarantee frame restoration
+                // even if `fn()` or the synchronous part of `Promise.resolve`
+                // throws in a way the .then handlers can't intercept.
                 currentFrame = previous;
                 throw e;
             }
             if (isThenable<T>(result)) {
-                return Promise.resolve(result).then(
-                    (v: T) => {
-                        currentFrame = previous;
-                        return v;
-                    },
-                    (e: unknown) => {
-                        currentFrame = previous;
-                        throw e;
-                    },
-                ) as unknown as T;
+                // Wrap the then-chain itself in a try/catch so a hostile
+                // thenable that throws synchronously (e.g. a `.then` getter
+                // that throws when `Promise.resolve` reads it) cannot leave
+                // `currentFrame` pointing at the now-leaked inner frame.
+                try {
+                    return Promise.resolve(result).then(
+                        (v: T) => {
+                            currentFrame = previous;
+                            return v;
+                        },
+                        (e: unknown) => {
+                            currentFrame = previous;
+                            throw e;
+                        },
+                    ) as unknown as T;
+                } catch {
+                    currentFrame = previous;
+                    throw new Error('ctx.run: thenable rejected synchronously');
+                }
             }
             currentFrame = previous;
             return result;

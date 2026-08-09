@@ -66,4 +66,64 @@ describe('mapOrAsync', () => {
         const v = await mapOrAsync(0, async (_x: number) => 0, asyncErr<string>('boom'));
         expect(v).toBe(0);
     });
+
+    // ─── BUG-009 regression: onErr observer must receive the real thrown value ─────
+    describe('BUG-009: onErr observer receives the real thrown value (not undefined)', () => {
+        it('sync mapper throws → onErr sees the Error (not undefined)', async () => {
+            const observed: unknown[] = [];
+            const thrown = new Error('mapper-throw');
+            const handle = mapOrAsync<string, string>(
+                'fallback',
+                (x: string) => { throw thrown; },
+                (e: unknown) => { observed.push(e); },
+            );
+            const v = await handle(asyncOk('input'));
+            expect(v).toBe('fallback');
+            // BUG-009 fix: the observer must receive the real thrown value,
+            // not `undefined` (the previous dead-conditional bug).
+            expect(observed).toHaveLength(1);
+            expect(observed[0]).toBe(thrown);
+        });
+
+        it('async mapper rejects → onErr sees the rejection reason (not undefined)', async () => {
+            const observed: unknown[] = [];
+            const reason = new Error('async-reject');
+            const handle = mapOrAsync<string, string>(
+                'fallback',
+                async () => { throw reason; },
+                (e: unknown) => { observed.push(e); },
+            );
+            const v = await handle(asyncOk('input'));
+            expect(v).toBe('fallback');
+            expect(observed).toHaveLength(1);
+            expect(observed[0]).toBe(reason);
+        });
+
+        it('pre-existing failure → onErr sees the original error from the carrier', async () => {
+            // When the carrier is already a failure, onErr should be called
+            // with the carrier's error (not undefined). This is the failure-path
+            // parity case (line 78 of mapOrAsync.ts).
+            const observed: unknown[] = [];
+            const handle = mapOrAsync<number, string>(
+                'fallback',
+                (x: number) => `num:${x}`,
+                (e: unknown) => { observed.push(e); },
+            );
+            const v = await handle(asyncErr<string>('carrier-fail'));
+            expect(v).toBe('fallback');
+            expect(observed).toHaveLength(1);
+            expect(observed[0]).toBe('carrier-fail');
+        });
+
+        it('string rejection is preserved verbatim (not coerced to undefined)', async () => {
+            const observed: unknown[] = [];
+            const handle = mapOrAsync<string, string>(
+                'fallback',
+                async () => { throw 'plain-string-reason'; },
+                (e: unknown) => { observed.push(e); },
+            );
+            await handle(asyncOk('input'));
+            expect(observed[0]).toBe('plain-string-reason');
+        });
+    });
 });

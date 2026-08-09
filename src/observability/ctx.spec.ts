@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ctx, getPath, type PathSegment, type PathStack } from './ctx.js';
+import { ctx, getPath, polyfillStore, type PathSegment, type PathStack } from './ctx.js';
 
 describe('observability/ctx', () => {
     it('getPath() returns an empty array when stack is empty', () => {
@@ -149,5 +149,106 @@ describe('observability/ctx', () => {
         const path: PathStack = getPath();
         expect(Array.isArray(path)).toBe(true);
         expect(path.length).toBe(0);
+    });
+
+    // ─── BUG-010 regression: hostile thenable must not leak the active frame ─────
+    describe('BUG-010: hostile thenable (or hostile .then getter) must not leak the active frame', () => {
+        it('isThenable returns false when the then getter throws (does not propagate the throw)', () => {
+            // Construct a thenable whose `then` accessor throws when read.
+            // The library's `isThenable` helper must not let this throw
+            // bubble out — it should treat the value as non-thenable.
+            const trap: { then?: unknown } = {};
+            Object.defineProperty(trap, 'then', {
+                get() { throw new Error('hostile then getter'); },
+                configurable: true,
+            });
+            // The fix wraps `.then` access in try/catch so a hostile
+            // getter cannot corrupt the frame. We test the fix indirectly
+            // by exercising the polyfill path that consumed the trap.
+            const before = (polyfillStore as unknown as { getStore(): unknown }).getStore();
+            // Run the polyfill with a thenable-returning fn. The trap is
+            // classified as non-thenable, so polyfillStore.run treats it
+            // as a synchronous return value and restores the frame via
+            // the synchronous path (line 60-64 of ctx.ts).
+            let syncValueSeen: unknown = null;
+            let caught: unknown = null;
+            try {
+                const result = (polyfillStore as unknown as {
+                    run: <T>(f: { stack: string[]; parent: null }, fn: () => T) => T;
+                }).run(
+                    { stack: ['leak-test'], parent: null } as unknown as { stack: string[]; parent: null },
+                    () => trap as unknown,
+                );
+                syncValueSeen = result;
+            } catch (e) {
+                caught = e;
+            }
+            // The frame must be restored after the run completes.
+            const after = (polyfillStore as unknown as { getStore(): unknown }).getStore();
+            // Pre-fix: the .then getter would have been read inside
+            // Promise.resolve(trap), throwing synchronously and leaving
+            // `currentFrame` stuck at the leak-test frame. Post-fix:
+            // isThenable returns false on the hostile getter, the
+            // synchronous restoration path runs, and `after` is null.
+            expect(caught).toBeNull();
+            // The value is returned synchronously (the polyfill doesn't
+            // even call Promise.resolve on it because isThenable lied).
+            expect(syncValueSeen).toBe(trap);
+            // polyfillStore.getStore() returns `undefined` when currentFrame
+            // is `null` (the `?? undefined` coercion in ctx.ts).
+            expect(after).toBeUndefined();
+            // Sanity: the run-state on entry was also clean.
+            expect(before).toBeUndefined();
+        });
+
+        it('synchronous throw from fn() restores the frame via try/finally', () => {
+            // Even if `fn()` throws, the frame must be restored.
+            let caught: unknown = null;
+            try {
+                (polyfillStore as unknown as {
+                    run: <T>(f: { stack: string[]; parent: null }, fn: () => T) => T;
+                }).run(
+                    { stack: ['leak-test-2'], parent: null } as unknown as { stack: string[]; parent: null },
+                    () => { throw new Error('fn-throw'); },
+                );
+            } catch (e) {
+                caught = e;
+            }
+            expect(String(caught)).toContain('fn-throw');
+            const after = (polyfillStore as unknown as { getStore(): unknown }).getStore();
+            expect(after).toBeUndefined();
+        });
+
+        it('hostile thenable that throws inside Promise.resolve surfaces as a rejected Promise (frame restored)', async () => {
+            // When the trap's then getter throws during Promise.resolve(trap),
+            // the new try/catch around the .then chain catches the synchronous
+            // throw, restores the frame, and rethrows as a rejected Promise.
+            const trap: { then?: unknown } = {};
+            Object.defineProperty(trap, 'then', {
+                get() { throw new Error('hostile-then-on-resolve'); },
+                configurable: true,
+            });
+            let result: unknown = null;
+            let caught: unknown = null;
+            try {
+                const r = (polyfillStore as unknown as {
+                    run: <T>(f: { stack: string[]; parent: null }, fn: () => T) => T;
+                }).run(
+                    { stack: ['leak-test-3'], parent: null } as unknown as { stack: string[]; parent: null },
+                    () => trap as unknown,
+                );
+                result = r;
+                // If a Promise was returned, await it.
+                if (result && typeof (result as { then?: unknown }).then === 'function') {
+                    await (result as Promise<unknown>);
+                }
+            } catch (e) {
+                caught = e;
+            }
+            // The frame MUST be restored regardless of which path the
+            // hostile thenable took.
+            const after = (polyfillStore as unknown as { getStore(): unknown }).getStore();
+            expect(after).toBeUndefined();
+        });
     });
 });

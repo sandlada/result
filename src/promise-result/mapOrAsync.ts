@@ -67,7 +67,11 @@ export function mapOrAsync<A, B, E>(
                 return await fn(inner.value);
             } catch (e: unknown) {
                 if (onErr) {
-                    try { onErr(inner.isSuccess ? (undefined as unknown as E) : (e as E)); }
+                    // BUG-009 fix: pass the actual thrown value to the observer.
+                    // The previous code lived inside `if (inner.isSuccess)` and
+                    // used a ternary that *always* evaluated to `undefined`,
+                    // so the observer never saw the real reason for the failure.
+                    try { onErr(e as E); }
                     catch { /* swallow observer error — swallow policy */ }
                 }
                 return defaultValue;
