@@ -89,6 +89,14 @@ Access `value` or `error` only after narrowing via `isSuccess` — checking `res
 4. **No barrel / index re-export cycles.** Each module imports its dependencies from the specific source file.
 5. **camelCase** for properties (`isSuccess`, `isFailure`, `error`, `value`, `isSome`, `isNone`).
 
+## Comment Policy
+
+Comments describe **the code they sit next to** — not the project as a whole. Anything a reader needs to understand intent must be self-contained in the file, or live in `ARCH.md` / `SPEC.md`, which are the canonical records.
+
+- **No cross-document pointers in code comments.** Do not link to, reference, or quote from narrative documents such as `README.md`, `bugs.md`, or any other working log / report file inside `.ts` / `.spec.ts` comments. Linking to a core API source file (e.g. `src/types/IResult.ts`) is fine — that is code, not documentation. If you find yourself wanting to write "see bugs.md #44" or "tracked in README", you have instead forgotten to encode the constraint in code or tests; do that, and delete the pointer.
+- **No external-file bug IDs in code comments.** Identifiers like `BUG001`, `bugs.md-BUG001`, "Bug 1 contract", "Issue 7 fix", "Task L5", or any other token that is only meaningful if you have a specific external `.md` open are forbidden in `.ts` / `.spec.ts` comments. The contract under test belongs in the test's `expect(...)` and the operator's type signature, not in a comment that references an external numbering scheme.
+- **No padding line separators.** Do not write comment lines that exist purely to pad visual length, such as `// ----------`, `// -----------`, `// ====`, `// ************`, `// ---- Bug 1 contract ----`, or any other decoration-only line. A `describe` / `it` block's title is the section header. If you need a section break inside a test, use a nested `describe` and give it a name.
+
 ## Source Layout
 
 ```text
