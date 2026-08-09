@@ -31,7 +31,48 @@ The library exposes:
 - TypeScript declarations keep JSDoc comments (`removeComments: false`); generated JavaScript removes source comments while retaining `sourceMappingURL` metadata.
 - Pure re-export barrels may not receive a JavaScript sourcemap when Rolldown has no local mappings. The root and `./types` entries export an empty default object so those public entries produce mapped JavaScript.
 
+### Common Commands
+
+```bash
+npm run build         # tsc -> declarations, rolldown -> minified ESM (clears build/ first)
+npm run build:types   # emit .d.ts only (uses tsconfig.build.json)
+npm run build:js      # emit minified ESM + sourcemaps via rolldown.config.ts
+npm run typecheck     # tsc --noEmit against the full project
+npm test              # vitest run (single pass, CI mode)
+npm run test:watch    # vitest watch
+npm run test:type     # vitest typecheck — runs *.type-spec.ts against tsconfig.typecheck.json
+npm run bench         # vitest bench (src/**/*.bench.ts)
+npm run bench:json    # bench -> bench/results.json
+```
+
+To run a single test file:
+
+```bash
+npx vitest run src/operators/map.spec.ts
+```
+
+To run a single named test:
+
+```bash
+npx vitest run -t "matches the success variant"
+```
+
+Vitest is configured in `vitest.config.ts`. Coverage thresholds are enforced per-glob and the **observability** module has a strict 100% gate; the **reliability** module's `branches` threshold is 84 because of a documented genuinely-unreachable timer-race guard (`src/reliability/timeout.ts:51`).
+
 ## Architecture
+
+### Mental Model (the big picture)
+
+Read `ARCH.md` for the full decision log and `SPEC.md` for the public API index. The mental model in one paragraph:
+
+- **Results are plain objects, not classes.** The contract is a discriminated union (`isSuccess` / `isFailure`) over `IResultSuccess` and `IResultFailure<TError>`. Value-bearing Results use `IResultOfT<TValue, TError>`. Same shape for Options (`isSome` / `isNone`).
+- **Operators are standalone, data-last, curried.** No methods on result objects. This is what makes `pipe(...)` work.
+- **The package layout mirrors the type space.** Because `map` means different things on `IResultOfT` vs `IOption`, every concern lives at its own subpath: `/factories`, `/operators`, `/option`, `/composition`, `/adapters`, `/combine`, `/promise-result`, `/promise-option`, `/async-result`, `/async-option`, `/reliability`, `/observability`, `/primitives`.
+- **The main barrel is type-only** (`src/index.ts`). It re-exports the contract types and a runtime `moduleMarker = {}` whose sole purpose is to keep Rolldown materializing the entry's sourcemap. Functional runtime values are reached exclusively via subpaths — this is the rationale for ADR 9/10 in `ARCH.md`.
+- **Two async flavors.** `promise-result/` / `promise-option/` operate on eager `Promise<IResultOfT>`; `async-result/` / `async-option/` operate on lazy `AsyncResult<T,E>` thunks (`() => Promise<IResultOfT>`). Don't conflate them — see ADR 8.
+- **Three layered concerns sit on top of the core ROP operators:** `reliability/` (retry/timeout/race), `observability/` (breadcrumb `ctx`/`withPath`, formatters, observer hooks), `primitives/` (high-frequency helpers like `cond`/`reduce`/`lift`). Each reuses `IResultOfT`/`AsyncResult` and has its own subpath.
+
+The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files are pure re-export barrels — there are no cyclic re-exports between modules (convention).
 
 ### Error Type Customization (Key Differentiator)
 
@@ -84,10 +125,23 @@ Access `value` or `error` only after narrowing via `isSuccess` — checking `res
 ## Coding Conventions
 
 1. **`interface` for contracts** — interfaces define the shape of result/option objects. No classes.
-2. **`readonly` properties only** — result objects are immutable value objects.
-3. **`import type { ... }`** for all type-only imports (enforced by `verbatimModuleSyntax`).
-4. **No barrel / index re-export cycles.** Each module imports its dependencies from the specific source file.
-5. **camelCase** for properties (`isSuccess`, `isFailure`, `error`, `value`, `isSome`, `isNone`).
+2. **`I`-prefix on contract types.** Every `interface` (and every `type` alias that names a contract — a public shape users implement or destructure — not a utility alias over primitives) is named with an `I` prefix: `IResult`, `IResultOfT`, `IOption`, `IResultSuccess`, `IRetryOptions`. Runtime value types (factory return shapes, brand markers, callback parameter tuples) and internal helpers do not need the prefix; the rule targets the **contract surface**, not every `type` keyword.
+3. **`readonly` properties only** — result objects are immutable value objects.
+4. **`import type { ... }`** for all type-only imports (enforced by `verbatimModuleSyntax`).
+5. **No barrel / index re-export cycles.** Each module imports its dependencies from the specific source file.
+6. **camelCase** for properties (`isSuccess`, `isFailure`, `error`, `value`, `isSome`, `isNone`).
+
+## Conventions the Compiler Enforces
+
+These are not "guidelines" — they are checked. Do not propose changes that violate them.
+
+- `verbatimModuleSyntax: true` — every type-only import must be `import type { ... }`. No exceptions.
+- `noUncheckedIndexedAccess: true` and `exactOptionalPropertyTypes: true` — array/record access returns `T | undefined`; optional properties cannot be set to `undefined` unless the type says so.
+- ESM-only, `.js` extensions in relative imports (`from '../types/IResultOfT.js'`).
+- `readonly` properties only on result/option interfaces.
+- No barrel re-export cycles — each module imports its dependencies from the specific source file, not from a sibling `index.ts`.
+- 4-space indentation, single quotes, LF line endings (see `.editorconfig`); `max_line_length = 240` for `.ts`/`.js`.
+- Indent_style applies globally — do not mix tabs/spaces.
 
 ## Comment Policy
 
@@ -119,6 +173,14 @@ src/
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.
 
+## Testing
+
+- **Co-located unit tests**: every `src/<dir>/<name>.ts` has a `src/<dir>/<name>.spec.ts` next to it. `*.spec.ts` is excluded from both `tsconfig.json` (build) and `rolldown.config.ts` (rolldown input walker).
+- **Type tests**: `*.type-spec.ts` are picked up only by `npm run test:type` (Vitest's `typecheck` mode + `tsconfig.typecheck.json`).
+- **Benchmarks**: `*.bench.ts` — collected by `vitest bench` per `vitest.config.ts`'s `bench.include`.
+- **Cross-module tests** live in `src/tests/` split into `behaviors/`, `hardening/`, `integration/`, `type-tests/`. `hardening/` guards against incidents catalogued in `bugs.md` — read it before changing anything around the patterns it lists, but do not link to it from code comments (see Comment Policy).
+- Coverage thresholds live in `vitest.config.ts` — adding code that drops a module below its gate fails CI.
+
 ## Implementation Notes
 
 - Results are plain objects — no classes, no sentinel, no constructor invariants.
@@ -128,6 +190,24 @@ Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `
 - Option types (`IOptionSome`/`IOptionNone`) are also plain discriminated union objects, not classes.
 - Operators are data-last (result is the final argument).
 
+## Adding or Changing Public API
+
+If you add a new export, you are also expected to:
+
+- add a co-located `*.spec.ts` and `*.type-spec.ts` where applicable,
+- update the `package.json` `exports` map if a new subpath is needed,
+- ensure `vitest.config.ts` coverage globs still cover the new files,
+- update `SPEC.md` to list the new export with a link to its source file,
+- update `ARCH.md` if the new export changes module responsibilities or ADRs,
+- update `AGENTS.md` if the new export changes conventions, workflow, or source-layout descriptions.
+
+## Things That Are Easy to Miss
+
+- `build/` is the only published artifact (`package.json` `"files"`). Source TypeScript is not shipped.
+- Rolldown config (`rolldown.config.ts`) walks `src/` and excludes `*.spec.ts`, `*.type-spec.ts`, `*.d.ts` from its input list.
+- `npm run typecheck` includes `*.spec.ts` but excludes them from output; `npm run build` does the opposite.
+- `bugs.md` is large (~87 KB) and is the working log of bugs/incidents — read it before making changes around any operator you haven't touched before. (Do not link to it from code comments — see Comment Policy.)
+
 ## Document Responsibilities
 
 The project maintains three complementary documentation files with distinct responsibilities:
@@ -136,4 +216,4 @@ The project maintains three complementary documentation files with distinct resp
 
 2. **SPEC.md is the API index.** Update when adding new exports or changing public API behavior. SPEC.md lists each export with a link to its source file — full type signatures and JSDoc live in the source.
 
-3. **AGENTS.md guides AI agents.** Update when project conventions, workflow, or source layout change.
+3. **AGENTS.md is the canonical AI instruction set** (broadly supported across coding agents). Update when project conventions, workflow, or source layout change. **Claude-Code-specific tooling should keep a thin pointer file** at `CLAUDE.md` whose only content is `@AGENTS.md` — do not duplicate the instruction set there.
