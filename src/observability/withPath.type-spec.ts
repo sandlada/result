@@ -4,9 +4,14 @@ import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('withPath types', () => {
-    it('withPath(segment) returns void', () => {
-        const r: void = withPath('fetchUser');
-        expectTypeOf(r).toEqualTypeOf<void>();
+    it('withPath(segment) returns a curried operator', () => {
+        // Curried form returns `<T, E>(r: IResultOfT<T, E>) => IResultOfT<T, E>`
+        // so the operator slots into `pipe` without an arrow wrapper (mirrors
+        // `tap`/`map`/`bind` shape). It is not `void` — the side effect of
+        // pushing onto the path frame happens during the call.
+        const fn = withPath('fetchUser');
+        const _check: <T, E>(r: IResultOfT<T, E>) => IResultOfT<T, E> = fn;
+        expectTypeOf(_check).toBeFunction();
     });
 
     it('withPath(segment, r) returns IResultOfT<T, E>', () => {

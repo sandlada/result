@@ -3,9 +3,12 @@ import { ofNone } from './ofNone.js';
 import type { IOption, IOptionNone } from '../types/Option.js';
 
 describe('ofNone types', () => {
-    it('returns IOption<never> by default', () => {
+    it('returns IOption<unknown> by default (contextual typing widens at use site)', () => {
+        // Implementation defaults `T` to `unknown` so contextual typing can flow
+        // (`const x: IOption<number> = ofNone()`). Without an explicit generic
+        // or contextual target, the bare call resolves to `IOption<unknown>`.
         const opt = ofNone();
-        expectTypeOf(opt).toEqualTypeOf<IOption<never>>();
+        expectTypeOf(opt).toEqualTypeOf<IOption<unknown>>();
     });
 
     it('returns IOption<T> with explicit type parameter', () => {

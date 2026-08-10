@@ -21,7 +21,8 @@ describe('Option types', () => {
 
     it('IOption is the discriminated union of Some and None', () => {
         const some: IOption<number> = ofSome(42);
-        const none: IOption<number> = ofNone();
+        // Pin the option's value type — `ofNone()` widens to `IOption<unknown>`.
+        const none: IOption<number> = ofNone() as IOption<number>;
         expectTypeOf(some).toBeObject();
         expectTypeOf(none).toBeObject();
     });
@@ -33,8 +34,9 @@ describe('Option types', () => {
     });
 
     it('ofNone() is assignable to IOption<T>', () => {
-        const opt = ofNone();
-        const _check: IOption<number> = opt;
+        // Pin the receiving slot type so contextual typing widens `unknown` to
+        // the declared `T`. The bare call returns `IOption<unknown>`.
+        const _check: IOption<number> = ofNone();
         expectTypeOf(_check).toBeObject();
     });
 
@@ -157,8 +159,11 @@ describe('Option types', () => {
             opt.value;
         });
 
-        it('ofNone() infers IOption<never> and widens to any IOption<T>', () => {
-            expectTypeOf(ofNone()).toEqualTypeOf<IOption<never>>();
+        it('ofNone() infers IOption<unknown> by default and widens to any IOption<T>', () => {
+            // `ofNone()` defaults its type parameter to `unknown` (contextual
+            // typing slot); contextual annotation widens `unknown` to the
+            // declared slot type.
+            expectTypeOf(ofNone()).toEqualTypeOf<IOption<unknown>>();
             const _widened: IOption<string> = ofNone();
             expectTypeOf(_widened).toEqualTypeOf<IOption<string>>();
         });

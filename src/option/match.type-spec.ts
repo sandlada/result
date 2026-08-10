@@ -58,9 +58,11 @@ describe('match types', () => {
     });
 
     it('object form preserves the same union of return types (Group B)', () => {
+        // Pin the input as `IOption<number>` — `ofNone()` defaults to
+        // `IOption<unknown>`, which would widen the handler's inferred T.
         const r = match(
             { some: (_v: number): 1 | 2 => 1, none: (): 1 | 2 => 2 },
-            ofNone(),
+            ofNone() as IOption<number>,
         );
         expectTypeOf(r).toEqualTypeOf<1 | 2>();
     });

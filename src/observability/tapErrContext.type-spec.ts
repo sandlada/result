@@ -25,8 +25,11 @@ describe('tapErrContext types', () => {
     });
 
     it('passes through success unchanged', () => {
-        const r = tapErrContext((e: string) => { /* log */ }, ok(42));
-        const _check: IResultOfT<number, string> = r as IResultOfT<number, string>;
+        // After BUG-021 fix, the body is wrapped in an async IIFE — the
+        // return type is uniformly `Promise<IResultOfT<T, E>>` regardless of
+        // success/failure branch.
+        const r = tapErrContext((_e: string) => { /* log */ }, ok(42));
+        const _check: Promise<IResultOfT<number, string>> = r;
         expectTypeOf(_check).toBeObject();
     });
 

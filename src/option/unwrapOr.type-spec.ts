@@ -29,7 +29,9 @@ describe('unwrapOr types', () => {
     });
 
     it('returns D from None path (direct form)', () => {
-        const r = unwrapOr(0, ofNone());
+        // Pin the option's value type — `ofNone()` defaults to `IOption<unknown>`,
+        // which would absorb the default type into `unknown`.
+        const r = unwrapOr(0, ofNone() as IOption<number>);
         expectTypeOf(r).toEqualTypeOf<number>();
     });
 
@@ -50,7 +52,7 @@ describe('unwrapOr types', () => {
         const rString = fn(ofSome('hi') as IOption<string>);
         expectTypeOf(rString).toEqualTypeOf<string | number>();
 
-        const rNone = fn(ofNone());
+        const rNone = fn(ofNone() as IOption<number>);
         expectTypeOf(rNone).toEqualTypeOf<number>();
     });
 

@@ -5,9 +5,12 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('ap types', () => {
     it('curried form applies the wrapped function type', () => {
+        // `F` is the value-result's error type, distinct from `E`. The
+        // curried return widens to `E | F`; `F` defaults to `unknown`
+        // because no value-result is supplied at currying time.
         const wrappedFn = ok((value: number) => value.toString()) as IResultOfT<(value: number) => string, Error>;
         const fn = ap(wrappedFn);
-        const _check: (r: IResultOfT<number, Error>) => IResultOfT<string, Error> = fn;
+        const _check: (r: IResultOfT<number, unknown>) => IResultOfT<string, Error | unknown> = fn;
         expectTypeOf(_check).toBeFunction();
     });
 

@@ -16,9 +16,11 @@ describe('fromOption types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('handles IOption<never> from ofNone', () => {
+    it('handles IOption<unknown> from ofNone (default T)', () => {
+        // `ofNone()` is typed `IOption<unknown>` (default `T = unknown` for
+        // contextual typing); `fromOption` lifts that default through.
         const r = fromOption(ofNone());
-        const _check: AsyncOption<never> = r;
+        const _check: AsyncOption<unknown> = r;
         expectTypeOf(_check).toBeObject();
     });
 

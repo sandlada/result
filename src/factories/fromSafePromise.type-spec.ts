@@ -18,24 +18,26 @@ describe('fromSafePromise types', () => {
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<boolean, Error>>>();
     });
 
-// Non-configurable error type
+// Configurable error type via optional `errorFn` (mirrors `fromPromise`).
 
-    it('rejects an explicit E type parameter — the error type is fixed', () => {
-        // fromSafePromise does not expose an E type parameter; callers cannot
-        // customise the error type. The error is always `Error`.
-        // @ts-expect-error fromSafePromise takes only one type parameter (T)
-        const _p = fromSafePromise<number, string>(Promise.resolve(42));
-        void _p;
+    it('accepts an optional E type parameter when an errorFn is supplied', () => {
+        // `fromSafePromise<T, E = Error>(promise, errorFn?)` mirrors `fromPromise`.
+        // Callers may opt into a narrower error type by supplying an `errorFn`
+        // whose return type drives `E`.
+        type AppError = { kind: 'AppError'; detail: string };
+        const p = fromSafePromise<number, AppError>(
+            Promise.resolve(42),
+            () => ({ kind: 'AppError', detail: 'x' }),
+        );
+        expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, AppError>>>();
     });
 
-    it('does not accept an errorFn argument — non-Error rejections are auto-wrapped', () => {
-        // The signature is `(promise: Promise<T>) => Promise<IResultOfT<T, Error>>`.
-        // No errorFn is part of the contract — the function auto-wraps non-Error
-        // rejections in `new Error(String(e))`.
+    it('non-Error rejections are auto-wrapped in `Error` when no errorFn is given', () => {
+        // The signature is `(promise: Promise<T>, errorFn?: (e: unknown) => E)`.
+        // Without an errorFn, non-Error rejections are auto-wrapped in
+        // `new Error(String(e))` and the default error type is `Error`.
         const p = fromSafePromise(Promise.resolve(42));
         expectTypeOf(p).toEqualTypeOf<Promise<IResultOfT<number, Error>>>();
-        // @ts-expect-error fromSafePromise does not accept an errorFn
-        fromSafePromise(Promise.resolve(42), (e) => String(e));
     });
 
     it('preserves Promise<undefined> for promises that resolve to undefined', () => {

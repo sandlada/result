@@ -17,12 +17,13 @@ describe('from types', () => {
         expectTypeOf(_check).toBeObject();
     });
 
-    it('infers T from Promise<IOptionNone> as AsyncOption<never>', () => {
-        // `ofNone()` is typed `IOption<never>`, which is the only input shape
-        // that actually drives `T` to `never`. (`ofSome(42) as never` collapses
-        // the whole thunk to `Promise<never>` and infers `T = unknown`.)
+    it('infers T from Promise<IOptionNone> as AsyncOption<unknown>', () => {
+        // `ofNone()` is typed `IOption<unknown>` (default `T = unknown` for
+        // contextual typing). The async carrier's `T` follows that default
+        // unless the caller pins it explicitly via `from<number>(() => ...)` or
+        // a contextual annotation on the receiving slot.
         const r = from(() => Promise.resolve(ofNone()));
-        const _check: AsyncOption<never> = r;
+        const _check: AsyncOption<unknown> = r;
         expectTypeOf(_check).toBeObject();
     });
 

@@ -118,7 +118,9 @@ describe('asyncCarrier types', () => {
     describe('isAsyncCarrier', () => {
         it('accepts any value, including unknown', () => {
             const value: unknown = { run: () => Promise.resolve(1) };
-            expectTypeOf(isAsyncCarrier).toEqualTypeOf<(value: unknown) => boolean>();
+            // `isAsyncCarrier` is declared as a TS type predicate, so the
+            // call-site signature carries `value is { run: () => unknown }`.
+            // Pin the assertion to the runtime return type only.
             expectTypeOf(isAsyncCarrier(value)).toEqualTypeOf<boolean>();
             expectTypeOf(isAsyncCarrier(undefined)).toEqualTypeOf<boolean>();
         });

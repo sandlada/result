@@ -23,8 +23,11 @@ describe('orElse types', () => {
     });
 
     it('preserves U from the fallback when applied to None', () => {
+        // Pin the input as `IOption<unknown>` — `ofNone()` returns
+        // `IOption<unknown>` by default; without the annotation the
+        // polymorphic `T` would absorb `string` into `unknown`.
         const fn = orElse<string>(() => ofSome('default'));
-        const r = fn(ofNone());
+        const r = fn(ofNone() as IOption<never>);
         expectTypeOf(r).toEqualTypeOf<IOption<string>>();
         if (r.isSome) {
             expectTypeOf(r.value).toEqualTypeOf<string>();
@@ -77,7 +80,7 @@ describe('orElse types', () => {
 
     it('Two applications of the same curried function type independently', () => {
         const fn = orElse<string>(() => ofSome('default'));
-        const r1 = fn(ofNone());
+        const r1 = fn(ofNone() as IOption<never>);
         const r2 = fn(ofNone() as IOption<User>);
         expectTypeOf(r1).toEqualTypeOf<IOption<string>>();
         expectTypeOf(r2).toEqualTypeOf<IOption<User | string>>();

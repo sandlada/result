@@ -49,9 +49,11 @@ describe('fromOption types', () => {
         type E = { code: number };
         const fn = fromOption<E>({ code: 1 });
         const a = fn(ofSome('x'));
-        const b = fn(ofNone());
+        // `ofNone()` defaults to `IOption<unknown>`; pin the input to `string`
+        // so the polymorphic `A` narrows to `string` rather than `unknown`.
+        const b = fn(ofNone() as IOption<string>);
         const _checkA: IResultOfT<string, E> = a;
-        const _checkB: IResultOfT<never, E> = b;
+        const _checkB: IResultOfT<string, E> = b;
         expectTypeOf(_checkA).toBeObject();
         expectTypeOf(_checkB).toBeObject();
     });
@@ -65,10 +67,12 @@ describe('fromOption types', () => {
     it('A type parameter is polymorphic in the curried form', () => {
         const fn = fromOption<number>(404);
         const a = fn(ofSome('hello'));
-        const b = fn(ofNone());
-        // a: IResultOfT<string, number>; b: IResultOfT<never, number>
+        // `ofNone()` defaults to `IOption<unknown>` (contextual-typing slot),
+        // so the polymorphic `A` widens to `unknown` rather than `never`.
+        const b = fn(ofNone() as IOption<string>);
+        // a: IResultOfT<string, number>; b: IResultOfT<string, number>
         const _checkA: IResultOfT<string, number> = a;
-        const _checkB: IResultOfT<never, number> = b;
+        const _checkB: IResultOfT<string, number> = b;
         expectTypeOf(_checkA).toBeObject();
         expectTypeOf(_checkB).toBeObject();
     });

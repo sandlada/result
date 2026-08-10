@@ -5,8 +5,10 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('or types', () => {
     it('curried form preserves the value and widens the error type', () => {
+        // Curried signature has 2 generics (`<A, F>`); `E` is deferred to
+        // the application site so the input error type flows from the call.
         const other = ok(0) as IResultOfT<number, RangeError>;
-        const fn = or<number, TypeError, RangeError>(other);
+        const fn = or<number, RangeError>(other);
         const _check: (r: IResultOfT<number, TypeError>) => IResultOfT<number, TypeError | RangeError> = fn;
         expectTypeOf(_check).toBeFunction();
     });

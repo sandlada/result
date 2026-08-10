@@ -5,6 +5,7 @@ import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import type { IOption } from '../types/Option.js';
 
+
 describe('transpose types', () => {
     it('returns IResultOfT<IOption<T>, E>', () => {
         const r = transpose(ofSome(ok(42)));
@@ -36,7 +37,11 @@ describe('transpose types', () => {
     });
 
     it('transposes None to Ok(None)', () => {
-        const r = transpose(ofNone());
+        // `transpose` operates on `IOption<IResultOfT<T, E>>`. A bare
+        // `ofNone()` is `IOption<unknown>`, which doesn't satisfy the
+        // constraint — cast it to the expected outer shape so T and E
+        // both default to `unknown`.
+        const r = transpose(ofNone() as IOption<IResultOfT<unknown, unknown>>);
         if (r.isSuccess) {
             expectTypeOf(r.value.isNone).toBeBoolean();
         }

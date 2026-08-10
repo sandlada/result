@@ -5,12 +5,14 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('unwrapOrElseAsync types', () => {
     it('curried form returns a function', () => {
-        const fn = unwrapOrElseAsync<number, string>((e) => Promise.resolve(0));
+        // The signature declares `<A, E, D>`; specifying only two generics
+        // leaves `D` unbound. Use three to pin all generics.
+        const fn = unwrapOrElseAsync<number, string, number>((e) => Promise.resolve(0));
         expectTypeOf(fn).toBeFunction();
     });
 
     it('curried form when applied returns Promise<A>', () => {
-        const fn = unwrapOrElseAsync<number, string>((e) => Promise.resolve(0));
+        const fn = unwrapOrElseAsync<number, string, number>((e) => Promise.resolve(0));
         const r = fn(asyncOk<number>(42));
         const _check: Promise<number> = r;
         expectTypeOf(_check).toBeObject();
@@ -26,8 +28,10 @@ describe('unwrapOrElseAsync types', () => {
     });
 
     it('preserves T and E from input on direct form', () => {
-        const r = unwrapOrElseAsync<number, string>(
-            (e) => Promise.resolve(0),
+        // Pin all three generics (`A`, `E`, `D`); `D = number` collapses
+        // `A | D` to `number` for this test's setup.
+        const r = unwrapOrElseAsync<number, string, number>(
+            (_e) => Promise.resolve(0),
             asyncOk<number>(42),
         );
         const _check: Promise<number> = r;
