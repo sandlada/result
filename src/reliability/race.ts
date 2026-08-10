@@ -23,6 +23,14 @@
  * - If *every* run rejected, the earliest-arriving rejection wins.
  * - For "first to settle, whatever it is" semantics, use a separate primitive.
  *
+ * **Type lie**: when every run rejected, the resulting `Err.error` is the
+ * `unknown` rejection reason (cast to `E` in the implementation). The
+ * static type still says `E | EE`. Consumers that need to distinguish an
+ * upstream rejection from a domain `Err` should narrow at runtime
+ * (e.g. `(r.error as { message?: unknown }).message !== undefined` or
+ * `instanceof Error`). The cast is intentional: a true `unknown` here
+ * would erase all type information from the success path's `E`.
+ *
  * @example
  * ```ts
  * import { race } from '@sandlada/result/reliability';

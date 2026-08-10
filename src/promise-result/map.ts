@@ -32,7 +32,15 @@ export function map<A, B, E>(
     if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => map(f, r);
     return r.then(inner => {
         if (!inner.isSuccess) return inner as unknown as IResultOfT<B, E>;
-        try { return ok(f(inner.value)) as unknown as IResultOfT<B, E>; }
-        catch (e: unknown) { return err(e as unknown as E) as unknown as IResultOfT<B, E>; }
+        try {
+            const result = f(inner.value);
+            if (result !== null && typeof result === 'object' && typeof (result as { then?: unknown }).then === 'function') {
+                throw new Error(
+                    'map: mapper returned a thenable, but map requires a synchronous mapper. ' +
+                    'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
+                );
+            }
+            return ok(result) as unknown as IResultOfT<B, E>;
+        } catch (e: unknown) { return err(e as unknown as E) as unknown as IResultOfT<B, E>; }
     });
 }

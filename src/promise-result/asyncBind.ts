@@ -65,5 +65,5 @@ export function asyncBind<A, B, E, F>(
     // `Promise<IResultOfT<B, F>>` correctly — unlike the old
     // `Promise.resolve().then(() => f(r.value))` shape which produced
     // `Promise<Promise<...>>` and required a second `await`.
-    return Promise.resolve(r.value).then(f) as unknown as Promise<IResultOfT<B, F>>;
+    return Promise.resolve(r.value).then(f);
 }

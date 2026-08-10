@@ -24,11 +24,6 @@ export function expectErr<T, E>(
     message: string,
     ar: AsyncResult<T, E>,
     throwingFn?: (info: { message: string; value: T }) => Error,
-): Promise<E>;
-export function expectErr<T, E>(
-    message: string,
-    ar: AsyncResult<T, E>,
-    throwingFn?: (info: { message: string; value: T }) => Error,
 ): Promise<E> {
     return ar.run().then(r => {
         if (r.isFailure) return r.error;

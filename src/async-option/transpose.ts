@@ -3,6 +3,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import type { IOption } from '../types/Option.js';
 import { ofSome as syncOfSome, ofNone as syncOfNone } from '../option/index.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Transposes an `AsyncOption<AsyncResult<T, E>>` into an
@@ -34,12 +35,12 @@ export function transpose<T, E>(
             if (!opt.isSome) {
                 // `syncOfNone<T>()` already returns the correctly-parameterized
                 // IOption<T> — no cast needed when the type argument is supplied.
-                const noneAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfNone<T>()) };
+                const noneAo: AsyncOption<T> = markAsyncCarrier({ run: () => Promise.resolve(syncOfNone<T>()) });
                 return { isSuccess: true as const, isFailure: false as const, value: noneAo };
             }
             const inner = await opt.value.run();
             if (inner.isSuccess) {
-                const someAo: AsyncOption<T> = { run: () => Promise.resolve(syncOfSome(inner.value)) };
+                const someAo: AsyncOption<T> = markAsyncCarrier({ run: () => Promise.resolve(syncOfSome(inner.value)) });
                 return { isSuccess: true as const, isFailure: false as const, value: someAo };
             }
             return { isSuccess: false as const, isFailure: true as const, error: inner.error };
