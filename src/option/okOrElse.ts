@@ -41,9 +41,9 @@ export function okOrElse<E>(
     errorFn: () => E,
 ): <T>(opt: IOption<T>) => IResultOfT<T, E | Error> {
     return <T>(opt: IOption<T>): IResultOfT<T, E | Error> => {
-        if (opt.isSome) return ok(opt.value) as unknown as IResultOfT<T, E | Error>;
+        if (opt.isSome) return ok(opt.value);
         try {
-            return err(errorFn()) as unknown as IResultOfT<T, E | Error>;
+            return err(errorFn());
         } catch (e: unknown) {
             // If the thrown value is already an Error, pass it through so callers
             // can rely on `instanceof Error`. Otherwise, the catch-block is the
@@ -52,7 +52,7 @@ export function okOrElse<E>(
             const innerError = e instanceof Error
                 ? e
                 : (e as unknown as Error);
-            return err(innerError) as unknown as IResultOfT<T, E | Error>;
+            return err(innerError);
         }
     };
 }

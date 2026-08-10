@@ -24,7 +24,7 @@ export function switchFnAsync<A, B, E = unknown>(
 ): (a: A) => Promise<IResultOfT<B, E>> {
     return async (a: A): Promise<IResultOfT<B, E>> => {
         try {
-            return ok(await f(a)) as unknown as IResultOfT<B, E>;
+            return ok(await f(a));
         } catch (e: unknown) {
             // No `errorFn`: pass through the raw rejection. The cast goes
             // through `unknown` to make the type honesty visible.
@@ -37,7 +37,7 @@ export function switchFnAsync<A, B, E = unknown>(
             } else {
                 caught = e as unknown as E;
             }
-            return err(caught) as unknown as IResultOfT<B, E>;
+            return err(caught);
         }
     };
 }

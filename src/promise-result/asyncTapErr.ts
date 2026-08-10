@@ -32,9 +32,9 @@ export function asyncTapErr<A, E>(
     try {
         return fn(r.error).then(
             () => r,
-            e => err(e as E) as unknown as IResultOfT<A, E>,
+            e => err(e as E),
         );
     } catch (e: unknown) {
-        return Promise.resolve(err(e as E) as unknown as IResultOfT<A, E>);
+        return Promise.resolve(err(e as E));
     }
 }

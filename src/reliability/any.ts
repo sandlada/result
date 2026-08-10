@@ -49,7 +49,7 @@ export function any<T, E>(
     return {
         run: async (): Promise<IResultOfT<T[], AnyError<E>[]>> => {
             if (runs.length === 0) {
-                return ok([] as T[]) as unknown as IResultOfT<T[], AnyError<E>[]>;
+                return ok([] as T[]);
             }
             const successes: T[] = [];
             const errors: AnyError<E>[] = [];
@@ -68,9 +68,9 @@ export function any<T, E>(
                 )),
             );
             if (successes.length > 0) {
-                return ok(successes) as unknown as IResultOfT<T[], AnyError<E>[]>;
+                return ok(successes);
             }
-            return err(errors) as unknown as IResultOfT<T[], AnyError<E>[]>;
+            return err(errors);
         },
     };
 }

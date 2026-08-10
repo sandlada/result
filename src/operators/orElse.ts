@@ -53,6 +53,6 @@ export function orElse<A, E, B, F>(
         const innerError = errorFn
             ? errorFn(thrown)
             : (thrown as unknown as F);
-        return err(innerError) as unknown as IResultOfT<A | B, F>;
+        return err(innerError);
     }
 }

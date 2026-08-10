@@ -88,7 +88,7 @@ export function fromSafeTry<T, E>(
                     'or to `yield* safeTry(...)` a failure.',
                 );
             }
-            return ok(first.value) as unknown as IResultOfT<T, E>;
+            return ok(first.value);
         }
         // A failure was yielded via safeTry. Ensure the generator is closed.
         // Swallow cleanup errors so they do not shadow the original failure:

@@ -32,6 +32,6 @@ export function ap<A, B, E>(
     return Promise.all([fnResult, result]).then(([fnR, valR]) => {
         if (!fnR.isSuccess) return fnR as unknown as IResultOfT<B, E>;
         if (!valR.isSuccess) return valR as unknown as IResultOfT<B, E>;
-        return ok(fnR.value(valR.value)) as unknown as IResultOfT<B, E>;
+        return ok(fnR.value(valR.value));
     });
 }

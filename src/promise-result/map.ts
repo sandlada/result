@@ -40,7 +40,7 @@ export function map<A, B, E>(
                     'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
                 );
             }
-            return ok(result) as unknown as IResultOfT<B, E>;
-        } catch (e: unknown) { return err(e as unknown as E) as unknown as IResultOfT<B, E>; }
+            return ok(result);
+        } catch (e: unknown) { return err(e as unknown as E); }
     });
 }

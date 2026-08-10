@@ -36,7 +36,7 @@ export function sequenceAsyncResult<T, E>(
                 if (!r.isSuccess) return r as unknown as IResultOfT<T[], E>;
                 values.push(r.value);
             }
-            return ok(values) as unknown as IResultOfT<T[], E>;
+            return ok(values);
         },
     };
 }

@@ -64,7 +64,7 @@ export function orTee<A, E, B, F>(
             fn(r.error);
         } catch (thrown: unknown) {
             const innerError = errorFn ? errorFn(thrown) : (thrown as unknown as E);
-            return err(innerError) as unknown as IResultOfT<A, E>;
+            return err(innerError);
         }
     }
     return r;

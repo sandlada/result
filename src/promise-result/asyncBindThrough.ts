@@ -42,9 +42,9 @@ export function asyncBindThrough<A, B, E, F>(
             inner => inner.isSuccess
                 ? (r as unknown as IResultOfT<A, E | F>)
                 : (inner as unknown as IResultOfT<A, E | F>),
-            e => err(e as E | F) as unknown as IResultOfT<A, E | F>,
+            e => err(e as E | F),
         );
     } catch(e: unknown) {
-        return Promise.resolve(err(e as E | F) as unknown as IResultOfT<A, E | F>);
+        return Promise.resolve(err(e as E | F));
     }
 }

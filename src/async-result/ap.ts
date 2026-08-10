@@ -45,7 +45,7 @@ export function ap<A, B, E, F>(
             const valR = await result.run();
             if (!valR.isSuccess) return valR as unknown as IResultOfT<B, E | F>;
             const value = fnR.value(valR.value);
-            return ok(value) as unknown as IResultOfT<B, E | F>;
+            return ok(value);
         },
     };
 }

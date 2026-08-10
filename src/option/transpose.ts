@@ -30,8 +30,8 @@ export function transpose<T, E>(
 ): IResultOfT<IOption<T>, E> {
     // Explicit `ofNone<T>()` keeps the IOption<T> slot self-documenting
     // — without the generic the call widens to IOption<unknown>.
-    if (!opt.isSome) return ok(ofNone<T>()) as unknown as IResultOfT<IOption<T>, E>;
+    if (!opt.isSome) return ok(ofNone<T>());
     const inner = opt.value;
     if (!inner.isSuccess) return inner as unknown as IResultOfT<IOption<T>, E>;
-    return ok(ofSome(inner.value)) as unknown as IResultOfT<IOption<T>, E>;
+    return ok(ofSome(inner.value));
 }

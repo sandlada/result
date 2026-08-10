@@ -48,9 +48,9 @@ export function filterOrElse<T, E>(
                 let mapped: E;
                 try { mapped = await errorFn(r.value); }
                 catch (thrown: unknown) { mapped = thrown as unknown as E; }
-                return err(mapped) as unknown as IResultOfT<T, E>;
+                return err(mapped);
             } catch (e: unknown) {
-                return err(e as unknown as E) as unknown as IResultOfT<T, E>;
+                return err(e as unknown as E);
             }
         },
     };

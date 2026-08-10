@@ -28,8 +28,8 @@ export function mapAsync<A, B, E>(
     if(r === undefined) return (r: Promise<IResultOfT<A, E>>): Promise<IResultOfT<B, E>> => mapAsync(f, r);
     return r.then(async inner => {
         if(!inner.isSuccess) return inner as unknown as IResultOfT<B, E>;
-        try { return ok(await f(inner.value)) as unknown as IResultOfT<B, E>; }
-        catch(e: unknown) { return err(e as unknown as E) as unknown as IResultOfT<B, E>; }
+        try { return ok(await f(inner.value)); }
+        catch(e: unknown) { return err(e as unknown as E); }
     });
 }
 

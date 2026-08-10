@@ -21,7 +21,7 @@ export function fromOption<E>(errorOnNone: E): <A>(opt: IOption<A>) => IResultOf
 export function fromOption<A, E>(errorOnNone: E, opt: IOption<A>): IResultOfT<A, E>;
 export function fromOption<A, E>(errorOnNone: E, opt?: IOption<A>): IResultOfT<A, E> | ((opt: IOption<A>) => IResultOfT<A, E>) {
     if(opt === undefined) return (opt: IOption<A>): IResultOfT<A, E> => fromOption(errorOnNone, opt);
-    if(opt.isSome) return ok(opt.value) as unknown as IResultOfT<A, E>;
-    return err(errorOnNone) as unknown as IResultOfT<A, E>;
+    if(opt.isSome) return ok(opt.value);
+    return err(errorOnNone);
 }
 

@@ -40,7 +40,7 @@ export function map<A, B, E>(
         return <E2>(r: IResultOfT<A, E2>): IResultOfT<B, E2> => {
             if (!r.isSuccess) return r as unknown as IResultOfT<B, E2>;
             try {
-                return ok(f(r.value)) as unknown as IResultOfT<B, E2>;
+                return ok(f(r.value));
             } catch (thrown: unknown) {
                 const innerError = eFn
                     ? eFn(thrown)
@@ -52,11 +52,11 @@ export function map<A, B, E>(
     const r = rOrErrorFn;
     if (!r.isSuccess) return r as unknown as IResultOfT<B, E>;
     try {
-        return ok(f(r.value)) as unknown as IResultOfT<B, E>;
+        return ok(f(r.value));
     } catch (thrown: unknown) {
         const innerError = errorFn
             ? errorFn(thrown)
             : (thrown as unknown as E);
-        return err(innerError) as unknown as IResultOfT<B, E>;
+        return err(innerError);
     }
 }

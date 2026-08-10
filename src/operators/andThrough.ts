@@ -75,7 +75,7 @@ export function andThrough<A, E, B, F>(
         const innerError = errorFn
             ? errorFn(thrown)
             : (thrown as unknown as (E | F));
-        return err(innerError) as unknown as IResultOfT<A, E | F>;
+        return err(innerError);
     }
     if (!inner.isSuccess) return inner as unknown as IResultOfT<A, E | F>;
     return r as unknown as IResultOfT<A, E | F>;

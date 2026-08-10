@@ -49,8 +49,8 @@ export function bimap<A, E, C, F>(
         const eFn = typeof rOrErrorFn === 'function' ? rOrErrorFn : undefined;
         return <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>): IResultOfT<C, F> => {
             try {
-                if (r.isSuccess) return ok(onOk(r.value)) as unknown as IResultOfT<C, F>;
-                return err(onErr(r.error)) as unknown as IResultOfT<C, F>;
+                if (r.isSuccess) return ok(onOk(r.value));
+                return err(onErr(r.error));
             } catch (thrown: unknown) {
                 const innerError = eFn
                     ? eFn(thrown)
@@ -61,12 +61,12 @@ export function bimap<A, E, C, F>(
     }
     const r = rOrErrorFn;
     try {
-        if (r.isSuccess) return ok(onOk(r.value)) as unknown as IResultOfT<C, F>;
-        return err(onErr(r.error)) as unknown as IResultOfT<C, F>;
+        if (r.isSuccess) return ok(onOk(r.value));
+        return err(onErr(r.error));
     } catch (thrown: unknown) {
         const innerError = errorFn
             ? errorFn(thrown)
             : (thrown as unknown as F);
-        return err(innerError) as unknown as IResultOfT<C, F>;
+        return err(innerError);
     }
 }

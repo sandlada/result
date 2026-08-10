@@ -48,15 +48,15 @@ export function bimap<T, E, U, F>(
             run: async (): Promise<IResultOfT<U, F>> => {
                 const r = await ar.run();
                 try {
-                    if (r.isSuccess) return ok(await onOk(r.value)) as unknown as IResultOfT<U, F>;
-                    return err(await onErr(r.error)) as unknown as IResultOfT<U, F>;
+                    if (r.isSuccess) return ok(await onOk(r.value));
+                    return err(await onErr(r.error));
                 } catch (thrown: unknown) {
                     // Wrap `eFn(thrown)` so a buggy mapper does not escape
                     // the catch block and reject the outer Promise.
                     const innerError = eFn
                         ? (() => { try { return eFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                         : (thrown as unknown as F);
-                    return err(innerError) as unknown as IResultOfT<U, F>;
+                    return err(innerError);
                 }
             },
         });
@@ -66,13 +66,13 @@ export function bimap<T, E, U, F>(
         run: async (): Promise<IResultOfT<U, F>> => {
             const r = await ar.run();
             try {
-                if (r.isSuccess) return ok(await onOk(r.value)) as unknown as IResultOfT<U, F>;
-                return err(await onErr(r.error)) as unknown as IResultOfT<U, F>;
+                if (r.isSuccess) return ok(await onOk(r.value));
+                return err(await onErr(r.error));
             } catch (thrown: unknown) {
                 const innerError = errorFn
                     ? (() => { try { return errorFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                     : (thrown as unknown as F);
-                return err(innerError) as unknown as IResultOfT<U, F>;
+                return err(innerError);
             }
         },
     };

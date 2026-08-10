@@ -18,9 +18,9 @@ export function swapAsync<A, E>(
 ): Promise<IResultOfT<E, A>> {
     return r.then(inner => {
         if (inner.isSuccess) {
-            return err(inner.value) as unknown as IResultOfT<E, A>;
+            return err(inner.value);
         } else {
-            return ok(inner.error) as unknown as IResultOfT<E, A>;
+            return ok(inner.error);
         }
     });
 }

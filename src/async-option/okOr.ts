@@ -37,8 +37,8 @@ export function okOr<T, E>(
             // matches the runtime shape without an `Awaited<ReturnType<...>>`
             // cast that relies on AsyncResult<T, E>['run'] shape.
             return opt.isSome
-                ? ok<T>(opt.value)
-                : err<E>(error);
+                ? ok(opt.value)
+                : err(error);
         },
     };
 }

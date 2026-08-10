@@ -88,7 +88,7 @@ export function andTee<A, E, B, F>(
             fn(r.value);
         } catch (thrown: unknown) {
             const innerError = errorFn ? errorFn(thrown) : (thrown as unknown as E);
-            return err(innerError) as unknown as IResultOfT<A, E>;
+            return err(innerError);
         }
     }
     return r;

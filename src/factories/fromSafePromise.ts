@@ -28,11 +28,11 @@ export async function fromSafePromise<T, E = Error>(
 ): Promise<IResultOfT<T, E>> {
     try {
         const value = await promise;
-        return ok(value) as unknown as IResultOfT<T, E>;
+        return ok(value);
     } catch (e: unknown) {
         const innerError = errorFn
             ? errorFn(e)
             : (e instanceof Error ? e : new Error(String(e))) as unknown as E;
-        return err(innerError) as unknown as IResultOfT<T, E>;
+        return err(innerError);
     }
 }

@@ -17,6 +17,6 @@ export function asyncErr<E>(error: E): Promise<IResultOfT<never, E>> {
     // `err(error)` returns `IResultOfT<never, E>` but the cross-variant cast
     // in err.ts is single-layer. Bridge through `unknown` here so the type
     // honesty is visible — same pattern as the rest of the factory family.
-    return Promise.resolve(err(error) as unknown as IResultOfT<never, E>);
+    return Promise.resolve(err(error));
 }
 

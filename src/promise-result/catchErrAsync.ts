@@ -38,6 +38,6 @@ export function catchErrAsync<A, E>(
     return r.then(async (res) => {
         if (res.isSuccess) return res as unknown as IResultOfT<A, never>;
         const recovered = await onErr(res.error);
-        return ok(recovered) as unknown as IResultOfT<A, never>;
+        return ok(recovered);
     });
 }

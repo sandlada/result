@@ -45,6 +45,6 @@ export function fromPredicate<T, E>(
     // under strict-mode bundlers and many transpilers.
     if (rest.length === 0) return (value: T): IResultOfT<T, E> => fromPredicate(predicate, errorOnFalse, value);
     const [value] = rest;
-    if (predicate(value)) return ok(value) as unknown as IResultOfT<T, E>;
-    return err(errorOnFalse) as unknown as IResultOfT<T, E>;
+    if (predicate(value)) return ok(value);
+    return err(errorOnFalse);
 }

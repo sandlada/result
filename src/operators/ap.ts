@@ -43,8 +43,8 @@ export function ap<A, B, E, F>(
     if (!fnResult.isSuccess) return fnResult as unknown as IResultOfT<B, E | F>;
     if (!result.isSuccess) return result as unknown as IResultOfT<B, E | F>;
     try {
-        return ok(fnResult.value(result.value)) as unknown as IResultOfT<B, E | F>;
+        return ok(fnResult.value(result.value));
     } catch (e: unknown) {
-        return err(e as unknown as E | F) as unknown as IResultOfT<B, E | F>;
+        return err(e as unknown as E | F);
     }
 }

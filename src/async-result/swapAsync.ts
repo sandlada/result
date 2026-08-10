@@ -25,8 +25,8 @@ export function swapAsync<T, E>(
     return {
         run: async (): Promise<IResultOfT<E, T>> => {
             const r = await ar.run();
-            if (r.isSuccess) return err(r.value) as unknown as IResultOfT<E, T>;
-            return ok(r.error) as unknown as IResultOfT<E, T>;
+            if (r.isSuccess) return err(r.value);
+            return ok(r.error);
         },
     };
 }

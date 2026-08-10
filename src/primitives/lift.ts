@@ -47,9 +47,9 @@ export function lift<A extends unknown[], T, E>(
 ): (...args: A) => IResultOfT<T, E> {
     return (...args: A): IResultOfT<T, E> => {
         try {
-            return ok(fn(...args)) as unknown as IResultOfT<T, E>;
+            return ok(fn(...args));
         } catch (caught) {
-            if (errorFn) return err(errorFn(caught)) as unknown as IResultOfT<T, E>;
+            if (errorFn) return err(errorFn(caught));
             throw caught;
         }
     };

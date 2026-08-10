@@ -30,7 +30,7 @@ export function tryCatch<T, E = unknown>(
         } else {
             innerError = e as unknown as E;
         }
-        return err(innerError) as unknown as IResultOfT<T, E>;
+        return err(innerError);
     }
 }
 

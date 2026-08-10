@@ -71,9 +71,9 @@ export function catchErr<A, B, E>(
     if (r === undefined) {
         return <A2>(rr: IResultOfT<A2, E>): IResultOfT<A2 | B, never> => {
             if (rr.isSuccess) return rr as unknown as IResultOfT<A2 | B, never>;
-            return ok(onErr(rr.error)) as unknown as IResultOfT<A2 | B, never>;
+            return ok(onErr(rr.error));
         };
     }
     if (r.isSuccess) return r as unknown as IResultOfT<A | B, never>;
-    return ok(onErr(r.error)) as unknown as IResultOfT<A | B, never>;
+    return ok(onErr(r.error));
 }

@@ -57,7 +57,7 @@ export function allSettled<T, E>(
     return {
         run: async (): Promise<IResultOfT<Settled<T, E>[], never>> => {
             if (runs.length === 0) {
-                return ok([] as Settled<T, E>[]) as unknown as IResultOfT<Settled<T, E>[], never>;
+                return ok([] as Settled<T, E>[]);
             }
             const settledOutcomes: Settled<T, E>[] = new Array(runs.length);
             await Promise.all(
@@ -74,7 +74,7 @@ export function allSettled<T, E>(
                     },
                 )),
             );
-            return ok(settledOutcomes) as unknown as IResultOfT<Settled<T, E>[], never>;
+            return ok(settledOutcomes);
         },
     };
 }

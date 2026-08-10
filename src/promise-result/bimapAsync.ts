@@ -35,12 +35,12 @@ export function bimapAsync<A, E, B, F>(
     return r.then(async inner => {
         try {
             if (inner.isSuccess) {
-                return ok(await onOk(inner.value)) as unknown as IResultOfT<B, F>;
+                return ok(await onOk(inner.value));
             } else {
-                return err(await onErr(inner.error)) as unknown as IResultOfT<B, F>;
+                return err(await onErr(inner.error));
             }
         } catch (e: unknown) {
-            return err(e as unknown as F) as unknown as IResultOfT<B, F>;
+            return err(e as unknown as F);
         }
     });
 }

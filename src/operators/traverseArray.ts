@@ -42,10 +42,10 @@ export function traverseArray<A, B, E>(
         try {
             r = fn(item, i);
         } catch(e: unknown) {
-            return err(e as unknown as E) as unknown as IResultOfT<B[], E>;
+            return err(e as unknown as E);
         }
         if(!r.isSuccess) return r as unknown as IResultOfT<B[], E>;
         values.push(r.value);
     }
-    return ok(values) as unknown as IResultOfT<B[], E>;
+    return ok(values);
 }

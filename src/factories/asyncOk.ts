@@ -18,6 +18,6 @@ export function asyncOk<T>(value: T): Promise<IResultOfT<T, never>> {
     // which is wider than the signature's `IResultOfT<T, never>`. Cast through
     // `unknown` so the type honesty is visible — runtime always produces the
     // value-bearing success variant, but the static type needs the explicit bridge.
-    return Promise.resolve(ok(value) as unknown as IResultOfT<T, never>);
+    return Promise.resolve(ok(value));
 }
 

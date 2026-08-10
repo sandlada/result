@@ -45,7 +45,7 @@ export function filterOrElse<A, E>(
             if (!r.isSuccess) return r as unknown as IResultOfT<A, E>;
             try {
                 if (predicate(r.value)) return r;
-                return err(errorFn(r.value)) as unknown as IResultOfT<A, E>;
+                return err(errorFn(r.value));
             } catch (thrown: unknown) {
                 const innerError = tFn
                     ? tFn(thrown)
@@ -58,11 +58,11 @@ export function filterOrElse<A, E>(
     if (!r.isSuccess) return r as unknown as IResultOfT<A, E>;
     try {
         if (predicate(r.value)) return r;
-        return err(errorFn(r.value)) as unknown as IResultOfT<A, E>;
+        return err(errorFn(r.value));
     } catch (thrown: unknown) {
         const innerError = throwErrorFn
             ? throwErrorFn(thrown)
             : (thrown as unknown as E);
-        return err(innerError) as unknown as IResultOfT<A, E>;
+        return err(innerError);
     }
 }

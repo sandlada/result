@@ -33,11 +33,11 @@ export function okOrElse<T, E>(
     return {
         run: async (): Promise<IResultOfT<T, E>> => {
             const opt = await ao.run();
-            if (opt.isSome) return ok<T>(opt.value);
+            if (opt.isSome) return ok(opt.value);
             try {
-                return err<E>(await onNone());
+                return err(await onNone());
             } catch (e: unknown) {
-                return err<E>(e as E);
+                return err(e as E);
             }
         },
     };
