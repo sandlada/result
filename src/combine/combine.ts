@@ -32,11 +32,12 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
-// Tuple overload — preserves per-position heterogeneous types. Listed first so
-// literal tuples (`[ok(1), ok('a')]`) take this path; the homogeneous overload
-// below serves typed arrays.
+// Tuple overload — preserves per-position heterogeneous types. `readonly [...T]`
+// forces TypeScript to preserve the literal tuple structure rather than
+// widening to `IResultOfT<A, E>[]`. The homogeneous overload below then
+// serves only typed-array inputs.
 export function combine<T extends readonly IResultOfT<unknown, unknown>[]>(
-    results: T,
+    results: readonly [...T],
 ): IResultOfT<
     { [K in keyof T]: T[K] extends IResultOfT<infer V, unknown> ? V : never },
     T[number] extends IResultOfT<unknown, infer E> ? E : never

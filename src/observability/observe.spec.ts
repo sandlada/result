@@ -209,6 +209,63 @@ describe('observe / installObserver', () => {
         expect(getActiveObserver()).toBeNull();
     });
 
+    it('regression: installing the same handler twice with proper LIFO disposal', () => {
+        // Identical handlers used to corrupt the previous-pointer slot
+        // because each disposer compared against the same handler identity.
+        // The stack-of-handlers approach correctly removes only the matching
+        // entry on each disposer call.
+        const handler = vi.fn();
+        const cancelA = installObserver(handler);
+        const cancelB = installObserver(handler);
+        observe(ok(1));
+        expect(handler).toHaveBeenCalledTimes(1);
+        // Cancel in LIFO order: B first, then A.
+        cancelB();
+        expect(getActiveObserver()).toBe(handler);
+        cancelA();
+        expect(getActiveObserver()).toBeNull();
+    });
+
+    it('regression: throwing observer does not bubble, but a debug flag could surface it', () => {
+        // Observer errors are still swallowed by default. This test pins the
+        // current behaviour; the audit hook is exercised separately.
+        const handler = vi.fn(() => { throw new Error('crash'); });
+        const cancel = installObserver(handler);
+        try {
+            const returned = observe(ok(1));
+            expect(returned.isSuccess).toBe(true);
+            if (returned.isSuccess) expect(returned.value).toBe(1);
+        } finally {
+            cancel();
+        }
+    });
+
+    it('regression: onObserverError hook receives thrown errors', () => {
+        const handler = vi.fn(() => { throw new Error('boom-from-observer'); });
+        const seen: unknown[] = [];
+        const cancel = installObserver(handler, (e) => seen.push(e));
+        try {
+            const returned = observe(ok(1));
+            expect(returned.isSuccess).toBe(true);
+        } finally {
+            cancel();
+        }
+        expect(seen).toHaveLength(1);
+        expect((seen[0] as Error).message).toBe('boom-from-observer');
+    });
+
+    it('a buggy onObserverError hook does not escape observe()', () => {
+        const handler = vi.fn(() => { throw new Error('observer-failed'); });
+        const cancel = installObserver(handler, () => { throw new Error('hook-failed'); });
+        try {
+            const returned = observe(ok(1));
+            expect(returned.isSuccess).toBe(true);
+            if (returned.isSuccess) expect(returned.value).toBe(1);
+        } finally {
+            cancel();
+        }
+    });
+
     it('observer that mutates shared state does not affect the original result', () => {
         const cancel = installObserver((_e) => {
             // mutate state but not the result

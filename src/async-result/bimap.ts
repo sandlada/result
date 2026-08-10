@@ -51,8 +51,10 @@ export function bimap<T, E, U, F>(
                     if (r.isSuccess) return ok(await onOk(r.value)) as unknown as IResultOfT<U, F>;
                     return err(await onErr(r.error)) as unknown as IResultOfT<U, F>;
                 } catch (thrown: unknown) {
+                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
+                    // the catch block and reject the outer Promise.
                     const innerError = eFn
-                        ? eFn(thrown)
+                        ? (() => { try { return eFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                         : (thrown as unknown as F);
                     return err(innerError) as unknown as IResultOfT<U, F>;
                 }
@@ -68,7 +70,7 @@ export function bimap<T, E, U, F>(
                 return err(await onErr(r.error)) as unknown as IResultOfT<U, F>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
-                    ? errorFn(thrown)
+                    ? (() => { try { return errorFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                     : (thrown as unknown as F);
                 return err(innerError) as unknown as IResultOfT<U, F>;
             }

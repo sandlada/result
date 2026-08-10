@@ -59,7 +59,15 @@ export function timeout<T, E, TOE = TimeoutError>(
             const timer = setTimeout(() => {
                 if (settled) return;
                 settled = true;
-                resolve({ isSuccess: false as const, isFailure: true as const, error: onTimeout(ms) });
+                try {
+                    resolve({ isSuccess: false as const, isFailure: true as const, error: onTimeout(ms) });
+                } catch (thrown: unknown) {
+                    // If `onTimeout(ms)` throws synchronously, we still
+                    // must resolve the outer Promise — otherwise the
+                    // awaiter hangs forever and the throw becomes an
+                    // unhandled global exception.
+                    resolve({ isSuccess: false as const, isFailure: true as const, error: thrown as unknown as TOE });
+                }
             }, ms);
             arRun().then(
                 (r) => {

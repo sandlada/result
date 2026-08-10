@@ -46,8 +46,28 @@ describe('allSettled', () => {
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) {
             expect(r.value[0]!.ok).toBe(false);
-            expect((r.value[0] as { ok: false; error: unknown }).error).toBeInstanceOf(Error);
+            // Rejections carry `kind: 'Rejected'` so the rejection value
+            // is typed as `unknown`, not the user's `E`.
+            const item0 = r.value[0]!;
+            if (!item0.ok) {
+                expect(item0.kind).toBe('Rejected');
+                expect(item0.error).toBeInstanceOf(Error);
+            }
             expect(r.value[1]!.ok).toBe(true);
+        }
+    });
+
+    it('regression: rejection envelopes are tagged kind=Rejected', async () => {
+        const rejected = { run: () => Promise.reject<string>('plain-string') };
+        const r = await allSettled([rejected]).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) {
+            const item = r.value[0]!;
+            expect(item.ok).toBe(false);
+            if (!item.ok) {
+                expect(item.kind).toBe('Rejected');
+                expect(item.error).toBe('plain-string');
+            }
         }
     });
 

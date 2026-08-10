@@ -53,14 +53,18 @@ export function tapErrContext<T, E>(
         return (input: IResultOfT<T, E>): Promise<IResultOfT<T, E>> =>
             tapErrContext(fn, input);
     }
-    if (r.isSuccess) return Promise.resolve(r);
-    const path = getPath();
-    const outcome = fn(r.error, { path });
-    // Always wrap in a Promise — even if `fn` was sync, the type system now
-    // guarantees a uniform `Promise<IResultOfT<T, E>>` return for downstream
-    // pipeline composition.
-    if (outcome && typeof (outcome as Promise<unknown>).then === 'function') {
-        return Promise.resolve(outcome).then(() => r);
-    }
-    return Promise.resolve(r);
+    // Wrap the body in an async IIFE so a synchronous throw from `fn`
+    // becomes a Promise rejection instead of escaping the function. The
+    // signature promises `Promise<IResultOfT<T, E>>` — never a sync throw.
+    return (async (): Promise<IResultOfT<T, E>> => {
+        if (r.isSuccess) return r;
+        const path = getPath();
+        let outcome: unknown;
+        try { outcome = fn(r.error, { path }); }
+        catch (e) { throw e; }
+        if (outcome && typeof (outcome as Promise<unknown>).then === 'function') {
+            await outcome;
+        }
+        return r;
+    })();
 }

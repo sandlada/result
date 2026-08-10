@@ -66,7 +66,31 @@ describe('any', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) {
             expect(r.error.length).toBe(2);
-            expect(r.error.map((e: Error) => e.message).sort()).toEqual(['boom1', 'boom2']);
+            // Rejections are tagged with `kind: 'Rejected'` instead of
+            // being cast into the user's `E` union.
+            const messages = r.error.map((e) => {
+                if (typeof e === 'object' && e !== null && 'kind' in e && e.kind === 'Rejected') {
+                    return (e.error as Error).message;
+                }
+                return e as string;
+            }).sort();
+            expect(messages).toEqual(['boom1', 'boom2']);
+        }
+    });
+
+    it('tags rejection envelopes with kind=Rejected', async () => {
+        const rejected = { run: () => Promise.reject<string>('plain-string') };
+        const ar = any([rejected]);
+        const r = await ar.run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) {
+            expect(r.error.length).toBe(1);
+            const e = r.error[0];
+            expect(typeof e).toBe('object');
+            if (typeof e === 'object' && e !== null && 'kind' in e) {
+                expect(e.kind).toBe('Rejected');
+                expect(e.error).toBe('plain-string');
+            }
         }
     });
 

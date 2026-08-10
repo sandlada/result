@@ -43,8 +43,13 @@ export function map<T, U, E>(
                 try {
                     return { isSuccess: true as const, isFailure: false as const, value: fn(r.value) } as unknown as IResultOfT<U, E>;
                 } catch (thrown: unknown) {
+                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
+                    // the catch block and reject the outer Promise.
+                    // `const` with conditional init lets TS infer the union
+                    // type from the cast at the call site (same shape as the
+                    // pre-fix version) without re-asserting the result type.
                     const innerError = eFn
-                        ? eFn(thrown)
+                        ? (() => { try { return eFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                         : (thrown as unknown as E);
                     return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E>;
                 }
@@ -60,7 +65,7 @@ export function map<T, U, E>(
                 return { isSuccess: true as const, isFailure: false as const, value: fn(r.value) } as unknown as IResultOfT<U, E>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
-                    ? errorFn(thrown)
+                    ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                     : (thrown as unknown as E);
                 return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E>;
             }

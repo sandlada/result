@@ -208,4 +208,18 @@ describe('switchFnAsync', () => {
             expect(result.error).toEqual({ kind: 'BoxedError', detail: 'raw' });
         }
     });
+
+    it('regression: errorFn that throws itself is captured, not rejected', async () => {
+        // A buggy errorFn mapper must surface its throw as the captured
+        // error, not reject the outer Promise.
+        const safe = switchFnAsync(
+            async (_x: number) => { throw new Error('inner'); },
+            (_e: unknown) => { throw new Error('errorFn-async-threw'); },
+        );
+        const result = await safe(42);
+        expect(result.isSuccess).toBe(false);
+        if (!result.isSuccess) {
+            expect((result.error as Error).message).toBe('errorFn-async-threw');
+        }
+    });
 });

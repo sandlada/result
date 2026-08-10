@@ -29,33 +29,48 @@ import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
 
 /**
+ * Tagged envelope for an inner `.run()` Promise rejection. `any` collects
+ * these alongside `Err` values so the rejection's actual shape (which can be
+ * `string`, `undefined`, …) is preserved as `unknown` instead of being
+ * forced into the caller's `E` union.
+ */
+export type AnyError<E> =
+    | E
+    | { readonly kind: 'Rejected'; readonly error: unknown };
+
+/**
  * AsyncResult analogue of `Promise.any`. Collects outcomes from every thunk; success
  * if any succeeded, failure (with all collected errors) if every thunk failed.
  */
 export function any<T, E>(
     results: readonly AsyncResult<T, E>[],
-): AsyncResult<T[], E[]> {
+): AsyncResult<T[], AnyError<E>[]> {
     const runs = results.map((ar) => ar.run);
     return {
-        run: async (): Promise<IResultOfT<T[], E[]>> => {
+        run: async (): Promise<IResultOfT<T[], AnyError<E>[]>> => {
             if (runs.length === 0) {
-                return ok([] as T[]) as unknown as IResultOfT<T[], E[]>;
+                return ok([] as T[]) as unknown as IResultOfT<T[], AnyError<E>[]>;
             }
             const successes: T[] = [];
-            const errors: E[] = [];
+            const errors: AnyError<E>[] = [];
             await Promise.all(
                 runs.map((run) => Promise.resolve(run()).then(
                     (r) => {
                         if (r.isSuccess) successes.push(r.value);
                         else errors.push(r.error);
                     },
-                    (rej: unknown) => { errors.push(rej as unknown as E); },
+                    (rej: unknown) => {
+                        // Tag the rejection so consumers can narrow on
+                        // `kind === 'Rejected'` to read it as `unknown`,
+                        // instead of having it silently cast to `E`.
+                        errors.push({ kind: 'Rejected', error: rej });
+                    },
                 )),
             );
             if (successes.length > 0) {
-                return ok(successes) as unknown as IResultOfT<T[], E[]>;
+                return ok(successes) as unknown as IResultOfT<T[], AnyError<E>[]>;
             }
-            return err(errors) as unknown as IResultOfT<T[], E[]>;
+            return err(errors) as unknown as IResultOfT<T[], AnyError<E>[]>;
         },
     };
 }

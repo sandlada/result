@@ -25,10 +25,25 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 
-/** Discriminated outcome of a single thunk in an `allSettled` batch. */
+/**
+ * Discriminated outcome of a single thunk in an `allSettled` batch.
+ *
+ * Three variants — discriminated by `ok` and, for failures, by the `kind`
+ * tag:
+ * - `{ ok: true, value: T }` — the thunk resolved with `Ok`.
+ * - `{ ok: false, error: E }` — the thunk resolved with `Err`.
+ * - `{ ok: false, kind: 'Rejected', error: unknown }` — the inner `.run()`
+ *   **rejected** the Promise (an upstream contract violation that
+ *   `allSettled` defends against). The rejection value is preserved
+ *   verbatim as `unknown` so consumers can narrow on `kind` before
+ *   reading `error`. This avoids the type lie where rejection values
+ *   (which can be `string`, `undefined`, or anything else) were cast
+ *   into the user's `E` union.
+ */
 export type Settled<T, E> =
     | { readonly ok: true; readonly value: T; readonly error?: never }
-    | { readonly ok: false; readonly error: E; readonly value?: never };
+    | { readonly ok: false; readonly error: E; readonly value?: never; readonly kind?: 'Err' }
+    | { readonly ok: false; readonly error: unknown; readonly value?: never; readonly kind: 'Rejected' };
 
 /**
  * Run every thunk; the result is **always** `Ok([...settled, ...in input order])`.
@@ -52,7 +67,10 @@ export function allSettled<T, E>(
                         else settledOutcomes[idx] = { ok: false, error: r.error };
                     },
                     (rej: unknown) => {
-                        settledOutcomes[idx] = { ok: false, error: rej as unknown as E };
+                        // Rejections are tagged `kind: 'Rejected'` so
+                        // consumers can narrow and read `error` as `unknown`
+                        // — previously this was cast to `E`, hiding the type lie.
+                        settledOutcomes[idx] = { ok: false, kind: 'Rejected', error: rej };
                     },
                 )),
             );

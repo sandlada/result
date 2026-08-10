@@ -29,5 +29,8 @@ export function asyncOrElse<T, E, F>(
 ): Promise<IResultOfT<T, E | F>> | ((r: IResultOfT<T, E>) => Promise<IResultOfT<T, E | F>>) {
     if (r === undefined) return (r: IResultOfT<T, E>) => asyncOrElse(f, r);
     if (r.isSuccess) return Promise.resolve(r as unknown as IResultOfT<T, E | F>);
-    return Promise.resolve().then(() => f(r.error)) as unknown as Promise<IResultOfT<T, E | F>>;
+    // Mirror `asyncBind`'s pattern (`Promise.resolve(r.value).then(f)`).
+    // The old `Promise.resolve().then(() => f(r.error))` lost `r.error`
+    // through thenable adoption when the rejection was a thenable.
+    return Promise.resolve(r.error).then(f);
 }

@@ -5,12 +5,14 @@
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
  * **Throw policy**: a synchronous throw from `fn` propagates as a rejection of
- * `.run()`; a rejected Promise from `fn` likewise propagates. Pass `errorFn`
- * to customise how a thrown/rejected value maps onto your error union —
- * e.g. `mapAsync(fn, e => new MyError(String(e)))`. Without `errorFn`, the
- * rejection propagates as-is (matches the canonical AsyncResult throw
- * policy). For the catch-and-convert behaviour, prefer `map` + `Promise.all`
- * or supply `errorFn`.
+ * `.run()`; a rejected Promise from `fn` likewise propagates. The optional
+ * `errorFn` only **remaps the rejection payload** — it does NOT convert the
+ * rejection into an `Err`. The thrown value passed to `errorFn` is whatever
+ * `.run()` would otherwise reject with; the returned value replaces that
+ * rejection reason. This matches the canonical AsyncResult "propagates"
+ * policy. For catch-and-convert behaviour (where the rejection becomes
+ * `Err(mapped)`), use `map` (which has different throw semantics) or wrap
+ * the operation in a try/catch.
  *
  * @example
  * ```ts

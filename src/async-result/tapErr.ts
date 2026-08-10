@@ -51,8 +51,10 @@ export function tapErr<T, E>(
                     try {
                         await fn(r.error);
                     } catch (thrown: unknown) {
+                        // Wrap `eFn(thrown)` so a buggy mapper does not
+                        // escape and reject the outer Promise.
                         const innerError = eFn
-                            ? eFn(thrown)
+                            ? (() => { try { return eFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                             : (thrown as unknown as E);
                         return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
                     }
@@ -70,7 +72,7 @@ export function tapErr<T, E>(
                     await fn(r.error);
                 } catch (thrown: unknown) {
                     const innerError = errorFn
-                        ? errorFn(thrown)
+                        ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                         : (thrown as unknown as E);
                     return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
                 }

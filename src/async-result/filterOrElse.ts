@@ -43,7 +43,12 @@ export function filterOrElse<T, E>(
             if (!r.isSuccess) return r;
             try {
                 if (await predicate(r.value)) return r;
-                return err(await errorFn(r.value)) as unknown as IResultOfT<T, E>;
+                // Wrap `errorFn(r.value)` so a buggy mapper does not escape
+                // the catch block and reject the outer Promise.
+                let mapped: E;
+                try { mapped = await errorFn(r.value); }
+                catch (thrown: unknown) { mapped = thrown as unknown as E; }
+                return err(mapped) as unknown as IResultOfT<T, E>;
             } catch (e: unknown) {
                 return err(e as unknown as E) as unknown as IResultOfT<T, E>;
             }

@@ -151,7 +151,7 @@ describe('observability/ctx', () => {
         expect(path.length).toBe(0);
     });
 
-    describe('BUG-010: hostile thenable (or hostile .then getter) must not leak the active frame', () => {
+    describe('hostile thenable (or hostile .then getter) must not leak the active frame', () => {
         it('isThenable returns false when the then getter throws (does not propagate the throw)', () => {
             // Construct a thenable whose `then` accessor throws when read.
             // The library's `isThenable` helper must not let this throw

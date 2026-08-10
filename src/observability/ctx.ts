@@ -51,9 +51,27 @@
 // `@types/node` is intentionally NOT added as a dependency: this file
 // keeps the package ESM-only and Node-types-free while still reaching
 // for `node:async_hooks` via `createRequire` for VM-isolated runtimes.
-// @ts-expect-error - Node built-in module not in lib types.
-import nodeModule from 'node:module';
-const createRequire = (nodeModule as { createRequire: (url: string | URL) => (id: string) => unknown }).createRequire;
+//
+// Replaced the static `import nodeModule from 'node:module'` with a **lazy**
+// dynamic import wrapped in `loadNodeCreateRequire`. The static import
+// evaluated at module load time and broke browser bundles without a
+// `node:module` polyfill — the very thing `package.json` and `README.md`
+// claim to support. The dynamic form is awaited only when the runtime
+// needs it (Node / VM-isolated contexts) and never throws at load time in
+// the browser.
+type NodeCreateRequire = (url: string | URL) => (id: string) => unknown;
+
+const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
+    try {
+        // @ts-expect-error - Node built-in module not in lib types.
+        const nodeModule = (await import('node:module')) as {
+            createRequire?: NodeCreateRequire;
+        };
+        return nodeModule.createRequire ?? null;
+    } catch {
+        return null;
+    }
+};
 
 /** A single path segment. Strings are preferred for names; numbers are also accepted. */
 export type PathSegment = string | number;
@@ -90,11 +108,11 @@ const freeze = (arr: PathSegment[]): PathStack =>
 
 const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
     if (!v || (typeof v !== 'object' && typeof v !== 'function')) return false;
-    // BUG-010 fix: wrap the `.then` access in try/catch so a hostile getter
-    // (proxy traps, malicious user input) does not throw through `isThenable`
-    // and cause `Promise.resolve(result)` to synchronously reject, which
-    // would otherwise bypass the `.then` handlers in `polyfillStore.run`
-    // and leak the current frame forever.
+    // Wrap the `.then` access in try/catch so a hostile getter (proxy
+    // traps, malicious user input) does not throw through `isThenable` and
+    // cause `Promise.resolve(result)` to synchronously reject, which would
+    // otherwise bypass the `.then` handlers in `polyfillStore.run` and leak
+    // the current frame forever.
     try {
         return typeof (v as { then?: unknown }).then === 'function';
     } catch {
@@ -132,9 +150,9 @@ export const polyfillStore = ((): FrameStore => {
             try {
                 result = fn();
             } catch (e) {
-                // BUG-010 fix: use try/finally to guarantee frame restoration
-                // even if `fn()` or the synchronous part of `Promise.resolve`
-                // throws in a way the .then handlers can't intercept.
+                // Use try/finally to guarantee frame restoration even if
+                // `fn()` or the synchronous part of `Promise.resolve` throws
+                // in a way the .then handlers can't intercept.
                 currentFrame = previous;
                 throw e;
             }
@@ -196,11 +214,11 @@ interface NodeGlobalScope {
     async_hooks?: { AsyncLocalStorage?: AsyncLocalStorageCtor };
 }
 
-const resolveStore = (): FrameStore => {
+const resolveStore = async (): Promise<FrameStore> => {
     const g = globalThis as NodeGlobalScope;
 
     // (1) and (2): globals (Node 17.6+ / 22+).
-    /* v8 ignore start - global detection paths are exercised in non-test environments (Node 17.6+ as a global). The active path in this build is the createRequire branch below. */
+    /* v8 ignore start - global detection paths are exercised in non-test environments (Node 17.6+ as a global). The active path in this build is the dynamic import branch below. */
     const globalCtor: AsyncLocalStorageCtor | undefined =
         typeof g.AsyncLocalStorage === 'function'
             ? g.AsyncLocalStorage
@@ -216,14 +234,15 @@ const resolveStore = (): FrameStore => {
     }
     /* v8 ignore stop */
 
-    // (3): CommonJS loader — works inside VM-isolated contexts (vitest's
-    //     test sandbox) that hide Node built-ins from `globalThis`. We use
-    //     a static import of `node:module` so `createRequire` is available
-    //     synchronously without awaiting a dynamic import.
-    /* v8 ignore start - exercised in browser bundles where createRequire throws or async_hooks is missing. The polyfill itself is directly tested via `polyfillStore`. */
+    // (3): Dynamic import of `node:async_hooks`. Works inside VM-isolated
+    //     contexts (vitest's test sandbox) that hide Node built-ins from
+    //     `globalThis`. Dynamic import only fires when needed (Node runtime),
+    //     so browser bundles without a polyfill never throw at module load
+    //     time.
+    /* v8 ignore start - exercised in browser bundles where async_hooks is missing. The polyfill itself is directly tested via `polyfillStore`. */
     try {
-        const req = createRequire(import.meta.url);
-        const ah = req('node:async_hooks') as
+        // @ts-expect-error - Node built-in module not in lib types.
+        const ah = (await import('node:async_hooks')) as
             | { AsyncLocalStorage?: AsyncLocalStorageCtor }
             | undefined;
         if (ah?.AsyncLocalStorage !== undefined) {
@@ -240,7 +259,7 @@ const resolveStore = (): FrameStore => {
     /* v8 ignore stop */
 };
 
-const store: FrameStore = resolveStore();
+const store: FrameStore = await resolveStore();
 
 /**
  * Synchronous + async scope: `ctx.run(fn)` opens a fresh frame chained to

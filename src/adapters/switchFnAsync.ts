@@ -28,7 +28,15 @@ export function switchFnAsync<A, B, E = unknown>(
         } catch (e: unknown) {
             // No `errorFn`: pass through the raw rejection. The cast goes
             // through `unknown` to make the type honesty visible.
-            const caught = errorFn ? errorFn(e) : (e as unknown as E);
+            let caught: E;
+            if (errorFn) {
+                // Wrap `errorFn(e)` so a buggy mapper does not escape the
+                // try/catch and reject the outer Promise.
+                try { caught = errorFn(e); }
+                catch (thrown: unknown) { caught = thrown as unknown as E; }
+            } else {
+                caught = e as unknown as E;
+            }
             return err(caught) as unknown as IResultOfT<B, E>;
         }
     };

@@ -60,8 +60,10 @@ export function bind<T, U, E, F>(
                     }
                     return next as unknown as IResultOfT<U, E | F>;
                 } catch (thrown: unknown) {
+                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
+                    // the catch block and reject the outer Promise.
                     const innerError = eFn
-                        ? eFn(thrown)
+                        ? (() => { try { return eFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
                         : (thrown as unknown as (E | F));
                     return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E | F>;
                 }
@@ -81,7 +83,7 @@ export function bind<T, U, E, F>(
                 return next as unknown as IResultOfT<U, E | F>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
-                    ? errorFn(thrown)
+                    ? (() => { try { return errorFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
                     : (thrown as unknown as (E | F));
                 return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E | F>;
             }

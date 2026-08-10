@@ -161,4 +161,25 @@ describe('switchFn', () => {
         expect(decResult.isSuccess).toBe(true);
         if (decResult.isSuccess) expect(decResult.value).toBe(9);
     });
+
+    it('regression: errorFn that throws itself does not escape', () => {
+        // A buggy errorFn mapper must surface its throw as the captured
+        // error, not propagate synchronously.
+        const safe = switchFn(
+            (_x: number) => { throw new Error('inner'); },
+            (_e: unknown) => { throw new Error('errorFn-threw'); },
+        );
+        let escaped = false;
+        let result: { isFailure: true; error: unknown } | undefined;
+        try {
+            result = safe(42) as { isFailure: true; error: unknown };
+        } catch { escaped = true; }
+        expect(escaped).toBe(false);
+        expect(result?.isFailure).toBe(true);
+        if (result && (result.error as Error).message === 'errorFn-threw') {
+            // pass
+        } else {
+            throw new Error('expected errorFn-threw');
+        }
+    });
 });

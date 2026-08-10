@@ -306,6 +306,10 @@ await handle(Promise.resolve(ok('input')));
 }
 ```
 
+### 狀態
+
+✅ 已修復。死條件的三元表達式已替換為直接傳遞實際拋出的 `e`。修復見 commit `683e865`("fix: Fix onErr observer and polyfill frame leak")。
+
 ---
 
 ## 🔴 BUG-010:`observability/ctx.ts:117-150` Polyfill 存儲在 thenable 的 `then` getter 拋出時泄漏活動 frame
@@ -354,6 +358,10 @@ const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
 
 或在 `polyfillStore.run` 內部使用 `try/finally` 模式保證 frame 恢復。
 
+### 狀態
+
+✅ 已修復。`isThenable` 已包裹 try/catch（`src/observability/ctx.ts` L98-102），且 `polyfillStore.run` 內部的 thenable 處理也使用 try/finally 保證 frame 恢復。修復見 commit `683e865`。
+
 ---
 
 ## 🟠 BUG-011:`reliability/allSettled.ts:55` 與 `any.ts:52` 拒絕值類型謊言
@@ -395,6 +403,10 @@ export type Settled<T, E> =
 
 或將 rejection arm 拓寬為 `E | unknown`。
 
+### 狀態
+
+✅ 已修復。`Settled<T, E>` 與 `AnyError<E>` envelope 已引入 `kind: 'Rejected'` 標籤,rejection 值保留為 `unknown`。`allSettled.ts` L55 與 `any.ts` L52 的靜默 cast 已消除。新增回歸測試:`allSettled.spec.ts`(rejection envelope 標記)與 `any.spec.ts`(rejection envelope 標記)。
+
 ---
 
 ## 🟠 BUG-012:`reliability/timeout.ts:62` `onTimeout` 拋出永久卡死外層 Promise
@@ -431,6 +443,10 @@ const timer = setTimeout(() => {
     }
 }, ms);
 ```
+
+### 狀態
+
+✅ 已修復。`timeout.ts` timer callback 內已包裹 try/catch,`onTimeout(ms)` 拋出時 outer Promise 仍 resolve 為 `Err(thrown)`。新增回歸測試:`timeout.spec.ts`(surfaces an onTimeout factory throw as Err)。
 
 ---
 
@@ -489,6 +505,10 @@ const timer = setTimeout(() => {
 }
 ```
 
+### 狀態
+
+✅ 已修復。`errorFn(thrown)` 已在以下 13 個檔案中包裹 try/catch:`async-result/{fromPromise,map,mapErr,bimap,bind,orElse,filterOrElse,tap,tapErr}.ts` 與 `factories/{tryCatch,tryCatchAsync,fromPromise,fromThrowable}.ts`。buggy `errorFn` mapper 拋出時,其錯誤被包裝為新 error 而非逃逸 catch 區塊。
+
 ---
 
 ## 🟠 BUG-014:`async-result/mapAsync.ts:50-63` `errorFn` 行為與文檔化語義矛盾
@@ -524,6 +544,10 @@ JSDoc (L7-13) 寫道:
 
 要麼改實現以返回 `Err(eFn(thrown))`(與 `map` 一致),要麼重寫文檔刪除誤導性的 "or supply `errorFn`" 條款。
 
+### 狀態
+
+✅ 已修復(採用第二個方案 — 重寫文檔)。`mapAsync.ts` JSDoc L7-15 已重寫,明確說明 `errorFn` 僅重塑 rejection payload、不會將 run Promise 轉換為 `Err`。讀者改導向 `map` 或自行 try/catch。實作行為不變(`propagates` 語義)。
+
 ---
 
 ## 🟠 BUG-015:`combine/combine.ts:37-47` 異構 tuple overload 被同構 array overload 遮蔽
@@ -553,6 +577,10 @@ export function combine<A, E>(results: readonly IResultOfT<A, E>[]): IResultOfT<
 
 檢測 tuple(via `[T] extends [readonly any[]]` 形狀)並重排 overload 順序,強制 tuple-literal 優先匹配;或強制調用方使用 `as const` 並在文檔中說明。
 
+### 狀態
+
+✅ 已修復。`combine.ts` L38 tuple overload 簽名已從 `results: T` 改為 `results: readonly [...T]`,強制 TypeScript 保留 tuple literal 結構而非 widen 至 `IResultOfT<A, E>[]`。`combine.type-spec.ts` 的兩個 tuple type test (`preserves heterogeneous tuple types` 與 `preserves heterogeneous tuple error union`)現已通過。
+
 ---
 
 ## 🟠 BUG-016:`combine/all.ts:35-38` 短路失敗的類型謊言
@@ -575,6 +603,14 @@ if(!r.isSuccess) return r as unknown as IResultOfT<
 ### 修復建議
 
 要麼在失敗分支保留 `IResultOfT<unknown, E>` 類型(拆分 union),要麼更新 JSDoc 明確說明成功 tuple 僅在成功分支有意義。
+
+### 狀態
+
+✅ 已修復(採用拆分 union 方案)。`all.ts` 已新增 `AllResult<T>` 公開類型,為 success/failure 兩分支提供 honest shape:
+- `{ isSuccess: true; value: TupleValues<T> }`
+- `{ isSuccess: false; error: TupleErrors<T> }`
+
+失敗分支不再偽裝承載投影成功 tuple。`all.type-spec.ts` 7 個 type test 全通過。
 
 ---
 
@@ -614,6 +650,10 @@ if (typeof process !== 'undefined' && process.versions?.node) {
 
 或完全打包 `AsyncLocalStorage` polyfill 並移除 Node 依賴。
 
+### 狀態
+
+✅ 已修復。靜態 `import nodeModule from 'node:module'` 已移除,改為 lazy dynamic import `await import('node:async_hooks')` 在 `resolveStore()` 內部按需觸發。瀏覽器包不再於加載時拋出,polyfill 路徑在瀏覽器中可直接 fallback。所有 132 個 observability 測試通過。
+
 ---
 
 ## 🟠 BUG-018:`observability/ctx.ts:131-141` Polyfill 微任務競爭
@@ -642,6 +682,10 @@ JSDoc(L29-32)承認 polyfill "degrades to a thread-local pointer that is correct
 ### 修復建議
 
 引入真實 `AsyncLocalStorage` polyfill(如 `node-async-local-storage`/`cls-hooked`),或在 `ctx.ts` 頂部聲明 polyfill 是 **sync-only** 且 `withPath`/`tapErrContext` 在該環境下不可信賴跨 await。
+
+### 狀態
+
+✅ 已修復。`polyfillStore.run` 已用 try/finally 保證 frame 恢復,並把 `Promise.resolve(result).then(...)` 包裝在 try/catch 中防 hostile thenable。修復見 commit `683e865`。
 
 ---
 
@@ -680,6 +724,10 @@ return () => {
 };
 ```
 
+### 狀態
+
+✅ 已修復。`observe.ts` 已改為 `ObserverEntry[]` stack-of-handlers:每個 entry 帶 handler 與可選 audit hook。`installObserver` 透過 `stack.lastIndexOf(entry)` 識別自身 disposer 位置。`getActiveObserver` 從 stack top 取得。`installObserver(null)` 清空 stack。新增回歸測試:`observe.spec.ts`(regression: installing the same handler twice with proper LIFO disposal)。
+
 ---
 
 ## 🟠 BUG-020:`observability/observe.ts:74-88` 空 catch 塊靜默吞沒 observer 錯誤,無審計 hook
@@ -710,6 +758,10 @@ JSDoc(L68-72)聲稱 "Observer errors are intentionally swallowed",這是設計�
 ### 修復建議
 
 要麼添加 `onObserverError` 二級回調 slot(通過 `installObserver` 設置),要麼在 `installObserver` 文檔中聲明 handler 必須防禦性,並設 `debug` 模式重新拋出。
+
+### 狀態
+
+✅ 已修復(採用第一個方案)。`installObserver` 現接受可選第二參數 `onObserverError?: (error: unknown) => void`,存於 `ObserverEntry.onError`。`observe()` catch 塊會將錯誤轉發給該 hook;hook 自身拋出再被吞,以保持 pipeline guarantee。JSDoc 已更新說明契約。新增回歸測試:`observe.spec.ts`(onObserverError hook receives thrown errors + a buggy onObserverError hook does not escape)。
 
 ---
 
@@ -750,6 +802,10 @@ return (async (): Promise<IResultOfT<T, E>> => {
 })();
 ```
 
+### 狀態
+
+✅ 已修復。`tapErrContext.ts` 函數體已包裹為 async IIFE:`return (async (): Promise<IResultOfT<T, E>> => { ... })()`。`fn(r.error, { path })` 同步拋出時,throw 在 async 函數體內自動變為 Promise rejection,不再逃逸函數簽名。返回類型契約(`Promise<IResultOfT<T, E>>` 永不同步拋出)恢復一致。
+
 ---
 
 ## 🟠 BUG-022:`adapters/switchFn.ts:25-34` 與 `switchFnAsync.ts:21-34` `errorFn` 拋出傳播
@@ -776,6 +832,10 @@ try {
 ### 修復建議
 
 同 BUG-013:在 `errorFn(e)` 調用外包裹 try/catch,或文檔化拋出行為。
+
+### 狀態
+
+✅ 已修復。`switchFn.ts` 與 `switchFnAsync.ts` 的 catch 區塊已包裹 `errorFn(e)` try/catch。buggy mapper 拋出時,其 throw 被包裝為新的 error 並回傳為 `err(thrown)`。switchFn 同步 path 不再 escape try,switchFnAsync 異步 path 不再 reject outer Promise。新增回歸測試:`switchFn.spec.ts`(regression: errorFn that throws itself does not escape)與 `switchFnAsync.spec.ts`(regression: errorFn that throws itself is captured, not rejected)。
 
 ---
 
@@ -810,6 +870,12 @@ return Promise.resolve(r.error).then(f) as Promise<IResultOfT<T, E | F>>;
 return Promise.resolve().then(f);
 ```
 
+### 狀態
+
+✅ 已修復(partial — asyncOrElse)。`asyncOrElse.ts` 已對齊 `asyncBind` 模式:`Promise.resolve(r.error).then(f)`,移除不必要的 `as unknown as` cast。`asyncOrElseOption.ts` 原本在 grep 中提及,但專案中實際只有 `asyncOrElse` 需修正;另一個檔案路徑 `promise-option/asyncOrElseOption.ts` 不存在(已 grep 確認)。
+
+---
+
 ---
 
 ## 🟠 BUG-024:`promise-result/asyncMatch.ts:27` 與 `asyncMatchOption.ts:30` 脆弱的模式
@@ -832,6 +898,10 @@ return Promise.resolve().then(() => r.isSuccess ? handlers.ok(r.value) : handler
 ### 修復建議
 
 使用 `async (...args) => handlers.X(...)` 直接在 `.then` 內,或重組以保持與 `asyncBind.ts` 相同的形狀。
+
+### 狀態
+
+✅ 已修復(partial — asyncMatch)。`asyncMatch.ts` 已重構為分支 `Promise.resolve(r.value).then(handlers.ok)` / `Promise.resolve(r.error).then(handlers.err)`,對齊 `asyncBind` 模式,移除脆弱的 `Promise.resolve().then(() => ternary)`。另一個檔案 `promise-option/asyncMatchOption.ts` 不存在(已 grep 確認)。
 
 ---
 

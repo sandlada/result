@@ -43,8 +43,10 @@ export function mapErr<T, E, F>(
                 try {
                     return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as unknown as IResultOfT<T, F>;
                 } catch (thrown: unknown) {
+                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
+                    // the catch block and reject the outer Promise.
                     const innerError = eFn
-                        ? eFn(thrown)
+                        ? (() => { try { return eFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                         : (thrown as unknown as F);
                     return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, F>;
                 }
@@ -60,7 +62,7 @@ export function mapErr<T, E, F>(
                 return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as unknown as IResultOfT<T, F>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
-                    ? errorFn(thrown)
+                    ? (() => { try { return errorFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                     : (thrown as unknown as F);
                 return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, F>;
             }

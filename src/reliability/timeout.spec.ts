@@ -106,6 +106,17 @@ describe('timeout (lazy)', () => {
         if (r.isFailure) expect(r.error.kind).toBe('Timeout');
     });
 
+    it('surfaces an onTimeout factory throw as Err (does not hang)', async () => {
+        // Regression: if `onTimeout(ms)` throws, the outer Promise must
+        // still settle — the throw is wrapped as the failure error.
+        const ar = { run: () => new Promise<never>(() => { /* never settles */ }) };
+        const thrown = new Error('onTimeout-itself-threw');
+        const factory = () => { throw thrown; };
+        const r = await timeout(20, ar, factory).run();
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe(thrown);
+    });
+
     describe('with fake timers', () => {
         afterEach(() => {
             vi.useRealTimers();

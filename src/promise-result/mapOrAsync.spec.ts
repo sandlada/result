@@ -67,7 +67,7 @@ describe('mapOrAsync', () => {
         expect(v).toBe(0);
     });
 
-    describe('BUG-009: onErr observer receives the real thrown value (not undefined)', () => {
+    describe('onErr observer receives the real thrown value (not undefined)', () => {
         it('sync mapper throws → onErr sees the Error (not undefined)', async () => {
             const observed: unknown[] = [];
             const thrown = new Error('mapper-throw');
@@ -78,7 +78,7 @@ describe('mapOrAsync', () => {
             );
             const v = await handle(asyncOk('input'));
             expect(v).toBe('fallback');
-            // BUG-009 fix: the observer must receive the real thrown value,
+            // the observer must receive the real thrown value,
             // not `undefined` (the previous dead-conditional bug).
             expect(observed).toHaveLength(1);
             expect(observed[0]).toBe(thrown);

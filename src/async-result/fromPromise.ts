@@ -27,11 +27,15 @@ export function fromPromise<T, E = unknown>(
                 const value = await thunk();
                 return { isSuccess: true as const, isFailure: false as const, value } as unknown as IResultOfT<T, E>;
             } catch(e: unknown) {
-                // No `errorFn`: pass through the raw rejection. The cast goes
-                // through `unknown` to make the type honesty visible — we
-                // don't claim `e` is already an `E`, we just bridge it across
-                // the type parameter.
-                const innerError = errorFn ? errorFn(e) : (e as unknown as E);
+                // Wrap `errorFn(e)` so a buggy mapper does not escape the
+                // catch block and reject the outer Promise.
+                let innerError: E;
+                if (errorFn) {
+                    try { innerError = errorFn(e); }
+                    catch (thrown: unknown) { innerError = thrown as unknown as E; }
+                } else {
+                    innerError = e as unknown as E;
+                }
                 return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
             }
         },

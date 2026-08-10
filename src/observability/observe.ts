@@ -34,33 +34,75 @@ export interface ObserveEvent<T, E> {
 
 export type Observer = (event: ObserveEvent<unknown, unknown>) => void;
 
-// Internal slot — only mutated by `installObserver`. Tests deliberately do not
-// touch this directly.
-let active: Observer | null = null;
+// A stack of installed observers, not a single slot. Earlier
+// implementations used `let active: Observer | null` and a `previous`
+// pointer captured per install. That broke when the **same** handler was
+// installed twice: each disposer saw `active === handler` and restored the
+// captured `previous` (which was the handler itself), losing the previous
+// installation. The stack-of-handlers approach correctly identifies each
+// disposer by its handler and only removes its own entry.
+//
+// Each stack entry carries an optional audit hook that receives any error
+// thrown by the handler. Operators who want to route observer failures to
+// a secondary telemetry channel pass `onObserverError` here; without it,
+// observer errors continue to be silently swallowed (preserves backward
+// compatibility).
+interface ObserverEntry {
+    readonly handler: Observer;
+    readonly onError?: (error: unknown) => void;
+}
+
+const stack: ObserverEntry[] = [];
+
+const topObserver = (): ObserverEntry | null => stack[stack.length - 1] ?? null;
 
 /**
- * Install a process-wide observer. Returns a disposer. Multiple observers are
- * not supported; the most recently installed one replaces any previous. Pass
- * `null` to remove.
+ * Install a process-wide observer. Returns a disposer. Pass `null` to remove.
  *
- * **Disposal semantics**: the returned disposer follows restoration-stack
- * behavior — when called, it restores the previously installed observer. If
- * observer A is installed, then B, then A's disposer is called while B is
- * still active, the call is a no-op (B remains active). Disposers must be
- * called in **LIFO** order to clean up correctly.
+ * **Disposal semantics**: the returned disposer follows LIFO restoration-stack
+ * behavior — when called, it removes its own entry from the stack. If observer
+ * A is installed, then B, then A's disposer is called while B is still
+ * active, the call is a no-op (B remains active). Disposers must be called in
+ * **LIFO** order to clean up correctly.
+ *
+ * **Observer error audit hook**: the optional `onObserverError` callback
+ * receives any error thrown by the installed observer. Without it,
+ * observer errors are silently swallowed so a misbehaving reporter cannot
+ * blow up an otherwise healthy Result pipeline. With it, operators can route
+ * observer failures to a secondary telemetry channel. `onObserverError`
+ * itself is wrapped in try/catch — its own throw is silently swallowed to
+ * preserve the pipeline guarantee.
  */
-export function installObserver(handler: Observer | null): () => void {
-    const previous = active;
-    active = handler;
+export function installObserver(
+    handler: Observer | null,
+    onObserverError?: (error: unknown) => void,
+): () => void {
+    if (handler === null) {
+        // Passing `null` clears the active observer. The disposer is a
+        // no-op because the handler slot was already removed.
+        stack.length = 0;
+        return () => { /* no-op */ };
+    }
+    const entry: ObserverEntry = onObserverError !== undefined
+        ? { handler, onError: onObserverError }
+        : { handler };
+    stack.push(entry);
+    let disposed = false;
     return () => {
-        if (active === handler) active = previous;
+        if (disposed) return;
+        disposed = true;
+        const idx = stack.lastIndexOf(entry);
+        if (idx >= 0) stack.splice(idx, 1);
     };
 }
 
 /**
  * Returns the currently active observer or `null`. Mostly exposed for testing.
  */
-export const getActiveObserver = (): Observer | null => active;
+export const getActiveObserver = (): Observer | null => {
+    const top = topObserver();
+    return top === null ? null : top.handler;
+};
 
 /**
  * Side-effecting pass-through. If an observer is installed, fires it with the
@@ -72,8 +114,8 @@ export const getActiveObserver = (): Observer | null => active;
  * secondary channel.
  */
 export function observe<T, E>(r: IResultOfT<T, E>): IResultOfT<T, E> {
-    const handler = active;
-    if (handler === null) return r;
+    const entry = topObserver();
+    if (entry === null) return r;
     const path = getPath();
     const event: ObserveEvent<T, E> = {
         kind: r.isSuccess ? 'ok' : 'err',
@@ -81,10 +123,18 @@ export function observe<T, E>(r: IResultOfT<T, E>): IResultOfT<T, E> {
         path,
     };
     try {
-        handler(event as ObserveEvent<unknown, unknown>);
-    } catch {
-        // Observers are side-effects; swallow their errors so the pipeline is not
-        // accidentally blown up by a misbehaving reporter.
+        entry.handler(event as ObserveEvent<unknown, unknown>);
+    } catch (e) {
+        // Forward the caught error to the entry's optional audit hook so
+        // operators can route observer failures to a secondary channel. The
+        // hook itself is wrapped in try/catch — a buggy hook cannot escape
+        // and re-introduce the "blow up the pipeline" failure mode.
+        if (entry.onError !== undefined) {
+            try { entry.onError(e); }
+            catch { /* swallow hook failure to preserve pipeline guarantee */ }
+        }
+        // Observers are side-effects; swallow their errors so the pipeline is
+        // not accidentally blown up by a misbehaving reporter.
     }
     return r;
 }
