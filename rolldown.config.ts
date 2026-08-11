@@ -17,6 +17,7 @@ function collectTypeScriptInputs(directory: string): string[] {
         if (
             entry.isFile()
             && entry.name.endsWith('.ts')
+            && !entry.name.endsWith('.bench.ts')
             && !entry.name.endsWith('.spec.ts')
             && !entry.name.endsWith('.type-spec.ts')
             && !entry.name.endsWith('.d.ts')
