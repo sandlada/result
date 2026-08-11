@@ -1,6 +1,6 @@
 import { describe, it, expectTypeOf } from 'vitest';
 import type { BrandedAsyncCarrier } from './asyncCarrier.js';
-import { ASYNC_CARRIER_BRAND, isAsyncCarrier, markAsyncCarrier, unwrapAsyncCarrier } from './asyncCarrier.js';
+import { ASYNC_CARRIER_BRAND, isAsyncCarrier, markAsyncCarrier } from './asyncCarrier.js';
 import type { AsyncResult } from './AsyncResult.js';
 import type { IResultOfT } from './IResultOfT.js';
 import { ok } from '../factories/index.js';
@@ -43,17 +43,6 @@ describe('asyncCarrier types', () => {
         if (isAsyncCarrier(value)) {
             expectTypeOf(value.run).toBeFunction();
         }
-    });
-
-    it('unwrapAsyncCarrier preserves the input type', () => {
-        // The declared signature is `<T>(value: T): T` — an identity on its
-        // type parameter. The implementation, however, invokes `.run()` for
-        // branded carrier inputs and returns the resolved promise, so the
-        // declared identity is false for branded values at runtime. The
-        // helper has no production callers and is currently dead code; the
-        // narrowing is left as a known gap and deletion is out of scope.
-        const branded = markAsyncCarrier({ run: () => 42 });
-        expectTypeOf(unwrapAsyncCarrier(branded)).toEqualTypeOf<typeof branded>();
     });
 
     describe('The brand key', () => {
@@ -123,25 +112,6 @@ describe('asyncCarrier types', () => {
             // Pin the assertion to the runtime return type only.
             expectTypeOf(isAsyncCarrier(value)).toEqualTypeOf<boolean>();
             expectTypeOf(isAsyncCarrier(undefined)).toEqualTypeOf<boolean>();
-        });
-    });
-
-    describe('unwrapAsyncCarrier', () => {
-        it('is declared as an identity on its type parameter', () => {
-            // The declared signature is `<T>(value: T): T` — an identity on its
-            // type parameter. The implementation, however, invokes `.run()` for
-            // branded carrier inputs and returns the resolved promise, so the
-            // declared identity is false for branded values at runtime. The
-            // helper has no production callers and is currently dead code; the
-            // narrowing is left as a known gap and deletion is out of scope.
-            expectTypeOf(unwrapAsyncCarrier<number>).toEqualTypeOf<(value: number) => number>();
-            expectTypeOf(unwrapAsyncCarrier(ok(42))).toEqualTypeOf<IResultOfT<number, never>>();
-        });
-
-        it('accepts unbranded values unchanged', () => {
-            const plain = { run: () => 42 };
-            expectTypeOf(unwrapAsyncCarrier(plain)).toEqualTypeOf<{ run: () => number }>();
-            expectTypeOf(unwrapAsyncCarrier('not a carrier')).toEqualTypeOf<string>();
         });
     });
 });

@@ -8,8 +8,9 @@
  * into a uniform `Promise<IResultOfT>` / `Promise<IOption>`.
  *
  * **Sentinel-safe**: the check is `value !== null && typeof value === 'object'`
- * before `'run' in value` — see `.jules/sentinel.md` for the project-wide rule
- * that prevents `TypeError: Cannot use 'in' operator` on `null`.
+ * before `'run' in value`. The sentinel-guard pattern prevents
+ * `TypeError: Cannot use 'in' operator` on `null` — the bare-in check would
+ * throw on `null` because `typeof null === 'object'`.
  *
  * **Brand**: Internal factories (`fromResult`, `fromPromise`, `from`, `ofSome`,
  * `ofNone` for async-option, etc.) stamp every carrier they produce with
@@ -86,21 +87,4 @@ export const isAsyncCarrier = (value: unknown): value is { run: () => unknown } 
     }
     // Sentinel-safe duck-type fallback.
     return 'run' in value && typeof (value as { run?: unknown }).run === 'function';
-};
-
-/**
- * Unwrap a value returned by an async-result/async-option callback:
- * - If `value` is an async carrier (`AsyncResult<T,E>` or `AsyncOption<T>`),
- *   returns its `.run()` Promise.
- * - Otherwise treats `value` as the resolved `IResultOfT` / `IOption` (caller
- *   has already awaited a `Promise`).
- *
- * Callers typically have an awaited value and a structural check; this helper
- * hides the repetition.
- */
-export const unwrapAsyncCarrier = <T>(value: T): T => {
-    if (isAsyncCarrier(value)) {
-        return (value as unknown as { run: () => T }).run();
-    }
-    return value;
 };

@@ -30,9 +30,15 @@ export async function fromSafePromise<T, E = Error>(
         const value = await promise;
         return ok(value);
     } catch (e: unknown) {
-        const innerError = errorFn
-            ? errorFn(e)
-            : (e instanceof Error ? e : new Error(String(e))) as unknown as E;
+        // Wrap `errorFn(e)` so a buggy mapper does not escape the
+        // try/catch and reject the outer Promise.
+        let innerError: E;
+        if (errorFn) {
+            try { innerError = errorFn(e); }
+            catch (thrown: unknown) { innerError = thrown as unknown as E; }
+        } else {
+            innerError = (e instanceof Error ? e : new Error(String(e))) as unknown as E;
+        }
         return err(innerError);
     }
 }

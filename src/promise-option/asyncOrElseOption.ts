@@ -26,5 +26,9 @@ export function asyncOrElseOption<T>(
 ): Promise<IOption<T>> | ((o: IOption<T>) => Promise<IOption<T>>) {
     if (o === undefined) return (o: IOption<T>) => asyncOrElseOption(f, o);
     if (o.isSome) return Promise.resolve(o);
-    return Promise.resolve().then(() => f());
+    // `Promise.resolve(undefined).then(f)` lets the handler's returned Promise
+    // be awaited by the outer `.then` chain. Using `Promise.resolve().then(() => f())`
+    // would produce `Promise<Promise<IOption<T>>>` when `f()` returns a Promise,
+    // forcing the caller to await twice. Mirror `asyncBind`'s shape.
+    return Promise.resolve(undefined).then(f);
 }

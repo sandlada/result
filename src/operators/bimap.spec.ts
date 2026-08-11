@@ -56,6 +56,29 @@ describe('bimap', () => {
         if (result.isFailure) expect((result.error as Error).message).toBe('onErr-boom');
     });
 
+    it('catches errorFn throw and surfaces as Err(thrown), direct form', () => {
+        const r = ok<number, never>(5);
+        const result = bimap(
+            (() => { throw new Error('onOk-boom'); }) as (v: number) => number,
+            (e: never) => e,
+            r,
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
+
+    it('catches errorFn throw and surfaces as Err(thrown), curried form', () => {
+        const curried = bimap(
+            (() => { throw new Error('onOk-boom'); }) as (v: number) => number,
+            (e: never) => e,
+            () => { throw new Error('eFn-boom'); },
+        );
+        const result = curried(ok<number, never>(5));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+    });
+
     it('does NOT call onErr on success (Group C)', () => {
         const onOk = vi.fn((v: number) => v * 2);
         const onErr = vi.fn((_e: string) => 'never');

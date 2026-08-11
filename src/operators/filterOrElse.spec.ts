@@ -74,6 +74,28 @@ describe('filterOrElse', () => {
         if(r.isFailure) expect((r.error as Error).message).toBe('errFn-boom');
     });
 
+    it('catches throwErrorFn throw and surfaces as Err(thrown), direct form', () => {
+        const r = filterOrElse<number, Error>(
+            () => { throw new Error('predicate-boom'); },
+            () => 'predicate-false',
+            ok(7),
+            () => { throw new Error('throwErrorFn-boom'); },
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('throwErrorFn-boom');
+    });
+
+    it('catches throwErrorFn throw and surfaces as Err(thrown), curried form', () => {
+        const curried = filterOrElse<number, Error>(
+            (() => { throw new Error('predicate-boom'); }) as (x: number) => boolean,
+            () => 'predicate-false',
+            () => { throw new Error('tFn-boom'); },
+        );
+        const r = curried(ok(7));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('tFn-boom');
+    });
+
     it('errorFn can transform to a different error type', () => {
         type AppErr = { kind: 'InvalidValue'; value: number };
         const r = filterOrElse(

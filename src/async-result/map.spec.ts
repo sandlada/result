@@ -43,4 +43,21 @@ describe('AsyncResult map', () => {
         const result = await ar.run();
         if (result.isFailure) expect(result.error).toBeInstanceOf(Error);
     });
+
+    it('rejects thenable mapper return values (synchronous mapper contract)', async () => {
+        // The mapper signature requires sync, but a caller could pass an async
+        // function via `as any` or a type assertion. map must surface the
+        // misuse as an Err rather than silently wrapping a thenable into
+        // the success value.
+        const ar = map(
+            (() => Promise.resolve(42)) as unknown as (x: number) => number,
+            fromResult(ok(7)),
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect((result.error as Error).message).toContain('thenable');
+        }
+    });
 });

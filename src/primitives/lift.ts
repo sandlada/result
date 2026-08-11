@@ -49,7 +49,12 @@ export function lift<A extends unknown[], T, E>(
         try {
             return ok(fn(...args));
         } catch (caught) {
-            if (errorFn) return err(errorFn(caught));
+            // Wrap `errorFn(caught)` so a buggy mapper does not escape the
+            // try/catch and bypass the Result wrapper.
+            if (errorFn) {
+                try { return err(errorFn(caught)); }
+                catch (thrown: unknown) { return err(thrown as unknown as E); }
+            }
             throw caught;
         }
     };

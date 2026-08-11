@@ -6,7 +6,7 @@
  * declares a wider error channel (e.g. inside an operator that returns
  * `IResultOfT<B, E2>`). Without the overload, every consumer call site would
  * need `as unknown as IResultOfT<T, E>` to bridge `IResultOfT<T, never>` into
- * the wider channel — see bugs.md BUG-051.
+ * the wider channel.
  *
  * F# equivalent: `Ok value`
  *

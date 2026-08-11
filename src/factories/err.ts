@@ -3,8 +3,7 @@
  *
  * The dual-parameter overload (`err<T, E>(error)`) lets consumers widen the
  * returned type without an explicit cast when the surrounding context already
- * declares a wider value channel. See `ok.ts` for the symmetric rationale and
- * bugs.md BUG-051.
+ * declares a wider value channel. See `ok.ts` for the symmetric rationale.
  *
  * F# equivalent: `Error e`
  *

@@ -47,8 +47,10 @@ export function filterOrElse<A, E>(
                 if (predicate(r.value)) return r;
                 return err(errorFn(r.value));
             } catch (thrown: unknown) {
+                // Wrap `tFn(thrown)` so a buggy mapper does not escape the
+                // try/catch and bypass the Result wrapper.
                 const innerError = tFn
-                    ? tFn(thrown)
+                    ? (() => { try { return tFn(thrown) as unknown as E; } catch (t: unknown) { return t as unknown as E; } })()
                     : (thrown as unknown as E);
                 return err(innerError) as unknown as IResultOfT<A, E>;
             }
@@ -60,8 +62,10 @@ export function filterOrElse<A, E>(
         if (predicate(r.value)) return r;
         return err(errorFn(r.value));
     } catch (thrown: unknown) {
+        // Wrap `throwErrorFn(thrown)` so a buggy mapper does not escape the
+        // try/catch and bypass the Result wrapper.
         const innerError = throwErrorFn
-            ? throwErrorFn(thrown)
+            ? (() => { try { return throwErrorFn(thrown) as unknown as E; } catch (t: unknown) { return t as unknown as E; } })()
             : (thrown as unknown as E);
         return err(innerError);
     }

@@ -12,6 +12,13 @@
  * with `orElse`, which requires the callback to return a new `IResultOfT`; `catchErr`
  * simplifies that case by lifting `onErr(e)` straight into `Ok(...)` for you.
  *
+ * **Throw policy**: a synchronous throw from `onErr` propagates to the caller — it
+ * is NOT caught and converted to `Err`. The recovery handler is the only escape
+ * hatch for an `Err` source; making it swallow its own failures would hide bugs
+ * that should surface. This matches the policy documented on `unwrapOrElse` and
+ * `orThrow`. Wrap your `onErr` body in a `try/catch` locally if you need a
+ * recoverable fallback.
+ *
  * **Generic structure**: the curried return uses a *fresh* `<A>` generic on the inner
  * function rather than pulling `A` from the outer signature. This guarantees the
  * input's value type is re-inferred at every application site, so

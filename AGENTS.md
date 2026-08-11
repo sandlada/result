@@ -76,7 +76,7 @@ The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files 
 
 ### Error Type Customization (Key Differentiator)
 
-Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter** — users define their own error types (discriminated unions, classes, or plain objects) and pass them as the type argument. The **default** `TError` is `Error` when not specified.
+Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter** — users define their own error types (discriminated unions, classes, or plain objects) and pass them as the type argument. The **default** `TError` is `unknown` (matches `IResultFailure<TError = unknown>`), so a bare `err()` returns `IResultOfT<never, unknown>` and callers are forced to narrow — no silent `Error` coercion.
 
 ### Integration Pattern (Pre-configured Result)
 
@@ -101,13 +101,13 @@ All result and option values are **plain objects** with a discriminant property.
 
 IResultSuccess                           (isSuccess: true, isFailure: false — no error)
 IResultFailure<TError>                   (isSuccess: false, isFailure: true, error: TError)
-IResult<TError = Error>                  = IResultSuccess | IResultFailure<TError>
+IResult<TError = unknown>                = IResultSuccess | IResultFailure<TError>
 
 ── IResultOfT (value-bearing) ──
 
 IResultOfTSuccess<TValue>                (isSuccess: true, isFailure: false, value: TValue)
 IResultOfTFailure<TError>                (isSuccess: false, isFailure: true, error: TError)
-IResultOfT<TValue, TError = Error>       = IResultOfTSuccess | IResultOfTFailure
+IResultOfT<TValue, TError = unknown>    = IResultOfTSuccess | IResultOfTFailure
 
 ── IOption ──
 

@@ -49,6 +49,26 @@ describe('orElse', () => {
         if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
     });
 
+    it('catches errorFn throw and surfaces as Err(thrown), direct form', () => {
+        const result = orElse(
+            (() => { throw new Error('fn-boom'); }) as (e: string) => IResultOfT<number, Error>,
+            err<string>('original'),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
+
+    it('catches errorFn throw and surfaces as Err(thrown), curried form', () => {
+        const curried = orElse(
+            (() => { throw new Error('fn-boom'); }) as (e: string) => IResultOfT<number, Error>,
+            () => { throw new Error('eFn-boom'); },
+        );
+        const result = curried(err<string>('original'));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+    });
+
     it('does NOT call fn on success — short-circuit (Group C)', () => {
         const fn = vi.fn((_e: string) => ok(42) as IResultOfT<number, string>);
         orElse(fn, ok(99));

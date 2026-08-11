@@ -52,8 +52,10 @@ export function bimap<A, E, C, F>(
                 if (r.isSuccess) return ok(onOk(r.value));
                 return err(onErr(r.error));
             } catch (thrown: unknown) {
+                // Wrap `eFn(thrown)` so a buggy mapper does not escape the
+                // try/catch and bypass the Result wrapper.
                 const innerError = eFn
-                    ? eFn(thrown)
+                    ? (() => { try { return eFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
                     : (thrown as unknown as F);
                 return err(innerError) as unknown as IResultOfT<C, F>;
             }
@@ -64,8 +66,10 @@ export function bimap<A, E, C, F>(
         if (r.isSuccess) return ok(onOk(r.value));
         return err(onErr(r.error));
     } catch (thrown: unknown) {
+        // Wrap `errorFn(thrown)` so a buggy mapper does not escape the
+        // try/catch and bypass the Result wrapper.
         const innerError = errorFn
-            ? errorFn(thrown)
+            ? (() => { try { return errorFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
             : (thrown as unknown as F);
         return err(innerError);
     }

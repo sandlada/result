@@ -76,6 +76,22 @@ describe('promise-result asyncMatchOption', () => {
         ).rejects.toThrow('async-some-boom');
     });
 
+    it('resolves async some handler with a single await (no Promise<Promise<U>> nesting)', async () => {
+        const r = await asyncMatchOption({
+            some: async (x: number) => `async-some:${x}`,
+            none: async () => 'async-none',
+        }, ofSome(7));
+        expect(r).toBe('async-some:7');
+    });
+
+    it('resolves async none handler with a single await (no Promise<Promise<U>> nesting)', async () => {
+        const r = await asyncMatchOption({
+            some: async (x: number) => `async-some:${x}`,
+            none: async () => 'async-none',
+        }, ofNone<number>());
+        expect(r).toBe('async-none');
+    });
+
     it('returns a Promise immediately on construction (eager)', () => {
         const r = asyncMatchOption({
             some: (x: number) => `some ${x}`,

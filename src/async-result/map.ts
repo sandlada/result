@@ -41,7 +41,18 @@ export function map<T, U, E>(
                 const r = await ar.run();
                 if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
                 try {
-                    return { isSuccess: true as const, isFailure: false as const, value: fn(r.value) } as unknown as IResultOfT<U, E>;
+                    const mapped = fn(r.value);
+                    // Reject thenable returns so the caller is forced onto
+                    // `mapAsync` for sync-or-async mappers. Without this
+                    // guard, a thenable silently becomes the success value —
+                    // a type lie that surfaces only at the consumer site.
+                    if (mapped !== null && typeof mapped === 'object' && typeof (mapped as { then?: unknown }).then === 'function') {
+                        throw new Error(
+                            'map: mapper returned a thenable, but map requires a synchronous mapper. ' +
+                            'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
+                        );
+                    }
+                    return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
                 } catch (thrown: unknown) {
                     // Wrap `eFn(thrown)` so a buggy mapper does not escape
                     // the catch block and reject the outer Promise.
@@ -62,7 +73,14 @@ export function map<T, U, E>(
             const r = await ar.run();
             if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             try {
-                return { isSuccess: true as const, isFailure: false as const, value: fn(r.value) } as unknown as IResultOfT<U, E>;
+                const mapped = fn(r.value);
+                if (mapped !== null && typeof mapped === 'object' && typeof (mapped as { then?: unknown }).then === 'function') {
+                    throw new Error(
+                        'map: mapper returned a thenable, but map requires a synchronous mapper. ' +
+                        'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
+                    );
+                }
+                return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
                     ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()

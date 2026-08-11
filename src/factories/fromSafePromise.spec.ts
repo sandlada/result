@@ -122,6 +122,16 @@ describe('fromSafePromise', () => {
             expect(r.isFailure).toBe(true);
         });
 
+        it('errorFn that throws is captured as Err(thrown), not as outer rejection', async () => {
+            const outer = fromSafePromise(
+                Promise.reject(new Error('inner')),
+                () => { throw new Error('mapper threw'); },
+            );
+            const r = await outer;
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect((r.error as Error).message).toBe('mapper threw');
+        });
+
         it('returned IResult does not carry both value and error at once', async () => {
             const r = await fromSafePromise(Promise.resolve(42));
             if (r.isSuccess) {

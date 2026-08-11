@@ -106,6 +106,19 @@ describe('lift', () => {
         if (r.isSuccess) expect(r.value).toBe('7');
     });
 
+    it('errorFn that throws is captured as Err(thrown), not as outer sync throw', () => {
+        const f = lift(
+            (n: number) => {
+                if (n < 0) throw new Error('always');
+                return n;
+            },
+            () => { throw new Error('mapper threw'); },
+        );
+        const r = f(-1);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('mapper threw');
+    });
+
     it('re-entrance: throw and recovery (error capture repeatability)', () => {
         const f = lift(
             (n: number) => {

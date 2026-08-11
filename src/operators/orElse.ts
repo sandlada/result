@@ -38,8 +38,10 @@ export function orElse<A, E, B, F>(
             try {
                 return f(r.error) as unknown as IResultOfT<A2 | B, F>;
             } catch (thrown: unknown) {
+                // Wrap `eFn(thrown)` so a buggy mapper does not escape the
+                // try/catch and bypass the Result wrapper.
                 const innerError = eFn
-                    ? eFn(thrown)
+                    ? (() => { try { return eFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
                     : (thrown as unknown as F);
                 return err(innerError) as unknown as IResultOfT<A2 | B, F>;
             }
@@ -50,8 +52,10 @@ export function orElse<A, E, B, F>(
     try {
         return f(r.error) as unknown as IResultOfT<A | B, F>;
     } catch (thrown: unknown) {
+        // Wrap `errorFn(thrown)` so a buggy mapper does not escape the
+        // try/catch and bypass the Result wrapper.
         const innerError = errorFn
-            ? errorFn(thrown)
+            ? (() => { try { return errorFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
             : (thrown as unknown as F);
         return err(innerError);
     }
