@@ -84,5 +84,26 @@ describe('AsyncResult orElse', () => {
             await ar.run();
             expect(called).toBe(false);
         });
+
+        it('catches eFn throw and surfaces as Err(thrown), curried form', async () => {
+            const curried = orElse(
+                (() => { throw new Error('fn-boom'); }) as (e: string) => Promise<never>,
+                () => { throw new Error('eFn-boom'); },
+            );
+            const result = await curried(fromResult(err('orig'))).run();
+            expect(result.isFailure);
+            if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+        });
+
+        it('catches errorFn throw and surfaces as Err(thrown), direct form', async () => {
+            const ar = orElse(
+                (() => { throw new Error('fn-boom'); }) as (e: string) => Promise<never>,
+                fromResult(err('orig')),
+                () => { throw new Error('errorFn-boom'); },
+            );
+            const result = await ar.run();
+            expect(result.isFailure);
+            if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+        });
     });
 });

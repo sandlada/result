@@ -40,4 +40,25 @@ describe('AsyncResult tapErr', () => {
         tapErr<number, string>(() => {}, lazy);
         expect(called).toBe(false);
     });
+
+    it('catches eFn throw and surfaces as Err(thrown), curried form', async () => {
+        const curried = tapErr(
+            () => { throw new Error('fn-boom'); },
+            () => { throw new Error('eFn-boom'); },
+        );
+        const result = await curried(fromResult(err('orig'))).run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+    });
+
+    it('catches errorFn throw and surfaces as Err(thrown), direct form', async () => {
+        const ar = tapErr(
+            () => { throw new Error('fn-boom'); },
+            fromResult(err('orig')),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
 });

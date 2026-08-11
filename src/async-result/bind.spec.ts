@@ -116,5 +116,26 @@ describe('AsyncResult bind', () => {
             const result = await ar.run();
             expect(result.isFailure && result.error).toBe('inner-fail');
         });
+
+        it('catches eFn throw and surfaces as Err(thrown), curried form', async () => {
+            const curried = bind(
+                (() => { throw new Error('bind-boom'); }) as (x: number) => never,
+                () => { throw new Error('eFn-boom'); },
+            );
+            const result = await curried(fromResult(ok(1))).run();
+            expect(result.isFailure);
+            if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+        });
+
+        it('catches errorFn throw and surfaces as Err(thrown), direct form', async () => {
+            const ar = bind(
+                (() => { throw new Error('bind-boom'); }) as (x: number) => never,
+                fromResult(ok(1)),
+                () => { throw new Error('errorFn-boom'); },
+            );
+            const result = await ar.run();
+            expect(result.isFailure);
+            if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+        });
     });
 });

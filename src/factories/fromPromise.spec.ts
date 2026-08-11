@@ -109,6 +109,15 @@ describe('fromPromise', () => {
                 expect(r.error.raw).toBe('boom');
             }
         });
+
+        it('errorFn that throws is captured as Err(thrown)', async () => {
+            const r = await fromPromise(
+                Promise.reject(new Error('inner')),
+                () => { throw new Error('errorFn-boom'); },
+            );
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect((r.error as Error).message).toBe('errorFn-boom');
+        });
     });
 
     describe('Behavioural edges', () => {

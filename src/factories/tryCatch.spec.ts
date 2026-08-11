@@ -41,6 +41,15 @@ describe('tryCatch', () => {
         }
     });
 
+    it('errorFn that throws is captured as Err(thrown)', () => {
+        const r = tryCatch(
+            () => { throw new Error('fn-boom'); },
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('errorFn-boom');
+    });
+
     it('uses direct cast when errorFn is omitted with explicit TError type param', () => {
         const result = tryCatch<number, number>(() => {
             throw 404;

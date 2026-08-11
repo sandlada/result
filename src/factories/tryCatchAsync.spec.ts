@@ -35,6 +35,15 @@ describe('tryCatchAsync', () => {
         if (result.isFailure) expect(result.error).toBe('raw error');
     });
 
+    it('errorFn that throws is captured as Err(thrown)', async () => {
+        const result = await tryCatchAsync(
+            async () => { throw new Error('fn-boom'); },
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
+
     describe('Default-error contract', () => {
         it('default error type is `unknown` — non-Error rejections pass through unchanged', async () => {
             const thrown = { code: 500, message: 'server' };

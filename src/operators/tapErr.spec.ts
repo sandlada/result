@@ -51,5 +51,24 @@ describe('tapErr', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('string-throw');
     });
+
+    it('curried with errorFn: errorFn is invoked when fn throws', () => {
+        const result = tapErr(
+            (_e: string) => { throw new Error('fn-boom'); },
+            (e: unknown) => `wrapped:${String(e)}`,
+        )(err('orig'));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
+    });
+
+    it('direct with errorFn: errorFn is invoked when fn throws', () => {
+        const result = tapErr(
+            (_e: string) => { throw new Error('fn-boom'); },
+            err('orig'),
+            (e: unknown) => `wrapped:${String(e)}`,
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
+    });
 });
 

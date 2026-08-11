@@ -59,4 +59,10 @@ describe('promise-result unwrapOrElse (sync)', () => {
             ),
         ).rejects.toThrow('onErr-reject');
     });
+
+    it('curried: returns a function then applied', async () => {
+        const curried = unwrapOrElse((e: string) => -1);
+        const v = await curried(Promise.resolve(ok(42)));
+        expect(v).toBe(42);
+    });
 });

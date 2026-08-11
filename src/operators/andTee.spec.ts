@@ -70,4 +70,23 @@ describe('andTee', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('string-throw');
     });
+
+    it('curried with errorFn: errorFn is invoked when fn throws', () => {
+        const result = andTee(
+            (_v: number) => { throw new Error('fn-boom'); },
+            (e: unknown) => `wrapped:${String(e)}`,
+        )(ok(1));
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
+    });
+
+    it('direct with errorFn: errorFn is invoked when fn throws', () => {
+        const result = andTee(
+            (_v: number) => { throw new Error('fn-boom'); },
+            ok(1),
+            (e: unknown) => `wrapped:${String(e)}`,
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
+    });
 });

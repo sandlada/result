@@ -43,6 +43,16 @@ describe('fromThrowable', () => {
         expect(unwrapErr(r2)).toBe('Error: div by zero');
     });
 
+    it('errorFn that throws is captured as Err(thrown)', () => {
+        const safe = fromThrowable(
+            () => { throw new Error('fn-boom'); },
+            () => { throw new Error('errorFn-boom'); },
+        );
+        const r = safe(1);
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect((r.error as Error).message).toBe('errorFn-boom');
+    });
+
     describe('Lift semantics', () => {
         it('the inner function is not invoked by fromThrowable itself (lift, not call)', () => {
             // fromThrowable returns a new function; it does NOT call the wrapped fn.

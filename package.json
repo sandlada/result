@@ -82,9 +82,9 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:type": "vitest typecheck run --typecheck.only src/",
-        "bench": "vitest bench",
-        "bench:json": "vitest bench --outputJson=results.json",
-        "bench:ui": "vitest bench --ui"
+        "bench": "vitest bench --dir=src",
+        "bench:json": "vitest bench --dir=src --outputJson=results.json",
+        "bench:ui": "vitest bench --dir=src --ui"
     },
     "repository": {
         "type": "git",

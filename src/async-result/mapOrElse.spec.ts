@@ -36,4 +36,10 @@ describe('AsyncResult mapOrElse', () => {
         await mapOrElse((e: string) => { received = e; return -1; }, (x: number) => x, fromResult(err('orig')));
         expect(received).toBe('orig');
     });
+
+    it('curried: returns a function then applied', async () => {
+        const curried = mapOrElse((e: string) => -1, (x: number) => x * 2);
+        const v = await curried(fromResult(ok(21)));
+        expect(v).toBe(42);
+    });
 });

@@ -60,4 +60,25 @@ describe('AsyncResult map', () => {
             expect((result.error as Error).message).toContain('thenable');
         }
     });
+
+    it('catches eFn throw and surfaces as Err(thrown), curried form', async () => {
+        const curried = map(
+            (() => { throw new Error('fn-boom'); }) as (x: number) => number,
+            () => { throw new Error('eFn-boom'); },
+        );
+        const result = await curried(fromResult(ok(7))).run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+    });
+
+    it('catches errorFn throw and surfaces as Err(thrown), direct form', async () => {
+        const ar = map(
+            (() => { throw new Error('fn-boom'); }) as (x: number) => number,
+            fromResult(ok(7)),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        const result = await ar.run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
 });
