@@ -16,8 +16,16 @@ describe('promise-result mapErr (sync)', () => {
     });
 
     it('catches sync throws and converts to Err', async () => {
-        const r = await mapErr(() => { throw new Error('boom'); }, Promise.resolve(err('x')));
+        const error = new Error('boom');
+        const r = await mapErr(() => { throw error; }, Promise.resolve(err('x')));
         expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect(r.error).toBe(error);
+    });
+
+    it('catches sync throws of non-Error primitives and converts to Err', async () => {
+        const r = await mapErr(() => { throw 'string error'; }, Promise.resolve(err('x')));
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) expect(r.error).toBe('string error');
     });
 
     it('is curried', async () => {
