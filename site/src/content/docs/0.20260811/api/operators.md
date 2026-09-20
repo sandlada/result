@@ -18,7 +18,7 @@ Re-exports all synchronous operators for working with Result values.
 
 > **and**\<`B`, `F`>(`other`): \<`A`, `E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F` | `E`>
 
-Defined in: [operators/and.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/and.ts#L18)
+Defined in: [operators/and.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/and.ts#L18)
 
 ##### Type Parameters
 
@@ -44,7 +44,7 @@ Defined in: [operators/and.ts:18](https://github.com/sandlada/result/blob/a04668
 
 > **and**\<`A`, `E`, `B`, `F`>(`other`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E` | `F`>
 
-Defined in: [operators/and.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/and.ts#L19)
+Defined in: [operators/and.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/and.ts#L19)
 
 ##### Type Parameters
 
@@ -86,7 +86,7 @@ Defined in: [operators/and.ts:19](https://github.com/sandlada/result/blob/a04668
 
 > **andTee**\<`A`, `B`, `F`>(`fn`, `errorFn?`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/andTee.ts:45](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/andTee.ts#L45)
+Defined in: [operators/andTee.ts:45](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/andTee.ts#L45)
 
 Curried form.
 
@@ -128,7 +128,7 @@ Curried form.
 
 > **andTee**\<`A`, `E`, `B`, `F`>(`fn`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/andTee.ts:58](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/andTee.ts#L58)
+Defined in: [operators/andTee.ts:58](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/andTee.ts#L58)
 
 Direct form.
 
@@ -184,7 +184,7 @@ Direct form.
 
 > **andThrough**\<`A`, `B`, `F`>(`fn`, `errorFn?`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F` | `E`>
 
-Defined in: [operators/andThrough.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/andThrough.ts#L38)
+Defined in: [operators/andThrough.ts:38](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/andThrough.ts#L38)
 
 ##### Type Parameters
 
@@ -218,7 +218,7 @@ Defined in: [operators/andThrough.ts:38](https://github.com/sandlada/result/blob
 
 > **andThrough**\<`A`, `E`, `B`, `F`>(`fn`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E` | `F`>
 
-Defined in: [operators/andThrough.ts:42](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/andThrough.ts#L42)
+Defined in: [operators/andThrough.ts:42](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/andThrough.ts#L42)
 
 ##### Type Parameters
 
@@ -264,7 +264,7 @@ Defined in: [operators/andThrough.ts:42](https://github.com/sandlada/result/blob
 
 > **ap**\<`A`, `B`, `E`, `F`>(`fnResult`): (`result`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E` | `F`>
 
-Defined in: [operators/ap.ts:31](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/ap.ts#L31)
+Defined in: [operators/ap.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/ap.ts#L31)
 
 ##### Type Parameters
 
@@ -298,7 +298,7 @@ Defined in: [operators/ap.ts:31](https://github.com/sandlada/result/blob/a046681
 
 > **ap**\<`A`, `B`, `E`, `F`>(`fnResult`, `result`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E` | `F`>
 
-Defined in: [operators/ap.ts:34](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/ap.ts#L34)
+Defined in: [operators/ap.ts:34](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/ap.ts#L34)
 
 ##### Type Parameters
 
@@ -340,7 +340,7 @@ Defined in: [operators/ap.ts:34](https://github.com/sandlada/result/blob/a046681
 
 > **bimap**\<`A`, `E`, `C`, `F`>(`onOk`, `onErr`, `errorFn?`): \<`A2`, `E2`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`C`, `F`>
 
-Defined in: [operators/bimap.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/bimap.ts#L27)
+Defined in: [operators/bimap.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/bimap.ts#L27)
 
 ##### Type Parameters
 
@@ -382,7 +382,7 @@ Defined in: [operators/bimap.ts:27](https://github.com/sandlada/result/blob/a046
 
 > **bimap**\<`A`, `E`, `C`, `F`>(`onOk`, `onErr`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`C`, `F`>
 
-Defined in: [operators/bimap.ts:34](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/bimap.ts#L34)
+Defined in: [operators/bimap.ts:34](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/bimap.ts#L34)
 
 ##### Type Parameters
 
@@ -432,7 +432,7 @@ Defined in: [operators/bimap.ts:34](https://github.com/sandlada/result/blob/a046
 
 > **bind**\<`A`, `B`, `F`>(`f`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F` | `E`>
 
-Defined in: [operators/bind.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/bind.ts#L22)
+Defined in: [operators/bind.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/bind.ts#L22)
 
 ##### Type Parameters
 
@@ -462,7 +462,7 @@ Defined in: [operators/bind.ts:22](https://github.com/sandlada/result/blob/a0466
 
 > **bind**\<`A`, `B`, `E`, `F`>(`f`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E` | `F`>
 
-Defined in: [operators/bind.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/bind.ts#L25)
+Defined in: [operators/bind.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/bind.ts#L25)
 
 ##### Type Parameters
 
@@ -504,7 +504,7 @@ Defined in: [operators/bind.ts:25](https://github.com/sandlada/result/blob/a0466
 
 > **catchErr**\<`B`, `E`>(`onErr`): \<`A`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B` | `A`, `never`>
 
-Defined in: [operators/catchErr.ts:56](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/catchErr.ts#L56)
+Defined in: [operators/catchErr.ts:56](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/catchErr.ts#L56)
 
 Curried form. The inner `<A>` is **deferred** so the input's value type is
 re-inferred at every application site — `catchErr(handler)(IResultOfT<A, E>)` widens
@@ -534,7 +534,7 @@ re-inferred at every application site — `catchErr(handler)(IResultOfT<A, E>)` 
 
 > **catchErr**\<`A`, `B`, `E`>(`onErr`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A` | `B`, `never`>
 
-Defined in: [operators/catchErr.ts:64](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/catchErr.ts#L64)
+Defined in: [operators/catchErr.ts:64](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/catchErr.ts#L64)
 
 Direct form. `A` is inferred from the supplied result; the recovery widens to
 `A | B`. The error track collapses to `never` because the recovery always succeeds.
@@ -575,7 +575,7 @@ Direct form. `A` is inferred from the supplied result; the recovery widens to
 
 > **choose**\<`A`, `B`, `E`>(`fn`): (`items`) => `B`\[]
 
-Defined in: [operators/choose.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/choose.ts#L22)
+Defined in: [operators/choose.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/choose.ts#L22)
 
 ##### Type Parameters
 
@@ -605,7 +605,7 @@ Defined in: [operators/choose.ts:22](https://github.com/sandlada/result/blob/a04
 
 > **choose**\<`A`, `B`, `E`>(`fn`, `items`): `B`\[]
 
-Defined in: [operators/choose.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/choose.ts#L25)
+Defined in: [operators/choose.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/choose.ts#L25)
 
 ##### Type Parameters
 
@@ -643,7 +643,7 @@ readonly `A`\[]
 
 > **contains**\<`A`>(`target`): \<`E`>(`r`) => `boolean`
 
-Defined in: [operators/contains.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/contains.ts#L17)
+Defined in: [operators/contains.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/contains.ts#L17)
 
 ##### Type Parameters
 
@@ -665,7 +665,7 @@ Defined in: [operators/contains.ts:17](https://github.com/sandlada/result/blob/a
 
 > **contains**\<`A`, `E`>(`target`, `r`): `boolean`
 
-Defined in: [operators/contains.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/contains.ts#L18)
+Defined in: [operators/contains.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/contains.ts#L18)
 
 ##### Type Parameters
 
@@ -699,7 +699,7 @@ Defined in: [operators/contains.ts:18](https://github.com/sandlada/result/blob/a
 
 > **exists**\<`A`>(`predicate`): \<`E`>(`r`) => `boolean`
 
-Defined in: [operators/exists.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/exists.ts#L17)
+Defined in: [operators/exists.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/exists.ts#L17)
 
 ##### Type Parameters
 
@@ -721,7 +721,7 @@ Defined in: [operators/exists.ts:17](https://github.com/sandlada/result/blob/a04
 
 > **exists**\<`A`, `E`>(`predicate`, `r`): `boolean`
 
-Defined in: [operators/exists.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/exists.ts#L18)
+Defined in: [operators/exists.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/exists.ts#L18)
 
 ##### Type Parameters
 
@@ -755,7 +755,7 @@ Defined in: [operators/exists.ts:18](https://github.com/sandlada/result/blob/a04
 
 > **expect**\<`A`, `E`>(`msg`): (`r`) => `A`
 
-Defined in: [operators/expect.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expect.ts#L21)
+Defined in: [operators/expect.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expect.ts#L21)
 
 ##### Type Parameters
 
@@ -781,7 +781,7 @@ Defined in: [operators/expect.ts:21](https://github.com/sandlada/result/blob/a04
 
 > **expect**\<`A`, `E`>(`msg`, `r`): `A`
 
-Defined in: [operators/expect.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expect.ts#L22)
+Defined in: [operators/expect.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expect.ts#L22)
 
 ##### Type Parameters
 
@@ -811,7 +811,7 @@ Defined in: [operators/expect.ts:22](https://github.com/sandlada/result/blob/a04
 
 > **expect**\<`A`, `E`>(`msg`, `r`, `throwingFn`): `A`
 
-Defined in: [operators/expect.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expect.ts#L23)
+Defined in: [operators/expect.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expect.ts#L23)
 
 ##### Type Parameters
 
@@ -849,7 +849,7 @@ Defined in: [operators/expect.ts:23](https://github.com/sandlada/result/blob/a04
 
 > **expectErr**\<`A`, `E`>(`msg`): (`r`) => `E`
 
-Defined in: [operators/expectErr.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expectErr.ts#L21)
+Defined in: [operators/expectErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expectErr.ts#L21)
 
 ##### Type Parameters
 
@@ -875,7 +875,7 @@ Defined in: [operators/expectErr.ts:21](https://github.com/sandlada/result/blob/
 
 > **expectErr**\<`A`, `E`>(`msg`, `r`): `E`
 
-Defined in: [operators/expectErr.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expectErr.ts#L22)
+Defined in: [operators/expectErr.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expectErr.ts#L22)
 
 ##### Type Parameters
 
@@ -905,7 +905,7 @@ Defined in: [operators/expectErr.ts:22](https://github.com/sandlada/result/blob/
 
 > **expectErr**\<`A`, `E`>(`msg`, `r`, `throwingFn`): `E`
 
-Defined in: [operators/expectErr.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/expectErr.ts#L23)
+Defined in: [operators/expectErr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/expectErr.ts#L23)
 
 ##### Type Parameters
 
@@ -943,7 +943,7 @@ Defined in: [operators/expectErr.ts:23](https://github.com/sandlada/result/blob/
 
 > **filterOrElse**\<`A`, `E`>(`predicate`, `errorFn`, `throwErrorFn?`): (`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/filterOrElse.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/filterOrElse.ts#L25)
+Defined in: [operators/filterOrElse.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/filterOrElse.ts#L25)
 
 ##### Type Parameters
 
@@ -977,7 +977,7 @@ Defined in: [operators/filterOrElse.ts:25](https://github.com/sandlada/result/bl
 
 > **filterOrElse**\<`A`, `E`>(`predicate`, `errorFn`, `r`, `throwErrorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/filterOrElse.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/filterOrElse.ts#L30)
+Defined in: [operators/filterOrElse.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/filterOrElse.ts#L30)
 
 ##### Type Parameters
 
@@ -1017,7 +1017,7 @@ Defined in: [operators/filterOrElse.ts:30](https://github.com/sandlada/result/bl
 
 > **flatten**\<`A`, `E`>(`r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/flatten.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/flatten.ts#L22)
+Defined in: [operators/flatten.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/flatten.ts#L22)
 
 #### Type Parameters
 
@@ -1047,7 +1047,7 @@ Defined in: [operators/flatten.ts:22](https://github.com/sandlada/result/blob/a0
 
 > **map**\<`A`, `B`>(`f`, `errorFn?`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>
 
-Defined in: [operators/map.ts:24](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/map.ts#L24)
+Defined in: [operators/map.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/map.ts#L24)
 
 ##### Type Parameters
 
@@ -1077,7 +1077,7 @@ Defined in: [operators/map.ts:24](https://github.com/sandlada/result/blob/a04668
 
 > **map**\<`A`, `B`, `E`>(`f`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>
 
-Defined in: [operators/map.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/map.ts#L28)
+Defined in: [operators/map.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/map.ts#L28)
 
 ##### Type Parameters
 
@@ -1119,7 +1119,7 @@ Defined in: [operators/map.ts:28](https://github.com/sandlada/result/blob/a04668
 
 > **mapErr**\<`E`, `F`>(`f`): \<`A`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F`>
 
-Defined in: [operators/mapErr.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapErr.ts#L23)
+Defined in: [operators/mapErr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapErr.ts#L23)
 
 ##### Type Parameters
 
@@ -1145,7 +1145,7 @@ Defined in: [operators/mapErr.ts:23](https://github.com/sandlada/result/blob/a04
 
 > **mapErr**\<`A`, `E`, `F`>(`f`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F`>
 
-Defined in: [operators/mapErr.ts:24](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapErr.ts#L24)
+Defined in: [operators/mapErr.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapErr.ts#L24)
 
 ##### Type Parameters
 
@@ -1183,7 +1183,7 @@ Defined in: [operators/mapErr.ts:24](https://github.com/sandlada/result/blob/a04
 
 > **mapOr**\<`A`, `B`, `E`>(`defaultValue`, `fn`): (`r`) => `B`
 
-Defined in: [operators/mapOr.ts:16](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapOr.ts#L16)
+Defined in: [operators/mapOr.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapOr.ts#L16)
 
 ##### Type Parameters
 
@@ -1217,7 +1217,7 @@ Defined in: [operators/mapOr.ts:16](https://github.com/sandlada/result/blob/a046
 
 > **mapOr**\<`A`, `B`, `E`>(`defaultValue`, `fn`, `r`): `B`
 
-Defined in: [operators/mapOr.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapOr.ts#L20)
+Defined in: [operators/mapOr.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapOr.ts#L20)
 
 ##### Type Parameters
 
@@ -1259,7 +1259,7 @@ Defined in: [operators/mapOr.ts:20](https://github.com/sandlada/result/blob/a046
 
 > **mapOrElse**\<`A`, `B`, `E`>(`onErr`, `fn`): (`r`) => `B`
 
-Defined in: [operators/mapOrElse.ts:15](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapOrElse.ts#L15)
+Defined in: [operators/mapOrElse.ts:15](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapOrElse.ts#L15)
 
 ##### Type Parameters
 
@@ -1293,7 +1293,7 @@ Defined in: [operators/mapOrElse.ts:15](https://github.com/sandlada/result/blob/
 
 > **mapOrElse**\<`A`, `B`, `E`>(`onErr`, `fn`, `r`): `B`
 
-Defined in: [operators/mapOrElse.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/mapOrElse.ts#L19)
+Defined in: [operators/mapOrElse.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/mapOrElse.ts#L19)
 
 ##### Type Parameters
 
@@ -1335,7 +1335,7 @@ Defined in: [operators/mapOrElse.ts:19](https://github.com/sandlada/result/blob/
 
 > **match**\<`A`, `E`, `C`>(`onOk`, `onErr`): (`r`) => `C`
 
-Defined in: [operators/match.ts:33](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/match.ts#L33)
+Defined in: [operators/match.ts:33](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/match.ts#L33)
 
 ##### Type Parameters
 
@@ -1369,7 +1369,7 @@ Defined in: [operators/match.ts:33](https://github.com/sandlada/result/blob/a046
 
 > **match**\<`A`, `E`, `C`>(`onOk`, `onErr`, `r`): `C`
 
-Defined in: [operators/match.ts:37](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/match.ts#L37)
+Defined in: [operators/match.ts:37](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/match.ts#L37)
 
 ##### Type Parameters
 
@@ -1407,7 +1407,7 @@ Defined in: [operators/match.ts:37](https://github.com/sandlada/result/blob/a046
 
 > **match**\<`A`, `E`, `C`>(`handlers`): (`r`) => `C`
 
-Defined in: [operators/match.ts:43](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/match.ts#L43)
+Defined in: [operators/match.ts:43](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/match.ts#L43)
 
 ##### Type Parameters
 
@@ -1437,7 +1437,7 @@ Defined in: [operators/match.ts:43](https://github.com/sandlada/result/blob/a046
 
 > **match**\<`A`, `E`, `C`>(`handlers`, `r`): `C`
 
-Defined in: [operators/match.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/match.ts#L46)
+Defined in: [operators/match.ts:46](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/match.ts#L46)
 
 ##### Type Parameters
 
@@ -1475,7 +1475,7 @@ Defined in: [operators/match.ts:46](https://github.com/sandlada/result/blob/a046
 
 > **or**\<`A`, `F`>(`other`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F` | `E`>
 
-Defined in: [operators/or.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/or.ts#L29)
+Defined in: [operators/or.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/or.ts#L29)
 
 ##### Type Parameters
 
@@ -1501,7 +1501,7 @@ Defined in: [operators/or.ts:29](https://github.com/sandlada/result/blob/a046681
 
 > **or**\<`A`, `E`, `F`>(`other`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E` | `F`>
 
-Defined in: [operators/or.ts:32](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/or.ts#L32)
+Defined in: [operators/or.ts:32](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/or.ts#L32)
 
 ##### Type Parameters
 
@@ -1539,7 +1539,7 @@ Defined in: [operators/or.ts:32](https://github.com/sandlada/result/blob/a046681
 
 > **orElse**\<`E`, `B`, `F`>(`f`, `errorFn?`): \<`A`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B` | `A`, `F`>
 
-Defined in: [operators/orElse.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orElse.ts#L20)
+Defined in: [operators/orElse.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orElse.ts#L20)
 
 ##### Type Parameters
 
@@ -1573,7 +1573,7 @@ Defined in: [operators/orElse.ts:20](https://github.com/sandlada/result/blob/a04
 
 > **orElse**\<`A`, `E`, `B`, `F`>(`f`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A` | `B`, `F`>
 
-Defined in: [operators/orElse.ts:24](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orElse.ts#L24)
+Defined in: [operators/orElse.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orElse.ts#L24)
 
 ##### Type Parameters
 
@@ -1619,7 +1619,7 @@ Defined in: [operators/orElse.ts:24](https://github.com/sandlada/result/blob/a04
 
 > **orTee**\<`E`, `B`, `F`>(`fn`, `errorFn?`): \<`A`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/orTee.ts:31](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orTee.ts#L31)
+Defined in: [operators/orTee.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orTee.ts#L31)
 
 ##### Type Parameters
 
@@ -1653,7 +1653,7 @@ Defined in: [operators/orTee.ts:31](https://github.com/sandlada/result/blob/a046
 
 > **orTee**\<`A`, `E`, `B`, `F`>(`fn`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/orTee.ts:35](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orTee.ts#L35)
+Defined in: [operators/orTee.ts:35](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orTee.ts#L35)
 
 ##### Type Parameters
 
@@ -1697,7 +1697,7 @@ Defined in: [operators/orTee.ts:35](https://github.com/sandlada/result/blob/a046
 
 > **orThrow**\<`T`, `E`>(`r`): `T`
 
-Defined in: [operators/orThrow.ts:31](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orThrow.ts#L31)
+Defined in: [operators/orThrow.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orThrow.ts#L31)
 
 Unwraps the success value, throwing the error directly on failure.
 Requires `E extends Error` so the error can be thrown.
@@ -1738,7 +1738,7 @@ The error value if the result is a failure.
 
 > **orThrowWith**\<`T`, `E`>(`errorFn`): (`r`) => `T`
 
-Defined in: [operators/orThrow.ts:47](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orThrow.ts#L47)
+Defined in: [operators/orThrow.ts:47](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orThrow.ts#L47)
 
 Unwraps the success value, throwing a custom error on failure.
 Transforms the error via `errorFn` before throwing.
@@ -1777,7 +1777,7 @@ The transformed error if the result is a failure.
 
 > **orThrowWith**\<`T`, `E`>(`errorFn`, `r`): `T`
 
-Defined in: [operators/orThrow.ts:50](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/orThrow.ts#L50)
+Defined in: [operators/orThrow.ts:50](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/orThrow.ts#L50)
 
 Unwraps the success value, throwing a custom error on failure.
 Transforms the error via `errorFn` before throwing.
@@ -1824,7 +1824,7 @@ The transformed error if the result is a failure.
 
 > **separate**\<`T`, `E`>(`results`): `object`
 
-Defined in: [operators/separate.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/separate.ts#L18)
+Defined in: [operators/separate.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/separate.ts#L18)
 
 #### Type Parameters
 
@@ -1860,7 +1860,7 @@ readonly [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>\[]
 
 > **swap**\<`A`, `E`>(`r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`E`, `A`>
 
-Defined in: [operators/swap.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/swap.ts#L19)
+Defined in: [operators/swap.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/swap.ts#L19)
 
 #### Type Parameters
 
@@ -1890,7 +1890,7 @@ Defined in: [operators/swap.ts:19](https://github.com/sandlada/result/blob/a0466
 
 > **tap**\<`A`>(`fn`, `errorFn?`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/tap.ts:26](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/tap.ts#L26)
+Defined in: [operators/tap.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/tap.ts#L26)
 
 ##### Type Parameters
 
@@ -1916,7 +1916,7 @@ Defined in: [operators/tap.ts:26](https://github.com/sandlada/result/blob/a04668
 
 > **tap**\<`A`, `E`>(`fn`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/tap.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/tap.ts#L30)
+Defined in: [operators/tap.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/tap.ts#L30)
 
 ##### Type Parameters
 
@@ -1954,7 +1954,7 @@ Defined in: [operators/tap.ts:30](https://github.com/sandlada/result/blob/a04668
 
 > **tapErr**\<`E`>(`fn`, `errorFn?`): \<`A`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/tapErr.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/tapErr.ts#L21)
+Defined in: [operators/tapErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/tapErr.ts#L21)
 
 ##### Type Parameters
 
@@ -1980,7 +1980,7 @@ Defined in: [operators/tapErr.ts:21](https://github.com/sandlada/result/blob/a04
 
 > **tapErr**\<`A`, `E`>(`fn`, `r`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [operators/tapErr.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/tapErr.ts#L25)
+Defined in: [operators/tapErr.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/tapErr.ts#L25)
 
 ##### Type Parameters
 
@@ -2018,7 +2018,7 @@ Defined in: [operators/tapErr.ts:25](https://github.com/sandlada/result/blob/a04
 
 > **traverseArray**\<`A`, `B`, `E`>(`fn`): (`items`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`\[], `E`>
 
-Defined in: [operators/traverseArray.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/traverseArray.ts#L25)
+Defined in: [operators/traverseArray.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/traverseArray.ts#L25)
 
 ##### Type Parameters
 
@@ -2048,7 +2048,7 @@ Defined in: [operators/traverseArray.ts:25](https://github.com/sandlada/result/b
 
 > **traverseArray**\<`A`, `B`, `E`>(`fn`, `items`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`\[], `E`>
 
-Defined in: [operators/traverseArray.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/traverseArray.ts#L28)
+Defined in: [operators/traverseArray.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/traverseArray.ts#L28)
 
 ##### Type Parameters
 
@@ -2084,7 +2084,7 @@ readonly `A`\[]
 
 > **unsafeUnwrap**\<`A`, `E`>(`r`): `A`
 
-Defined in: [operators/unsafeUnwrap.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unsafeUnwrap.ts#L21)
+Defined in: [operators/unsafeUnwrap.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unsafeUnwrap.ts#L21)
 
 #### Type Parameters
 
@@ -2112,7 +2112,7 @@ Defined in: [operators/unsafeUnwrap.ts:21](https://github.com/sandlada/result/bl
 
 > **unsafeUnwrapErr**\<`A`, `E`>(`r`): `E`
 
-Defined in: [operators/unsafeUnwrapErr.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unsafeUnwrapErr.ts#L21)
+Defined in: [operators/unsafeUnwrapErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unsafeUnwrapErr.ts#L21)
 
 #### Type Parameters
 
@@ -2140,7 +2140,7 @@ Defined in: [operators/unsafeUnwrapErr.ts:21](https://github.com/sandlada/result
 
 > **unwrap**\<`T`, `E`>(`r`, `throwingFn?`): `T`
 
-Defined in: [operators/unwrap.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrap.ts#L20)
+Defined in: [operators/unwrap.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrap.ts#L20)
 
 #### Type Parameters
 
@@ -2172,7 +2172,7 @@ Defined in: [operators/unwrap.ts:20](https://github.com/sandlada/result/blob/a04
 
 > **unwrapErr**\<`A`, `E`>(`r`, `throwingFn?`): `E`
 
-Defined in: [operators/unwrapErr.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrapErr.ts#L21)
+Defined in: [operators/unwrapErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrapErr.ts#L21)
 
 #### Type Parameters
 
@@ -2206,7 +2206,7 @@ Defined in: [operators/unwrapErr.ts:21](https://github.com/sandlada/result/blob/
 
 > **unwrapOr**\<`A`>(`defaultValue`): \<`E`>(`r`) => `Widen`\<`A`>
 
-Defined in: [operators/unwrapOr.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrapOr.ts#L27)
+Defined in: [operators/unwrapOr.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrapOr.ts#L27)
 
 ##### Type Parameters
 
@@ -2228,7 +2228,7 @@ Defined in: [operators/unwrapOr.ts:27](https://github.com/sandlada/result/blob/a
 
 > **unwrapOr**\<`A`, `E`>(`defaultValue`, `r`): `Widen`\<`A`>
 
-Defined in: [operators/unwrapOr.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrapOr.ts#L28)
+Defined in: [operators/unwrapOr.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrapOr.ts#L28)
 
 ##### Type Parameters
 
@@ -2262,7 +2262,7 @@ Defined in: [operators/unwrapOr.ts:28](https://github.com/sandlada/result/blob/a
 
 > **unwrapOrElse**\<`A`, `E`>(`onErr`): (`r`) => `A`
 
-Defined in: [operators/unwrapOrElse.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrapOrElse.ts#L22)
+Defined in: [operators/unwrapOrElse.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrapOrElse.ts#L22)
 
 ##### Type Parameters
 
@@ -2288,7 +2288,7 @@ Defined in: [operators/unwrapOrElse.ts:22](https://github.com/sandlada/result/bl
 
 > **unwrapOrElse**\<`A`, `E`>(`onErr`, `r`): `A`
 
-Defined in: [operators/unwrapOrElse.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unwrapOrElse.ts#L23)
+Defined in: [operators/unwrapOrElse.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unwrapOrElse.ts#L23)
 
 ##### Type Parameters
 
@@ -2320,7 +2320,7 @@ Defined in: [operators/unwrapOrElse.ts:23](https://github.com/sandlada/result/bl
 
 > **unzip**\<`A`, `B`, `E`>(`r`): \[[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>, [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>]
 
-Defined in: [operators/unzip.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/operators/unzip.ts#L19)
+Defined in: [operators/unzip.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/operators/unzip.ts#L19)
 
 #### Type Parameters
 

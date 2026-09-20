@@ -14,7 +14,7 @@ slug: 0.20260811/api/adapters
 
 > **fromOption**\<`E`>(`errorOnNone`): \<`A`>(`opt`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [adapters/fromOption.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/fromOption.ts#L20)
+Defined in: [adapters/fromOption.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/fromOption.ts#L20)
 
 ##### Type Parameters
 
@@ -36,7 +36,7 @@ Defined in: [adapters/fromOption.ts:20](https://github.com/sandlada/result/blob/
 
 > **fromOption**\<`A`, `E`>(`errorOnNone`, `opt`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
-Defined in: [adapters/fromOption.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/fromOption.ts#L21)
+Defined in: [adapters/fromOption.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/fromOption.ts#L21)
 
 ##### Type Parameters
 
@@ -70,7 +70,7 @@ Defined in: [adapters/fromOption.ts:21](https://github.com/sandlada/result/blob/
 
 > **liftMap**\<`A`, `B`>(`f`): \<`E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>
 
-Defined in: [adapters/liftMap.ts:16](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/liftMap.ts#L16)
+Defined in: [adapters/liftMap.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/liftMap.ts#L16)
 
 ##### Type Parameters
 
@@ -96,7 +96,7 @@ Defined in: [adapters/liftMap.ts:16](https://github.com/sandlada/result/blob/a04
 
 > **liftMap**\<`A`, `B`, `E`>(`f`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>
 
-Defined in: [adapters/liftMap.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/liftMap.ts#L17)
+Defined in: [adapters/liftMap.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/liftMap.ts#L17)
 
 ##### Type Parameters
 
@@ -132,7 +132,7 @@ Defined in: [adapters/liftMap.ts:17](https://github.com/sandlada/result/blob/a04
 
 > **switchFn**\<`A`, `B`, `E`>(`f`, `errorFn?`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>
 
-Defined in: [adapters/switchFn.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/switchFn.ts#L23)
+Defined in: [adapters/switchFn.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/switchFn.ts#L23)
 
 Adapters — barrel export.
 
@@ -172,7 +172,7 @@ Re-exports adapter/interop functions for bridging between Result and other patte
 
 > **switchFnAsync**\<`A`, `B`, `E`>(`f`, `errorFn?`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [adapters/switchFnAsync.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/switchFnAsync.ts#L21)
+Defined in: [adapters/switchFnAsync.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/switchFnAsync.ts#L21)
 
 #### Type Parameters
 
@@ -208,7 +208,7 @@ Defined in: [adapters/switchFnAsync.ts:21](https://github.com/sandlada/result/bl
 
 > **tee**\<`A`>(`f`): (`a`) => `A`
 
-Defined in: [adapters/tee.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/tee.ts#L21)
+Defined in: [adapters/tee.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/tee.ts#L21)
 
 #### Type Parameters
 
@@ -257,7 +257,7 @@ Ready for Product
 
 > **teeAsync**\<`A`>(`f`): (`a`) => `Promise`\<`A`>
 
-Defined in: [adapters/teeAsync.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/teeAsync.ts#L17)
+Defined in: [adapters/teeAsync.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/teeAsync.ts#L17)
 
 #### Type Parameters
 
@@ -302,7 +302,7 @@ Ready for Product
 
 > **toOption**\<`A`, `E`>(`r`): [`IOption`](/0.20260811/api/types/#ioption)\<`A`>
 
-Defined in: [adapters/toOption.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/adapters/toOption.ts#L19)
+Defined in: [adapters/toOption.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/adapters/toOption.ts#L19)
 
 #### Type Parameters
 

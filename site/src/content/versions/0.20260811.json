@@ -14,77 +14,62 @@
     },
     {
       "label": "API Reference",
-      "collapsed": true,
       "items": [
         {
-          "label": "adapters",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "label": "async-option",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "label": "async-result",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "label": "combine",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "label": "composition",
-          "collapsed": true,
-          "items": []
+          "label": "types",
+          "link": "/api/types/"
         },
         {
           "label": "factories",
-          "collapsed": true,
-          "items": []
-        },
-        {
-          "label": "observability",
-          "collapsed": true,
-          "items": []
+          "link": "/api/factories/"
         },
         {
           "label": "operators",
-          "collapsed": true,
-          "items": []
+          "link": "/api/operators/"
         },
         {
           "label": "option",
-          "collapsed": true,
-          "items": []
+          "link": "/api/option/"
         },
         {
-          "label": "primitives",
-          "collapsed": true,
-          "items": []
+          "label": "async-result",
+          "link": "/api/async-result/"
         },
         {
-          "label": "promise-option",
-          "collapsed": true,
-          "items": []
+          "label": "async-option",
+          "link": "/api/async-option/"
         },
         {
           "label": "promise-result",
-          "collapsed": true,
-          "items": []
+          "link": "/api/promise-result/"
+        },
+        {
+          "label": "promise-option",
+          "link": "/api/promise-option/"
+        },
+        {
+          "label": "composition",
+          "link": "/api/composition/"
+        },
+        {
+          "label": "adapters",
+          "link": "/api/adapters/"
+        },
+        {
+          "label": "combine",
+          "link": "/api/combine/"
         },
         {
           "label": "reliability",
-          "collapsed": true,
-          "items": []
+          "link": "/api/reliability/"
         },
         {
-          "label": "types",
-          "collapsed": true,
-          "items": []
+          "label": "observability",
+          "link": "/api/observability/"
+        },
+        {
+          "label": "primitives",
+          "link": "/api/primitives/"
         }
       ]
     }

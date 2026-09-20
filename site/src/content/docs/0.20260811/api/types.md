@@ -10,7 +10,7 @@ slug: 0.20260811/api/types
 
 ### AsyncOption
 
-Defined in: [types/AsyncOption.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/AsyncOption.ts#L19)
+Defined in: [types/AsyncOption.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/AsyncOption.ts#L19)
 
 AsyncOption — a lazy thunk wrapping `() => Promise<IOption<T>>`.
 
@@ -28,7 +28,7 @@ Call `run()` to execute the computation.
 
 > `readonly` **run**: () => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [types/AsyncOption.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/AsyncOption.ts#L20)
+Defined in: [types/AsyncOption.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/AsyncOption.ts#L20)
 
 ###### Returns
 
@@ -38,7 +38,7 @@ Defined in: [types/AsyncOption.ts:20](https://github.com/sandlada/result/blob/a0
 
 ### AsyncResult
 
-Defined in: [types/AsyncResult.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/AsyncResult.ts#L20)
+Defined in: [types/AsyncResult.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/AsyncResult.ts#L20)
 
 AsyncResult — a lazy thunk wrapping `() => Promise<IResultOfT<T, E>>`.
 
@@ -60,7 +60,7 @@ Call `run()` to execute the computation.
 
 > `readonly` **run**: () => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [types/AsyncResult.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/AsyncResult.ts#L21)
+Defined in: [types/AsyncResult.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/AsyncResult.ts#L21)
 
 ###### Returns
 
@@ -70,7 +70,7 @@ Defined in: [types/AsyncResult.ts:21](https://github.com/sandlada/result/blob/a0
 
 ### IOptionNone
 
-Defined in: [types/Option.ts:34](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L34)
+Defined in: [types/Option.ts:34](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L34)
 
 IOptionNone — the None variant of [IOption](/0.20260811/api/types/#ioption).
 
@@ -80,19 +80,19 @@ IOptionNone — the None variant of [IOption](/0.20260811/api/types/#ioption).
 
 > `readonly` **isNone**: `true`
 
-Defined in: [types/Option.ts:36](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L36)
+Defined in: [types/Option.ts:36](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L36)
 
 ##### isSome
 
 > `readonly` **isSome**: `false`
 
-Defined in: [types/Option.ts:35](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L35)
+Defined in: [types/Option.ts:35](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L35)
 
 ***
 
 ### IOptionSome
 
-Defined in: [types/Option.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L25)
+Defined in: [types/Option.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L25)
 
 IOptionSome — the Some variant of [IOption](/0.20260811/api/types/#ioption).
 
@@ -108,25 +108,25 @@ IOptionSome — the Some variant of [IOption](/0.20260811/api/types/#ioption).
 
 > `readonly` **isNone**: `false`
 
-Defined in: [types/Option.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L27)
+Defined in: [types/Option.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L27)
 
 ##### isSome
 
 > `readonly` **isSome**: `true`
 
-Defined in: [types/Option.ts:26](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L26)
+Defined in: [types/Option.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L26)
 
 ##### value
 
 > `readonly` **value**: `T`
 
-Defined in: [types/Option.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L28)
+Defined in: [types/Option.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L28)
 
 ***
 
 ### IResultFailure
 
-Defined in: [types/IResult.ts:43](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L43)
+Defined in: [types/IResult.ts:43](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L43)
 
 IResultFailure — the failure variant of [IResult](/0.20260811/api/types/#iresult).
 
@@ -149,25 +149,25 @@ must narrow or supply an `errorFn` to take responsibility for the type.
 
 > `readonly` **error**: `TError`
 
-Defined in: [types/IResult.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L46)
+Defined in: [types/IResult.ts:46](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L46)
 
 ##### isFailure
 
 > `readonly` **isFailure**: `true`
 
-Defined in: [types/IResult.ts:45](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L45)
+Defined in: [types/IResult.ts:45](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L45)
 
 ##### isSuccess
 
 > `readonly` **isSuccess**: `false`
 
-Defined in: [types/IResult.ts:44](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L44)
+Defined in: [types/IResult.ts:44](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L44)
 
 ***
 
 ### IResultOfTFailure
 
-Defined in: [types/IResultOfT.ts:39](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L39)
+Defined in: [types/IResultOfT.ts:39](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L39)
 
 IResultOfTFailure — the failure variant of [IResultOfT](/0.20260811/api/types/#iresultoft).
 
@@ -186,25 +186,25 @@ never silently coerces an unknown thrown value to a specific shape.
 
 > `readonly` **error**: `TError`
 
-Defined in: [types/IResultOfT.ts:42](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L42)
+Defined in: [types/IResultOfT.ts:42](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L42)
 
 ##### isFailure
 
 > `readonly` **isFailure**: `true`
 
-Defined in: [types/IResultOfT.ts:41](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L41)
+Defined in: [types/IResultOfT.ts:41](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L41)
 
 ##### isSuccess
 
 > `readonly` **isSuccess**: `false`
 
-Defined in: [types/IResultOfT.ts:40](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L40)
+Defined in: [types/IResultOfT.ts:40](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L40)
 
 ***
 
 ### IResultOfTSuccess
 
-Defined in: [types/IResultOfT.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L27)
+Defined in: [types/IResultOfT.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L27)
 
 IResultOfTSuccess — the success variant of [IResultOfT](/0.20260811/api/types/#iresultoft).
 
@@ -220,25 +220,25 @@ IResultOfTSuccess — the success variant of [IResultOfT](/0.20260811/api/types/
 
 > `readonly` **isFailure**: `false`
 
-Defined in: [types/IResultOfT.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L29)
+Defined in: [types/IResultOfT.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L29)
 
 ##### isSuccess
 
 > `readonly` **isSuccess**: `true`
 
-Defined in: [types/IResultOfT.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L28)
+Defined in: [types/IResultOfT.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L28)
 
 ##### value
 
 > `readonly` **value**: `TValue`
 
-Defined in: [types/IResultOfT.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L30)
+Defined in: [types/IResultOfT.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L30)
 
 ***
 
 ### IResultSuccess
 
-Defined in: [types/IResult.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L28)
+Defined in: [types/IResult.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L28)
 
 IResultSuccess — the success variant of [IResult](/0.20260811/api/types/#iresult).
 
@@ -251,13 +251,13 @@ variant within the [IResult](/0.20260811/api/types/#iresult) union, enabling Typ
 
 > `readonly` **isFailure**: `false`
 
-Defined in: [types/IResult.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L30)
+Defined in: [types/IResult.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L30)
 
 ##### isSuccess
 
 > `readonly` **isSuccess**: `true`
 
-Defined in: [types/IResult.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L29)
+Defined in: [types/IResult.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L29)
 
 ## Type Aliases
 
@@ -265,7 +265,7 @@ Defined in: [types/IResult.ts:29](https://github.com/sandlada/result/blob/a04668
 
 > **IOption**\<`T`> = [`IOptionSome`](/0.20260811/api/types/#ioptionsome)\<`T`> | [`IOptionNone`](/0.20260811/api/types/#ioptionnone)
 
-Defined in: [types/Option.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/Option.ts#L46)
+Defined in: [types/Option.ts:46](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/Option.ts#L46)
 
 IOption — optional value contract as a **discriminated union**.
 
@@ -287,7 +287,7 @@ Ready for Product
 
 > **IResult**\<`TError`> = [`IResultSuccess`](/0.20260811/api/types/#iresultsuccess) | [`IResultFailure`](/0.20260811/api/types/#iresultfailure)\<`TError`>
 
-Defined in: [types/IResult.ts:56](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResult.ts#L56)
+Defined in: [types/IResult.ts:56](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResult.ts#L56)
 
 IResult — base result contract as a **discriminated union**.
 
@@ -309,7 +309,7 @@ Ready for Product
 
 > **IResultOfT**\<`TValue`, `TError`> = [`IResultOfTSuccess`](/0.20260811/api/types/#iresultoftsuccess)\<`TValue`> | [`IResultOfTFailure`](/0.20260811/api/types/#iresultoftfailure)\<`TError`>
 
-Defined in: [types/IResultOfT.ts:53](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/IResultOfT.ts#L53)
+Defined in: [types/IResultOfT.ts:53](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/IResultOfT.ts#L53)
 
 IResultOfT — value-bearing result contract as a **discriminated union**.
 
@@ -337,4 +337,4 @@ Ready for Product
 
 > **default**: `object`
 
-Defined in: [types/index.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/types/index.ts#L18)
+Defined in: [types/index.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/types/index.ts#L18)

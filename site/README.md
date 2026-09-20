@@ -21,6 +21,14 @@ themselves to `../src`, so nothing here can leak into the published package.
   `astro.config.mjs`, one per published subpath export, and writes `src/content/docs/api/`.
   That directory is generated, so it is gitignored. `entryFileName` is `index` so that `/api/`
   lists every module.
+
+  The plugin also ships a `typeDocSidebarGroup`, but it is not used here. It fills its group by
+  turning each kind group ("Functions", "Interfaces", …) into an `autogenerate` entry over a
+  directory that only exists in the default per-member file layout; with
+  `outputFileStrategy: 'modules'` a module is a single page, so that group comes out empty and
+  the module labels end up as groups with no links. The sidebar group is built from the same
+  `entryPoints` list instead, one link per module, which keeps it in step with generation and
+  lets the link validator check every entry.
 - **Behavior modes** — `scripts/sync-narrative.mjs` copies `../docs/behavior-modes.md` into
   `src/content/docs/behavior-modes.md` before every dev/build run. The repository file stays the
   single source of truth; the copy is gitignored and rewritten, so it cannot drift. Links that

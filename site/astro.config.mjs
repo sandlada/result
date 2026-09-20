@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
-import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
+import starlightTypeDoc from 'starlight-typedoc';
 import starlightVersions from 'starlight-versions';
 
 // The TypeScript entry points documented in the API reference. Each one mirrors a
@@ -30,6 +30,22 @@ const entryPoints = [
 
 const { versions } = JSON.parse(readFileSync(new URL('./versions.json', import.meta.url), 'utf8'));
 
+// starlight-typedoc only fills its sidebar group for the default per-member file
+// layout: it turns each kind group ("Functions", "Interfaces", …) into an
+// `autogenerate` entry over a directory that only exists in that layout. With
+// `outputFileStrategy: 'modules'` every module is a single page, so the group it
+// generates for a module contains nothing. The group is built here instead, from the
+// same entry point list that drives generation, which also means every entry is a
+// link the link validator checks.
+const apiSidebarGroup = {
+    label: 'API Reference',
+    items: entryPoints.map((entryPoint) => {
+        const module = entryPoint.split('/').at(-2);
+
+        return { label: module, link: `/api/${module}/` };
+    }),
+};
+
 export default defineConfig({
     site: 'https://result.sandlada.com',
     trailingSlash: 'always',
@@ -51,7 +67,6 @@ export default defineConfig({
                     entryPoints,
                     tsconfig: '../tsconfig.json',
                     output: 'api',
-                    sidebar: { label: 'API Reference', collapsed: true },
                     typeDoc: {
                         outputFileStrategy: 'modules',
                         entryFileName: 'index',
@@ -72,7 +87,7 @@ export default defineConfig({
             sidebar: [
                 { label: 'Start Here', items: ['getting-started'] },
                 { label: 'Reference', items: ['behavior-modes'] },
-                typeDocSidebarGroup,
+                apiSidebarGroup,
             ],
         }),
         mdx(),
