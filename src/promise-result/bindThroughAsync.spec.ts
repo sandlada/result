@@ -38,11 +38,23 @@ describe('bindThroughAsync', () => {
         if (r.isFailure) expect(r.error).toBe('outer');
     });
 
-    it('propagates callback exceptions (does not catch)', async () => {
-        await expect(bindThroughAsync(
+    it('captures callback exceptions into Err (through-family catch policy)', async () => {
+        const r = await bindThroughAsync(
             async () => { throw 'cb err'; },
             Promise.resolve(ok<number>(21) as IResultOfT<number, string>),
-        )).rejects.toBe('cb err');
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe('cb err');
+    });
+
+    it('captures a synchronous callback throw into Err', async () => {
+        const thrown = new Error('sync cb err');
+        const r = await bindThroughAsync(
+            () => { throw thrown; },
+            Promise.resolve(ok<number>(21) as IResultOfT<number, string>),
+        );
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe(thrown);
     });
 
     it('does not invoke the callback on an Err source', async () => {

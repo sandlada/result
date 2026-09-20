@@ -3,6 +3,10 @@
  *
  * F# equivalent: `List.choose`
  *
+ * **Throw policy**: pure collector with no `Err` channel in its return type —
+ * a synchronous throw from `fn` propagates to the caller; `Err` values are
+ * skipped and collection continues.
+ *
  * @example
  * ```ts
  * import { choose, ok, err } from '@sandlada/result';

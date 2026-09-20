@@ -6,9 +6,10 @@ import { ofNone } from '../option/ofNone.js';
  * Bridges from the sync Option world to the async world — unlike `bind` in
  * `async-option/` which works on `AsyncOption`.
  *
- * **Throw policy**: If `fn` throws synchronously or returns a rejected
- * Promise, the error is caught and the result converts to `None`
- * (canonical catch+convert policy — see AGENTS.md).
+ * **Throw policy**: a synchronous throw from `fn` converts to `None`; a
+ * rejected Promise from `fn` propagates as an outer rejection
+ * (promotion-family rule — the sync track stays rejection-free, and async
+ * failures are not swallowed).
  *
  * @example
  * ```ts
@@ -32,12 +33,12 @@ export function asyncBindOption<T, U>(
 ): Promise<IOption<U>> | ((opt: IOption<T>) => Promise<IOption<U>>) {
     if (opt === undefined) return (opt: IOption<T>) => asyncBindOption(fn, opt);
     if (!opt.isSome) return Promise.resolve(ofNone<U>());
+    let inner: Promise<IOption<U>>;
     try {
-        return fn(opt.value).then(
-            inner => inner,
-            () => ofNone<U>(),
-        );
+        inner = fn(opt.value);
     } catch {
+        // Sync throw → None; async rejection propagates (promotion-family rule).
         return Promise.resolve(ofNone<U>());
     }
+    return inner;
 }

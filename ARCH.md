@@ -231,6 +231,8 @@ import { pipe } from '@sandlada/result/composition';
 3. **Escape hatches (explicit throw):** `unwrap` / `expect` panic with `TypeError`, `unsafe*` rethrows the carried value verbatim, `orThrow` throws a typed `Error`. Each has its own use case; see the decision tree in `docs/behavior-modes.md`.
 4. **Async channels:** eager `promise-*` layers propagate outer `Promise` rejections; only `reliability/` promises NeverRejects. Lazy `async-*` layers defer execution until the terminal operator triggers `run()`.
 
+**Enforcement:** The matrix is machine-checked by the behavior conformance suite — `src/tests/hardening/behavior-matrix.ts` declares the channel policy per export and `src/tests/hardening/behavior-policy.spec.ts` probes each declared channel, failing when a barrel export is not classified or a probe diverges from its declared policy. Update the matrix before changing a channel.
+
 **Why a separate doc:** `README` / `SPEC` slogans say `exception-free` but the split between catching (`map`) and propagating (`bind`) plus the dual-mode `lift` cannot fit in an API index row. `docs/behavior-modes.md` holds the per-module matrix; `SPEC.md` only carries a summary pointer.
 
 **Terminology:** `FailFirst` is the standard term for short-circuit-on-first-failure (`FailFast` is accepted as a synonym). `Accumulate` is the opposite (collect-all-errors).

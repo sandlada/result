@@ -69,7 +69,15 @@ export function timeout<T, E, TOE = TimeoutError>(
                     resolve({ isSuccess: false as const, isFailure: true as const, error: thrown as unknown as TOE });
                 }
             }, ms);
-            arRun().then(
+            let innerRun: Promise<IResultOfT<T, E>>;
+            try {
+                innerRun = arRun();
+            } catch (thrown: unknown) {
+                // A sync throw from the inner run() must not escape the executor;
+                // funnel it into the rejection handler below so it converges to Err.
+                innerRun = Promise.reject(thrown);
+            }
+            innerRun.then(
                 (r) => {
                     if (settled) return;
                     settled = true;

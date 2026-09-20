@@ -53,17 +53,18 @@ export function tapErrContext<T, E>(
         return (input: IResultOfT<T, E>): Promise<IResultOfT<T, E>> =>
             tapErrContext(fn, input);
     }
-    // Wrap the body in an async IIFE so a synchronous throw from `fn`
-    // becomes a Promise rejection instead of escaping the function. The
-    // signature promises `Promise<IResultOfT<T, E>>` — never a sync throw.
+    // Observers never change the pipeline: both a synchronous throw and an
+    // asynchronous rejection from `fn` are swallowed, matching `observe`.
     return (async (): Promise<IResultOfT<T, E>> => {
         if (r.isSuccess) return r;
         const path = getPath();
-        let outcome: unknown;
-        try { outcome = fn(r.error, { path }); }
-        catch (e) { throw e; }
-        if (outcome && typeof (outcome as Promise<unknown>).then === 'function') {
-            await outcome;
+        try {
+            const outcome = fn(r.error, { path });
+            if (outcome && typeof (outcome as Promise<unknown>).then === 'function') {
+                await outcome;
+            }
+        } catch {
+            // Swallowed by design — a misbehaving observer cannot fail the pipeline.
         }
         return r;
     })();

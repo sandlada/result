@@ -65,10 +65,9 @@ describe('asyncTapOption', () => {
         expect(r.isSome).toBe(false);
     });
 
-    it('converts to None when the callback returns a rejected Promise', async () => {
+    it('propagates a rejected Promise from the callback (promotion-family rule)', async () => {
         const rejectFn = async (_a: number) => { throw new Error('async boom'); };
-        const r = await asyncTapOption(rejectFn, ofSome<number>(7));
-        expect(r.isSome).toBe(false);
+        await expect(asyncTapOption(rejectFn, ofSome<number>(7))).rejects.toThrow('async boom');
     });
 
     it('returns Option by reference on None (no wrapping)', async () => {
@@ -85,15 +84,14 @@ describe('asyncTapOption', () => {
         expect(r).toBeInstanceOf(Promise);
     });
 
-    it('discards the rejected reason (callback exception → None, not propagated)', async () => {
+    it('captures a sync throw as None but propagates an async rejection', async () => {
         const thrown = new Error('hide-me');
         const r1 = await asyncTapOption(() => { throw thrown; }, ofSome<number>(1));
         expect(r1.isNone).toBe(true);
 
-        const r2 = await asyncTapOption(
+        await expect(asyncTapOption(
             async () => { throw thrown; },
             ofSome<number>(1),
-        );
-        expect(r2.isNone).toBe(true);
+        )).rejects.toBe(thrown);
     });
 });

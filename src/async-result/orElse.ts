@@ -45,7 +45,7 @@ export function orElse<T, E, F>(
                 try {
                     const next = await fn(r.error);
                     if (isAsyncCarrier(next)) {
-                        return (next as AsyncResult<T, F>).run() as Promise<IResultOfT<T, E | F>>;
+                        return (await (next as AsyncResult<T, F>).run()) as unknown as IResultOfT<T, E | F>;
                     }
                     return next as unknown as IResultOfT<T, E | F>;
                 } catch (thrown: unknown) {
@@ -67,7 +67,7 @@ export function orElse<T, E, F>(
             try {
                 const next = await fn(r.error);
                 if (isAsyncCarrier(next)) {
-                    return (next as AsyncResult<T, F>).run() as Promise<IResultOfT<T, E | F>>;
+                    return (await (next as AsyncResult<T, F>).run()) as unknown as IResultOfT<T, E | F>;
                 }
                 return next as unknown as IResultOfT<T, E | F>;
             } catch (thrown: unknown) {

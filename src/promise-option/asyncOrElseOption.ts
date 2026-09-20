@@ -2,6 +2,10 @@
  * @fileoverview Lifts a sync `IOption<T>` into `Promise<IOption<T>>` and
  * recovers from None via an async callback.
  *
+ * **Throw policy**: a synchronous throw from `f` converts to `None`; a
+ * rejected Promise from `f` propagates as an outer rejection
+ * (promotion-family rule).
+ *
  * @example
  * ```ts
  * import { asyncOrElseOption, ofSome, ofNone } from '@sandlada/result';
@@ -12,6 +16,7 @@
  * @note Ready for Product
  */
 import type { IOption } from '../types/Option.js';
+import { ofNone } from '../option/ofNone.js';
 
 export function asyncOrElseOption<T>(
     f: () => Promise<IOption<T>>,
@@ -26,9 +31,12 @@ export function asyncOrElseOption<T>(
 ): Promise<IOption<T>> | ((o: IOption<T>) => Promise<IOption<T>>) {
     if (o === undefined) return (o: IOption<T>) => asyncOrElseOption(f, o);
     if (o.isSome) return Promise.resolve(o);
-    // `Promise.resolve(undefined).then(f)` lets the handler's returned Promise
-    // be awaited by the outer `.then` chain. Using `Promise.resolve().then(() => f())`
-    // would produce `Promise<Promise<IOption<T>>>` when `f()` returns a Promise,
-    // forcing the caller to await twice. Mirror `asyncBind`'s shape.
-    return Promise.resolve(undefined).then(f);
+    let inner: IOption<T> | Promise<IOption<T>>;
+    try {
+        inner = f();
+    } catch {
+        // Sync throw → None; async rejection propagates (promotion-family rule).
+        return Promise.resolve(ofNone<T>());
+    }
+    return Promise.resolve(inner);
 }

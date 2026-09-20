@@ -96,7 +96,11 @@ export function race<T, E, EE = EmptyInputsError>(
     return {
         run: async (): Promise<IResultOfT<T, E | EE>> => {
             if (runs.length === 0) {
-                return err(onEmpty());
+                try {
+                    return err(onEmpty());
+                } catch (thrown: unknown) {
+                    return err(thrown as unknown as E | EE);
+                }
             }
             return new Promise<IResultOfT<T, E | EE>>((resolve) => {
                 let settled = false;
@@ -128,7 +132,16 @@ export function race<T, E, EE = EmptyInputsError>(
                 };
 
                 runs.forEach((run, idx) => {
-                    Promise.resolve(run()).then(
+                    let carrier: Promise<IResultOfT<T, E>>;
+                    try {
+                        carrier = run();
+                    } catch (thrown: unknown) {
+                        // Sync throws are funnelled into the rejection channel so
+                        // they are recorded like any other upstream contract
+                        // violation instead of escaping .run().
+                        carrier = Promise.reject(thrown);
+                    }
+                    carrier.then(
                         (r) => {
                             if (settled) return;
                             if (r.isSuccess) {

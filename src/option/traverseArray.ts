@@ -1,7 +1,9 @@
 /**
  * @fileoverview Traverses an array of elements, mapping them with a function that returns an Option.
  * Short-circuits and returns `None` if the mapping function ever returns `None`.
- * Otherwise, returns a `Some` containing an array of the mapped values.
+ * A synchronous throw from the callback — or from the iterator's `next()` —
+ * is captured as `None` (module policy). Otherwise, returns a `Some` containing
+ * an array of the mapped values.
  *
  * Two overloads:
  * - `Iterable<A>` — generic stream input (generators, sets, custom iterables).
@@ -46,7 +48,12 @@ export function traverseArray<A, B>(
     const len = items.length;
     const result = new Array<B>(len);
     for (let i = 0; i < len; i++) {
-        const r = fn(items[i]!, i);
+        let r: IOption<B>;
+        try {
+            r = fn(items[i]!, i);
+        } catch {
+            return ofNone<B[]>();
+        }
         if (!r.isSome) return ofNone<B[]>();
         result[i] = r.value;
     }
@@ -70,10 +77,15 @@ export function traverse<A, B>(
     if (items === undefined) return (items: Iterable<A>): IOption<B[]> => traverse(fn, items);
 
     const result: B[] = [];
-    for (const a of items) {
-        const r = fn(a);
-        if (!r.isSome) return ofNone<B[]>();
-        result.push(r.value);
+    try {
+        for (const a of items) {
+            const r = fn(a);
+            if (!r.isSome) return ofNone<B[]>();
+            result.push(r.value);
+        }
+    } catch {
+        // Captures callback throws and iterator `next()` throws alike.
+        return ofNone<B[]>();
     }
     return ofSome(result) as unknown as IOption<B[]>;
 }

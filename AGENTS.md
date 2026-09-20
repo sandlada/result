@@ -179,6 +179,7 @@ Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `
 - **Type tests**: `*.type-spec.ts` are picked up only by `npm run test:type` (Vitest's `typecheck` mode + `tsconfig.typecheck.json`).
 - **Benchmarks**: `*.bench.ts` — collected by `vitest bench` per `vitest.config.ts`'s `bench.include`.
 - **Cross-module tests** live in `src/tests/` split into `behaviors/`, `hardening/`, `integration/`, `type-tests/`. `hardening/` guards against incidents catalogued in `bugs.md` — read it before changing anything around the patterns it lists, but do not link to it from code comments (see Comment Policy).
+- **Behavior policy conformance** (`hardening/`): `behavior-matrix.ts` is the machine-readable throw-channel matrix; `behavior-policy.spec.ts` runs the channel probes and a classification guard for every runtime export of every public barrel. Adding a new export without a matrix entry fails `npm test`; changing a channel without updating the matrix fails the matching probe. Register every API before changing its throw/reject policy.
 - Coverage thresholds live in `vitest.config.ts` — adding code that drops a module below its gate fails CI.
 
 ## Implementation Notes

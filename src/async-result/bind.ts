@@ -56,7 +56,7 @@ export function bind<T, U, E, F>(
                 try {
                     const next = await fn(r.value);
                     if (isAsyncCarrier(next)) {
-                        return (next as AsyncResult<U, F>).run() as Promise<IResultOfT<U, E | F>>;
+                        return (await (next as AsyncResult<U, F>).run()) as unknown as IResultOfT<U, E | F>;
                     }
                     return next as unknown as IResultOfT<U, E | F>;
                 } catch (thrown: unknown) {
@@ -78,7 +78,7 @@ export function bind<T, U, E, F>(
             try {
                 const next = await fn(r.value);
                 if (isAsyncCarrier(next)) {
-                    return (next as AsyncResult<U, F>).run() as Promise<IResultOfT<U, E | F>>;
+                    return (await (next as AsyncResult<U, F>).run()) as unknown as IResultOfT<U, E | F>;
                 }
                 return next as unknown as IResultOfT<U, E | F>;
             } catch (thrown: unknown) {

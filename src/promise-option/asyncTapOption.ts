@@ -4,9 +4,9 @@ import { ofNone } from '../option/ofNone.js';
 /**
  * @fileoverview Side-effect on success for a sync `IOption` using an async callback.
  *
- * Side-effect only. If the callback throws synchronously or returns a rejected
- * Promise, the side-effect is silently dropped and `None` is returned — matches
- * the `asyncBindOption` policy (Cat 4 reference).
+ * Side-effect only. A synchronous throw from the callback converts to `None`
+ * (side-effect dropped); a rejected Promise propagates as an outer rejection
+ * (promotion-family rule, matches `asyncBindOption`).
  *
  * @example
  * ```ts
@@ -30,12 +30,12 @@ export function asyncTapOption<T>(
 ): Promise<IOption<T>> | ((opt: IOption<T>) => Promise<IOption<T>>) {
     if (opt === undefined) return (opt: IOption<T>) => asyncTapOption(fn, opt);
     if (!opt.isSome) return Promise.resolve(opt);
+    let inner: Promise<unknown>;
     try {
-        return fn(opt.value).then(
-            () => opt,
-            () => ofNone<T>(),
-        );
+        inner = fn(opt.value);
     } catch {
+        // Sync throw → None; async rejection propagates (promotion-family rule).
         return Promise.resolve(ofNone<T>());
     }
+    return inner.then(() => opt);
 }

@@ -53,8 +53,16 @@ export function any<T, E>(
             }
             const successes: T[] = [];
             const errors: AnyError<E>[] = [];
+            const startCarrier = (run: () => Promise<IResultOfT<T, E>>): Promise<IResultOfT<T, E>> => {
+                try {
+                    return run();
+                } catch (thrown: unknown) {
+                    // Sync throws join the tagged rejection channel below.
+                    return Promise.reject(thrown);
+                }
+            };
             await Promise.all(
-                runs.map((run) => Promise.resolve(run()).then(
+                runs.map((run) => startCarrier(run).then(
                     (r) => {
                         if (r.isSuccess) successes.push(r.value);
                         else errors.push(r.error);

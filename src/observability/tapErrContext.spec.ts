@@ -111,41 +111,37 @@ describe('tapErrContext', () => {
         expect(Object.isFrozen(captured)).toBe(true);
     });
 
-    it('callback thrown error propagates to caller (rejects the outer Promise)', async () => {
-        await expect(
-            (async () => {
-                await inScope(async () => {
-                    return await tapErrContext(() => {
-                        throw new Error('callback boom');
-                    }, err('trigger'));
-                });
-            })(),
-        ).rejects.toThrow('callback boom');
+    it('swallows a callback throw and returns the original Err (observers never change the pipeline)', async () => {
+        const original = err('trigger');
+        const r = await inScope(async () => {
+            return await tapErrContext(() => {
+                throw new Error('callback boom');
+            }, original);
+        });
+        expect(r).toBe(original);
+        expect(r.isFailure).toBe(true);
     });
 
-    it('callback throwing a non-Error value propagates verbatim', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-throw-literal
-        await expect(
-            (async () => {
-                await inScope(async () => {
-                    return await tapErrContext(() => {
-                        throw 'string boom';
-                    }, err('trigger'));
-                });
-            })(),
-        ).rejects.toThrow('string boom');
+    it('swallows a callback throwing a non-Error value verbatim', async () => {
+        const original = err('trigger');
+        const r = await inScope(async () => {
+            return await tapErrContext(() => {
+                // eslint-disable-next-line @typescript-eslint/no-throw-literal
+                throw 'string boom';
+            }, original);
+        });
+        expect(r).toBe(original);
     });
 
-    it('async callback rejection rejects the returned promise', async () => {
-        await expect(
-            (async () => {
-                await inScope(async () => {
-                    return await tapErrContext(async () => {
-                        throw new Error('async cb boom');
-                    }, err('trigger'));
-                });
-            })(),
-        ).rejects.toThrow('async cb boom');
+    it('swallows an async callback rejection', async () => {
+        const original = err('trigger');
+        const r = await inScope(async () => {
+            return await tapErrContext(async () => {
+                throw new Error('async cb boom');
+            }, original);
+        });
+        expect(r).toBe(original);
+        expect(r.isFailure).toBe(true);
     });
 
     it('callback receives path from the current ctx.run scope at error time', async () => {

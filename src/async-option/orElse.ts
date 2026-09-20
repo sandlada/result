@@ -66,7 +66,7 @@ export function orElse(
                 try {
                     const next = await fn();
                     if (isAsyncCarrier(next)) {
-                        return (next as AsyncOption<unknown>).run() as Promise<IOption<T | unknown>>;
+                        return (await (next as AsyncOption<unknown>).run()) as IOption<T | unknown>;
                     }
                     return next as IOption<T | unknown>;
                 } catch {
@@ -83,7 +83,7 @@ export function orElse(
             try {
                 const next = await fn();
                 if (isAsyncCarrier(next)) {
-                    return (next as AsyncOption<unknown>).run();
+                    return await (next as AsyncOption<unknown>).run();
                 }
                 return next as IOption<unknown>;
             } catch {

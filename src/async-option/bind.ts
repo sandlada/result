@@ -38,7 +38,7 @@ export function bind<T, U>(
             try {
                 const next = await fn(opt.value);
                 if (isAsyncCarrier(next)) {
-                    return (next as AsyncOption<U>).run();
+                    return await (next as AsyncOption<U>).run();
                 }
                 return next as unknown as IOption<U>;
             } catch {

@@ -60,8 +60,16 @@ export function allSettled<T, E>(
                 return ok([] as Settled<T, E>[]);
             }
             const settledOutcomes: Settled<T, E>[] = new Array(runs.length);
+            const startCarrier = (run: () => Promise<IResultOfT<T, E>>): Promise<IResultOfT<T, E>> => {
+                try {
+                    return run();
+                } catch (thrown: unknown) {
+                    // Sync throws join the tagged 'Rejected' channel below.
+                    return Promise.reject(thrown);
+                }
+            };
             await Promise.all(
-                runs.map((run, idx) => Promise.resolve(run()).then(
+                runs.map((run, idx) => startCarrier(run).then(
                     (r) => {
                         if (r.isSuccess) settledOutcomes[idx] = { ok: true, value: r.value };
                         else settledOutcomes[idx] = { ok: false, error: r.error };

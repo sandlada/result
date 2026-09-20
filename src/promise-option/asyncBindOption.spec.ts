@@ -26,10 +26,9 @@ describe('asyncBindOption', () => {
         expect(r.isNone).toBe(true);
     });
 
-    it('converts async callback rejection to None (catch+convert policy)', async () => {
+    it('propagates async callback rejection (promotion-family rule)', async () => {
         const chain = asyncBindOption(async () => { throw new Error('callback exception'); });
-        const r = await chain(ofSome(21));
-        expect(r.isNone).toBe(true);
+        await expect(chain(ofSome(21))).rejects.toThrow('callback exception');
     });
 
     it('converts sync throw of callback to None (catch+convert policy)', async () => {
@@ -38,10 +37,9 @@ describe('asyncBindOption', () => {
         expect(r.isNone).toBe(true);
     });
 
-    it('converts rejected Promise from callback to None (catch+convert policy)', async () => {
+    it('propagates a rejected Promise from the callback (promotion-family rule)', async () => {
         const chain = asyncBindOption(async () => Promise.reject(new Error('rejected')));
-        const r = await chain(ofSome(21));
-        expect(r.isNone).toBe(true);
+        await expect(chain(ofSome(21))).rejects.toThrow('rejected');
     });
 
     it('does not invoke the callback on ofNone input (input short-circuit)', async () => {
@@ -58,7 +56,7 @@ describe('asyncBindOption', () => {
         expect(r).toBeInstanceOf(Promise);
     });
 
-    it('discards the rejected reason (callback exception → None, not propagated)', async () => {
+    it('captures a sync throw as None but propagates an async rejection', async () => {
         const thrown = new Error('hide-me');
         const r1 = await asyncBindOption(
             () => { throw thrown; },
@@ -66,11 +64,10 @@ describe('asyncBindOption', () => {
         );
         expect(r1.isNone).toBe(true);
 
-        const r2 = await asyncBindOption(
+        await expect(asyncBindOption(
             async () => { throw thrown; },
             ofSome(1),
-        );
-        expect(r2.isNone).toBe(true);
+        )).rejects.toBe(thrown);
     });
 
     it('preserves U when callback return differs from T (canonical lift narrowing)', async () => {
