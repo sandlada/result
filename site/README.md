@@ -74,10 +74,17 @@ One-time setup in the Cloudflare dashboard:
 | Build command | `npm ci && npm run build` |
 | Build output directory | `dist` |
 | Environment variable | `NODE_VERSION=26` (Astro requires Node >= 22.12) |
+| Production branch | `main` |
 | Custom domain | `result.sandlada.com` |
+
+`.node-version` pins the same Node version inside the build root, so the version travels with the
+repository even if the environment variable is ever missing.
 
 Cloudflare checks out the whole repository, so TypeDoc can read `../src` and `../tsconfig.json`
 even though the build runs inside `site/`.
+
+Every push to `main` rebuilds the project by default. Build watch paths can narrow that down to the
+files this site actually reads: `site/**`, `src/**`, `docs/**`, `tsconfig.json` and `package.json`.
 
 Do not add a version to `versions.json` without running `npm run version:new`, because the next
 build would then create the archive itself and the deployed site would describe a version that is
