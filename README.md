@@ -4,6 +4,7 @@
 ![NPM Downloads](https://img.shields.io/npm/d18m/@sandlada/result?label=NPM%20Downloads&labelColor=%2300531f&color=%23a3f5aa)
 ![NPM Version](https://img.shields.io/npm/v/%40sandlada%2Fresult?label=NPM%20Version&labelColor=%2300531f&color=%23a3f5aa)
 ![GitHub License](https://img.shields.io/github/license/sandlada/result?label=License&labelColor=%2300531f&color=%23a3f5aa)
+[![Documentation](https://img.shields.io/static/v1?label=Docs&message=result.sandlada.com&labelColor=%2300531f&color=%23a3f5aa&style=flat-square)](https://result.sandlada.com)
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/sandlada/result/tree/main/demo)
 
@@ -119,6 +120,7 @@ function getUser(id: string): AppResult<User> {
 
 ## :ledger: Further Reading
 
+- [result.sandlada.com](https://result.sandlada.com) — published documentation: guides, behavior modes, and the generated API reference
 - [SPEC.md](./SPEC.md) — API index with links to each source file
 - [docs/behavior-modes.md](./docs/behavior-modes.md) — 行為模式：遇錯短路（FailFirst）/ 累積錯誤 / 拋策略對照
 - [ARCH.md](./ARCH.md) — internal architecture and contributor documentation

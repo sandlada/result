@@ -93,6 +93,7 @@ export default defineConfig({
             'coverage/**',
             'docs/**',
             'demo/**',
+            'site/**',
         ],
     },
 });

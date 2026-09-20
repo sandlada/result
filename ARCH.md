@@ -35,6 +35,9 @@
 | `npm run bench` | Vitest bench (interactive) |
 | `npm run bench:json` | Vitest bench → `bench/results.json` |
 | `npm run bench:ui` | Vitest bench with `@vitest/ui` |
+| `npm --prefix site run dev` | Start the documentation site dev server |
+| `npm --prefix site run build` | Build the documentation site into `site/dist/` |
+| `npm --prefix site run check:snippets` | Type-check the documentation examples against `src/` |
 
 ## Source Layout
 
@@ -55,6 +58,13 @@ src/
   observability/        — ctx, withPath, format, inspect, observe, installObserver
   primitives/           — cond, condErr, sequence, reduce, partitionOption, lift
   tests/                — Cross-module integration, behaviors, hardening, type tests
+```
+
+```
+site/                   — Astro Starlight documentation site (separate package, not published)
+  src/content/docs/     — Hand-written pages, generated API reference, archived versions
+  src/snippets/         — Type-checked mirrors of documentation examples
+  scripts/              — Narrative document sync and version archive helpers
 ```
 
 ## Module Responsibilities
@@ -237,6 +247,35 @@ import { pipe } from '@sandlada/result/composition';
 
 **Terminology:** `FailFirst` is the standard term for short-circuit-on-first-failure (`FailFast` is accepted as a synonym). `Accumulate` is the opposite (collect-all-errors).
 
+### ADR 12: Documentation Site Built from the Source Tree
+
+**Decision:** Publish documentation from a self-contained Astro Starlight project in `site/`, whose API reference is generated from the library's JSDoc and whose released versions are archived as folders.
+
+**Context considered:**
+
+- The package treats subpaths as the type-space boundary (ADR 10), so an API reference has to be organized per subpath rather than per symbol.
+- Narrative documents already exist in the repository (`ARCH.md`, `SPEC.md`, `docs/behavior-modes.md`) and must not fork into a second copy.
+- `build/` is the published artifact and `src/` is the only input to the library toolchain.
+
+**Why a separate package:**
+
+1. **No toolchain coupling.** `site/` sits outside `tsconfig.json`'s `include`, `rolldown.config.ts`'s input walk and `vitest.config.ts`'s globs, exactly like `demo/`. The published artifact is unaffected.
+2. **Independent dependency graph.** Astro, TypeDoc and the Starlight plugins are devDependencies of `site/`, and `@astrojs/check` requires TypeScript 6 while the library builds with TypeScript 7.
+3. **Cloudflare Pages builds the directory directly** through its Git integration; `.github/workflows/docs.yml` only verifies the build and does not deploy.
+
+**Generation decisions:**
+
+- `starlight-typedoc` documents the published subpath entry points one page per module, with `entryFileName` set to `index` so `/api/` is a module index. `sanitizeComments` is required because JSDoc prose such as `Promise<boolean>` is not valid MDX, and `starlight-versions` parses every page with `remark-mdx` when it archives a version.
+- `scripts/sync-narrative.mjs` copies `docs/behavior-modes.md` into the content tree before every run instead of duplicating the text, and rewrites repository-relative links to GitHub URLs.
+- `src/snippets/*.ts` mirror the guide examples and are type-checked against `src/` by `npm run check:snippets`, so an example that stops compiling fails CI.
+
+**Versioning:** `starlight-versions` archives a folder copy per release, including the API reference generated at that revision. The current version's generated output is gitignored while archived copies are committed, which keeps published versions frozen without adding generated files to every change.
+
+**Trade-offs accepted:**
+
+- A second lockfile and a second `npm ci` run.
+- A fresh checkout has no generated API pages until a build or dev run happens.
+
 ## Document Responsibilities
 
 | Document | Role |
@@ -245,3 +284,4 @@ import { pipe } from '@sandlada/result/composition';
 | [SPEC.md](./SPEC.md) | API index — update when exports or public API behavior change. |
 | [docs/behavior-modes.md](./docs/behavior-modes.md) | Behavior-mode glossary and per-module matrix — update when any throw / short-circuit / empty-input behavior changes. |
 | [AGENTS.md](./AGENTS.md) | AI agent conventions and project metadata. |
+| [site/README.md](./site/README.md) | Documentation site — update when its build, content pipeline, versioning or deployment changes. |

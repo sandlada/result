@@ -318,6 +318,7 @@ JSON.stringify(ofNone());  // '{"isSome":false,"isNone":true}'
 ## Further Reading
 
 - [docs/behavior-modes.md](./docs/behavior-modes.md) — 行為模式術語與按模塊對照（遇錯短路 / 累積錯誤 / 拋策略）。
-- [ARCH.md](./ARCH.md) — architecture, module responsibilities, ADRs.
+- [result.sandlada.com](https://result.sandlada.com) - published documentation site.
+- [ARCH.md](./ARCH.md) - architecture, module responsibilities, ADRs.
 - [README.md](./README.md) — project overview, badges, install.
 - [AGENTS.md](./AGENTS.md) — AI agent conventions.
