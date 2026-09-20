@@ -3,5 +3,13 @@
     "compilerOptions": {
         "emitDeclarationOnly": true,
         "removeComments": false
-    }
+    },
+    "exclude": [
+        "*/node_modules/**/*",
+        "src/**/*.spec.ts",
+        "src/**/*.type-spec.ts",
+        "src/**/*.bench.ts",
+        "src/tests/**",
+        "vitest.config.ts"
+    ]
 }

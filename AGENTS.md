@@ -27,16 +27,19 @@ The library exposes:
 ### Build Pipeline
 
 - `npm run build` clears `build/`, emits declaration files with `tsc --project tsconfig.build.json`, emits JavaScript with `rolldown.config.ts`, then runs `verify:build`.
-- Rolldown emits ESM with `preserveModules: true`, `preserveModulesRoot: "src"`, `minify: true`, `comments: false`, and external sourcemaps.
+- Rolldown emits ESM with `preserveModules: true`, `preserveModulesRoot: "src"`, `minify: true`, `comments: false`, and external sourcemaps. It never cleans `build/` itself: `npm run clean` empties the directory once at the start of the build, because a clean during the JavaScript stage would delete the declarations emitted by the previous stage.
+- `src/tests/**` is excluded from both build stages; it is test infrastructure and nothing under `src/` imports it.
 - TypeScript declarations keep JSDoc comments (`removeComments: false`); generated JavaScript removes source comments while retaining `sourceMappingURL` metadata.
 - Pure re-export barrels may not receive a JavaScript sourcemap when Rolldown has no local mappings. The root and `./types` entries export an empty default object so those public entries produce mapped JavaScript.
 
 ### Common Commands
 
 ```bash
-npm run build         # tsc -> declarations, rolldown -> minified ESM (clears build/ first)
+npm run clean         # remove build/ (cross-platform, uses Node)
+npm run build         # clean -> tsc declarations -> rolldown ESM -> verify:build
 npm run build:types   # emit .d.ts only (uses tsconfig.build.json)
 npm run build:js      # emit minified ESM + sourcemaps via rolldown.config.ts
+npm run verify:build  # check artifact layout, JSDoc, sourcemaps and entry loading
 npm run typecheck     # tsc --noEmit against the full project
 npm test              # vitest run (single pass, CI mode)
 npm run test:watch    # vitest watch
@@ -176,6 +179,12 @@ src/
   reliability/          — retry, retryLazy, timeout, timeoutEager, race, any, allSettled
   observability/        — ctx, withPath, tapErrContext, format, inspect, observe, installObserver
   primitives/           — cond, condErr, sequence, sequenceAsyncResult, reduce, partitionOption, lift
+```
+
+```text
+scripts/                — Build pipeline helpers run by npm scripts
+  clean.mjs             — Remove build/ (cross-platform)
+  verify-build.mjs      — Check the published artifact after a build
 ```
 
 ```text

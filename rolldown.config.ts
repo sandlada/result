@@ -10,6 +10,12 @@ function collectTypeScriptInputs(directory: string): string[] {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
         const entryPath = join(directory, entry.name);
         if (entry.isDirectory()) {
+            // Test infrastructure is never imported by a published module, so
+            // directories named `tests` must not reach `build/`.
+            if (entry.name === 'tests') {
+                continue;
+            }
+
             inputs.push(...collectTypeScriptInputs(entryPath));
             continue;
         }
@@ -33,7 +39,9 @@ export default defineConfig({
     input: collectTypeScriptInputs(sourceRoot).sort(),
     platform: 'neutral',
     output: {
-        cleanDir: true,
+        // `npm run build` empties `build/` before this runs, so the directory is not
+        // cleaned here: cleaning at this point would delete the declarations that
+        // `npm run build:types` emitted earlier in the same build.
         dir: 'build',
         format: 'esm',
         preserveModules: true,

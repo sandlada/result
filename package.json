@@ -75,9 +75,11 @@
         "SECURITY.md"
     ],
     "scripts": {
-        "build": "npm run build:types && npm run build:js",
+        "clean": "node scripts/clean.mjs",
+        "build": "npm run clean && npm run build:types && npm run build:js && npm run verify:build",
         "build:types": "tsc --project tsconfig.build.json",
         "build:js": "rolldown --config",
+        "verify:build": "node scripts/verify-build.mjs",
         "typecheck": "tsc --project tsconfig.json --noEmit",
         "test": "vitest run",
         "test:watch": "vitest",

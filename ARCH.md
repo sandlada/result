@@ -67,6 +67,12 @@ site/                   — Astro Starlight documentation site (separate package
   scripts/              — Narrative document sync and version archive helpers
 ```
 
+```
+scripts/                — Build pipeline helpers run by npm scripts
+  clean.mjs             — Remove build/ before a build, without shell-specific commands
+  verify-build.mjs      — Check the published artifact once a build finishes
+```
+
 ## Module Responsibilities
 
 | Module            | Responsibility |
