@@ -14,7 +14,7 @@ slug: 0.20260811/api/async-option
 
 > **all**\<`T`>(`aos`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<\{ \[K in string | number | symbol]: T\[K] extends AsyncOption\<V> ? V : never }>
 
-Defined in: [async-option/all.ts:37](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/all.ts#L37)
+Defined in: [async-option/all.ts:37](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/all.ts#L37)
 
 Combines a tuple/array of `AsyncOption`s, preserving heterogeneous types.
 Returns `AsyncOption<None>` if any element is `None`; otherwise
@@ -68,7 +68,7 @@ Ready for Product
 
 > **all**\<`T`>(`aos`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`\[]>
 
-Defined in: [async-option/all.ts:44](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/all.ts#L44)
+Defined in: [async-option/all.ts:44](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/all.ts#L44)
 
 Combines a tuple/array of `AsyncOption`s, preserving heterogeneous types.
 Returns `AsyncOption<None>` if any element is `None`; otherwise
@@ -126,7 +126,7 @@ Ready for Product
 
 > **bind**\<`T`, `U`>(`fn`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/bind.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/bind.ts#L22)
+Defined in: [async-option/bind.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/bind.ts#L22)
 
 ##### Type Parameters
 
@@ -174,7 +174,7 @@ Ready for Product
 
 > **bind**\<`T`, `U`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/bind.ts:25](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/bind.ts#L25)
+Defined in: [async-option/bind.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/bind.ts#L25)
 
 ##### Type Parameters
 
@@ -230,7 +230,7 @@ Ready for Product
 
 > **contains**\<`T`>(`value`): (`ao`) => `Promise`\<`boolean`>
 
-Defined in: [async-option/contains.ts:8](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/contains.ts#L8)
+Defined in: [async-option/contains.ts:8](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/contains.ts#L8)
 
 Returns a Promise\<boolean> indicating if the AsyncOption is Some and contains the given value.
 \*
@@ -259,7 +259,7 @@ Ready for Product
 
 > **contains**\<`T`>(`value`, `ao`): `Promise`\<`boolean`>
 
-Defined in: [async-option/contains.ts:11](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/contains.ts#L11)
+Defined in: [async-option/contains.ts:11](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/contains.ts#L11)
 
 Returns a Promise\<boolean> indicating if the AsyncOption is Some and contains the given value.
 \*
@@ -296,7 +296,7 @@ Ready for Product
 
 > **exists**\<`T`>(`predicate`): (`ao`) => `Promise`\<`boolean`>
 
-Defined in: [async-option/exists.ts:8](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/exists.ts#L8)
+Defined in: [async-option/exists.ts:8](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/exists.ts#L8)
 
 Returns a Promise\<boolean> indicating if the AsyncOption is Some and the predicate holds.
 \*
@@ -325,7 +325,7 @@ Ready for Product
 
 > **exists**\<`T`>(`predicate`, `ao`): `Promise`\<`boolean`>
 
-Defined in: [async-option/exists.ts:11](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/exists.ts#L11)
+Defined in: [async-option/exists.ts:11](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/exists.ts#L11)
 
 Returns a Promise\<boolean> indicating if the AsyncOption is Some and the predicate holds.
 \*
@@ -362,7 +362,7 @@ Ready for Product
 
 > **filter**\<`T`>(`predicate`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/filter.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/filter.ts#L24)
+Defined in: [async-option/filter.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/filter.ts#L24)
 
 ##### Type Parameters
 
@@ -409,7 +409,7 @@ Ready for Product
 
 > **filter**\<`T`>(`predicate`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/filter.ts:27](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/filter.ts#L27)
+Defined in: [async-option/filter.ts:27](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/filter.ts#L27)
 
 ##### Type Parameters
 
@@ -462,7 +462,7 @@ Ready for Product
 
 > **flatten**\<`T`>(`ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/flatten.ts:12](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/flatten.ts#L12)
+Defined in: [async-option/flatten.ts:12](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/flatten.ts#L12)
 
 Flattens a nested AsyncOption.
 
@@ -495,7 +495,7 @@ Ready for Product
 
 > **from**\<`T`>(`thunk`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/from.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/from.ts#L20)
+Defined in: [async-option/from.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/from.ts#L20)
 
 Creates an AsyncOption from a thunk that returns a Promise\<IOption>.
 The thunk is lazy — it won't execute until `.run()` is called.
@@ -538,7 +538,7 @@ Ready for Product
 
 > **fromOption**\<`T`>(`option`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/fromOption.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/fromOption.ts#L19)
+Defined in: [async-option/fromOption.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/fromOption.ts#L19)
 
 Wraps a sync `IOption` into an AsyncOption (lifts a sync Option into the async world).
 
@@ -580,7 +580,7 @@ Ready for Product
 
 > **fromPromise**\<`T`>(`thunk`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/fromPromise.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/fromPromise.ts#L23)
+Defined in: [async-option/fromPromise.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/fromPromise.ts#L23)
 
 Wraps a `Promise<T>` into an AsyncOption, catching rejections.
 If the promise resolves, it returns `Some(value)`.
@@ -625,7 +625,7 @@ Ready for Product
 
 > **isNone**\<`T`>(`ao`): `Promise`\<`boolean`>
 
-Defined in: [async-option/isNone.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/isNone.ts#L17)
+Defined in: [async-option/isNone.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/isNone.ts#L17)
 
 Returns `true` if the `AsyncOption` resolves to `None`. Mirrors the
 `IOption.isNone` discriminator as a standalone function.
@@ -665,7 +665,7 @@ Ready for Product
 
 > **isSome**\<`T`>(`ao`): `Promise`\<`boolean`>
 
-Defined in: [async-option/isSome.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/isSome.ts#L17)
+Defined in: [async-option/isSome.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/isSome.ts#L17)
 
 Returns `true` if the `AsyncOption` resolves to `Some`. Mirrors the
 `IOption.isSome` discriminator as a standalone function.
@@ -707,7 +707,7 @@ Ready for Product
 
 > **map**\<`T`, `U`>(`fn`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/map.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/map.ts#L20)
+Defined in: [async-option/map.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/map.ts#L20)
 
 Maps the value of an AsyncOption using a synchronous function.
 Lazy — returns a new AsyncOption without executing the inner computation.
@@ -752,7 +752,7 @@ Ready for Product
 
 > **map**\<`T`, `U`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/map.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/map.ts#L23)
+Defined in: [async-option/map.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/map.ts#L23)
 
 Maps the value of an AsyncOption using a synchronous function.
 Lazy — returns a new AsyncOption without executing the inner computation.
@@ -805,7 +805,7 @@ Ready for Product
 
 > **mapAsync**\<`T`, `U`>(`fn`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/mapAsync.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapAsync.ts#L20)
+Defined in: [async-option/mapAsync.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapAsync.ts#L20)
 
 Maps the value of an AsyncOption using an async function.
 Lazy — returns a new AsyncOption without executing the inner computation.
@@ -850,7 +850,7 @@ Ready for Product
 
 > **mapAsync**\<`T`, `U`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U`>
 
-Defined in: [async-option/mapAsync.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapAsync.ts#L23)
+Defined in: [async-option/mapAsync.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapAsync.ts#L23)
 
 Maps the value of an AsyncOption using an async function.
 Lazy — returns a new AsyncOption without executing the inner computation.
@@ -903,7 +903,7 @@ Ready for Product
 
 > **mapOr**\<`T`, `U`>(`defaultValue`, `fn`): (`ao`) => `Promise`\<`U`>
 
-Defined in: [async-option/mapOr.ts:18](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapOr.ts#L18)
+Defined in: [async-option/mapOr.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapOr.ts#L18)
 
 Maps the value of an `AsyncOption`, returning a default on `None`.
 The mapper may be sync or async. Throws from the mapper are caught and
@@ -950,7 +950,7 @@ Ready for Product
 
 > **mapOr**\<`T`, `U`>(`defaultValue`, `fn`, `ao`): `Promise`\<`U`>
 
-Defined in: [async-option/mapOr.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapOr.ts#L22)
+Defined in: [async-option/mapOr.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapOr.ts#L22)
 
 Maps the value of an `AsyncOption`, returning a default on `None`.
 The mapper may be sync or async. Throws from the mapper are caught and
@@ -1005,7 +1005,7 @@ Ready for Product
 
 > **mapOrElse**\<`T`, `U`>(`onNone`, `fn`): (`ao`) => `Promise`\<`U`>
 
-Defined in: [async-option/mapOrElse.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapOrElse.ts#L17)
+Defined in: [async-option/mapOrElse.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapOrElse.ts#L17)
 
 Maps the value of an `AsyncOption`, or computes a default from a thunk on `None`.
 Both callbacks may be sync or async.
@@ -1051,7 +1051,7 @@ Ready for Product
 
 > **mapOrElse**\<`T`, `U`>(`onNone`, `fn`, `ao`): `Promise`\<`U`>
 
-Defined in: [async-option/mapOrElse.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/mapOrElse.ts#L21)
+Defined in: [async-option/mapOrElse.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/mapOrElse.ts#L21)
 
 Maps the value of an `AsyncOption`, or computes a default from a thunk on `None`.
 Both callbacks may be sync or async.
@@ -1105,7 +1105,7 @@ Ready for Product
 
 > **match**\<`T`, `U`>(`handlers`): (`ao`) => `Promise`\<`U`>
 
-Defined in: [async-option/match.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/match.ts#L19)
+Defined in: [async-option/match.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/match.ts#L19)
 
 Terminal — pattern-matches on both cases of an AsyncOption.
 
@@ -1157,7 +1157,7 @@ Ready for Product
 
 > **match**\<`T`, `U`>(`handlers`, `ao`): `Promise`\<`U`>
 
-Defined in: [async-option/match.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/match.ts#L22)
+Defined in: [async-option/match.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/match.ts#L22)
 
 Terminal — pattern-matches on both cases of an AsyncOption.
 
@@ -1215,7 +1215,7 @@ Ready for Product
 
 > **ofNone**\<`T`>(): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/ofNone.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/ofNone.ts#L23)
+Defined in: [async-option/ofNone.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/ofNone.ts#L23)
 
 Creates an `AsyncOption` that always resolves to `None`.
 Equivalent to `fromOption(ofNone())` but skips the sync intermediate.
@@ -1253,7 +1253,7 @@ Ready for Product
 
 > **ofSome**\<`T`>(`value`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/ofSome.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/ofSome.ts#L19)
+Defined in: [async-option/ofSome.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/ofSome.ts#L19)
 
 Lifts a raw value into an `AsyncOption<T>` that resolves to `Some(value)`.
 Equivalent to `fromOption(ofSome(value))` but skips the sync intermediate.
@@ -1295,7 +1295,7 @@ Ready for Product
 
 > **okOr**\<`T`, `E`>(`error`): (`ao`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-option/okOr.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/okOr.ts#L21)
+Defined in: [async-option/okOr.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/okOr.ts#L21)
 
 Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, supplying an error
 value for the `None` case.
@@ -1338,7 +1338,7 @@ Ready for Product
 
 > **okOr**\<`T`, `E`>(`error`, `ao`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-option/okOr.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/okOr.ts#L24)
+Defined in: [async-option/okOr.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/okOr.ts#L24)
 
 Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, supplying an error
 value for the `None` case.
@@ -1389,7 +1389,7 @@ Ready for Product
 
 > **okOrElse**\<`T`, `E`>(`onNone`): (`ao`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-option/okOrElse.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/okOrElse.ts#L21)
+Defined in: [async-option/okOrElse.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/okOrElse.ts#L21)
 
 Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, computing the error
 from a thunk on `None` (lazy — error is only built when needed).
@@ -1432,7 +1432,7 @@ Ready for Product
 
 > **okOrElse**\<`T`, `E`>(`onNone`, `ao`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-option/okOrElse.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/okOrElse.ts#L24)
+Defined in: [async-option/okOrElse.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/okOrElse.ts#L24)
 
 Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, computing the error
 from a thunk on `None` (lazy — error is only built when needed).
@@ -1483,7 +1483,7 @@ Ready for Product
 
 > **orElse**\<`U`>(`fn`): \<`T`>(`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`U` | `T`>
 
-Defined in: [async-option/orElse.ts:38](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/orElse.ts#L38)
+Defined in: [async-option/orElse.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/orElse.ts#L38)
 
 Curried form. The inner `<T>` is **deferred** so the AsyncOption's value
 type is re-inferred at every application site.
@@ -1508,7 +1508,7 @@ type is re-inferred at every application site.
 
 > **orElse**\<`T`, `U`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T` | `U`>
 
-Defined in: [async-option/orElse.ts:45](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/orElse.ts#L45)
+Defined in: [async-option/orElse.ts:45](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/orElse.ts#L45)
 
 Direct form. `T` is inferred from the supplied AsyncOption; the result widens to `T | U`.
 
@@ -1544,7 +1544,7 @@ Direct form. `T` is inferred from the supplied AsyncOption; the result widens to
 
 > **tap**\<`T`>(`fn`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/tap.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/tap.ts#L23)
+Defined in: [async-option/tap.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/tap.ts#L23)
 
 ##### Type Parameters
 
@@ -1591,7 +1591,7 @@ Ready for Product
 
 > **tap**\<`T`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/tap.ts:26](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/tap.ts#L26)
+Defined in: [async-option/tap.ts:26](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/tap.ts#L26)
 
 ##### Type Parameters
 
@@ -1646,7 +1646,7 @@ Ready for Product
 
 > **tapAsync**\<`T`>(`fn`): (`ao`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/tapAsync.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/tapAsync.ts#L23)
+Defined in: [async-option/tapAsync.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/tapAsync.ts#L23)
 
 ##### Type Parameters
 
@@ -1693,7 +1693,7 @@ Ready for Product
 
 > **tapAsync**\<`T`>(`fn`, `ao`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>
 
-Defined in: [async-option/tapAsync.ts:26](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/tapAsync.ts#L26)
+Defined in: [async-option/tapAsync.ts:26](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/tapAsync.ts#L26)
 
 ##### Type Parameters
 
@@ -1746,7 +1746,7 @@ Ready for Product
 
 > **transpose**\<`T`, `E`>(`ao`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<[`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`T`>, `E`>
 
-Defined in: [async-option/transpose.ts:29](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/transpose.ts#L29)
+Defined in: [async-option/transpose.ts:29](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/transpose.ts#L29)
 
 Transposes an `AsyncOption<AsyncResult<T, E>>` into an
 `AsyncResult<AsyncOption<T>, E>`.
@@ -1797,7 +1797,7 @@ Ready for Product
 
 > **unwrap**\<`T`>(`ao`): `Promise`\<`T`>
 
-Defined in: [async-option/unwrap.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/unwrap.ts#L17)
+Defined in: [async-option/unwrap.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/unwrap.ts#L17)
 
 Extracts the value from an `AsyncOption`, or throws if `None`.
 Use sparingly — prefer `unwrapOr`, `unwrapOrElse`, or `match` in most code.
@@ -1839,7 +1839,7 @@ Ready for Product
 
 > **unwrapOr**\<`T`>(`defaultValue`): (`ao`) => `Promise`\<`T`>
 
-Defined in: [async-option/unwrapOr.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/unwrapOr.ts#L17)
+Defined in: [async-option/unwrapOr.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/unwrapOr.ts#L17)
 
 Extracts the value from an AsyncOption, or returns a default value.
 
@@ -1879,7 +1879,7 @@ Ready for Product
 
 > **unwrapOr**\<`T`>(`defaultValue`, `ao`): `Promise`\<`T`>
 
-Defined in: [async-option/unwrapOr.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/unwrapOr.ts#L20)
+Defined in: [async-option/unwrapOr.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/unwrapOr.ts#L20)
 
 Extracts the value from an AsyncOption, or returns a default value.
 
@@ -1927,7 +1927,7 @@ Ready for Product
 
 > **unwrapOrElse**\<`T`>(`onNone`): (`ao`) => `Promise`\<`T`>
 
-Defined in: [async-option/unwrapOrElse.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/unwrapOrElse.ts#L17)
+Defined in: [async-option/unwrapOrElse.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/unwrapOrElse.ts#L17)
 
 Extracts the value from an `AsyncOption`, or computes a default from a thunk
 on `None`. Lazy — the default is only computed when needed.
@@ -1965,7 +1965,7 @@ Ready for Product
 
 > **unwrapOrElse**\<`T`>(`onNone`, `ao`): `Promise`\<`T`>
 
-Defined in: [async-option/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/unwrapOrElse.ts#L20)
+Defined in: [async-option/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/unwrapOrElse.ts#L20)
 
 Extracts the value from an `AsyncOption`, or computes a default from a thunk
 on `None`. Lazy — the default is only computed when needed.
@@ -2011,7 +2011,7 @@ Ready for Product
 
 > **zipWith**\<`T`, `R`>(`fn`): (...`aos`) => [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`R`>
 
-Defined in: [async-option/zipWith.ts:44](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/zipWith.ts#L44)
+Defined in: [async-option/zipWith.ts:44](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/zipWith.ts#L44)
 
 ##### Type Parameters
 
@@ -2037,7 +2037,7 @@ Defined in: [async-option/zipWith.ts:44](https://github.com/sandlada/result/blob
 
 > **zipWith**\<`T`, `R`>(`fn`, ...`aos`): [`AsyncOption`](/0.20260811/api/types/#asyncoption)\<`R`>
 
-Defined in: [async-option/zipWith.ts:47](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/async-option/zipWith.ts#L47)
+Defined in: [async-option/zipWith.ts:47](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/async-option/zipWith.ts#L47)
 
 ##### Type Parameters
 

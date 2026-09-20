@@ -14,7 +14,7 @@ slug: 0.20260811/api/promise-option
 
 > **asyncBindOption**\<`T`, `U`>(`fn`): (`opt`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/asyncBindOption.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncBindOption.ts#L23)
+Defined in: [promise-option/asyncBindOption.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncBindOption.ts#L23)
 
 ##### Type Parameters
 
@@ -65,7 +65,7 @@ Ready for Product
 
 > **asyncBindOption**\<`T`, `U`>(`fn`, `opt`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/asyncBindOption.ts:26](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncBindOption.ts#L26)
+Defined in: [promise-option/asyncBindOption.ts:26](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncBindOption.ts#L26)
 
 ##### Type Parameters
 
@@ -124,7 +124,7 @@ Ready for Product
 
 > **asyncMapOption**\<`A`, `B`>(`f`): (`o`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`B`>>
 
-Defined in: [promise-option/asyncMapOption.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncMapOption.ts#L17)
+Defined in: [promise-option/asyncMapOption.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncMapOption.ts#L17)
 
 ##### Type Parameters
 
@@ -150,7 +150,7 @@ Defined in: [promise-option/asyncMapOption.ts:17](https://github.com/sandlada/re
 
 > **asyncMapOption**\<`A`, `B`>(`f`, `o`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`B`>>
 
-Defined in: [promise-option/asyncMapOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncMapOption.ts#L20)
+Defined in: [promise-option/asyncMapOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncMapOption.ts#L20)
 
 ##### Type Parameters
 
@@ -184,7 +184,7 @@ Defined in: [promise-option/asyncMapOption.ts:20](https://github.com/sandlada/re
 
 > **asyncMatchOption**\<`T`, `U`>(`handlers`): (`o`) => `Promise`\<`U`>
 
-Defined in: [promise-option/asyncMatchOption.ts:18](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncMatchOption.ts#L18)
+Defined in: [promise-option/asyncMatchOption.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncMatchOption.ts#L18)
 
 ##### Type Parameters
 
@@ -216,7 +216,7 @@ Defined in: [promise-option/asyncMatchOption.ts:18](https://github.com/sandlada/
 
 > **asyncMatchOption**\<`T`, `U`>(`handlers`, `o`): `Promise`\<`U`>
 
-Defined in: [promise-option/asyncMatchOption.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncMatchOption.ts#L21)
+Defined in: [promise-option/asyncMatchOption.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncMatchOption.ts#L21)
 
 ##### Type Parameters
 
@@ -256,7 +256,7 @@ Defined in: [promise-option/asyncMatchOption.ts:21](https://github.com/sandlada/
 
 > **asyncOrElseOption**\<`T`>(`f`): (`o`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/asyncOrElseOption.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncOrElseOption.ts#L21)
+Defined in: [promise-option/asyncOrElseOption.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncOrElseOption.ts#L21)
 
 ##### Type Parameters
 
@@ -278,7 +278,7 @@ Defined in: [promise-option/asyncOrElseOption.ts:21](https://github.com/sandlada
 
 > **asyncOrElseOption**\<`T`>(`f`, `o`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/asyncOrElseOption.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncOrElseOption.ts#L24)
+Defined in: [promise-option/asyncOrElseOption.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncOrElseOption.ts#L24)
 
 ##### Type Parameters
 
@@ -308,7 +308,7 @@ Defined in: [promise-option/asyncOrElseOption.ts:24](https://github.com/sandlada
 
 > **asyncTapOption**\<`T`>(`fn`): (`opt`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/asyncTapOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncTapOption.ts#L20)
+Defined in: [promise-option/asyncTapOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncTapOption.ts#L20)
 
 ##### Type Parameters
 
@@ -352,7 +352,7 @@ Ready for Product
 
 > **asyncTapOption**\<`T`>(`fn`, `opt`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/asyncTapOption.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/asyncTapOption.ts#L23)
+Defined in: [promise-option/asyncTapOption.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/asyncTapOption.ts#L23)
 
 ##### Type Parameters
 
@@ -404,7 +404,7 @@ Ready for Product
 
 > **bindAsyncOption**\<`T`, `U`>(`f`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/bindAsyncOption.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/bindAsyncOption.ts#L22)
+Defined in: [promise-option/bindAsyncOption.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/bindAsyncOption.ts#L22)
 
 ##### Type Parameters
 
@@ -454,7 +454,7 @@ Ready for Product
 
 > **bindAsyncOption**\<`T`, `U`>(`f`, `r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/bindAsyncOption.ts:25](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/bindAsyncOption.ts#L25)
+Defined in: [promise-option/bindAsyncOption.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/bindAsyncOption.ts#L25)
 
 ##### Type Parameters
 
@@ -512,7 +512,7 @@ Ready for Product
 
 > **containsAsyncOption**\<`T`>(`value`): (`r`) => `Promise`\<`boolean`>
 
-Defined in: [promise-option/containsAsyncOption.ts:14](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/containsAsyncOption.ts#L14)
+Defined in: [promise-option/containsAsyncOption.ts:14](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/containsAsyncOption.ts#L14)
 
 ##### Type Parameters
 
@@ -551,7 +551,7 @@ Ready for Product
 
 > **containsAsyncOption**\<`T`>(`value`, `r`): `Promise`\<`boolean`>
 
-Defined in: [promise-option/containsAsyncOption.ts:17](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/containsAsyncOption.ts#L17)
+Defined in: [promise-option/containsAsyncOption.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/containsAsyncOption.ts#L17)
 
 ##### Type Parameters
 
@@ -598,7 +598,7 @@ Ready for Product
 
 > **existsAsyncOption**\<`T`>(`predicate`): (`r`) => `Promise`\<`boolean`>
 
-Defined in: [promise-option/existsAsyncOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/existsAsyncOption.ts#L20)
+Defined in: [promise-option/existsAsyncOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/existsAsyncOption.ts#L20)
 
 ##### Type Parameters
 
@@ -643,7 +643,7 @@ Ready for Product
 
 > **existsAsyncOption**\<`T`>(`predicate`, `r`): `Promise`\<`boolean`>
 
-Defined in: [promise-option/existsAsyncOption.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/existsAsyncOption.ts#L23)
+Defined in: [promise-option/existsAsyncOption.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/existsAsyncOption.ts#L23)
 
 ##### Type Parameters
 
@@ -696,7 +696,7 @@ Ready for Product
 
 > **filterAsyncOption**\<`T`>(`predicate`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/filterAsyncOption.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/filterAsyncOption.ts#L21)
+Defined in: [promise-option/filterAsyncOption.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/filterAsyncOption.ts#L21)
 
 ##### Type Parameters
 
@@ -741,7 +741,7 @@ Ready for Product
 
 > **filterAsyncOption**\<`T`>(`predicate`, `r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/filterAsyncOption.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/filterAsyncOption.ts#L24)
+Defined in: [promise-option/filterAsyncOption.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/filterAsyncOption.ts#L24)
 
 ##### Type Parameters
 
@@ -792,7 +792,7 @@ Ready for Product
 
 > **flattenAsyncOption**\<`T`>(`r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/flattenAsyncOption.ts:18](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/flattenAsyncOption.ts#L18)
+Defined in: [promise-option/flattenAsyncOption.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/flattenAsyncOption.ts#L18)
 
 #### Type Parameters
 
@@ -839,7 +839,7 @@ Ready for Product
 
 > **mapAsyncOption**\<`T`, `U`>(`f`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/mapAsyncOption.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapAsyncOption.ts#L19)
+Defined in: [promise-option/mapAsyncOption.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapAsyncOption.ts#L19)
 
 ##### Type Parameters
 
@@ -886,7 +886,7 @@ Ready for Product
 
 > **mapAsyncOption**\<`T`, `U`>(`f`, `r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`U`>>
 
-Defined in: [promise-option/mapAsyncOption.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapAsyncOption.ts#L22)
+Defined in: [promise-option/mapAsyncOption.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapAsyncOption.ts#L22)
 
 ##### Type Parameters
 
@@ -941,7 +941,7 @@ Ready for Product
 
 > **mapOrAsyncOption**\<`A`, `B`>(`defaultValue`, `fn`): (`r`) => `Promise`\<`B`>
 
-Defined in: [promise-option/mapOrAsyncOption.ts:16](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapOrAsyncOption.ts#L16)
+Defined in: [promise-option/mapOrAsyncOption.ts:16](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapOrAsyncOption.ts#L16)
 
 ##### Type Parameters
 
@@ -971,7 +971,7 @@ Defined in: [promise-option/mapOrAsyncOption.ts:16](https://github.com/sandlada/
 
 > **mapOrAsyncOption**\<`A`, `B`>(`defaultValue`, `fn`, `r`): `Promise`\<`B`>
 
-Defined in: [promise-option/mapOrAsyncOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapOrAsyncOption.ts#L20)
+Defined in: [promise-option/mapOrAsyncOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapOrAsyncOption.ts#L20)
 
 ##### Type Parameters
 
@@ -1009,7 +1009,7 @@ Defined in: [promise-option/mapOrAsyncOption.ts:20](https://github.com/sandlada/
 
 > **mapOrElseAsyncOption**\<`A`, `B`>(`onNone`, `fn`): (`r`) => `Promise`\<`B`>
 
-Defined in: [promise-option/mapOrElseAsyncOption.ts:16](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapOrElseAsyncOption.ts#L16)
+Defined in: [promise-option/mapOrElseAsyncOption.ts:16](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapOrElseAsyncOption.ts#L16)
 
 ##### Type Parameters
 
@@ -1039,7 +1039,7 @@ Defined in: [promise-option/mapOrElseAsyncOption.ts:16](https://github.com/sandl
 
 > **mapOrElseAsyncOption**\<`A`, `B`>(`onNone`, `fn`, `r`): `Promise`\<`B`>
 
-Defined in: [promise-option/mapOrElseAsyncOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/mapOrElseAsyncOption.ts#L20)
+Defined in: [promise-option/mapOrElseAsyncOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/mapOrElseAsyncOption.ts#L20)
 
 ##### Type Parameters
 
@@ -1077,7 +1077,7 @@ Defined in: [promise-option/mapOrElseAsyncOption.ts:20](https://github.com/sandl
 
 > **matchAsyncOption**\<`T`, `U`>(`onSome`, `onNone`): (`r`) => `Promise`\<`U`>
 
-Defined in: [promise-option/matchAsyncOption.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/matchAsyncOption.ts#L19)
+Defined in: [promise-option/matchAsyncOption.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/matchAsyncOption.ts#L19)
 
 ##### Type Parameters
 
@@ -1129,7 +1129,7 @@ Ready for Product
 
 > **matchAsyncOption**\<`T`, `U`>(`onSome`, `onNone`, `r`): `Promise`\<`U`>
 
-Defined in: [promise-option/matchAsyncOption.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/matchAsyncOption.ts#L23)
+Defined in: [promise-option/matchAsyncOption.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/matchAsyncOption.ts#L23)
 
 ##### Type Parameters
 
@@ -1189,7 +1189,7 @@ Ready for Product
 
 > **orElseAsyncOption**\<`T`>(`f`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/orElseAsyncOption.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/orElseAsyncOption.ts#L22)
+Defined in: [promise-option/orElseAsyncOption.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/orElseAsyncOption.ts#L22)
 
 ##### Type Parameters
 
@@ -1235,7 +1235,7 @@ Ready for Product
 
 > **orElseAsyncOption**\<`T`>(`f`, `r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/orElseAsyncOption.ts:25](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/orElseAsyncOption.ts#L25)
+Defined in: [promise-option/orElseAsyncOption.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/orElseAsyncOption.ts#L25)
 
 ##### Type Parameters
 
@@ -1289,7 +1289,7 @@ Ready for Product
 
 > **tapAsyncOption**\<`T`>(`fn`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/tapAsyncOption.ts:19](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/tapAsyncOption.ts#L19)
+Defined in: [promise-option/tapAsyncOption.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/tapAsyncOption.ts#L19)
 
 ##### Type Parameters
 
@@ -1332,7 +1332,7 @@ Ready for Product
 
 > **tapAsyncOption**\<`T`>(`fn`, `r`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/tapAsyncOption.ts:22](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/tapAsyncOption.ts#L22)
+Defined in: [promise-option/tapAsyncOption.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/tapAsyncOption.ts#L22)
 
 ##### Type Parameters
 
@@ -1383,7 +1383,7 @@ Ready for Product
 
 > **tapErrAsyncOption**\<`T`>(`fn`, `fnNone?`): (`r`) => `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/tapErrAsyncOption.ts:46](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/tapErrAsyncOption.ts#L46)
+Defined in: [promise-option/tapErrAsyncOption.ts:46](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/tapErrAsyncOption.ts#L46)
 
 ##### Type Parameters
 
@@ -1409,7 +1409,7 @@ Defined in: [promise-option/tapErrAsyncOption.ts:46](https://github.com/sandlada
 
 > **tapErrAsyncOption**\<`T`>(`fn`, `r`, `fnNone?`): `Promise`\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>>
 
-Defined in: [promise-option/tapErrAsyncOption.ts:50](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/tapErrAsyncOption.ts#L50)
+Defined in: [promise-option/tapErrAsyncOption.ts:50](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/tapErrAsyncOption.ts#L50)
 
 ##### Type Parameters
 
@@ -1443,7 +1443,7 @@ Defined in: [promise-option/tapErrAsyncOption.ts:50](https://github.com/sandlada
 
 > **unwrapOrAsyncOption**\<`T`, `D`>(`defaultValue`): (`r`) => `Promise`\<`T` | `D`>
 
-Defined in: [promise-option/unwrapOrAsyncOption.ts:21](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/unwrapOrAsyncOption.ts#L21)
+Defined in: [promise-option/unwrapOrAsyncOption.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/unwrapOrAsyncOption.ts#L21)
 
 ##### Type Parameters
 
@@ -1491,7 +1491,7 @@ Ready for Product
 
 > **unwrapOrAsyncOption**\<`T`, `D`>(`defaultValue`, `r`): `Promise`\<`T` | `D`>
 
-Defined in: [promise-option/unwrapOrAsyncOption.ts:24](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/unwrapOrAsyncOption.ts#L24)
+Defined in: [promise-option/unwrapOrAsyncOption.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/unwrapOrAsyncOption.ts#L24)
 
 ##### Type Parameters
 
@@ -1547,7 +1547,7 @@ Ready for Product
 
 > **unwrapOrElseAsyncOption**\<`T`, `D`>(`onNone`): (`r`) => `Promise`\<`T` | `D`>
 
-Defined in: [promise-option/unwrapOrElseAsyncOption.ts:20](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/unwrapOrElseAsyncOption.ts#L20)
+Defined in: [promise-option/unwrapOrElseAsyncOption.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/unwrapOrElseAsyncOption.ts#L20)
 
 ##### Type Parameters
 
@@ -1593,7 +1593,7 @@ Ready for Product
 
 > **unwrapOrElseAsyncOption**\<`T`, `D`>(`onNone`, `r`): `Promise`\<`T` | `D`>
 
-Defined in: [promise-option/unwrapOrElseAsyncOption.ts:23](https://github.com/sandlada/result/blob/480b221e7512163ad45bddc1b23ef105e155b3b8/src/promise-option/unwrapOrElseAsyncOption.ts#L23)
+Defined in: [promise-option/unwrapOrElseAsyncOption.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/promise-option/unwrapOrElseAsyncOption.ts#L23)
 
 ##### Type Parameters
 

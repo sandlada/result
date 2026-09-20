@@ -2,7 +2,7 @@
 editUrl: false
 next: false
 prev: false
-title: "@sandlada/result"
+title: API Reference
 slug: 0.20260811/api
 ---
 

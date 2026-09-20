@@ -56,6 +56,9 @@ export default defineConfig({
                         outputFileStrategy: 'modules',
                         entryFileName: 'index',
                         useHTMLEncodedBrackets: true,
+                        // The project name becomes the title of the generated module index,
+                        // so it reads "API Reference" instead of repeating the site title.
+                        name: 'API Reference',
                         // JSDoc prose such as `Promise<boolean>` is invalid MDX, and
                         // starlight-versions parses every page with remark-mdx when it
                         // archives a version. Sanitising the comments keeps generated
