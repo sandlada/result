@@ -8,11 +8,13 @@
         "predev": "npm run sync",
         "dev": "astro dev",
         "prebuild": "npm run sync",
-        "build": "astro build",
+        "build": "astro build && npm run verify:seo",
         "preview": "astro preview",
         "precheck": "npm run sync",
         "check": "astro check",
         "check:snippets": "tsc --project tsconfig.snippets.json",
+        "verify:seo": "node scripts/verify-seo.mjs",
+        "generate:icons": "node scripts/generate-icons.mjs",
         "version:new": "node scripts/new-version.mjs"
     },
     "devDependencies": {
@@ -21,6 +23,7 @@
         "@astrojs/sitemap": "^3.7.4",
         "@astrojs/starlight": "^0.42.2",
         "astro": "^7.3.3",
+        "sharp": "^0.35.4",
         "starlight-links-validator": "^0.26.0",
         "starlight-typedoc": "^0.23.1",
         "starlight-versions": "^0.10.1",

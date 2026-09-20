@@ -18,7 +18,8 @@ const documents = [
     {
         source: 'docs/behavior-modes.md',
         target: 'src/content/docs/behavior-modes.md',
-        description: '本庫錯誤處理行為的唯一真源：術語表與各 API 的拋出／失敗／空輸入對照。',
+        description:
+            "The library's single source of truth for error handling: terminology and the throw / failure / empty-input table for every API.",
     },
 ];
 

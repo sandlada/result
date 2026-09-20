@@ -5,7 +5,7 @@
 
 ## Overview
 
-`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing `throw`/`catch` for predictable failure paths.
+`@sandlada/result` is a TypeScript library implementing the **Result Pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing `throw`/`catch` for predictable failure paths.
 
 **Key differentiator:** generic `TError` parameter (the C# reference hardcodes `DomainError`). Users pass their own error types.
 

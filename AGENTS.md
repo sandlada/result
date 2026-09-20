@@ -2,7 +2,7 @@
 
 ## Project Identity
 
-`@sandlada/result` is a TypeScript library providing the **Result pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing throw/catch for predictable failure paths.
+`@sandlada/result` is a TypeScript library providing the **Result Pattern** — a functional error-handling primitive that makes error flows explicit and type-safe, replacing throw/catch for predictable failure paths.
 
 The library exposes:
 
@@ -49,9 +49,10 @@ npm run bench:json    # bench -> bench/results.json
 
 # Documentation site (separate package in site/)
 npm --prefix site run dev             # Astro dev server
-npm --prefix site run build           # build to site/dist/ (TypeDoc + link validation)
+npm --prefix site run build           # build to site/dist/ (TypeDoc + link validation + verify:seo)
 npm --prefix site run check           # astro check for the site
 npm --prefix site run check:snippets  # type-check documented examples against src/
+npm --prefix site run verify:seo      # re-check SEO invariants of an existing site/dist/
 npm --prefix site run version:new -- <slug>  # archive a documentation version
 ```
 
@@ -189,9 +190,14 @@ scripts/                — Build pipeline helpers run by npm scripts
 
 ```text
 site/                   — Astro Starlight documentation site (separate package, not published)
+  seo-metadata.mjs      — Curated titles/descriptions of the generated API pages
+  assets/               — SVG sources of the committed social/icon PNGs
+  public/               — robots.txt, favicon, apple touch icon, og:image
+  plugins/              — Starlight plugins run at config time (API page metadata)
   src/content/docs/     — Hand-written pages, generated API reference, archived versions
   src/snippets/         — Type-checked mirrors of documented examples
-  scripts/              — Narrative document sync and version archive helpers
+  src/starlightRouteData.ts — Route middleware: robots policy, og:type, JSON-LD
+  scripts/              — Narrative document sync, SEO verification, icon rendering, version archive helpers
 ```
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.

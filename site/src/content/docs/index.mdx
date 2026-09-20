@@ -1,8 +1,8 @@
 ---
-title: '@sandlada/result'
-description: Type-safe Result Pattern and Railway Oriented Programming for TypeScript.
+title: Result Pattern for TypeScript
+description: Type-safe Result Pattern and Railway Oriented Programming for TypeScript — explicit error handling without exceptions, generic TError, zero dependencies.
 hero:
-  tagline: Type-safe Result Pattern and Railway Oriented Programming for TypeScript — explicit error handling without exceptions.
+  tagline: Success and failure both travel as plain values the compiler tracks — no throw/catch for predictable failures.
   actions:
     - text: Get started
       link: /getting-started/
@@ -16,9 +16,8 @@ hero:
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 `@sandlada/result` replaces `throw`/`catch` for predictable failures with a discriminated union the
-compiler tracks. Success and failure both travel as plain objects, so a function signature tells you
-whether it can fail. The library is fully generic over `TError`, ships as ESM across 14 subpaths, and
-has zero dependencies.
+compiler tracks. A function signature tells you whether a call can fail. The library is fully generic
+over `TError`, ships as ESM across 14 subpaths, and has zero dependencies.
 
 <CardGrid stagger>
     <LinkCard
@@ -42,6 +41,54 @@ has zero dependencies.
         description="Run the examples in StackBlitz without installing anything."
     />
 </CardGrid>
+
+## Why a Result type?
+
+- **Failures are part of the signature.** `IResultOfT<User, AppError>` says a call can fail; a plain
+  `User` says it cannot. There is no documentation to trust and no `try`/`catch` to forget.
+- **The compiler proves you handled it.** `value` and `error` live on separate variants, so reading
+  the wrong one is a compile error, not a runtime surprise.
+- **Your error type, not the library's.** `ok` and `err` are generic over `TError`: discriminated
+  unions, classes, or plain objects all work, and no error is silently coerced to `Error`.
+- **Railway oriented programming without a framework.** Data-last curried operators such as `map`,
+  `bind`, and `orElse` compose with `pipe`, so the happy path stays linear.
+
+## A complete example
+
+```ts
+import type { IResultOfT } from '@sandlada/result';
+import { ok, err } from '@sandlada/result/factories';
+import { map, unwrapOr } from '@sandlada/result/operators';
+import { pipe } from '@sandlada/result/composition';
+
+type User = { id: string; name: string };
+type AppError = { kind: 'NotFound'; id: string };
+
+function getUser(id: string): IResultOfT<User, AppError> {
+    const user = users.get(id);
+
+    return user ? ok(user) : err({ kind: 'NotFound', id });
+}
+
+const name = pipe(
+    getUser('42'),
+    map((user) => user.name),
+    unwrapOr('Unknown'),
+);
+```
+
+`name` is `'Alice'`. `NotFound` never becomes an exception — it is a value in the error channel that
+the type system forces you to acknowledge.
+
+## What ships
+
+- **14 focused subpaths** — `factories`, `operators`, `option`, `promise-result`, `async-result`,
+  `reliability`, `observability`, `primitives`, and more, so tree-shaking stays total.
+- **Two async flavors** — eager `Promise` operators and lazy `AsyncResult` / `AsyncOption` thunks.
+- **Reliability built in** — bounded `retry`, `timeout`, `race`, `any`, and `allSettled` that never
+  reject.
+- **Observability built in** — breadcrumb `ctx` / `withPath`, formatters, and observer hooks.
+- **Zero dependencies**, ESM-only, strict TypeScript, JSON-serializable values.
 
 ## Install
 

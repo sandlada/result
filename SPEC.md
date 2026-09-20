@@ -5,7 +5,7 @@
 
 ## Overview
 
-`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a type-safe, exception-free approach to error handling. Errors are first-class values carried in the type system, so you never have to wonder whether a function can fail.
+`@sandlada/result` is a TypeScript library implementing the **Result Pattern** — a type-safe, exception-free approach to error handling. Errors are first-class values carried in the type system, so you never have to wonder whether a function can fail.
 
 The library exposes:
 

@@ -3,7 +3,7 @@ title: Getting Started
 description: Install @sandlada/result and write your first typed Result pipeline.
 ---
 
-`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a type-safe, exception-free approach to error handling. Success and failure both travel as plain objects, so the type system tells you when a call can fail instead of a `try`/`catch` block you have to remember to write.
+`@sandlada/result` is a TypeScript library implementing the **Result Pattern** — a type-safe, exception-free approach to error handling. Success and failure both travel as plain objects, so the type system tells you when a call can fail instead of a `try`/`catch` block you have to remember to write.
 
 Unlike traditional Result libraries that hardcode a single error type, this one is **fully generic over `TError`**: you bring your own error shapes.
 

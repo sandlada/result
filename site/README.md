@@ -10,9 +10,11 @@ themselves to `../src`, so nothing here can leak into the published package.
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the dev server. Copies the narrative pages first. |
-| `npm run build` | Build to `dist/`. Runs the narrative copy, TypeDoc generation and link validation. |
+| `npm run build` | Build to `dist/`. Runs the narrative copy, TypeDoc generation, link validation and `verify:seo`. |
 | `npm run check` | `astro check` — type-checks `.astro` files and page frontmatter. |
 | `npm run check:snippets` | Type-checks the examples in `src/snippets/` against `../src`. Requires no library build. |
+| `npm run verify:seo` | Checks the built pages for the search-metadata invariants (titles, descriptions, canonicals, JSON-LD, indexability, sitemap). |
+| `npm run generate:icons` | Renders `public/og.png` and `public/apple-touch-icon.png` from their SVG sources. Only needed after editing those sources. |
 | `npm run version:new -- <slug> [label]` | Archives the current documentation as a new version. |
 
 ## How the content is produced
@@ -34,6 +36,12 @@ themselves to `../src`, so nothing here can leak into the published package.
   single source of truth; the copy is gitignored and rewritten, so it cannot drift. Links that
   point at repository files are rewritten to GitHub URLs.
 - **Hand-written pages** — `src/content/docs/*.md` are edited directly.
+- **API search metadata** — `plugins/seo-api-pages.mjs` runs after `starlight-typedoc` in the
+  Starlight `plugins` array and replaces the `title` and `description` frontmatter of every
+  generated API page with the curated values from `seo-metadata.mjs`. The generated pages only
+  carry the bare module name and no description, so without this step every API page would fall
+  back to the site-wide description. A generated page that is missing from the registry fails the
+  build; a registry entry that no longer matches a generated page fails `verify:seo`.
 
 `sanitizeComments` is enabled for TypeDoc because JSDoc prose such as `Promise<boolean>` is not
 valid MDX, and `starlight-versions` parses every page with `remark-mdx` when it archives a version.
@@ -60,6 +68,34 @@ it verifies afterwards that an API reference was archived. Archiving is performe
 
 Unlike the current version, an archive keeps its own copy of `src/content/docs/api/`. The API
 reference of a published version therefore stays frozen even as the library evolves.
+
+Archived versions stay reachable for readers, but they are kept out of the index: the route
+middleware marks every page under a `versions.json` slug as `noindex`, and the sitemap integration
+filters those URLs out. Both read `versions.json`, so a newly archived version is covered
+automatically.
+
+## Search metadata
+
+Every page needs metadata that page frontmatter cannot provide, so it is split across three places:
+
+- **`astro.config.mjs`** adds the tags every page shares: `og:image` (the committed
+  `public/og.png`), the Twitter image, the theme color, the apple touch icon, and the
+  `google-site-verification` / `msvalidate.01` tags when `GOOGLE_SITE_VERIFICATION` /
+  `BING_SITE_VERIFICATION` are set in the build environment. The raw robots policy is not set
+  here.
+- **`src/starlightRouteData.ts`** is Starlight route middleware (registered through the
+  `routeMiddleware` config key; the file must not be called `src/middleware.ts`, a path Starlight
+  rejects because Astro reserves it). It sets the `robots` policy for every page — `noindex` for
+  archived versions and the 404 page, `index, follow, max-image-preview:large` everywhere else —
+  switches the home page to `og:type: website`, and injects the JSON-LD blocks (`WebSite` and
+  `SoftwareSourceCode` on the home page, `TechArticle` plus `BreadcrumbList` elsewhere).
+- **`seo-metadata.mjs`** holds the curated titles and descriptions of the generated API pages;
+  see "How the content is produced".
+
+`public/robots.txt` points crawlers at `sitemap-index.xml`. `scripts/verify-seo.mjs` runs as part
+of `npm run build` and fails when a page loses its title, description, canonical, social image,
+JSON-LD, robots policy, or when the sitemap and the built pages disagree. Editing `assets/og.svg`
+or `public/favicon.svg` requires `npm run generate:icons` so the committed PNGs match.
 
 ## Deployment
 

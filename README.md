@@ -8,7 +8,7 @@
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/sandlada/result/tree/main/demo)
 
-`@sandlada/result` is a TypeScript library implementing the **Result pattern** — a type-safe, exception-free approach to error handling. It makes error flows explicit in the type system so you never wonder whether a function can fail.
+`@sandlada/result` is a TypeScript library implementing the **Result Pattern** — a type-safe, exception-free approach to error handling. It makes error flows explicit in the type system so you never wonder whether a function can fail.
 
 Unlike traditional Result libraries that hardcode a single error type, `@sandlada/result` is **fully generic**: you bring your own error shapes (discriminated unions, classes, or plain objects).
 
@@ -24,7 +24,7 @@ Unlike traditional Result libraries that hardcode a single error type, `@sandlad
 - **JSON serializable** — result and option objects survive `JSON.stringify`
 - Zero dependencies
 - ESM-only, strict TypeScript
-- Inspired by the C# Result pattern and Rust's `Option<T>`
+- Inspired by the C# Result Pattern and Rust's `Option<T>`
 
 ## :eyes: Installation
 
@@ -122,7 +122,7 @@ function getUser(id: string): AppResult<User> {
 
 - [result.sandlada.com](https://result.sandlada.com) — published documentation: guides, behavior modes, and the generated API reference
 - [SPEC.md](./SPEC.md) — API index with links to each source file
-- [docs/behavior-modes.md](./docs/behavior-modes.md) — 行為模式：遇錯短路（FailFirst）/ 累積錯誤 / 拋策略對照
+- [docs/behavior-modes.md](./docs/behavior-modes.md) — behavior modes: the fail-fast / accumulate / throw policy matrix for every API
 - [ARCH.md](./ARCH.md) — internal architecture and contributor documentation
 - [AGENTS.md](./AGENTS.md) — AI agent conventions and project metadata for tool-assisted development
 

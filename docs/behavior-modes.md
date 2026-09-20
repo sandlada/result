@@ -1,185 +1,185 @@
-# 行為模式（Behavior Modes）
+# Behavior Modes
 
-> 本文件是全庫錯誤處理行為的唯一真源：統一術語，並按模塊列出每個 API 遇到拋出、失敗輸入、空輸入時的行為。
-> 完整函數簽名與 JSDoc 以源文件為準，本文只收斂行為結論並鏈回源文件。
-> 通道政策由 `src/tests/hardening/behavior-policy.spec.ts` 一致性護欄對照驗證：新增公開導出未在 `behavior-matrix.ts` 登記、或探針結果與聲明不符時，`npm test` 失敗。
-> 另見 [SPEC.md](../SPEC.md)（API 索引）與 [ARCH.md](../ARCH.md)（架構決策 ADR 11）。
+> This document is the single source of truth for the error-handling behavior of the whole library: unified terminology plus a per-module list of what every API does with throws, failure inputs, and empty inputs.
+> Full signatures and JSDoc live in the source files; this document only settles behavioral conclusions and links back to them.
+> The channel policy is checked by the consistency guard in `src/tests/hardening/behavior-policy.spec.ts`: a new public export that is not registered in `behavior-matrix.ts`, or a probe that contradicts the declared behavior, fails `npm test`.
+> See also [SPEC.md](../SPEC.md) (API index) and [ARCH.md](../ARCH.md) (architecture decision ADR 11).
 
-## 1. 導讀：`exception-free` 的精確範圍
+## 1. Reading guide: the exact scope of `exception-free`
 
-`README` 與 `SPEC` 開頭的 `exception-free` 指的是**主流程用值傳遞錯誤**：成功與失敗都以普通對象（`IResultOfT` / `IOption`）在類型中顯式流動，調用方不需要 `try/catch` 就能知道一個函數是否可能失敗。
+`exception-free` at the top of `README` and `SPEC` means **the main flow carries errors as values**: success and failure both travel explicitly in the type system as plain objects (`IResultOfT` / `IOption`), so callers know a function can fail without a `try`/`catch`.
 
-它**不是**「全庫永不拋出」。以下三類拋出是設計的一部分：
+It does **not** mean "the library never throws". The following three throw channels are part of the design:
 
-1. **回調透傳**：部分操作符不捕獲傳入函數的拋出，原樣向上拋（見 2.3 節）。
-2. **逃生口**：`unwrap` / `expect` / `unsafe*` / `orThrow` 系在契約違規時主動拋出（見 2.4–2.6 節）。
-3. **異步拒絕通道**：`Promise` 外層本身的 `reject` 永遠保持拒絕傳播，不會被轉成 `Err`（見 2.9 節）。只有 `reliability` 層承諾永不拒絕。
+1. **Callback propagation**: some operators do not capture throws from the function they are given and let them bubble up unchanged (see the per-module tables in §4).
+2. **Escape hatches**: the `unwrap` / `expect` / `unsafe*` / `orThrow` family throws deliberately on contract violations (see the escape-hatch table in §4.2).
+3. **The async rejection channel**: a `reject` on the outer `Promise` itself always stays a rejection; it is never converted into `Err` (see §4.6). Only the `reliability` layer promises never to reject.
 
-判斷一個 API 會不會拋，只查第 4 節的對照表，不憑名字猜測（例如同步 `map` 捕獲但 `bind` 透傳）。
+To decide whether an API throws, consult the tables in §4 — do not guess from the name (for example, synchronous `map` captures but `bind` propagates).
 
-## 2. 術語表
+## 2. Glossary
 
-| 中文術語 | 英文 | 定義 |
-| --- | --- | --- |
-| 永不拋 | NeverThrow | 函數體無 `throw`，內部 `try/catch` 把拋出轉為 `Err` / `None` / 默認值。 |
-| 捕獲轉值 | CatchToErr | 回調的同步拋出被捕獲並轉為 `Err`（`Option` 側則轉為 `None` / 默認值）。注意 `errorFn` 自身再拋時是否被二次捕獲，各表單獨註明。 |
-| 直接透傳 | Propagate | 回調的拋出或返回的拒絕 `Promise` 不捕獲，原樣拋給調用方。 |
-| 契約恐慌 | Panic | 誤用時 `throw new TypeError` / `new Error`，用於標記契約違規（Rust 式 `unwrap` 語義）。 |
-| 原樣拋出 | ThrowRaw | 把攜帶的值原樣 `throw` 出去（`throw r.error`），不包 `TypeError`。 |
-| 定型拋出 | ThrowTyped | 拋出定型錯誤：要求 `E extends Error` 直接拋，或用 `errorFn` 映射後拋出。 |
-| 遇錯短路 | FailFirst | 遇到第一個 `Err` / `None` 即返回，不再處理後續輸入。注：`FailFast` 為同義詞，本文統一用 `FailFirst`。 |
-| 累積錯誤 | Accumulate | 跑完所有輸入，把全部錯誤收集為 `Err(E[])` 後返回。 |
-| 永不拒絕 | NeverRejects | 返回的 `Promise` 永不進入拒絕態，拋出與拒絕一律收斂為 `Err`。僅 `reliability` 層提供此保證。 |
-| 懶執行 / 急執行 | Lazy / Eager | 懶執行返回 thunk，未調 `run()` 不執行；急執行調用即掛鏈並返回已在途的 `Promise`。 |
+| Term | Definition |
+| --- | --- |
+| NeverThrow | The function body contains no `throw`; an internal `try`/`catch` turns throws into `Err` / `None` / a default value. |
+| CatchToErr | A synchronous throw from a callback is captured and turned into `Err` (on the `Option` side, into `None` / a default value). Whether a throw from `errorFn` itself is captured a second time is noted separately in each table. |
+| Propagate | A throw from a callback, or a rejected `Promise` it returns, is not captured and is handed to the caller as-is. |
+| Panic | On misuse, `throw new TypeError` / `new Error` marks a contract violation (Rust-style `unwrap` semantics). |
+| ThrowRaw | The carried value is thrown as-is (`throw r.error`), without wrapping it in a `TypeError`. |
+| ThrowTyped | A typed error is thrown: either the value is thrown directly when `E extends Error`, or it is mapped through `errorFn` first. |
+| FailFirst | Return on the first `Err` / `None` without processing the remaining inputs. Note: `FailFast` is a synonym; this document consistently uses `FailFirst`. |
+| Accumulate | Run every input and collect all errors into an `Err(E[])` before returning. |
+| NeverRejects | The returned `Promise` never enters the rejected state; throws and rejections are all collapsed into `Err`. Only the `reliability` layer gives this guarantee. |
+| Lazy / Eager | A lazy result returns a thunk and does nothing until `run()` is called; an eager one starts the chain on the call and returns an in-flight `Promise`. |
 
-## 3. 總覽矩陣
+## 3. Overview matrix
 
-| 模塊 | 回調拋出 | 失敗輸入 | 空輸入 | 執行時機 |
+| Module | Callback throws | Failure inputs | Empty inputs | Execution timing |
 | --- | --- | --- | --- | --- |
-| `factories` | 構造無回調；`fromThrowable` / `tryCatch` / `fromPromise` / `fromSafePromise` 捕獲轉值（`fromSafePromise` 無 `errorFn` 時把非 `Error` 拒絕值歸一化為 `Error`） | 不適用 | 不適用 | 同步；`fromPromise` 返回 `Promise` |
-| `operators` | 分裂：`map` 系捕獲（`choose` 例外：透傳且跳過 `Err`），`bind` 系透傳，逃生口主動拋 | `FailFirst` 為主，`separate` 累積分區 | 不適用 | 同步 |
-| `combine` | 純值組合，無回調 | `combine` / `all` 遇錯短路，`combineWithAllErrors` 累積錯誤 | `Ok([])` | 同步 |
-| `composition` | `pipe` / `pipeAsync` 透傳（`pipeAsync` 步驟同步拋轉拒絕、不自動解包 thenable）；`composeK` / `composeKAsync` 捕獲轉值（後者含異步拒絕）；`safeTry` / `safeTryAsync` 生成器自拋重拋（async 版非法 resolve 值拋 `TypeError`、自拋為拒絕） | `FailFirst`（經 `bind`） | `composeK` / `composeKAsync` 零函數時構造期恐慌 | 同步組合；`fromSafeTryAsync` 懶執行 |
-| `adapters` | `switchFn` 捕獲，`tee` 透傳，`liftMap` 委託 `map` 捕獲 | 透傳 / 轉換，無短路概念 | 不適用 | 同步 |
-| `primitives` | `cond` / `reduce` 透傳；`lift` 雙態（有 `errorFn` 捕獲，無則透傳） | `sequence` / `reduce` 遇錯短路 | 不適用 | 同步；`sequenceAsyncResult` 懶執行（構造期僅取 `run` 引用，`run()` 內同步拋亦透傳） |
-| `option` | 除 `match` 外一律捕獲轉 `None` / 默認值 | 遇 `None` 短路 | `all([])` 類型層拒絕（與 `combine` 不同） | 同步，零恐慌 API |
-| `promise-result` | 分裂：`map` / `tap` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` 系捕獲轉值，`bind` / `match` / `catchErrAsync` 系透傳 | `FailFirst` / 累積（同 `combine`） | `Ok([])`；外層拒絕保持拒絕 | 急執行 |
-| `promise-option` | 除提升系外一律捕獲轉 `None` / 默認值；提升系：同步拋轉 `None`、異步拒絕保持傳播（`asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption`） | 遇 `None` 短路 | 無組合 API | 急執行 |
-| `async-result` | 除 `mapAsync` / `mapOrElse` / `match` / `exists` / `unwrapOrElse` / `ap` 等透傳外一律捕獲轉值（`ap` 為懶中間件） | `FailFirst` / 累積 | `Ok([])` | 懶執行，中間件不執行，終端觸發 |
-| `async-option` | 除 `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `zipWith` 等透傳外一律捕獲轉值（`mapAsync` 與 `async-result` 側相反：此處捕獲，已聲明） | 遇 `None` 短路（`all` 實際跑完所有載體，見 5.3 節） | `Some([])`；`zipWith` 參數不足回 `None` | 懶執行，終端觸發 |
-| `reliability` | 一律捕獲轉值，永不拒絕 | `race` 首個 `Ok` 勝，`any` / `allSettled` 跑完所有 | `race([])` 轉 `Err`，其餘回空成功 | `retry` / `timeoutEager` 急執行，其餘懶執行 |
-| `observability` | `observe` / `installObserver` / `tapErrContext` 吞掉觀察者錯誤、不改變走向；`ctx` 為 `AsyncLocalStorage` 麵包屑 | 透傳 | 不適用 | 同步 |
+| `factories` | No callbacks to construct; `fromThrowable` / `tryCatch` / `fromPromise` / `fromSafePromise` capture to values (`fromSafePromise` normalizes a non-`Error` rejection value to `Error` when no `errorFn` is given) | Not applicable | Not applicable | Synchronous; `fromPromise` returns a `Promise` |
+| `operators` | Split: the `map` family captures (`choose` is the exception: it propagates and skips `Err`), the `bind` family propagates, escape hatches throw deliberately | Mostly `FailFirst`; `separate` accumulates into partitions | Not applicable | Synchronous |
+| `combine` | Pure value combination, no callbacks | `combine` / `all` fail fast, `combineWithAllErrors` accumulates errors | `Ok([])` | Synchronous |
+| `composition` | `pipe` / `pipeAsync` propagate (`pipeAsync` turns a synchronous step throw into a rejection and does not unwrap thenables); `composeK` / `composeKAsync` capture to values (the async variant also captures rejections); `safeTry` / `safeTryAsync` rethrow generator throws (the async variant throws `TypeError` on an invalid resolved value and rejects on its own throws) | `FailFirst` (through `bind`) | `composeK` / `composeKAsync` panic at construction time with zero functions | Synchronous composition; `fromSafeTryAsync` is lazy |
+| `adapters` | `switchFn` captures, `tee` propagates, `liftMap` delegates to `map`'s capturing | Propagate / convert; there is no short-circuit concept | Not applicable | Synchronous |
+| `primitives` | `cond` / `reduce` propagate; `lift` is dual-state (captures with an `errorFn`, propagates without one) | `sequence` / `reduce` fail fast | Not applicable | Synchronous; `sequenceAsyncResult` is lazy (construction only grabs the `run` reference, and a synchronous throw inside `run()` also propagates) |
+| `option` | Everything except `match` captures to `None` / a default value | Short-circuits on `None` | `all([])` is rejected at the type level (unlike `combine`) | Synchronous, zero panic APIs |
+| `promise-result` | Split: the `map` / `tap` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` families capture to values, the `bind` / `match` / `catchErrAsync` families propagate | `FailFirst` / accumulate (as in `combine`) | `Ok([])`; an outer rejection stays a rejection | Eager |
+| `promise-option` | Everything except the lifting family captures to `None` / a default value; the lifting family turns synchronous throws into `None` but lets rejections propagate (`asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption`) | Short-circuits on `None` | No combination APIs | Eager |
+| `async-result` | Everything except the propagating `mapAsync` / `mapOrElse` / `match` / `exists` / `unwrapOrElse` / `ap` captures to values (`ap` is a lazy middleware) | `FailFirst` / accumulate | `Ok([])` | Lazy: middleware does not run, terminals trigger it |
+| `async-option` | Everything except the propagating `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `zipWith` captures to values (`mapAsync` is the opposite of the `async-result` side: it captures here, by declaration) | Short-circuits on `None` (`all` actually runs every carrier; see §5, item 3) | `Some([])`; `zipWith` returns `None` on missing arguments | Lazy, triggered by terminals |
+| `reliability` | Always captures to values and never rejects | `race` settles on the first `Ok`; `any` / `allSettled` run every input | `race([])` becomes `Err`; the others return an empty success | `retry` / `timeoutEager` are eager, the rest are lazy |
+| `observability` | `observe` / `installObserver` / `tapErrContext` swallow observer errors without changing the outcome; `ctx` is `AsyncLocalStorage` breadcrumbs | Propagate | Not applicable | Synchronous |
 
-## 4. 分模塊對照
+## 4. Per-module reference
 
-### 4.1 工廠（`src/factories/`）
+### 4.1 Factories (`src/factories/`)
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `ok` / `err` | 永不拋，純對象字面量 | [ok.ts](../src/factories/ok.ts)、[err.ts](../src/factories/err.ts) |
-| `fromPredicate` | 永不拋自身；傳入 `predicate` 的拋出直接透傳 | [fromPredicate.ts](../src/factories/fromPredicate.ts) |
-| `fromThrowable` / `tryCatch` | 捕獲轉值；`errorFn` 自身再拋亦被內層捕獲收斂 | [fromThrowable.ts](../src/factories/fromThrowable.ts)、[tryCatch.ts](../src/factories/tryCatch.ts) |
-| `fromSafePromise` | 捕獲轉值；無 `errorFn` 時非 `Error` 拒絕值歸一化為 `new Error(String(e))`，`errorFn` 自身再拋亦收斂；`E` 預設 `Error` | [fromSafePromise.ts](../src/factories/fromSafePromise.ts) |
-| `fromPromise` / `tryCatchAsync` / `asyncOk` / `asyncErr` | 捕獲轉值；`Promise` 拒絕轉 `Err`，不保持拒絕 | [fromPromise.ts](../src/factories/fromPromise.ts)、[tryCatchAsync.ts](../src/factories/tryCatchAsync.ts) |
+| `ok` / `err` | Never throw, plain object literals | [ok.ts](../src/factories/ok.ts), [err.ts](../src/factories/err.ts) |
+| `fromPredicate` | Never throws itself; a throw from the supplied `predicate` propagates | [fromPredicate.ts](../src/factories/fromPredicate.ts) |
+| `fromThrowable` / `tryCatch` | Capture to values; a second throw from `errorFn` is captured by the inner handler as well | [fromThrowable.ts](../src/factories/fromThrowable.ts), [tryCatch.ts](../src/factories/tryCatch.ts) |
+| `fromSafePromise` | Captures to values; without an `errorFn`, a non-`Error` rejection value is normalized to `new Error(String(e))`, and a throw from `errorFn` is also collapsed; `E` defaults to `Error` | [fromSafePromise.ts](../src/factories/fromSafePromise.ts) |
+| `fromPromise` / `tryCatchAsync` / `asyncOk` / `asyncErr` | Capture to values; a `Promise` rejection becomes `Err` instead of staying a rejection | [fromPromise.ts](../src/factories/fromPromise.ts), [tryCatchAsync.ts](../src/factories/tryCatchAsync.ts) |
 
-### 4.2 同步操作符（`src/operators/`）
+### 4.2 Synchronous operators (`src/operators/`)
 
-**轉換與恢復：回調行為分裂，查表為準。**
+**Transform and recover: callback behavior is split — use the table.**
 
-| 導出 | 回調拋出 | 失敗輸入 | 源文件 |
+| Exports | Callback throws | Failure inputs | Source |
 | --- | --- | --- | --- |
-| `map` / `orElse` / `tap` / `tapErr` / `bimap` / `filterOrElse` / `traverseArray` / `ap` / `andTee` / `orTee` / `andThrough` | 捕獲轉值（其中 `orElse` / `bimap` / `filterOrElse` 連 `errorFn` 再拋亦收斂；`map` / `tap` 系的 `errorFn` 再拋則透傳） | 遇錯短路（`FailFirst`） | [map.ts](../src/operators/map.ts)、[orElse.ts](../src/operators/orElse.ts)、[tap.ts](../src/operators/tap.ts)、[bimap.ts](../src/operators/bimap.ts)、[filterOrElse.ts](../src/operators/filterOrElse.ts)、[traverseArray.ts](../src/operators/traverseArray.ts)、[ap.ts](../src/operators/ap.ts) |
-| `bind` / `mapErr` / `match` / `catchErr` / `unwrapOrElse` / `mapOr` / `mapOrElse` / `exists` | 直接透傳，不捕獲 | 遇錯短路或按分支調用；`mapOr` / `mapOrElse` 在失敗時走默認分支 | [bind.ts](../src/operators/bind.ts)、[mapErr.ts](../src/operators/mapErr.ts)、[match.ts](../src/operators/match.ts)、[unwrapOrElse.ts](../src/operators/unwrapOrElse.ts) |
-| `choose` | 直接透傳，不捕獲；跳過 `Err` 續跑（既非遇錯短路亦非累積） | 同左 | [choose.ts](../src/operators/choose.ts) |
-| `flatten` / `and` / `or` / `swap` / `unwrapOr` / `contains` / `separate` / `unzip` | 無回調，永不拋；`separate` 為累積分區，其餘為短路或投影 | 同左 | [combine 相關](../src/combine/combine.ts)、[separate.ts](../src/operators/separate.ts) |
+| `map` / `orElse` / `tap` / `tapErr` / `bimap` / `filterOrElse` / `traverseArray` / `ap` / `andTee` / `orTee` / `andThrough` | Capture to values (`orElse` / `bimap` / `filterOrElse` also collapse a second throw from `errorFn`; a second throw from the `errorFn` of the `map` / `tap` family propagates) | Fail fast (`FailFirst`) | [map.ts](../src/operators/map.ts), [orElse.ts](../src/operators/orElse.ts), [tap.ts](../src/operators/tap.ts), [bimap.ts](../src/operators/bimap.ts), [filterOrElse.ts](../src/operators/filterOrElse.ts), [traverseArray.ts](../src/operators/traverseArray.ts), [ap.ts](../src/operators/ap.ts) |
+| `bind` / `mapErr` / `match` / `catchErr` / `unwrapOrElse` / `mapOr` / `mapOrElse` / `exists` | Propagate directly, no capturing | Fail fast, or dispatch per branch; `mapOr` / `mapOrElse` take the default branch on failure | [bind.ts](../src/operators/bind.ts), [mapErr.ts](../src/operators/mapErr.ts), [match.ts](../src/operators/match.ts), [unwrapOrElse.ts](../src/operators/unwrapOrElse.ts) |
+| `choose` | Propagates directly without capturing; skips `Err` and keeps going (neither fail-fast nor accumulation) | Same as the left cell | [choose.ts](../src/operators/choose.ts) |
+| `flatten` / `and` / `or` / `swap` / `unwrapOr` / `contains` / `separate` / `unzip` | No callbacks, never throw; `separate` accumulates into partitions, the rest short-circuit or project | Same as the left cell | [combine.ts](../src/combine/combine.ts), [separate.ts](../src/operators/separate.ts) |
 
-**終端逃生口：四種拋法不要混用。**
+**Terminal escape hatches: do not mix the four throw modes.**
 
-| 導出 | 行為 | 何時選用 | 源文件 |
+| Exports | Behavior | When to choose it | Source |
 | --- | --- | --- | --- |
-| `unwrap` / `expect` / `unwrapErr` / `expectErr` | 契約恐慌：違規時 `throw new TypeError`，可用 `throwingFn` 定制拋出類 | 調試與測試，需要堆棧與明確的誤用信號 | [unwrap.ts](../src/operators/unwrap.ts)、[expect.ts](../src/operators/expect.ts)、[unwrapErr.ts](../src/operators/unwrapErr.ts)、[expectErr.ts](../src/operators/expectErr.ts) |
-| `unsafeUnwrap` / `unsafeUnwrapErr` | 原樣拋出：`throw r.error` / `throw r.value`，不包裝 | 逃生艙：把已確知的錯誤值拋給外層 `try/catch` | [unsafeUnwrap.ts](../src/operators/unsafeUnwrap.ts)、[unsafeUnwrapErr.ts](../src/operators/unsafeUnwrapErr.ts) |
-| `orThrow` / `orThrowWith` | 定型拋出：`orThrow` 要求 `E extends Error`；`orThrowWith` 用 `errorFn` 映射後拋出 | 生產代碼需要拋出定型 `Error` 子類時 | [orThrow.ts](../src/operators/orThrow.ts) |
+| `unwrap` / `expect` / `unwrapErr` / `expectErr` | Contract panic: `throw new TypeError` on violation, with `throwingFn` available to customize the thrown class | Debugging and tests, where a stack trace and an explicit misuse signal matter | [unwrap.ts](../src/operators/unwrap.ts), [expect.ts](../src/operators/expect.ts), [unwrapErr.ts](../src/operators/unwrapErr.ts), [expectErr.ts](../src/operators/expectErr.ts) |
+| `unsafeUnwrap` / `unsafeUnwrapErr` | Throw raw: `throw r.error` / `throw r.value`, wrappers omitted | Escape hatch: hand an error value you already know about to an outer `try`/`catch` | [unsafeUnwrap.ts](../src/operators/unsafeUnwrap.ts), [unsafeUnwrapErr.ts](../src/operators/unsafeUnwrapErr.ts) |
+| `orThrow` / `orThrowWith` | Throw typed: `orThrow` requires `E extends Error`; `orThrowWith` maps through `errorFn` first | Production code that must throw a typed `Error` subclass | [orThrow.ts](../src/operators/orThrow.ts) |
 
-### 4.3 組合（`src/combine/`、`src/composition/`）
+### 4.3 Composition (`src/combine/`, `src/composition/`)
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `combine` / `all` | 遇錯短路（`FailFirst`），保留首個 `Err`；空數組回 `Ok([])`；純值組合，永不拋 | [combine.ts](../src/combine/combine.ts)、[all.ts](../src/combine/all.ts) |
-| `combineWithAllErrors` | 累積錯誤，空數組回 `Ok([])`；永不拋 | [combineWithAllErrors.ts](../src/combine/combineWithAllErrors.ts) |
-| `pipe` / `pipeAsync` | 直接透傳：`pipe` 任一步驟同步拋即向外拋；`pipeAsync` 步驟同步拋轉為拒絕，且不自動解包 thenable（混鏈傳原值），對 `Err` 無感知 | [pipe.ts](../src/composition/pipe.ts)、[pipeAsync.ts](../src/composition/pipeAsync.ts) |
-| `composeK` | 捕獲轉值：步驟同步拋轉 `Err` 並遇錯短路；零函數構造期契約恐慌 | [composeK.ts](../src/composition/composeK.ts) |
-| `composeKAsync` | 捕獲轉值：步驟同步拋與異步拒絕皆轉 `Err`；零函數構造期契約恐慌 | [composeKAsync.ts](../src/composition/composeKAsync.ts) |
-| `safeTry` / `fromSafeTry` | 生成器自拋重拋；成功卻無值或二次 `yield` 時主動拋 `Error` | [safeTry.ts](../src/composition/safeTry.ts) |
-| `safeTryAsync` / `fromSafeTryAsync` | 生成器自拋重拋（表現為拒絕）；非法 `resolve` 值主動拋 `TypeError`；`fromSafeTryAsync` 回懶執行 thunk | [safeTryAsync.ts](../src/composition/safeTryAsync.ts) |
+| `combine` / `all` | Fail fast (`FailFirst`), keeping the first `Err`; an empty array returns `Ok([])`; pure value combination that never throws | [combine.ts](../src/combine/combine.ts), [all.ts](../src/combine/all.ts) |
+| `combineWithAllErrors` | Accumulates errors; an empty array returns `Ok([])`; never throws | [combineWithAllErrors.ts](../src/combine/combineWithAllErrors.ts) |
+| `pipe` / `pipeAsync` | Propagate directly: a synchronous throw in any `pipe` step bubbles out; `pipeAsync` turns a synchronous step throw into a rejection and does not unwrap thenables (a mixed chain passes the raw value on); it is unaware of `Err` | [pipe.ts](../src/composition/pipe.ts), [pipeAsync.ts](../src/composition/pipeAsync.ts) |
+| `composeK` | Captures to values: a synchronous step throw becomes `Err` and fails fast; a contract panic at construction time with zero functions | [composeK.ts](../src/composition/composeK.ts) |
+| `composeKAsync` | Captures to values: synchronous throws and async rejections both become `Err`; a contract panic at construction time with zero functions | [composeKAsync.ts](../src/composition/composeKAsync.ts) |
+| `safeTry` / `fromSafeTry` | Rethrows generator throws; throws an `Error` when the generator succeeds without a value or yields twice | [safeTry.ts](../src/composition/safeTry.ts) |
+| `safeTryAsync` / `fromSafeTryAsync` | Rethrows generator throws (surfacing as rejections); throws a `TypeError` on an invalid resolved value; `fromSafeTryAsync` returns a lazy thunk | [safeTryAsync.ts](../src/composition/safeTryAsync.ts) |
 
-### 4.4 適配器與高頻原語（`src/adapters/`、`src/primitives/`）
+### 4.4 Adapters and high-frequency primitives (`src/adapters/`, `src/primitives/`)
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `switchFn` / `switchFnAsync` | 捕獲轉值（含 `errorFn` 二次收斂） | [switchFn.ts](../src/adapters/switchFn.ts) |
-| `tee` / `teeAsync` | 直接透傳（無失敗態可轉） | [tee.ts](../src/adapters/tee.ts) |
-| `toOption` / `fromOption` | 永不拋 | [toOption.ts](../src/adapters/toOption.ts)、[fromOption.ts](../src/adapters/fromOption.ts) |
-| `liftMap` | 委託 `operators/map`：回調拋出捕獲轉 `Err` | [liftMap.ts](../src/adapters/liftMap.ts) |
-| `cond` / `condErr` / `reduce` | 直接透傳；`reduce` 另對來源與步驟失敗遇錯短路 | [cond.ts](../src/primitives/cond.ts)、[reduce.ts](../src/primitives/reduce.ts) |
-| `sequence` / `partitionOption` | 永不拋；`sequence` 委託 `combine` 遇錯短路 | [sequence.ts](../src/primitives/sequence.ts) |
-| `lift` | 雙態：有 `errorFn` 則捕獲轉值，無則原樣重拋。注意 `E = never` 只是類型層保證，運行時仍可拋出 | [lift.ts](../src/primitives/lift.ts) |
-| `sequenceAsyncResult` | 懶執行（構造期僅取 `run` 引用）；`run()` 內的同步拋與運行期拒絕皆透傳為拒絕，遇錯短路 | [sequenceAsyncResult.ts](../src/primitives/sequenceAsyncResult.ts) |
+| `switchFn` / `switchFnAsync` | Capture to values (including a second collapse for `errorFn`) | [switchFn.ts](../src/adapters/switchFn.ts) |
+| `tee` / `teeAsync` | Propagate directly (there is no failure state to convert) | [tee.ts](../src/adapters/tee.ts) |
+| `toOption` / `fromOption` | Never throw | [toOption.ts](../src/adapters/toOption.ts), [fromOption.ts](../src/adapters/fromOption.ts) |
+| `liftMap` | Delegates to `operators/map`: a callback throw is captured as `Err` | [liftMap.ts](../src/adapters/liftMap.ts) |
+| `cond` / `condErr` / `reduce` | Propagate directly; `reduce` additionally fails fast on a failed source or step | [cond.ts](../src/primitives/cond.ts), [reduce.ts](../src/primitives/reduce.ts) |
+| `sequence` / `partitionOption` | Never throw; `sequence` delegates to `combine` and fails fast | [sequence.ts](../src/primitives/sequence.ts) |
+| `lift` | Dual-state: with an `errorFn` it captures to values, without one it rethrows as-is. Note that `E = never` is only a type-level guarantee — the runtime can still throw | [lift.ts](../src/primitives/lift.ts) |
+| `sequenceAsyncResult` | Lazy (construction only grabs the `run` reference); a synchronous throw and a runtime rejection inside `run()` both propagate as rejections, failing fast | [sequenceAsyncResult.ts](../src/primitives/sequenceAsyncResult.ts) |
 
-### 4.5 選項（`src/option/`）
+### 4.5 Option (`src/option/`)
 
-全模塊永不拋（除 `match` 透傳外），回調拋出一律收斂為 `None` / 默認值；遇 `None` 短路。本模塊刻意不提供恐慌 API，只用 `unwrapOr` 提取。
+The whole module never throws (except `match`, which propagates), callback throws are always collapsed into `None` / a default value, and it short-circuits on `None`. The module deliberately has no panic APIs; use `unwrapOr` to extract.
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `ofSome` / `ofNone` / `flatten` / `contains` / `unwrapOr` / `okOr` / `transpose` | 永不拋，無回調或回調無關 | [ofSome.ts](../src/option/ofSome.ts)、[unwrapOr.ts](../src/option/unwrapOr.ts) |
-| `map` / `bind` / `filter` / `tap` / `orElse` / `okOrElse` / `zipWith` | 捕獲轉值：回調拋即回 `None` / 默認值 | [map.ts](../src/option/map.ts)、[bind.ts](../src/option/bind.ts)、[zipWith.ts](../src/option/zipWith.ts) |
-| `traverseArray` / `traverse` | 捕獲轉值：回調拋出、迭代器 `next()` 拋出皆回 `None` | [traverseArray.ts](../src/option/traverseArray.ts) |
-| `match` | 終端透傳 | [match.ts](../src/option/match.ts) |
-| `all` | 遇 `None` 短路；空元組在類型層拒絕 | [all.ts](../src/option/all.ts) |
+| `ofSome` / `ofNone` / `flatten` / `contains` / `unwrapOr` / `okOr` / `transpose` | Never throw; no callbacks or callback-independent | [ofSome.ts](../src/option/ofSome.ts), [unwrapOr.ts](../src/option/unwrapOr.ts) |
+| `map` / `bind` / `filter` / `tap` / `orElse` / `okOrElse` / `zipWith` | Capture to values: a throwing callback returns `None` / the default value | [map.ts](../src/option/map.ts), [bind.ts](../src/option/bind.ts), [zipWith.ts](../src/option/zipWith.ts) |
+| `traverseArray` / `traverse` | Capture to values: a throwing callback or a throwing iterator `next()` returns `None` | [traverseArray.ts](../src/option/traverseArray.ts) |
+| `match` | Terminal that propagates | [match.ts](../src/option/match.ts) |
+| `all` | Short-circuits on `None`; an empty tuple is rejected at the type level | [all.ts](../src/option/all.ts) |
 
-### 4.6 急執行異步（`src/promise-result/`、`src/promise-option/`）
+### 4.6 Eager async (`src/promise-result/`, `src/promise-option/`)
 
-共同規則：調用即掛鏈的急執行；**外層 `Promise` 本身的拒絕永遠保持拒絕傳播**，不會轉成 `Err` / `None`。
+Shared rule: eager execution that starts the chain on the call; **a rejection of the outer `Promise` itself always stays a rejection** and is never converted into `Err` / `None`.
 
-| 導出 | 回調行為 | 源文件 |
+| Exports | Callback behavior | Source |
 | --- | --- | --- |
-| `promise-result` 的 `map` / `mapErr` / `mapAsync` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` / `tap` 系 / `asyncMap` / `asyncTap` | 捕獲轉值；`map` 另對返回 thenable 的同步 mapper 主動拋 `Error` 提示改用 `mapAsync` | [map.ts](../src/promise-result/map.ts)、[mapAsync.ts](../src/promise-result/mapAsync.ts)、[bimapAsync.ts](../src/promise-result/bimapAsync.ts)、[asyncBindThrough.ts](../src/promise-result/asyncBindThrough.ts)、[bindThroughAsync.ts](../src/promise-result/bindThroughAsync.ts) |
-| `promise-result` 的 `bind` / `orElse` / `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `filterOrElse` / `ap` / `catchErrAsync` 系 | 直接透傳；`mapOrAsync` 特例為捕獲後回默認值並吞掉觀察者異常 | [bindAsync.ts](../src/promise-result/bindAsync.ts)、[matchAsync.ts](../src/promise-result/matchAsync.ts)、[catchErrAsync.ts](../src/promise-result/catchErrAsync.ts) |
-| `promise-result` 的 `combine` / `combineWithAllErrors` | 前者遇錯短路，後者累積錯誤；空數組回 `Ok([])`；任一外層拒絕則整體拒絕 | [combine.ts](../src/promise-result/combine.ts) |
-| `promise-option` 的 `map` / `bind` / `filter` / `exists` / `orElse` / `tap` / `mapOr` 系 | 捕獲轉值：回調拋或異步拒絕一律收斂為 `None` / `false` / 默認值 | [mapAsyncOption.ts](../src/promise-option/mapAsyncOption.ts)、[bindAsyncOption.ts](../src/promise-option/bindAsyncOption.ts) |
-| `promise-option` 的提升系 `asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption` | 同步拋轉 `None`、異步拒絕保持傳播 | [asyncMapOption.ts](../src/promise-option/asyncMapOption.ts)、[asyncBindOption.ts](../src/promise-option/asyncBindOption.ts)、[asyncOrElseOption.ts](../src/promise-option/asyncOrElseOption.ts)、[tapErrAsyncOption.ts](../src/promise-option/tapErrAsyncOption.ts) |
-| `promise-option` 的 `asyncMatchOption` / `matchAsyncOption` / `mapOrElseAsyncOption` / `unwrapOrElseAsyncOption` | 直接透傳（同步拋轉拒絕） | [asyncMatchOption.ts](../src/promise-option/asyncMatchOption.ts) |
+| `promise-result`'s `map` / `mapErr` / `mapAsync` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` / the `tap` family / `asyncMap` / `asyncTap` | Capture to values; for a synchronous mapper that returns a thenable, `map` additionally throws an `Error` pointing at `mapAsync` | [map.ts](../src/promise-result/map.ts), [mapAsync.ts](../src/promise-result/mapAsync.ts), [bimapAsync.ts](../src/promise-result/bimapAsync.ts), [asyncBindThrough.ts](../src/promise-result/asyncBindThrough.ts), [bindThroughAsync.ts](../src/promise-result/bindThroughAsync.ts) |
+| `promise-result`'s `bind` / `orElse` / `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `filterOrElse` / `ap` / the `catchErrAsync` family | Propagate directly; `mapOrAsync` is the special case that captures, returns the default value, and swallows observer exceptions | [bindAsync.ts](../src/promise-result/bindAsync.ts), [matchAsync.ts](../src/promise-result/matchAsync.ts), [catchErrAsync.ts](../src/promise-result/catchErrAsync.ts) |
+| `promise-result`'s `combine` / `combineWithAllErrors` | The former fails fast, the latter accumulates errors; an empty array returns `Ok([])`; a rejection of any outer promise rejects the whole combination | [combine.ts](../src/promise-result/combine.ts) |
+| `promise-option`'s `map` / `bind` / `filter` / `exists` / `orElse` / `tap` / the `mapOr` family | Capture to values: a throwing callback or an async rejection is always collapsed into `None` / `false` / the default value | [mapAsyncOption.ts](../src/promise-option/mapAsyncOption.ts), [bindAsyncOption.ts](../src/promise-option/bindAsyncOption.ts) |
+| `promise-option`'s lifting family `asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption` | A synchronous throw becomes `None`; an async rejection propagates | [asyncMapOption.ts](../src/promise-option/asyncMapOption.ts), [asyncBindOption.ts](../src/promise-option/asyncBindOption.ts), [asyncOrElseOption.ts](../src/promise-option/asyncOrElseOption.ts), [tapErrAsyncOption.ts](../src/promise-option/tapErrAsyncOption.ts) |
+| `promise-option`'s `asyncMatchOption` / `matchAsyncOption` / `mapOrElseAsyncOption` / `unwrapOrElseAsyncOption` | Propagate directly (a synchronous throw becomes a rejection) | [asyncMatchOption.ts](../src/promise-option/asyncMatchOption.ts) |
 
-本層刻意不提供 `unwrap` / `expect` / `orThrow`，提取只用 `unwrapOr*` 家族（其異步拒絕走外層拒絕通道）。
+This layer deliberately has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family, whose async rejections travel on the outer rejection channel.
 
-### 4.7 懶執行異步（`src/async-result/`、`src/async-option/`）
+### 4.7 Lazy async (`src/async-result/`, `src/async-option/`)
 
-共同規則：中間件返回新 thunk，不執行；`match` / `unwrap` / `unwrapOr` 等終端返回 `Promise` 並立即觸發 `run()`。
+Shared rule: middleware returns a new thunk and does not execute; terminals such as `match` / `unwrap` / `unwrapOr` return a `Promise` and call `run()` immediately.
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `from` / `fromResult` / `fromOption` | 純懶包裝，不轉換不執行 | [from.ts](../src/async-result/from.ts)、[fromOption.ts](../src/async-option/fromOption.ts) |
-| `async-result` 的 `fromPromise` | 捕獲轉值：thunk 拋或拒絕轉 `Err`，`errorFn` 再拋亦收斂 | [fromPromise.ts](../src/async-result/fromPromise.ts) |
-| `async-option` 的 `fromPromise` | 捕獲轉值：簽名僅 `(thunk) => Promise`，無 `errorFn`；拋或拒絕一律轉 `None` | [fromPromise.ts](../src/async-option/fromPromise.ts) |
-| `async-result` 的 `map` / `bind` / `bimap` / `mapErr` / `mapErrAsync` / `orElse` / `filterOrElse` / `tap` / `tapAsync` / `andThrough` / `catchErr` | 捕獲轉值（含 `bind` / `orElse` 的內層載體異步拒絕與 `catchErr` 的恢復回調失敗）；`map` 對 thenable 誤用收斂為 `Err(Error)` 而非拋出 | [map.ts](../src/async-result/map.ts)、[bind.ts](../src/async-result/bind.ts)、[catchErr.ts](../src/async-result/catchErr.ts) |
-| `async-result` 的 `mapAsync` | 直接透傳（本層唯一反模式），`errorFn` 只重映射拒絕原因仍拋出 | [mapAsync.ts](../src/async-result/mapAsync.ts) |
-| `async-result` 的 `match` / `exists` / `unwrapOrElse`（終端）與 `ap`（懶中間件）/ `mapOrElse` | 直接透傳；`mapOr` 特例為捕獲後回默認值 | [match.ts](../src/async-result/match.ts)、[exists.ts](../src/async-result/exists.ts)、[ap.ts](../src/async-result/ap.ts) |
-| `async-result` 的 `unwrap` / `unwrapErr` / `expect` / `expectErr` | 終端契約恐慌，`cause` 保留原始 `E` | [unwrap.ts](../src/async-result/unwrap.ts)、[expect.ts](../src/async-result/expect.ts) |
-| `async-result` 的 `combine` / `combineWithAllErrors` | 前者遇錯短路，後者累積錯誤；空數組回 `Ok([])`；構造期不執行，`run()` 以 `Promise.all` 啟動全部載體（執行期不短路） | [combine.ts](../src/async-result/combine.ts) |
-| `async-option` 的 `map` / `mapAsync` / `bind` / `filter` / `tap` / `orElse` / `mapOr` / `okOrElse` | 捕獲轉值（`mapAsync` 全捕獲，與 `async-result/mapAsync` 相反，已聲明；含 `bind` / `orElse` 的內層載體異步拒絕） | [map.ts](../src/async-option/map.ts)、[filter.ts](../src/async-option/filter.ts) |
-| `async-option` 的 `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `zipWith` | 直接透傳 | [match.ts](../src/async-option/match.ts)、[zipWith.ts](../src/async-option/zipWith.ts) |
-| `async-option` 的 `unwrap` | 終端契約恐慌（本層唯一的恐慌 API） | [unwrap.ts](../src/async-option/unwrap.ts) |
-| `async-option` 的 `all` | 空數組回 `Some([])`；任一 `None` 回 `None`；`Promise.all` 啟動全部載體（見 5.3 節） | [all.ts](../src/async-option/all.ts) |
+| `from` / `fromResult` / `fromOption` | Pure lazy wrapping: no conversion, no execution | [from.ts](../src/async-result/from.ts), [fromOption.ts](../src/async-option/fromOption.ts) |
+| `async-result`'s `fromPromise` | Captures to values: a thunk throw or rejection becomes `Err`, and a second throw from `errorFn` is collapsed too | [fromPromise.ts](../src/async-result/fromPromise.ts) |
+| `async-option`'s `fromPromise` | Captures to values: the signature is only `(thunk) => Promise` with no `errorFn`; a throw or rejection always becomes `None` | [fromPromise.ts](../src/async-option/fromPromise.ts) |
+| `async-result`'s `map` / `bind` / `bimap` / `mapErr` / `mapErrAsync` / `orElse` / `filterOrElse` / `tap` / `tapAsync` / `andThrough` / `catchErr` | Capture to values (including an async rejection from the inner carrier of `bind` / `orElse` and a failed recovery callback in `catchErr`); a misused thenable in `map` collapses into `Err(Error)` instead of throwing | [map.ts](../src/async-result/map.ts), [bind.ts](../src/async-result/bind.ts), [catchErr.ts](../src/async-result/catchErr.ts) |
+| `async-result`'s `mapAsync` | Propagates directly (the only counterexample in this layer); `errorFn` only remaps the rejection reason and still throws | [mapAsync.ts](../src/async-result/mapAsync.ts) |
+| `async-result`'s `match` / `exists` / `unwrapOrElse` (terminals) plus `ap` (lazy middleware) / `mapOrElse` | Propagate directly; `mapOr` is the special case that captures and returns the default value | [match.ts](../src/async-result/match.ts), [exists.ts](../src/async-result/exists.ts), [ap.ts](../src/async-result/ap.ts) |
+| `async-result`'s `unwrap` / `unwrapErr` / `expect` / `expectErr` | Terminal contract panics; `cause` keeps the original `E` | [unwrap.ts](../src/async-result/unwrap.ts), [expect.ts](../src/async-result/expect.ts) |
+| `async-result`'s `combine` / `combineWithAllErrors` | The former fails fast, the latter accumulates errors; an empty array returns `Ok([])`; nothing runs at construction time, and `run()` starts every carrier through `Promise.all` (no short-circuit at execution time) | [combine.ts](../src/async-result/combine.ts) |
+| `async-option`'s `map` / `mapAsync` / `bind` / `filter` / `tap` / `orElse` / `mapOr` / `okOrElse` | Capture to values (`mapAsync` captures fully, the opposite of `async-result/mapAsync`, by declaration; includes async rejections from the inner carrier of `bind` / `orElse`) | [map.ts](../src/async-option/map.ts), [filter.ts](../src/async-option/filter.ts) |
+| `async-option`'s `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `zipWith` | Propagate directly | [match.ts](../src/async-option/match.ts), [zipWith.ts](../src/async-option/zipWith.ts) |
+| `async-option`'s `unwrap` | Terminal contract panic (the only panic API in this layer) | [unwrap.ts](../src/async-option/unwrap.ts) |
+| `async-option`'s `all` | An empty array returns `Some([])`; any `None` returns `None`; `Promise.all` starts every carrier (see §5, item 3) | [all.ts](../src/async-option/all.ts) |
 
-### 4.8 可靠性（`src/reliability/`）
+### 4.8 Reliability (`src/reliability/`)
 
-本層是唯一承諾永不拒絕的異步層：同步拋、異步拒絕、鉤子拋出一律收斂為 `Err`。
+This is the only async layer that promises never to reject: synchronous throws, async rejections, and hook throws are all collapsed into `Err`.
 
-| 導出 | 行為 | 源文件 |
+| Exports | Behavior | Source |
 | --- | --- | --- |
-| `retry` / `retryLazy` | 捕獲轉值：`fn` 拋轉 `ThrownError`（保留原值），`times` 非法或信號已中止則回 `AbortedError` 且不執行 `fn`；可用 `onThrow` / `onAborted` 收斂到自有 `E`；後者僅把執行推遲到 `run()` | [retry.ts](../src/reliability/retry.ts)、[retryLazy.ts](../src/reliability/retryLazy.ts) |
-| `timeout` / `timeoutEager` | 捕獲轉值：內層拒絕轉 `Err(拒絕原因)`，超時轉 `Err(onTimeout(ms))`；超時後內層仍在後台繼續（不可取消） | [timeout.ts](../src/reliability/timeout.ts)、[timeoutEager.ts](../src/reliability/timeoutEager.ts) |
-| `race` | 首個 `Ok` 勝；全 `Err` 回輸入序首個 `Err`；`Err` 優先於拒絕；全拒絕回最早拒絕；空數組回 `Err(EmptyInputsError)`，可用 `onEmpty` 替換 | [race.ts](../src/reliability/race.ts) |
-| `any` | 跑完所有；有成功回成功集合，否則回錯誤集合；拒絕標記為 `{ kind: 'Rejected' }`；空數組回 `Ok([])` | [any.ts](../src/reliability/any.ts) |
-| `allSettled` | 永遠 `Ok`：按輸入序返回逐項結論；空數組回 `Ok([])` | [allSettled.ts](../src/reliability/allSettled.ts) |
+| `retry` / `retryLazy` | Capture to values: a throw from `fn` becomes `ThrownError` (carrying the original value); an invalid `times` or an already-aborted signal returns `AbortedError` without running `fn`; `onThrow` / `onAborted` can collapse these into your own `E`; the lazy variant only postpones execution to `run()` | [retry.ts](../src/reliability/retry.ts), [retryLazy.ts](../src/reliability/retryLazy.ts) |
+| `timeout` / `timeoutEager` | Capture to values: an inner rejection becomes `Err(reason)`, a timeout becomes `Err(onTimeout(ms))`; after a timeout the inner operation keeps running in the background (it cannot be cancelled) | [timeout.ts](../src/reliability/timeout.ts), [timeoutEager.ts](../src/reliability/timeoutEager.ts) |
+| `race` | The first `Ok` wins; if all fail, the first `Err` in input order; `Err` beats a rejection; if all reject, the earliest rejection; an empty array returns `Err(EmptyInputsError)`, replaceable through `onEmpty` | [race.ts](../src/reliability/race.ts) |
+| `any` | Runs everything; returns the success set when there is one, otherwise the error set; rejections are marked `{ kind: 'Rejected' }`; an empty array returns `Ok([])` | [any.ts](../src/reliability/any.ts) |
+| `allSettled` | Always `Ok`: returns each outcome in input order; an empty array returns `Ok([])` | [allSettled.ts](../src/reliability/allSettled.ts) |
 
-### 4.9 可觀測性（`src/observability/`）
+### 4.9 Observability (`src/observability/`)
 
-`ctx` / `withPath` 以 `AsyncLocalStorage`（Node／Bun／Deno；不可用時退回 polyfill）維護逐 scope 麵包屑幀，跨 `await` 隔離並支持嵌套鏈；`tapErrContext` / `observe` / `installObserver` 的觀察者錯誤一律吞掉（含 `onError` 二次吞），不改變主流程走向。格式化器 `format` / `inspect` 永不拋。詳見 [ctx.ts](../src/observability/ctx.ts) 與 [SPEC 可觀測性節](../SPEC.md#observability--srcobservability)。
+`ctx` / `withPath` maintain per-scope breadcrumb frames with `AsyncLocalStorage` (Node/Bun/Deno, falling back to a polyfill), isolated across `await` and supporting nested chains; observer errors from `tapErrContext` / `observe` / `installObserver` are always swallowed (including a second swallow inside `onError`) and never change the main flow. The `format` / `inspect` formatters never throw. See [ctx.ts](../src/observability/ctx.ts) and the [SPEC observability section](../SPEC.md#observability--srcobservability).
 
-## 5. 特例與不對稱（刻意設計）
+## 5. Deliberate special cases and asymmetries
 
-1. **`option` / `promise-*` 零恐慌 API 是刻意的**：`Option` 用 `None` 表達缺席，不需要恐慌；急執行 `Promise` 層用 `unwrapOr*` 提取，避免在拒絕通道之外再開一個拋通道。
-2. **`async-option` 只有 `unwrap`、沒有 `expect` / `orThrow`**：與 `async-result` 四件套不對稱，選型時在管線末端先用 `okOr` / `okOrElse` 橋接到 `AsyncResult` 再做定型拋出。
-3. **異步組合不短路**：`async-option/all`、`async-result/combine`、`async-result/combineWithAllErrors` 底層都以 `Promise.all` 啟動所有載體；「短路」只體現在結果選擇（首個 `None` / 首個 `Err`）或錯誤累積，副作用依然全部發生。不要把它們當成同步 `combine` / `all` 的等價物。
-4. **`map` 捕獲但 `bind` 透傳**：`map` 的回調是純值映射，捕獲是安全的；`bind` 的回調返回下一個 `Result`，屬於鐵路切換，透傳是為了不吞掉用戶鐵路之外的編程錯誤。
-5. **`lift` 的 `E = never` 不代表運行時不拋**：無 `errorFn` 時原樣重拋，類型層的 `never` 只是「調用方必須自己接住」的標記。
-6. **`mapOrAsync` 吞觀察者異常**：回默認值的同時會吞掉 `onErr` 自身的拋出，排查時注意原因丟失。
+1. **The zero-panic API of `option` / `promise-*` is deliberate**: `Option` expresses absence with `None`, so there is nothing to panic about; the eager `Promise` layer extracts with `unwrapOr*` to avoid opening a throw channel next to the rejection channel.
+2. **`async-option` has only `unwrap`, no `expect` / `orThrow`**: this asymmetry against the `async-result` quartet means that at the end of a pipeline you first bridge to `AsyncResult` with `okOr` / `okOrElse` and then throw a typed error.
+3. **Async combination does not short-circuit**: `async-option/all`, `async-result/combine`, and `async-result/combineWithAllErrors` all start every carrier through `Promise.all`; "short-circuit" only shows in result selection (first `None` / first `Err`) or error accumulation, while every side effect still happens. Do not treat them as equivalents of the synchronous `combine` / `all`.
+4. **`map` captures but `bind` propagates**: the `map` callback is a pure value mapping, so capturing is safe; the `bind` callback returns the next `Result` and is a railway switch, so propagating avoids swallowing programming errors outside the railway.
+5. **`E = never` on `lift` does not mean the runtime cannot throw**: without an `errorFn` it rethrows as-is, and the type-level `never` only marks that the caller has to catch it themselves.
+6. **`mapOrAsync` swallows observer exceptions**: it returns the default value while swallowing a throw from `onErr` itself, so expect a lost cause when debugging.
 
-## 6. 如何選逃生口
+## 6. Choosing an escape hatch
 
-- 要堆棧與誤用信號（測試、斷言）：`unwrap` / `expect` 系。
-- 要把已知錯誤值交給外層 `try/catch`：`unsafeUnwrap` / `unsafeUnwrapErr`。
-- 要拋定型 `Error` 子類（生產邊界）：`orThrow`（`E extends Error` 時）或 `orThrowWith`（用映射函數構造）。
-- 在 `AsyncResult` 末端：先用終端 `match` / `unwrapOr` 收斂，確需拋時用 `async-result` 的 `unwrap` / `expect`（`cause` 保留原始錯誤）；`AsyncOption` 末端先 `okOr` 再拋。
+- Want a stack trace and an explicit misuse signal (tests, assertions): the `unwrap` / `expect` family.
+- Want to hand a known error value to an outer `try`/`catch`: `unsafeUnwrap` / `unsafeUnwrapErr`.
+- Want to throw a typed `Error` subclass (production boundaries): `orThrow` (when `E extends Error`) or `orThrowWith` (constructed with a mapping function).
+- At the end of an `AsyncResult`: collapse with the terminal `match` / `unwrapOr` first, and when a throw is genuinely required use `async-result`'s `unwrap` / `expect` (`cause` keeps the original error); at the end of an `AsyncOption`, `okOr` first and then throw.

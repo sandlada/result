@@ -8,6 +8,8 @@ import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightTypeDoc from 'starlight-typedoc';
 import starlightVersions from 'starlight-versions';
+import seoApiPages from './plugins/seo-api-pages.mjs';
+import { packageName, siteDescription, siteUrl } from './seo-metadata.mjs';
 
 // The TypeScript entry points documented in the API reference. Each one mirrors a
 // published subpath export of `@sandlada/result`. The root barrel is not listed
@@ -68,16 +70,43 @@ const apiSidebarGroup = {
     }),
 };
 
+// Search-engine ownership checks are supplied by the build environment, so the
+// tokens stay out of the repository. Set them on the Workers Builds project.
+const verificationMeta = (name, token) =>
+    token ? [{ tag: 'meta', attrs: { name, content: token } }] : [];
+
+// Tags every page needs. Route-dependent metadata (robots, JSON-LD, og:type on
+// the home page) is added by `src/starlightRouteData.ts`.
+const head = [
+    { tag: 'meta', attrs: { property: 'og:image', content: `${siteUrl}/og.png` } },
+    { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+    { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+    {
+        tag: 'meta',
+        attrs: {
+            property: 'og:image:alt',
+            content: `${packageName}: ${siteDescription}`,
+        },
+    },
+    { tag: 'meta', attrs: { name: 'twitter:image', content: `${siteUrl}/og.png` } },
+    { tag: 'meta', attrs: { name: 'theme-color', content: '#00531f' } },
+    { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
+    ...verificationMeta('google-site-verification', process.env.GOOGLE_SITE_VERIFICATION),
+    ...verificationMeta('msvalidate.01', process.env.BING_SITE_VERIFICATION),
+];
+
 export default defineConfig({
-    site: 'https://result.sandlada.com',
+    site: siteUrl,
     trailingSlash: 'always',
     output: 'static',
     devToolbar: { enabled: false },
     integrations: [
         starlight({
             title: '@sandlada/result',
-            description: 'Type-safe Result Pattern and Railway Oriented Programming for TypeScript.',
+            description: siteDescription,
             lastUpdated: true,
+            head,
+            routeMiddleware: ['./src/starlightRouteData.ts'],
             editLink: {
                 baseUrl: 'https://github.com/sandlada/result/edit/main/site/',
             },
@@ -105,6 +134,10 @@ export default defineConfig({
                         sanitizeComments: true,
                     },
                 }),
+                // Runs after starlightTypeDoc regenerated the API pages and before
+                // starlightVersions archives them, so curated metadata is what gets
+                // archived as well.
+                seoApiPages,
                 starlightVersions({ versions }),
                 starlightLinksValidator(),
             ],
@@ -115,6 +148,11 @@ export default defineConfig({
             ],
         }),
         mdx(),
-        sitemap(),
+        sitemap({
+            // Archived versions stay reachable but are kept out of the index:
+            // they duplicate the current pages and carry a `noindex` robots tag.
+            filter: (page) =>
+                !versions.some((version) => new URL(page).pathname.startsWith(`/${version.slug}/`)),
+        }),
     ],
 });
