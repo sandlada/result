@@ -1,4 +1,6 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -29,6 +31,26 @@ const entryPoints = [
 ];
 
 const { versions } = JSON.parse(readFileSync(new URL('./versions.json', import.meta.url), 'utf8'));
+
+// TypeDoc links every "Defined in" reference to the commit it was built from. GitHub can
+// only serve that commit once it reaches the remote, so a preview of unpushed work would
+// point every reference at a page that does not exist. Revisions that already exist on
+// the remote are kept, which is what makes an archived version point at the code it
+// shipped with.
+function resolveSourceRevision() {
+    const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
+    const git = (args) => execFileSync('git', args, { cwd: repositoryRoot, encoding: 'utf8' }).trim();
+
+    try {
+        const revision = git(['rev-parse', 'HEAD']);
+
+        return git(['branch', '--remotes', '--contains', revision]).length > 0 ? revision : 'main';
+    } catch {
+        return 'main';
+    }
+}
+
+const sourceRevision = resolveSourceRevision();
 
 // starlight-typedoc only fills its sidebar group for the default per-member file
 // layout: it turns each kind group ("Functions", "Interfaces", …) into an
@@ -71,6 +93,8 @@ export default defineConfig({
                         outputFileStrategy: 'modules',
                         entryFileName: 'index',
                         useHTMLEncodedBrackets: true,
+                        // Keeps every "Defined in" reference resolvable; see resolveSourceRevision.
+                        gitRevision: sourceRevision,
                         // The project name becomes the title of the generated module index,
                         // so it reads "API Reference" instead of repeating the site title.
                         name: 'API Reference',

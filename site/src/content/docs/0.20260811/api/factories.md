@@ -12,7 +12,7 @@ slug: 0.20260811/api/factories
 
 > **asyncErr**\<`E`>(`error`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`never`, `E`>>
 
-Defined in: [factories/asyncErr.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/asyncErr.ts#L16)
+Defined in: [factories/asyncErr.ts:16](https://github.com/sandlada/result/blob/main/src/factories/asyncErr.ts#L16)
 
 Core constructors — barrel export.
 
@@ -40,7 +40,7 @@ Re-exports all factory/constructor functions for creating Result and Option valu
 
 > **asyncOk**\<`T`>(`value`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `never`>>
 
-Defined in: [factories/asyncOk.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/asyncOk.ts#L16)
+Defined in: [factories/asyncOk.ts:16](https://github.com/sandlada/result/blob/main/src/factories/asyncOk.ts#L16)
 
 #### Type Parameters
 
@@ -64,7 +64,7 @@ Defined in: [factories/asyncOk.ts:16](https://github.com/sandlada/result/blob/18
 
 > **err**\<`E`, `T`>(`error`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/err.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/err.ts#L24)
+Defined in: [factories/err.ts:24](https://github.com/sandlada/result/blob/main/src/factories/err.ts#L24)
 
 #### Type Parameters
 
@@ -94,7 +94,7 @@ Defined in: [factories/err.ts:24](https://github.com/sandlada/result/blob/1844ca
 
 > **fromPredicate**\<`T`, `E`>(`predicate`, `errorOnFalse`): (`value`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/fromPredicate.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/fromPredicate.ts#L27)
+Defined in: [factories/fromPredicate.ts:27](https://github.com/sandlada/result/blob/main/src/factories/fromPredicate.ts#L27)
 
 ##### Type Parameters
 
@@ -124,7 +124,7 @@ Defined in: [factories/fromPredicate.ts:27](https://github.com/sandlada/result/b
 
 > **fromPredicate**\<`T`, `E`>(`predicate`, `errorOnFalse`, `value`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/fromPredicate.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/fromPredicate.ts#L31)
+Defined in: [factories/fromPredicate.ts:31](https://github.com/sandlada/result/blob/main/src/factories/fromPredicate.ts#L31)
 
 ##### Type Parameters
 
@@ -160,7 +160,7 @@ Defined in: [factories/fromPredicate.ts:31](https://github.com/sandlada/result/b
 
 > **fromPromise**\<`T`, `E`>(`promise`, `errorFn?`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [factories/fromPromise.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/fromPromise.ts#L17)
+Defined in: [factories/fromPromise.ts:17](https://github.com/sandlada/result/blob/main/src/factories/fromPromise.ts#L17)
 
 #### Type Parameters
 
@@ -192,7 +192,7 @@ Defined in: [factories/fromPromise.ts:17](https://github.com/sandlada/result/blo
 
 > **fromSafePromise**\<`T`, `E`>(`promise`, `errorFn?`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [factories/fromSafePromise.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/fromSafePromise.ts#L25)
+Defined in: [factories/fromSafePromise.ts:25](https://github.com/sandlada/result/blob/main/src/factories/fromSafePromise.ts#L25)
 
 #### Type Parameters
 
@@ -224,7 +224,7 @@ Defined in: [factories/fromSafePromise.ts:25](https://github.com/sandlada/result
 
 > **fromThrowable**\<`A`, `T`, `E`>(`fn`, `errorFn?`): (...`args`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/fromThrowable.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/fromThrowable.ts#L21)
+Defined in: [factories/fromThrowable.ts:21](https://github.com/sandlada/result/blob/main/src/factories/fromThrowable.ts#L21)
 
 #### Type Parameters
 
@@ -262,7 +262,7 @@ Defined in: [factories/fromThrowable.ts:21](https://github.com/sandlada/result/b
 
 > **ok**(): [`IResult`](/0.20260811/api/types/#iresult)\<`never`>
 
-Defined in: [factories/ok.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/ok.ts#L29)
+Defined in: [factories/ok.ts:29](https://github.com/sandlada/result/blob/main/src/factories/ok.ts#L29)
 
 ##### Returns
 
@@ -272,7 +272,7 @@ Defined in: [factories/ok.ts:29](https://github.com/sandlada/result/blob/1844ca0
 
 > **ok**\<`T`, `E`>(`value`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `never`>
 
-Defined in: [factories/ok.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/ok.ts#L30)
+Defined in: [factories/ok.ts:30](https://github.com/sandlada/result/blob/main/src/factories/ok.ts#L30)
 
 ##### Type Parameters
 
@@ -298,7 +298,7 @@ Defined in: [factories/ok.ts:30](https://github.com/sandlada/result/blob/1844ca0
 
 > **ok**\<`T`, `E`>(`value`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/ok.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/ok.ts#L31)
+Defined in: [factories/ok.ts:31](https://github.com/sandlada/result/blob/main/src/factories/ok.ts#L31)
 
 ##### Type Parameters
 
@@ -326,7 +326,7 @@ Defined in: [factories/ok.ts:31](https://github.com/sandlada/result/blob/1844ca0
 
 > **tryCatch**\<`T`, `E`>(`fn`, `errorFn?`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [factories/tryCatch.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/tryCatch.ts#L18)
+Defined in: [factories/tryCatch.ts:18](https://github.com/sandlada/result/blob/main/src/factories/tryCatch.ts#L18)
 
 #### Type Parameters
 
@@ -358,7 +358,7 @@ Defined in: [factories/tryCatch.ts:18](https://github.com/sandlada/result/blob/1
 
 > **tryCatchAsync**\<`T`, `E`>(`fn`, `errorFn?`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [factories/tryCatchAsync.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/factories/tryCatchAsync.ts#L17)
+Defined in: [factories/tryCatchAsync.ts:17](https://github.com/sandlada/result/blob/main/src/factories/tryCatchAsync.ts#L17)
 
 #### Type Parameters
 

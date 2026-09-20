@@ -38,6 +38,11 @@ themselves to `../src`, so nothing here can leak into the published package.
 `sanitizeComments` is enabled for TypeDoc because JSDoc prose such as `Promise<boolean>` is not
 valid MDX, and `starlight-versions` parses every page with `remark-mdx` when it archives a version.
 
+TypeDoc pins each "Defined in" reference to the commit it was built from. GitHub can only serve a
+commit once it reaches the remote, so `astro.config.mjs` falls back to the default branch while the
+current commit is still local. An already pushed revision is used verbatim, which is what makes an
+archived version point at the code it shipped with.
+
 ## Versions
 
 Archived versions live in `src/content/docs/<slug>/` and are committed. `versions.json` lists them

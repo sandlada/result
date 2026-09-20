@@ -14,7 +14,7 @@ slug: 0.20260811/api/promise-result
 
 > **ap**\<`A`, `B`, `E`>(`fnResult`): (`result`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/ap.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/ap.ts#L20)
+Defined in: [promise-result/ap.ts:20](https://github.com/sandlada/result/blob/main/src/promise-result/ap.ts#L20)
 
 ##### Type Parameters
 
@@ -44,7 +44,7 @@ Defined in: [promise-result/ap.ts:20](https://github.com/sandlada/result/blob/18
 
 > **ap**\<`A`, `B`, `E`>(`fnResult`, `result`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/ap.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/ap.ts#L23)
+Defined in: [promise-result/ap.ts:23](https://github.com/sandlada/result/blob/main/src/promise-result/ap.ts#L23)
 
 ##### Type Parameters
 
@@ -82,7 +82,7 @@ Defined in: [promise-result/ap.ts:23](https://github.com/sandlada/result/blob/18
 
 > **asyncBind**\<`A`, `B`, `F`>(`f`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F`>>
 
-Defined in: [promise-result/asyncBind.ts:47](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncBind.ts#L47)
+Defined in: [promise-result/asyncBind.ts:47](https://github.com/sandlada/result/blob/main/src/promise-result/asyncBind.ts#L47)
 
 ##### Type Parameters
 
@@ -112,7 +112,7 @@ Defined in: [promise-result/asyncBind.ts:47](https://github.com/sandlada/result/
 
 > **asyncBind**\<`A`, `B`, `E`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F`>>
 
-Defined in: [promise-result/asyncBind.ts:50](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncBind.ts#L50)
+Defined in: [promise-result/asyncBind.ts:50](https://github.com/sandlada/result/blob/main/src/promise-result/asyncBind.ts#L50)
 
 ##### Type Parameters
 
@@ -154,7 +154,7 @@ Defined in: [promise-result/asyncBind.ts:50](https://github.com/sandlada/result/
 
 > **asyncBindThrough**\<`A`, `B`, `F`>(`fn`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F` | `E`>>
 
-Defined in: [promise-result/asyncBindThrough.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncBindThrough.ts#L27)
+Defined in: [promise-result/asyncBindThrough.ts:27](https://github.com/sandlada/result/blob/main/src/promise-result/asyncBindThrough.ts#L27)
 
 ##### Type Parameters
 
@@ -184,7 +184,7 @@ Defined in: [promise-result/asyncBindThrough.ts:27](https://github.com/sandlada/
 
 > **asyncBindThrough**\<`A`, `B`, `E`, `F`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E` | `F`>>
 
-Defined in: [promise-result/asyncBindThrough.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncBindThrough.ts#L30)
+Defined in: [promise-result/asyncBindThrough.ts:30](https://github.com/sandlada/result/blob/main/src/promise-result/asyncBindThrough.ts#L30)
 
 ##### Type Parameters
 
@@ -226,7 +226,7 @@ Defined in: [promise-result/asyncBindThrough.ts:30](https://github.com/sandlada/
 
 > **asyncMap**\<`A`, `B`>(`f`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/asyncMap.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncMap.ts#L28)
+Defined in: [promise-result/asyncMap.ts:28](https://github.com/sandlada/result/blob/main/src/promise-result/asyncMap.ts#L28)
 
 ##### Type Parameters
 
@@ -252,7 +252,7 @@ Defined in: [promise-result/asyncMap.ts:28](https://github.com/sandlada/result/b
 
 > **asyncMap**\<`A`, `B`, `E`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/asyncMap.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncMap.ts#L31)
+Defined in: [promise-result/asyncMap.ts:31](https://github.com/sandlada/result/blob/main/src/promise-result/asyncMap.ts#L31)
 
 ##### Type Parameters
 
@@ -290,7 +290,7 @@ Defined in: [promise-result/asyncMap.ts:31](https://github.com/sandlada/result/b
 
 > **asyncOrElse**\<`T`, `E`, `F`>(`f`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E` | `F`>>
 
-Defined in: [promise-result/asyncOrElse.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncOrElse.ts#L19)
+Defined in: [promise-result/asyncOrElse.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/asyncOrElse.ts#L19)
 
 ##### Type Parameters
 
@@ -320,7 +320,7 @@ Defined in: [promise-result/asyncOrElse.ts:19](https://github.com/sandlada/resul
 
 > **asyncOrElse**\<`T`, `E`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E` | `F`>>
 
-Defined in: [promise-result/asyncOrElse.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncOrElse.ts#L22)
+Defined in: [promise-result/asyncOrElse.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/asyncOrElse.ts#L22)
 
 ##### Type Parameters
 
@@ -358,7 +358,7 @@ Defined in: [promise-result/asyncOrElse.ts:22](https://github.com/sandlada/resul
 
 > **asyncTap**\<`A`, `E`>(`fn`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/asyncTap.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncTap.ts#L19)
+Defined in: [promise-result/asyncTap.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/asyncTap.ts#L19)
 
 ##### Type Parameters
 
@@ -405,7 +405,7 @@ Ready for Product
 
 > **asyncTap**\<`A`, `E`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/asyncTap.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncTap.ts#L22)
+Defined in: [promise-result/asyncTap.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/asyncTap.ts#L22)
 
 ##### Type Parameters
 
@@ -460,7 +460,7 @@ Ready for Product
 
 > **asyncTapErr**\<`A`, `E`>(`fn`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/asyncTapErr.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncTapErr.ts#L19)
+Defined in: [promise-result/asyncTapErr.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/asyncTapErr.ts#L19)
 
 ##### Type Parameters
 
@@ -507,7 +507,7 @@ Ready for Product
 
 > **asyncTapErr**\<`A`, `E`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/asyncTapErr.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/asyncTapErr.ts#L22)
+Defined in: [promise-result/asyncTapErr.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/asyncTapErr.ts#L22)
 
 ##### Type Parameters
 
@@ -562,7 +562,7 @@ Ready for Product
 
 > **bimapAsync**\<`A`, `E`, `B`, `F`>(`onOk`, `onErr`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F`>>
 
-Defined in: [promise-result/bimapAsync.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bimapAsync.ts#L20)
+Defined in: [promise-result/bimapAsync.ts:20](https://github.com/sandlada/result/blob/main/src/promise-result/bimapAsync.ts#L20)
 
 ##### Type Parameters
 
@@ -621,7 +621,7 @@ Ready for Product
 
 > **bimapAsync**\<`A`, `E`, `B`, `F`>(`onOk`, `onErr`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F`>>
 
-Defined in: [promise-result/bimapAsync.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bimapAsync.ts#L24)
+Defined in: [promise-result/bimapAsync.ts:24](https://github.com/sandlada/result/blob/main/src/promise-result/bimapAsync.ts#L24)
 
 ##### Type Parameters
 
@@ -688,7 +688,7 @@ Ready for Product
 
 > **bindAsync**\<`A`, `B`, `F`>(`f`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `F` | `E`>>
 
-Defined in: [promise-result/bindAsync.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bindAsync.ts#L27)
+Defined in: [promise-result/bindAsync.ts:27](https://github.com/sandlada/result/blob/main/src/promise-result/bindAsync.ts#L27)
 
 ##### Type Parameters
 
@@ -718,7 +718,7 @@ Defined in: [promise-result/bindAsync.ts:27](https://github.com/sandlada/result/
 
 > **bindAsync**\<`A`, `B`, `E`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E` | `F`>>
 
-Defined in: [promise-result/bindAsync.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bindAsync.ts#L30)
+Defined in: [promise-result/bindAsync.ts:30](https://github.com/sandlada/result/blob/main/src/promise-result/bindAsync.ts#L30)
 
 ##### Type Parameters
 
@@ -760,7 +760,7 @@ Defined in: [promise-result/bindAsync.ts:30](https://github.com/sandlada/result/
 
 > **bindThroughAsync**\<`A`, `B`, `F`>(`fn`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F` | `E`>>
 
-Defined in: [promise-result/bindThroughAsync.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bindThroughAsync.ts#L22)
+Defined in: [promise-result/bindThroughAsync.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/bindThroughAsync.ts#L22)
 
 ##### Type Parameters
 
@@ -814,7 +814,7 @@ Ready for Product
 
 > **bindThroughAsync**\<`A`, `B`, `E`, `F`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E` | `F`>>
 
-Defined in: [promise-result/bindThroughAsync.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/bindThroughAsync.ts#L25)
+Defined in: [promise-result/bindThroughAsync.ts:25](https://github.com/sandlada/result/blob/main/src/promise-result/bindThroughAsync.ts#L25)
 
 ##### Type Parameters
 
@@ -880,7 +880,7 @@ Ready for Product
 
 > **catchErrAsync**\<`A`, `E`>(`onErr`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `never`>>
 
-Defined in: [promise-result/catchErrAsync.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/catchErrAsync.ts#L26)
+Defined in: [promise-result/catchErrAsync.ts:26](https://github.com/sandlada/result/blob/main/src/promise-result/catchErrAsync.ts#L26)
 
 ##### Type Parameters
 
@@ -906,7 +906,7 @@ Defined in: [promise-result/catchErrAsync.ts:26](https://github.com/sandlada/res
 
 > **catchErrAsync**\<`A`, `E`>(`onErr`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `never`>>
 
-Defined in: [promise-result/catchErrAsync.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/catchErrAsync.ts#L29)
+Defined in: [promise-result/catchErrAsync.ts:29](https://github.com/sandlada/result/blob/main/src/promise-result/catchErrAsync.ts#L29)
 
 ##### Type Parameters
 
@@ -938,7 +938,7 @@ Defined in: [promise-result/catchErrAsync.ts:29](https://github.com/sandlada/res
 
 > **combine**\<`A`, `E`>(`results`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`\[], `E`>>
 
-Defined in: [promise-result/combine.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/combine.ts#L19)
+Defined in: [promise-result/combine.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/combine.ts#L19)
 
 #### Type Parameters
 
@@ -966,7 +966,7 @@ readonly `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
 > **combineWithAllErrors**\<`A`, `E`>(`results`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`\[], `E`\[]>>
 
-Defined in: [promise-result/combineWithAllErrors.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/combineWithAllErrors.ts#L19)
+Defined in: [promise-result/combineWithAllErrors.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/combineWithAllErrors.ts#L19)
 
 #### Type Parameters
 
@@ -996,7 +996,7 @@ readonly `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>
 
 > **containsAsync**\<`A`>(`value`): \<`E`>(`r`) => `Promise`\<`boolean`>
 
-Defined in: [promise-result/containsAsync.ts:14](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/containsAsync.ts#L14)
+Defined in: [promise-result/containsAsync.ts:14](https://github.com/sandlada/result/blob/main/src/promise-result/containsAsync.ts#L14)
 
 ##### Type Parameters
 
@@ -1035,7 +1035,7 @@ Ready for Product
 
 > **containsAsync**\<`A`, `E`>(`value`, `r`): `Promise`\<`boolean`>
 
-Defined in: [promise-result/containsAsync.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/containsAsync.ts#L17)
+Defined in: [promise-result/containsAsync.ts:17](https://github.com/sandlada/result/blob/main/src/promise-result/containsAsync.ts#L17)
 
 ##### Type Parameters
 
@@ -1086,7 +1086,7 @@ Ready for Product
 
 > **existsAsync**\<`A`>(`predicate`): \<`E`>(`r`) => `Promise`\<`boolean`>
 
-Defined in: [promise-result/existsAsync.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/existsAsync.ts#L21)
+Defined in: [promise-result/existsAsync.ts:21](https://github.com/sandlada/result/blob/main/src/promise-result/existsAsync.ts#L21)
 
 ##### Type Parameters
 
@@ -1132,7 +1132,7 @@ Ready for Product
 
 > **existsAsync**\<`A`, `E`>(`predicate`, `r`): `Promise`\<`boolean`>
 
-Defined in: [promise-result/existsAsync.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/existsAsync.ts#L24)
+Defined in: [promise-result/existsAsync.ts:24](https://github.com/sandlada/result/blob/main/src/promise-result/existsAsync.ts#L24)
 
 ##### Type Parameters
 
@@ -1190,7 +1190,7 @@ Ready for Product
 
 > **filterOrElseAsync**\<`A`, `E`>(`predicate`, `errorFn`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/filterOrElseAsync.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/filterOrElseAsync.ts#L28)
+Defined in: [promise-result/filterOrElseAsync.ts:28](https://github.com/sandlada/result/blob/main/src/promise-result/filterOrElseAsync.ts#L28)
 
 ##### Type Parameters
 
@@ -1250,7 +1250,7 @@ Ready for Product
 
 > **filterOrElseAsync**\<`A`, `E`>(`predicate`, `errorFn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/filterOrElseAsync.ts:32](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/filterOrElseAsync.ts#L32)
+Defined in: [promise-result/filterOrElseAsync.ts:32](https://github.com/sandlada/result/blob/main/src/promise-result/filterOrElseAsync.ts#L32)
 
 ##### Type Parameters
 
@@ -1316,7 +1316,7 @@ Ready for Product
 
 > **flatten**\<`A`, `E`>(`r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/flatten.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/flatten.ts#L16)
+Defined in: [promise-result/flatten.ts:16](https://github.com/sandlada/result/blob/main/src/promise-result/flatten.ts#L16)
 
 #### Type Parameters
 
@@ -1344,7 +1344,7 @@ Defined in: [promise-result/flatten.ts:16](https://github.com/sandlada/result/bl
 
 > **flattenAsync**\<`A`, `E`>(`r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/flattenAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/flattenAsync.ts#L18)
+Defined in: [promise-result/flattenAsync.ts:18](https://github.com/sandlada/result/blob/main/src/promise-result/flattenAsync.ts#L18)
 
 #### Type Parameters
 
@@ -1395,7 +1395,7 @@ Ready for Product
 
 > **map**\<`A`, `B`>(`f`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/map.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/map.ts#L21)
+Defined in: [promise-result/map.ts:21](https://github.com/sandlada/result/blob/main/src/promise-result/map.ts#L21)
 
 ##### Type Parameters
 
@@ -1441,7 +1441,7 @@ Ready for Product
 
 > **map**\<`A`, `B`, `E`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/map.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/map.ts#L24)
+Defined in: [promise-result/map.ts:24](https://github.com/sandlada/result/blob/main/src/promise-result/map.ts#L24)
 
 ##### Type Parameters
 
@@ -1499,7 +1499,7 @@ Ready for Product
 
 > **mapAsync**\<`A`, `B`>(`f`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/mapAsync.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapAsync.ts#L17)
+Defined in: [promise-result/mapAsync.ts:17](https://github.com/sandlada/result/blob/main/src/promise-result/mapAsync.ts#L17)
 
 ##### Type Parameters
 
@@ -1525,7 +1525,7 @@ Defined in: [promise-result/mapAsync.ts:17](https://github.com/sandlada/result/b
 
 > **mapAsync**\<`A`, `B`, `E`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [promise-result/mapAsync.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapAsync.ts#L20)
+Defined in: [promise-result/mapAsync.ts:20](https://github.com/sandlada/result/blob/main/src/promise-result/mapAsync.ts#L20)
 
 ##### Type Parameters
 
@@ -1563,7 +1563,7 @@ Defined in: [promise-result/mapAsync.ts:20](https://github.com/sandlada/result/b
 
 > **mapErr**\<`A`, `E`, `F`>(`f`): \<`T`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `F`>>
 
-Defined in: [promise-result/mapErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapErr.ts#L21)
+Defined in: [promise-result/mapErr.ts:21](https://github.com/sandlada/result/blob/main/src/promise-result/mapErr.ts#L21)
 
 ##### Type Parameters
 
@@ -1613,7 +1613,7 @@ Ready for Product
 
 > **mapErr**\<`T`, `E`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `F`>>
 
-Defined in: [promise-result/mapErr.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapErr.ts#L24)
+Defined in: [promise-result/mapErr.ts:24](https://github.com/sandlada/result/blob/main/src/promise-result/mapErr.ts#L24)
 
 ##### Type Parameters
 
@@ -1671,7 +1671,7 @@ Ready for Product
 
 > **mapErrAsync**\<`E`, `F`>(`f`): \<`A`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F`>>
 
-Defined in: [promise-result/mapErrAsync.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapErrAsync.ts#L16)
+Defined in: [promise-result/mapErrAsync.ts:16](https://github.com/sandlada/result/blob/main/src/promise-result/mapErrAsync.ts#L16)
 
 ##### Type Parameters
 
@@ -1697,7 +1697,7 @@ Defined in: [promise-result/mapErrAsync.ts:16](https://github.com/sandlada/resul
 
 > **mapErrAsync**\<`A`, `E`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `F`>>
 
-Defined in: [promise-result/mapErrAsync.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapErrAsync.ts#L19)
+Defined in: [promise-result/mapErrAsync.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/mapErrAsync.ts#L19)
 
 ##### Type Parameters
 
@@ -1735,7 +1735,7 @@ Defined in: [promise-result/mapErrAsync.ts:19](https://github.com/sandlada/resul
 
 > **mapOrAsync**\<`A`, `B`, `E`>(`defaultValue`, `fn`): \<`R`>(`r`) => `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrAsync.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrAsync.ts#L30)
+Defined in: [promise-result/mapOrAsync.ts:30](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrAsync.ts#L30)
 
 ##### Type Parameters
 
@@ -1769,7 +1769,7 @@ Defined in: [promise-result/mapOrAsync.ts:30](https://github.com/sandlada/result
 
 > **mapOrAsync**\<`A`, `B`, `E`>(`defaultValue`, `fn`, `onErr`): \<`R`>(`r`) => `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrAsync.ts:35](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrAsync.ts#L35)
+Defined in: [promise-result/mapOrAsync.ts:35](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrAsync.ts#L35)
 
 ##### Type Parameters
 
@@ -1807,7 +1807,7 @@ Defined in: [promise-result/mapOrAsync.ts:35](https://github.com/sandlada/result
 
 > **mapOrAsync**\<`A`, `B`, `E`>(`defaultValue`, `fn`, `r`): `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrAsync.ts:40](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrAsync.ts#L40)
+Defined in: [promise-result/mapOrAsync.ts:40](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrAsync.ts#L40)
 
 ##### Type Parameters
 
@@ -1845,7 +1845,7 @@ Defined in: [promise-result/mapOrAsync.ts:40](https://github.com/sandlada/result
 
 > **mapOrAsync**\<`A`, `B`, `E`>(`defaultValue`, `fn`, `r`, `onErr`): `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrAsync.ts:45](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrAsync.ts#L45)
+Defined in: [promise-result/mapOrAsync.ts:45](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrAsync.ts#L45)
 
 ##### Type Parameters
 
@@ -1891,7 +1891,7 @@ Defined in: [promise-result/mapOrAsync.ts:45](https://github.com/sandlada/result
 
 > **mapOrElseAsync**\<`A`, `B`, `E`>(`onErr`, `fn`): (`r`) => `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrElseAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrElseAsync.ts#L18)
+Defined in: [promise-result/mapOrElseAsync.ts:18](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrElseAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -1925,7 +1925,7 @@ Defined in: [promise-result/mapOrElseAsync.ts:18](https://github.com/sandlada/re
 
 > **mapOrElseAsync**\<`A`, `B`, `E`>(`onErr`, `fn`, `r`): `Promise`\<`B`>
 
-Defined in: [promise-result/mapOrElseAsync.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/mapOrElseAsync.ts#L22)
+Defined in: [promise-result/mapOrElseAsync.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/mapOrElseAsync.ts#L22)
 
 ##### Type Parameters
 
@@ -1967,7 +1967,7 @@ Defined in: [promise-result/mapOrElseAsync.ts:22](https://github.com/sandlada/re
 
 > **matchAsync**\<`A`, `E`, `C`>(`onOk`, `onErr`): (`r`) => `Promise`\<`C`>
 
-Defined in: [promise-result/matchAsync.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/matchAsync.ts#L19)
+Defined in: [promise-result/matchAsync.ts:19](https://github.com/sandlada/result/blob/main/src/promise-result/matchAsync.ts#L19)
 
 ##### Type Parameters
 
@@ -2001,7 +2001,7 @@ Defined in: [promise-result/matchAsync.ts:19](https://github.com/sandlada/result
 
 > **matchAsync**\<`A`, `E`, `C`>(`onOk`, `onErr`, `r`): `Promise`\<`C`>
 
-Defined in: [promise-result/matchAsync.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/matchAsync.ts#L23)
+Defined in: [promise-result/matchAsync.ts:23](https://github.com/sandlada/result/blob/main/src/promise-result/matchAsync.ts#L23)
 
 ##### Type Parameters
 
@@ -2043,7 +2043,7 @@ Defined in: [promise-result/matchAsync.ts:23](https://github.com/sandlada/result
 
 > **orElseAsync**\<`E`, `B`, `F`>(`f`): \<`A`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B` | `A`, `F`>>
 
-Defined in: [promise-result/orElseAsync.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/orElseAsync.ts#L22)
+Defined in: [promise-result/orElseAsync.ts:22](https://github.com/sandlada/result/blob/main/src/promise-result/orElseAsync.ts#L22)
 
 ##### Type Parameters
 
@@ -2073,7 +2073,7 @@ Defined in: [promise-result/orElseAsync.ts:22](https://github.com/sandlada/resul
 
 > **orElseAsync**\<`A`, `E`, `B`, `F`>(`f`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A` | `B`, `F`>>
 
-Defined in: [promise-result/orElseAsync.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/orElseAsync.ts#L25)
+Defined in: [promise-result/orElseAsync.ts:25](https://github.com/sandlada/result/blob/main/src/promise-result/orElseAsync.ts#L25)
 
 ##### Type Parameters
 
@@ -2113,7 +2113,7 @@ Defined in: [promise-result/orElseAsync.ts:25](https://github.com/sandlada/resul
 
 > **swapAsync**\<`A`, `E`>(`r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`E`, `A`>>
 
-Defined in: [promise-result/swapAsync.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/swapAsync.ts#L16)
+Defined in: [promise-result/swapAsync.ts:16](https://github.com/sandlada/result/blob/main/src/promise-result/swapAsync.ts#L16)
 
 #### Type Parameters
 
@@ -2160,7 +2160,7 @@ Ready for Product
 
 > **tapAsync**\<`A`>(`fn`): \<`E`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/tapAsync.ts:15](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/tapAsync.ts#L15)
+Defined in: [promise-result/tapAsync.ts:15](https://github.com/sandlada/result/blob/main/src/promise-result/tapAsync.ts#L15)
 
 ##### Type Parameters
 
@@ -2182,7 +2182,7 @@ Defined in: [promise-result/tapAsync.ts:15](https://github.com/sandlada/result/b
 
 > **tapAsync**\<`A`, `E`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/tapAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/tapAsync.ts#L18)
+Defined in: [promise-result/tapAsync.ts:18](https://github.com/sandlada/result/blob/main/src/promise-result/tapAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -2216,7 +2216,7 @@ Defined in: [promise-result/tapAsync.ts:18](https://github.com/sandlada/result/b
 
 > **tapErrAsync**\<`E`>(`fn`): \<`A`>(`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/tapErrAsync.ts:15](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/tapErrAsync.ts#L15)
+Defined in: [promise-result/tapErrAsync.ts:15](https://github.com/sandlada/result/blob/main/src/promise-result/tapErrAsync.ts#L15)
 
 ##### Type Parameters
 
@@ -2238,7 +2238,7 @@ Defined in: [promise-result/tapErrAsync.ts:15](https://github.com/sandlada/resul
 
 > **tapErrAsync**\<`A`, `E`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`A`, `E`>>
 
-Defined in: [promise-result/tapErrAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/tapErrAsync.ts#L18)
+Defined in: [promise-result/tapErrAsync.ts:18](https://github.com/sandlada/result/blob/main/src/promise-result/tapErrAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -2272,7 +2272,7 @@ Defined in: [promise-result/tapErrAsync.ts:18](https://github.com/sandlada/resul
 
 > **unwrapOr**\<`A`>(`defaultValue`): \<`E`>(`r`) => `Promise`\<`A`>
 
-Defined in: [promise-result/unwrapOr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOr.ts#L21)
+Defined in: [promise-result/unwrapOr.ts:21](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOr.ts#L21)
 
 ##### Type Parameters
 
@@ -2294,7 +2294,7 @@ Defined in: [promise-result/unwrapOr.ts:21](https://github.com/sandlada/result/b
 
 > **unwrapOr**\<`A`, `E`>(`defaultValue`, `r`): `Promise`\<`A`>
 
-Defined in: [promise-result/unwrapOr.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOr.ts#L24)
+Defined in: [promise-result/unwrapOr.ts:24](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOr.ts#L24)
 
 ##### Type Parameters
 
@@ -2328,7 +2328,7 @@ Defined in: [promise-result/unwrapOr.ts:24](https://github.com/sandlada/result/b
 
 > **unwrapOrAsync**\<`A`, `D`>(`defaultValue`): \<`E`>(`r`) => `Promise`\<`A` | `D`>
 
-Defined in: [promise-result/unwrapOrAsync.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrAsync.ts#L27)
+Defined in: [promise-result/unwrapOrAsync.ts:27](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrAsync.ts#L27)
 
 ##### Type Parameters
 
@@ -2354,7 +2354,7 @@ Defined in: [promise-result/unwrapOrAsync.ts:27](https://github.com/sandlada/res
 
 > **unwrapOrAsync**\<`A`, `E`, `D`>(`defaultValue`, `r`): `Promise`\<`A` | `D`>
 
-Defined in: [promise-result/unwrapOrAsync.ts:30](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrAsync.ts#L30)
+Defined in: [promise-result/unwrapOrAsync.ts:30](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrAsync.ts#L30)
 
 ##### Type Parameters
 
@@ -2392,7 +2392,7 @@ Defined in: [promise-result/unwrapOrAsync.ts:30](https://github.com/sandlada/res
 
 > **unwrapOrElse**\<`A`, `E`>(`onErr`): (`r`) => `Promise`\<`A`>
 
-Defined in: [promise-result/unwrapOrElse.ts:17](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrElse.ts#L17)
+Defined in: [promise-result/unwrapOrElse.ts:17](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrElse.ts#L17)
 
 ##### Type Parameters
 
@@ -2418,7 +2418,7 @@ Defined in: [promise-result/unwrapOrElse.ts:17](https://github.com/sandlada/resu
 
 > **unwrapOrElse**\<`A`, `E`>(`onErr`, `r`): `Promise`\<`A`>
 
-Defined in: [promise-result/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrElse.ts#L20)
+Defined in: [promise-result/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrElse.ts#L20)
 
 ##### Type Parameters
 
@@ -2452,7 +2452,7 @@ Defined in: [promise-result/unwrapOrElse.ts:20](https://github.com/sandlada/resu
 
 > **unwrapOrElseAsync**\<`A`, `E`, `D`>(`onErr`): (`r`) => `Promise`\<`A` | `D`>
 
-Defined in: [promise-result/unwrapOrElseAsync.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrElseAsync.ts#L23)
+Defined in: [promise-result/unwrapOrElseAsync.ts:23](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrElseAsync.ts#L23)
 
 ##### Type Parameters
 
@@ -2482,7 +2482,7 @@ Defined in: [promise-result/unwrapOrElseAsync.ts:23](https://github.com/sandlada
 
 > **unwrapOrElseAsync**\<`A`, `E`, `D`>(`onErr`, `r`): `Promise`\<`A` | `D`>
 
-Defined in: [promise-result/unwrapOrElseAsync.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/promise-result/unwrapOrElseAsync.ts#L26)
+Defined in: [promise-result/unwrapOrElseAsync.ts:26](https://github.com/sandlada/result/blob/main/src/promise-result/unwrapOrElseAsync.ts#L26)
 
 ##### Type Parameters
 

@@ -12,7 +12,7 @@ slug: 0.20260811/api/async-result
 
 > **and**\<`T`, `U`, `E`>(`res1`, `res2`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E`>
 
-Defined in: [async-result/and.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/and.ts#L20)
+Defined in: [async-result/and.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/and.ts#L20)
 
 Returns `res2` if `res1` is `Ok`, otherwise returns the original `Err`.
 Short-circuiting — `res2` is not evaluated when `res1` is `Err`.
@@ -68,7 +68,7 @@ Ready for Product
 
 > **andTee**\<`T`, `E`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/andTee.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/andTee.ts#L23)
+Defined in: [async-result/andTee.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/andTee.ts#L23)
 
 ##### Type Parameters
 
@@ -119,7 +119,7 @@ Ready for Product
 
 > **andTee**\<`T`, `E`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/andTee.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/andTee.ts#L26)
+Defined in: [async-result/andTee.ts:26](https://github.com/sandlada/result/blob/main/src/async-result/andTee.ts#L26)
 
 ##### Type Parameters
 
@@ -178,7 +178,7 @@ Ready for Product
 
 > **andThrough**\<`T`, `E`, `F`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `F`>
 
-Defined in: [async-result/andThrough.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/andThrough.ts#L23)
+Defined in: [async-result/andThrough.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/andThrough.ts#L23)
 
 ##### Type Parameters
 
@@ -231,7 +231,7 @@ Ready for Product
 
 > **andThrough**\<`T`, `E`, `F`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `F`>
 
-Defined in: [async-result/andThrough.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/andThrough.ts#L26)
+Defined in: [async-result/andThrough.ts:26](https://github.com/sandlada/result/blob/main/src/async-result/andThrough.ts#L26)
 
 ##### Type Parameters
 
@@ -292,7 +292,7 @@ Ready for Product
 
 > **ap**\<`A`, `B`, `E`, `F`>(`fnResult`): (`result`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`B`, `E` | `F`>
 
-Defined in: [async-result/ap.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/ap.ts#L29)
+Defined in: [async-result/ap.ts:29](https://github.com/sandlada/result/blob/main/src/async-result/ap.ts#L29)
 
 ##### Type Parameters
 
@@ -326,7 +326,7 @@ Defined in: [async-result/ap.ts:29](https://github.com/sandlada/result/blob/1844
 
 > **ap**\<`A`, `B`, `E`, `F`>(`fnResult`, `result`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`B`, `E` | `F`>
 
-Defined in: [async-result/ap.ts:32](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/ap.ts#L32)
+Defined in: [async-result/ap.ts:32](https://github.com/sandlada/result/blob/main/src/async-result/ap.ts#L32)
 
 ##### Type Parameters
 
@@ -368,7 +368,7 @@ Defined in: [async-result/ap.ts:32](https://github.com/sandlada/result/blob/1844
 
 > **bimap**\<`T`, `E`, `U`, `F`>(`onOk`, `onErr`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `F`>
 
-Defined in: [async-result/bimap.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/bimap.ts#L28)
+Defined in: [async-result/bimap.ts:28](https://github.com/sandlada/result/blob/main/src/async-result/bimap.ts#L28)
 
 ##### Type Parameters
 
@@ -410,7 +410,7 @@ Defined in: [async-result/bimap.ts:28](https://github.com/sandlada/result/blob/1
 
 > **bimap**\<`T`, `E`, `U`, `F`>(`onOk`, `onErr`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `F`>
 
-Defined in: [async-result/bimap.ts:33](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/bimap.ts#L33)
+Defined in: [async-result/bimap.ts:33](https://github.com/sandlada/result/blob/main/src/async-result/bimap.ts#L33)
 
 ##### Type Parameters
 
@@ -460,7 +460,7 @@ Defined in: [async-result/bimap.ts:33](https://github.com/sandlada/result/blob/1
 
 > **bind**\<`T`, `U`, `E`, `F`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E` | `F`>
 
-Defined in: [async-result/bind.ts:36](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/bind.ts#L36)
+Defined in: [async-result/bind.ts:36](https://github.com/sandlada/result/blob/main/src/async-result/bind.ts#L36)
 
 ##### Type Parameters
 
@@ -498,7 +498,7 @@ Defined in: [async-result/bind.ts:36](https://github.com/sandlada/result/blob/18
 
 > **bind**\<`T`, `U`, `E`, `F`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E` | `F`>
 
-Defined in: [async-result/bind.ts:40](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/bind.ts#L40)
+Defined in: [async-result/bind.ts:40](https://github.com/sandlada/result/blob/main/src/async-result/bind.ts#L40)
 
 ##### Type Parameters
 
@@ -544,7 +544,7 @@ Defined in: [async-result/bind.ts:40](https://github.com/sandlada/result/blob/18
 
 > **catchErr**\<`A`, `E`>(`onErr`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`A`, `never`>
 
-Defined in: [async-result/catchErr.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/catchErr.ts#L26)
+Defined in: [async-result/catchErr.ts:26](https://github.com/sandlada/result/blob/main/src/async-result/catchErr.ts#L26)
 
 ##### Type Parameters
 
@@ -570,7 +570,7 @@ Defined in: [async-result/catchErr.ts:26](https://github.com/sandlada/result/blo
 
 > **catchErr**\<`A`, `E`>(`onErr`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`A`, `never`>
 
-Defined in: [async-result/catchErr.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/catchErr.ts#L29)
+Defined in: [async-result/catchErr.ts:29](https://github.com/sandlada/result/blob/main/src/async-result/catchErr.ts#L29)
 
 ##### Type Parameters
 
@@ -602,7 +602,7 @@ Defined in: [async-result/catchErr.ts:29](https://github.com/sandlada/result/blo
 
 > **combine**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`\[], `E`>
 
-Defined in: [async-result/combine.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/combine.ts#L21)
+Defined in: [async-result/combine.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/combine.ts#L21)
 
 #### Type Parameters
 
@@ -630,7 +630,7 @@ readonly [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>\[]
 
 > **combineWithAllErrors**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`\[], `E`\[]>
 
-Defined in: [async-result/combineWithAllErrors.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/combineWithAllErrors.ts#L25)
+Defined in: [async-result/combineWithAllErrors.ts:25](https://github.com/sandlada/result/blob/main/src/async-result/combineWithAllErrors.ts#L25)
 
 #### Type Parameters
 
@@ -660,7 +660,7 @@ readonly [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>\[]
 
 > **contains**\<`T`>(`value`): \<`E`>(`ar`) => `Promise`\<`boolean`>
 
-Defined in: [async-result/contains.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/contains.ts#L16)
+Defined in: [async-result/contains.ts:16](https://github.com/sandlada/result/blob/main/src/async-result/contains.ts#L16)
 
 ##### Type Parameters
 
@@ -701,7 +701,7 @@ Ready for Product
 
 > **contains**\<`T`, `E`>(`value`, `ar`): `Promise`\<`boolean`>
 
-Defined in: [async-result/contains.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/contains.ts#L19)
+Defined in: [async-result/contains.ts:19](https://github.com/sandlada/result/blob/main/src/async-result/contains.ts#L19)
 
 ##### Type Parameters
 
@@ -754,7 +754,7 @@ Ready for Product
 
 > **containsErr**\<`T`, `E`>(`error`): (`ar`) => `Promise`\<`boolean`>
 
-Defined in: [async-result/containsErr.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/containsErr.ts#L18)
+Defined in: [async-result/containsErr.ts:18](https://github.com/sandlada/result/blob/main/src/async-result/containsErr.ts#L18)
 
 Returns `true` if the `AsyncResult` resolves to `Err` and contains the
 given value. Strict equality (`===`).
@@ -797,7 +797,7 @@ Ready for Product
 
 > **containsErr**\<`T`, `E`>(`error`, `ar`): `Promise`\<`boolean`>
 
-Defined in: [async-result/containsErr.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/containsErr.ts#L21)
+Defined in: [async-result/containsErr.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/containsErr.ts#L21)
 
 Returns `true` if the `AsyncResult` resolves to `Err` and contains the
 given value. Strict equality (`===`).
@@ -848,7 +848,7 @@ Ready for Product
 
 > **exists**\<`T`>(`predicate`): \<`E`>(`ar`) => `Promise`\<`boolean`>
 
-Defined in: [async-result/exists.ts:16](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/exists.ts#L16)
+Defined in: [async-result/exists.ts:16](https://github.com/sandlada/result/blob/main/src/async-result/exists.ts#L16)
 
 ##### Type Parameters
 
@@ -889,7 +889,7 @@ Ready for Product
 
 > **exists**\<`T`, `E`>(`predicate`, `ar`): `Promise`\<`boolean`>
 
-Defined in: [async-result/exists.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/exists.ts#L19)
+Defined in: [async-result/exists.ts:19](https://github.com/sandlada/result/blob/main/src/async-result/exists.ts#L19)
 
 ##### Type Parameters
 
@@ -942,7 +942,7 @@ Ready for Product
 
 > **expect**\<`T`, `E`>(`message`, `ar`, `formatErr?`): `Promise`\<`T`>
 
-Defined in: [async-result/expect.ts:28](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/expect.ts#L28)
+Defined in: [async-result/expect.ts:28](https://github.com/sandlada/result/blob/main/src/async-result/expect.ts#L28)
 
 Like [unwrap](/0.20260811/api/async-result/#unwrap) but throws an `Error` carrying the supplied message.
 Useful for marking program-contract violations with a domain-specific
@@ -1003,7 +1003,7 @@ Ready for Product
 
 > **expect**\<`T`, `E`>(`message`, `ar`, `formatErr`, `throwingFn`): `Promise`\<`T`>
 
-Defined in: [async-result/expect.ts:33](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/expect.ts#L33)
+Defined in: [async-result/expect.ts:33](https://github.com/sandlada/result/blob/main/src/async-result/expect.ts#L33)
 
 Like [unwrap](/0.20260811/api/async-result/#unwrap) but throws an `Error` carrying the supplied message.
 Useful for marking program-contract violations with a domain-specific
@@ -1070,7 +1070,7 @@ Ready for Product
 
 > **expectErr**\<`T`, `E`>(`message`, `ar`, `throwingFn?`): `Promise`\<`E`>
 
-Defined in: [async-result/expectErr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/expectErr.ts#L23)
+Defined in: [async-result/expectErr.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/expectErr.ts#L23)
 
 Like [unwrapErr](/0.20260811/api/async-result/#unwraperr) but throws an `Error` carrying the supplied message.
 Useful when reaching a success path is itself a contract violation.
@@ -1130,7 +1130,7 @@ Ready for Product
 
 > **filterOrElse**\<`T`, `E`>(`predicate`, `errorFn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/filterOrElse.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/filterOrElse.ts#L25)
+Defined in: [async-result/filterOrElse.ts:25](https://github.com/sandlada/result/blob/main/src/async-result/filterOrElse.ts#L25)
 
 ##### Type Parameters
 
@@ -1186,7 +1186,7 @@ Ready for Product
 
 > **filterOrElse**\<`T`, `E`>(`predicate`, `errorFn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/filterOrElse.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/filterOrElse.ts#L29)
+Defined in: [async-result/filterOrElse.ts:29](https://github.com/sandlada/result/blob/main/src/async-result/filterOrElse.ts#L29)
 
 ##### Type Parameters
 
@@ -1248,7 +1248,7 @@ Ready for Product
 
 > **flatten**\<`T`, `E`>(`ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/flatten.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/flatten.ts#L21)
+Defined in: [async-result/flatten.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/flatten.ts#L21)
 
 #### Type Parameters
 
@@ -1299,7 +1299,7 @@ Ready for Product
 
 > **from**\<`T`, `E`>(`thunk`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/from.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/from.ts#L20)
+Defined in: [async-result/from.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/from.ts#L20)
 
 AsyncResult — barrel export.
 
@@ -1331,7 +1331,7 @@ Re-exports all AsyncResult factories and operators.
 
 > **fromPromise**\<`T`, `E`>(`thunk`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/fromPromise.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/fromPromise.ts#L20)
+Defined in: [async-result/fromPromise.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/fromPromise.ts#L20)
 
 #### Type Parameters
 
@@ -1363,7 +1363,7 @@ Defined in: [async-result/fromPromise.ts:20](https://github.com/sandlada/result/
 
 > **fromResult**\<`T`, `E`>(`result`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/fromResult.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/fromResult.ts#L21)
+Defined in: [async-result/fromResult.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/fromResult.ts#L21)
 
 #### Type Parameters
 
@@ -1391,7 +1391,7 @@ Defined in: [async-result/fromResult.ts:21](https://github.com/sandlada/result/b
 
 > **isErr**\<`T`, `E`>(`ar`): `Promise`\<`boolean`>
 
-Defined in: [async-result/isErr.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/isErr.ts#L18)
+Defined in: [async-result/isErr.ts:18](https://github.com/sandlada/result/blob/main/src/async-result/isErr.ts#L18)
 
 Returns `true` if the `AsyncResult` resolves to `Err`. Mirrors the
 `IResultOfT.isFailure` discriminator as a standalone function.
@@ -1436,7 +1436,7 @@ Ready for Product
 
 > **isOk**\<`T`, `E`>(`ar`): `Promise`\<`boolean`>
 
-Defined in: [async-result/isOk.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/isOk.ts#L18)
+Defined in: [async-result/isOk.ts:18](https://github.com/sandlada/result/blob/main/src/async-result/isOk.ts#L18)
 
 Returns `true` if the `AsyncResult` resolves to `Ok`. Mirrors the
 `IResultOfT.isSuccess` discriminator as a standalone function.
@@ -1483,7 +1483,7 @@ Ready for Product
 
 > **map**\<`T`, `U`, `E`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E`>
 
-Defined in: [async-result/map.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/map.ts#L23)
+Defined in: [async-result/map.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/map.ts#L23)
 
 ##### Type Parameters
 
@@ -1517,7 +1517,7 @@ Defined in: [async-result/map.ts:23](https://github.com/sandlada/result/blob/184
 
 > **map**\<`T`, `U`, `E`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E`>
 
-Defined in: [async-result/map.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/map.ts#L27)
+Defined in: [async-result/map.ts:27](https://github.com/sandlada/result/blob/main/src/async-result/map.ts#L27)
 
 ##### Type Parameters
 
@@ -1559,7 +1559,7 @@ Defined in: [async-result/map.ts:27](https://github.com/sandlada/result/blob/184
 
 > **mapAsync**\<`T`, `U`, `E`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E`>
 
-Defined in: [async-result/mapAsync.ts:32](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapAsync.ts#L32)
+Defined in: [async-result/mapAsync.ts:32](https://github.com/sandlada/result/blob/main/src/async-result/mapAsync.ts#L32)
 
 ##### Type Parameters
 
@@ -1593,7 +1593,7 @@ Defined in: [async-result/mapAsync.ts:32](https://github.com/sandlada/result/blo
 
 > **mapAsync**\<`T`, `U`, `E`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`U`, `E`>
 
-Defined in: [async-result/mapAsync.ts:36](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapAsync.ts#L36)
+Defined in: [async-result/mapAsync.ts:36](https://github.com/sandlada/result/blob/main/src/async-result/mapAsync.ts#L36)
 
 ##### Type Parameters
 
@@ -1635,7 +1635,7 @@ Defined in: [async-result/mapAsync.ts:36](https://github.com/sandlada/result/blo
 
 > **mapErr**\<`T`, `E`, `F`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `F`>
 
-Defined in: [async-result/mapErr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapErr.ts#L23)
+Defined in: [async-result/mapErr.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/mapErr.ts#L23)
 
 ##### Type Parameters
 
@@ -1669,7 +1669,7 @@ Defined in: [async-result/mapErr.ts:23](https://github.com/sandlada/result/blob/
 
 > **mapErr**\<`T`, `E`, `F`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `F`>
 
-Defined in: [async-result/mapErr.ts:27](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapErr.ts#L27)
+Defined in: [async-result/mapErr.ts:27](https://github.com/sandlada/result/blob/main/src/async-result/mapErr.ts#L27)
 
 ##### Type Parameters
 
@@ -1711,7 +1711,7 @@ Defined in: [async-result/mapErr.ts:27](https://github.com/sandlada/result/blob/
 
 > **mapErrAsync**\<`T`, `E`, `F`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `F`>
 
-Defined in: [async-result/mapErrAsync.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapErrAsync.ts#L20)
+Defined in: [async-result/mapErrAsync.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/mapErrAsync.ts#L20)
 
 ##### Type Parameters
 
@@ -1762,7 +1762,7 @@ Ready for Product
 
 > **mapErrAsync**\<`T`, `E`, `F`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `F`>
 
-Defined in: [async-result/mapErrAsync.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapErrAsync.ts#L23)
+Defined in: [async-result/mapErrAsync.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/mapErrAsync.ts#L23)
 
 ##### Type Parameters
 
@@ -1821,7 +1821,7 @@ Ready for Product
 
 > **mapOr**\<`T`, `U`, `E`>(`defaultValue`, `fn`): (`ar`) => `Promise`\<`U`>
 
-Defined in: [async-result/mapOr.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapOr.ts#L19)
+Defined in: [async-result/mapOr.ts:19](https://github.com/sandlada/result/blob/main/src/async-result/mapOr.ts#L19)
 
 Maps the success value of an `AsyncResult`, or returns a default on failure.
 The mapper may be sync or async. Sync throws from the mapper are caught
@@ -1873,7 +1873,7 @@ Ready for Product
 
 > **mapOr**\<`T`, `U`, `E`>(`defaultValue`, `fn`, `ar`): `Promise`\<`U`>
 
-Defined in: [async-result/mapOr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapOr.ts#L23)
+Defined in: [async-result/mapOr.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/mapOr.ts#L23)
 
 Maps the success value of an `AsyncResult`, or returns a default on failure.
 The mapper may be sync or async. Sync throws from the mapper are caught
@@ -1933,7 +1933,7 @@ Ready for Product
 
 > **mapOrElse**\<`T`, `U`, `E`>(`onErr`, `fn`): (`ar`) => `Promise`\<`U`>
 
-Defined in: [async-result/mapOrElse.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapOrElse.ts#L19)
+Defined in: [async-result/mapOrElse.ts:19](https://github.com/sandlada/result/blob/main/src/async-result/mapOrElse.ts#L19)
 
 Maps the success value of an `AsyncResult`, or computes a default from the
 error on failure. Both callbacks may be sync or async. Lazy — `onErr` is
@@ -1985,7 +1985,7 @@ Ready for Product
 
 > **mapOrElse**\<`T`, `U`, `E`>(`onErr`, `fn`, `ar`): `Promise`\<`U`>
 
-Defined in: [async-result/mapOrElse.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/mapOrElse.ts#L23)
+Defined in: [async-result/mapOrElse.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/mapOrElse.ts#L23)
 
 Maps the success value of an `AsyncResult`, or computes a default from the
 error on failure. Both callbacks may be sync or async. Lazy — `onErr` is
@@ -2045,7 +2045,7 @@ Ready for Product
 
 > **match**\<`T`, `E`, `U`>(`handlers`): (`ar`) => `Promise`\<`U`>
 
-Defined in: [async-result/match.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/match.ts#L21)
+Defined in: [async-result/match.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/match.ts#L21)
 
 ##### Type Parameters
 
@@ -2081,7 +2081,7 @@ Defined in: [async-result/match.ts:21](https://github.com/sandlada/result/blob/1
 
 > **match**\<`T`, `E`, `U`>(`handlers`, `ar`): `Promise`\<`U`>
 
-Defined in: [async-result/match.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/match.ts#L24)
+Defined in: [async-result/match.ts:24](https://github.com/sandlada/result/blob/main/src/async-result/match.ts#L24)
 
 ##### Type Parameters
 
@@ -2123,7 +2123,7 @@ Defined in: [async-result/match.ts:24](https://github.com/sandlada/result/blob/1
 
 > **or**\<`T`, `E`, `F`>(`res1`, `res2`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `F`>
 
-Defined in: [async-result/or.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/or.ts#L20)
+Defined in: [async-result/or.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/or.ts#L20)
 
 Returns `res1` if it is `Ok`, otherwise returns `res2`. Short-circuiting —
 `res2` is not evaluated when `res1` is `Ok`.
@@ -2179,7 +2179,7 @@ Ready for Product
 
 > **orElse**\<`T`, `E`, `F`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `F`>
 
-Defined in: [async-result/orElse.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/orElse.ts#L25)
+Defined in: [async-result/orElse.ts:25](https://github.com/sandlada/result/blob/main/src/async-result/orElse.ts#L25)
 
 ##### Type Parameters
 
@@ -2213,7 +2213,7 @@ Defined in: [async-result/orElse.ts:25](https://github.com/sandlada/result/blob/
 
 > **orElse**\<`T`, `E`, `F`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `F`>
 
-Defined in: [async-result/orElse.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/orElse.ts#L29)
+Defined in: [async-result/orElse.ts:29](https://github.com/sandlada/result/blob/main/src/async-result/orElse.ts#L29)
 
 ##### Type Parameters
 
@@ -2255,7 +2255,7 @@ Defined in: [async-result/orElse.ts:29](https://github.com/sandlada/result/blob/
 
 > **orTee**\<`T`, `E`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/orTee.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/orTee.ts#L23)
+Defined in: [async-result/orTee.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/orTee.ts#L23)
 
 ##### Type Parameters
 
@@ -2306,7 +2306,7 @@ Ready for Product
 
 > **orTee**\<`T`, `E`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/orTee.ts:26](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/orTee.ts#L26)
+Defined in: [async-result/orTee.ts:26](https://github.com/sandlada/result/blob/main/src/async-result/orTee.ts#L26)
 
 ##### Type Parameters
 
@@ -2363,7 +2363,7 @@ Ready for Product
 
 > **swapAsync**\<`T`, `E`>(`ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`E`, `T`>
 
-Defined in: [async-result/swapAsync.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/swapAsync.ts#L22)
+Defined in: [async-result/swapAsync.ts:22](https://github.com/sandlada/result/blob/main/src/async-result/swapAsync.ts#L22)
 
 #### Type Parameters
 
@@ -2413,7 +2413,7 @@ Ready for Product
 
 > **tap**\<`T`, `E`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tap.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tap.ts#L31)
+Defined in: [async-result/tap.ts:31](https://github.com/sandlada/result/blob/main/src/async-result/tap.ts#L31)
 
 ##### Type Parameters
 
@@ -2443,7 +2443,7 @@ Defined in: [async-result/tap.ts:31](https://github.com/sandlada/result/blob/184
 
 > **tap**\<`T`, `E`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tap.ts:35](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tap.ts#L35)
+Defined in: [async-result/tap.ts:35](https://github.com/sandlada/result/blob/main/src/async-result/tap.ts#L35)
 
 ##### Type Parameters
 
@@ -2481,7 +2481,7 @@ Defined in: [async-result/tap.ts:35](https://github.com/sandlada/result/blob/184
 
 > **tapAsync**\<`T`, `E`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapAsync.ts#L18)
+Defined in: [async-result/tapAsync.ts:18](https://github.com/sandlada/result/blob/main/src/async-result/tapAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -2527,7 +2527,7 @@ Ready for Product
 
 > **tapAsync**\<`T`, `E`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapAsync.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapAsync.ts#L21)
+Defined in: [async-result/tapAsync.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/tapAsync.ts#L21)
 
 ##### Type Parameters
 
@@ -2581,7 +2581,7 @@ Ready for Product
 
 > **tapErr**\<`T`, `E`>(`fn`, `errorFn?`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapErr.ts:31](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapErr.ts#L31)
+Defined in: [async-result/tapErr.ts:31](https://github.com/sandlada/result/blob/main/src/async-result/tapErr.ts#L31)
 
 ##### Type Parameters
 
@@ -2611,7 +2611,7 @@ Defined in: [async-result/tapErr.ts:31](https://github.com/sandlada/result/blob/
 
 > **tapErr**\<`T`, `E`>(`fn`, `ar`, `errorFn?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapErr.ts:35](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapErr.ts#L35)
+Defined in: [async-result/tapErr.ts:35](https://github.com/sandlada/result/blob/main/src/async-result/tapErr.ts#L35)
 
 ##### Type Parameters
 
@@ -2649,7 +2649,7 @@ Defined in: [async-result/tapErr.ts:35](https://github.com/sandlada/result/blob/
 
 > **tapErrAsync**\<`T`, `E`>(`fn`): (`ar`) => [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapErrAsync.ts:18](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapErrAsync.ts#L18)
+Defined in: [async-result/tapErrAsync.ts:18](https://github.com/sandlada/result/blob/main/src/async-result/tapErrAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -2695,7 +2695,7 @@ Ready for Product
 
 > **tapErrAsync**\<`T`, `E`>(`fn`, `ar`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [async-result/tapErrAsync.ts:21](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/tapErrAsync.ts#L21)
+Defined in: [async-result/tapErrAsync.ts:21](https://github.com/sandlada/result/blob/main/src/async-result/tapErrAsync.ts#L21)
 
 ##### Type Parameters
 
@@ -2749,7 +2749,7 @@ Ready for Product
 
 > **unwrap**\<`T`, `E`>(`ar`): `Promise`\<`T`>
 
-Defined in: [async-result/unwrap.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrap.ts#L24)
+Defined in: [async-result/unwrap.ts:24](https://github.com/sandlada/result/blob/main/src/async-result/unwrap.ts#L24)
 
 Extracts the success value from an `AsyncResult`, or throws on failure.
 Use sparingly — prefer `unwrapOr`, `unwrapOrElse`, or `match` in most code.
@@ -2798,7 +2798,7 @@ Ready for Product
 
 > **unwrap**\<`T`, `E`>(`ar`, `formatErr?`): `Promise`\<`T`>
 
-Defined in: [async-result/unwrap.ts:25](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrap.ts#L25)
+Defined in: [async-result/unwrap.ts:25](https://github.com/sandlada/result/blob/main/src/async-result/unwrap.ts#L25)
 
 Extracts the success value from an `AsyncResult`, or throws on failure.
 Use sparingly — prefer `unwrapOr`, `unwrapOrElse`, or `match` in most code.
@@ -2851,7 +2851,7 @@ Ready for Product
 
 > **unwrap**\<`T`, `E`>(`ar`, `formatErr`, `throwingFn`): `Promise`\<`T`>
 
-Defined in: [async-result/unwrap.ts:29](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrap.ts#L29)
+Defined in: [async-result/unwrap.ts:29](https://github.com/sandlada/result/blob/main/src/async-result/unwrap.ts#L29)
 
 Extracts the success value from an `AsyncResult`, or throws on failure.
 Use sparingly — prefer `unwrapOr`, `unwrapOrElse`, or `match` in most code.
@@ -2912,7 +2912,7 @@ Ready for Product
 
 > **unwrapErr**\<`T`, `E`>(`ar`): `Promise`\<`E`>
 
-Defined in: [async-result/unwrapErr.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapErr.ts#L23)
+Defined in: [async-result/unwrapErr.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/unwrapErr.ts#L23)
 
 Extracts the error from a failed `AsyncResult`, or throws on success.
 The dual of [unwrap](/0.20260811/api/async-result/#unwrap).
@@ -2960,7 +2960,7 @@ Ready for Product
 
 > **unwrapErr**\<`T`, `E`>(`ar`, `throwingFn?`): `Promise`\<`E`>
 
-Defined in: [async-result/unwrapErr.ts:24](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapErr.ts#L24)
+Defined in: [async-result/unwrapErr.ts:24](https://github.com/sandlada/result/blob/main/src/async-result/unwrapErr.ts#L24)
 
 Extracts the error from a failed `AsyncResult`, or throws on success.
 The dual of [unwrap](/0.20260811/api/async-result/#unwrap).
@@ -3016,7 +3016,7 @@ Ready for Product
 
 > **unwrapOr**\<`T`, `E`>(`defaultValue`): (`ar`) => `Promise`\<`T`>
 
-Defined in: [async-result/unwrapOr.ts:19](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapOr.ts#L19)
+Defined in: [async-result/unwrapOr.ts:19](https://github.com/sandlada/result/blob/main/src/async-result/unwrapOr.ts#L19)
 
 ##### Type Parameters
 
@@ -3042,7 +3042,7 @@ Defined in: [async-result/unwrapOr.ts:19](https://github.com/sandlada/result/blo
 
 > **unwrapOr**\<`T`, `E`>(`defaultValue`, `ar`): `Promise`\<`T`>
 
-Defined in: [async-result/unwrapOr.ts:22](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapOr.ts#L22)
+Defined in: [async-result/unwrapOr.ts:22](https://github.com/sandlada/result/blob/main/src/async-result/unwrapOr.ts#L22)
 
 ##### Type Parameters
 
@@ -3076,7 +3076,7 @@ Defined in: [async-result/unwrapOr.ts:22](https://github.com/sandlada/result/blo
 
 > **unwrapOrElse**\<`T`, `E`, `U`>(`onErr`): (`ar`) => `Promise`\<`T` | `U`>
 
-Defined in: [async-result/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapOrElse.ts#L20)
+Defined in: [async-result/unwrapOrElse.ts:20](https://github.com/sandlada/result/blob/main/src/async-result/unwrapOrElse.ts#L20)
 
 Extracts the success value from an `AsyncResult`, or computes a default from
 the error on failure. The handler may be sync or async. Lazy — the handler
@@ -3125,7 +3125,7 @@ Ready for Product
 
 > **unwrapOrElse**\<`T`, `E`, `U`>(`onErr`, `ar`): `Promise`\<`T` | `U`>
 
-Defined in: [async-result/unwrapOrElse.ts:23](https://github.com/sandlada/result/blob/1844ca0b1956c64c296b04928d2d25a941fde475/src/async-result/unwrapOrElse.ts#L23)
+Defined in: [async-result/unwrapOrElse.ts:23](https://github.com/sandlada/result/blob/main/src/async-result/unwrapOrElse.ts#L23)
 
 Extracts the success value from an `AsyncResult`, or computes a default from
 the error on failure. The handler may be sync or async. Lazy — the handler
