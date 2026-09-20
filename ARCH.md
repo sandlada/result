@@ -267,7 +267,7 @@ import { pipe } from '@sandlada/result/composition';
 
 1. **No toolchain coupling.** `site/` sits outside `tsconfig.json`'s `include`, `rolldown.config.ts`'s input walk and `vitest.config.ts`'s globs, exactly like `demo/`. The published artifact is unaffected.
 2. **Independent dependency graph.** Astro, TypeDoc and the Starlight plugins are devDependencies of `site/`, and `@astrojs/check` requires TypeScript 6 while the library builds with TypeScript 7.
-3. **Cloudflare Pages builds the directory directly** through its Git integration; `.github/workflows/docs.yml` only verifies the build and does not deploy.
+3. **Cloudflare builds the directory** through Workers Builds, which serves the static output with the assets-only Worker declared in `site/wrangler.jsonc`; `.github/workflows/docs.yml` only verifies the build and does not deploy.
 
 **Generation decisions:**
 

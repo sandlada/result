@@ -196,7 +196,7 @@ site/                   — Astro Starlight documentation site (separate package
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.
 
-`site/` is a separate npm project, like `demo/`: it has its own `package.json` and lockfile, and the root `tsconfig.json`, `rolldown.config.ts` and `vitest.config.ts` all scope themselves to `src/`, so nothing under `site/` reaches the published package. Cloudflare Pages builds and deploys the site through its Git integration; `.github/workflows/docs.yml` only verifies the build and does not deploy.
+`site/` is a separate npm project, like `demo/`: it has its own `package.json` and lockfile, and the root `tsconfig.json`, `rolldown.config.ts` and `vitest.config.ts` all scope themselves to `src/`, so nothing under `site/` reaches the published package. Cloudflare builds and deploys the site through Workers Builds, using the static-assets Worker defined in `site/wrangler.jsonc`; `.github/workflows/docs.yml` only verifies the build and does not deploy.
 
 ## Testing
 

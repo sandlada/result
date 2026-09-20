@@ -63,19 +63,26 @@ reference of a published version therefore stays frozen even as the library evol
 
 ## Deployment
 
-Cloudflare Pages builds this directory through its Git integration — there is no deployment job in
+The site is deployed as a Cloudflare Worker that serves static assets. `wrangler.jsonc` in this
+directory defines it: the Worker has no script, it uploads `dist/` and serves the generated
+`404.html` for unknown paths. Cloudflare builds the project through Workers Builds, which is what
+the dashboard offers when a repository is connected; there is no deployment job in
 `.github/workflows`, where `docs.yml` only verifies the build.
-
-One-time setup in the Cloudflare dashboard:
 
 | Setting | Value |
 | --- | --- |
-| Root directory | `site` |
-| Build command | `npm ci && npm run build` |
-| Build output directory | `dist` |
-| Environment variable | `NODE_VERSION=26` (Astro requires Node >= 22.12) |
+| Project name | `result` (must match `name` in `wrangler.jsonc`) |
 | Production branch | `main` |
+| Build command | `cd site && npm ci && npm run build` |
+| Deploy command | `cd site && npx wrangler deploy` |
+| Environment variable | `NODE_VERSION=26` (Astro requires Node >= 22.12) |
 | Custom domain | `result.sandlada.com` |
+
+The `cd site` prefix in both commands keeps them independent of any root-directory setting. If the
+project is instead configured with `site` as its root directory, drop the prefix.
+
+`npx wrangler deploy --dry-run --config site/wrangler.jsonc` validates the configuration locally
+without authenticating, including that the assets directory resolves.
 
 `.node-version` pins the same Node version inside the build root, so the version travels with the
 repository even if the environment variable is ever missing.
@@ -83,8 +90,8 @@ repository even if the environment variable is ever missing.
 Cloudflare checks out the whole repository, so TypeDoc can read `../src` and `../tsconfig.json`
 even though the build runs inside `site/`.
 
-Every push to `main` rebuilds the project by default. Build watch paths can narrow that down to the
-files this site actually reads: `site/**`, `src/**`, `docs/**`, `tsconfig.json` and `package.json`.
+Workers Builds rebuilds on every change in the repository; unlike Pages it has no build watch
+paths, so unrelated commits also trigger a build.
 
 Do not add a version to `versions.json` without running `npm run version:new`, because the next
 build would then create the archive itself and the deployed site would describe a version that is
