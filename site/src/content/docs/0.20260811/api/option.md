@@ -19,7 +19,7 @@ and operators for use in point-free pipelines.
 
 > **all**\<`T`>(`options`): [`IOption`](/0.20260811/api/types/#ioption)\<\{ \[K in string | number | symbol]: T\[K] extends IOption\<V> ? V : never }>
 
-Defined in: [option/all.ts:39](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/all.ts#L39)
+Defined in: [option/all.ts:39](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/all.ts#L39)
 
 ##### Type Parameters
 
@@ -41,7 +41,7 @@ Defined in: [option/all.ts:39](https://github.com/sandlada/result/blob/b5a22d73c
 
 > **all**\<`T`>(`options`): [`IOption`](/0.20260811/api/types/#ioption)\<`T`\[]>
 
-Defined in: [option/all.ts:46](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/all.ts#L46)
+Defined in: [option/all.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/all.ts#L46)
 
 ##### Type Parameters
 
@@ -65,7 +65,7 @@ readonly [`IOption`](/0.20260811/api/types/#ioption)\<`T`>\[]
 
 > **bind**\<`T`, `U`>(`fn`): (`opt`) => [`IOption`](/0.20260811/api/types/#ioption)\<`U`>
 
-Defined in: [option/bind.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/bind.ts#L17)
+Defined in: [option/bind.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/bind.ts#L17)
 
 #### Type Parameters
 
@@ -93,7 +93,7 @@ Defined in: [option/bind.ts:17](https://github.com/sandlada/result/blob/b5a22d73
 
 > **contains**\<`T`>(`target`): (`opt`) => `boolean`
 
-Defined in: [option/contains.ts:17](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/contains.ts#L17)
+Defined in: [option/contains.ts:17](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/contains.ts#L17)
 
 #### Type Parameters
 
@@ -117,7 +117,7 @@ Defined in: [option/contains.ts:17](https://github.com/sandlada/result/blob/b5a2
 
 > **filter**\<`T`>(`predicate`): (`opt`) => [`IOption`](/0.20260811/api/types/#ioption)\<`T`>
 
-Defined in: [option/filter.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/filter.ts#L18)
+Defined in: [option/filter.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/filter.ts#L18)
 
 #### Type Parameters
 
@@ -141,7 +141,7 @@ Defined in: [option/filter.ts:18](https://github.com/sandlada/result/blob/b5a22d
 
 > **flatten**\<`T`>(`opt`): [`IOption`](/0.20260811/api/types/#ioption)\<`T`>
 
-Defined in: [option/flatten.ts:16](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/flatten.ts#L16)
+Defined in: [option/flatten.ts:16](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/flatten.ts#L16)
 
 #### Type Parameters
 
@@ -165,7 +165,7 @@ Defined in: [option/flatten.ts:16](https://github.com/sandlada/result/blob/b5a22
 
 > **map**\<`T`, `U`>(`fn`): (`opt`) => [`IOption`](/0.20260811/api/types/#ioption)\<`U`>
 
-Defined in: [option/map.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/map.ts#L18)
+Defined in: [option/map.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/map.ts#L18)
 
 #### Type Parameters
 
@@ -195,7 +195,7 @@ Defined in: [option/map.ts:18](https://github.com/sandlada/result/blob/b5a22d73c
 
 > **match**\<`T`, `U`>(`onSome`, `onNone`): (`opt`) => `U`
 
-Defined in: [option/match.ts:30](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/match.ts#L30)
+Defined in: [option/match.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/match.ts#L30)
 
 ##### Type Parameters
 
@@ -225,7 +225,7 @@ Defined in: [option/match.ts:30](https://github.com/sandlada/result/blob/b5a22d7
 
 > **match**\<`T`, `U`>(`onSome`, `onNone`, `opt`): `U`
 
-Defined in: [option/match.ts:34](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/match.ts#L34)
+Defined in: [option/match.ts:34](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/match.ts#L34)
 
 ##### Type Parameters
 
@@ -259,7 +259,7 @@ Defined in: [option/match.ts:34](https://github.com/sandlada/result/blob/b5a22d7
 
 > **match**\<`T`, `U`>(`handlers`): (`opt`) => `U`
 
-Defined in: [option/match.ts:39](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/match.ts#L39)
+Defined in: [option/match.ts:39](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/match.ts#L39)
 
 ##### Type Parameters
 
@@ -285,7 +285,7 @@ Defined in: [option/match.ts:39](https://github.com/sandlada/result/blob/b5a22d7
 
 > **match**\<`T`, `U`>(`handlers`, `opt`): `U`
 
-Defined in: [option/match.ts:42](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/match.ts#L42)
+Defined in: [option/match.ts:42](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/match.ts#L42)
 
 ##### Type Parameters
 
@@ -317,7 +317,7 @@ Defined in: [option/match.ts:42](https://github.com/sandlada/result/blob/b5a22d7
 
 > **ofNone**\<`T`>(): [`IOption`](/0.20260811/api/types/#ioption)\<`T`>
 
-Defined in: [option/ofNone.ts:56](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/ofNone.ts#L56)
+Defined in: [option/ofNone.ts:56](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/ofNone.ts#L56)
 
 Creates a `None` variant of [IOption](/0.20260811/api/types/#ioption).
 
@@ -349,7 +349,7 @@ Ready for Product
 
 > **ofSome**\<`T`>(`value`): [`IOption`](/0.20260811/api/types/#ioption)\<`T`>
 
-Defined in: [option/ofSome.ts:15](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/ofSome.ts#L15)
+Defined in: [option/ofSome.ts:15](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/ofSome.ts#L15)
 
 #### Type Parameters
 
@@ -373,7 +373,7 @@ Defined in: [option/ofSome.ts:15](https://github.com/sandlada/result/blob/b5a22d
 
 > **okOr**\<`E`>(`error`): \<`T`>(`opt`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [option/okOr.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/okOr.ts#L22)
+Defined in: [option/okOr.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/okOr.ts#L22)
 
 #### Type Parameters
 
@@ -397,7 +397,7 @@ Defined in: [option/okOr.ts:22](https://github.com/sandlada/result/blob/b5a22d73
 
 > **okOrElse**\<`E`>(`errorFn`): \<`T`>(`opt`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E` | `Error`>
 
-Defined in: [option/okOrElse.ts:40](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/okOrElse.ts#L40)
+Defined in: [option/okOrElse.ts:40](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/okOrElse.ts#L40)
 
 #### Type Parameters
 
@@ -423,7 +423,7 @@ Defined in: [option/okOrElse.ts:40](https://github.com/sandlada/result/blob/b5a2
 
 > **orElse**\<`U`>(`fn`): \<`T`>(`opt`) => [`IOption`](/0.20260811/api/types/#ioption)\<`U` | `T`>
 
-Defined in: [option/orElse.ts:43](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/orElse.ts#L43)
+Defined in: [option/orElse.ts:43](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/orElse.ts#L43)
 
 Curried form. The inner `<T>` is **deferred** so the option's value type is
 re-inferred at every application site — `orElse(fn)(IOption<User>)` and
@@ -449,7 +449,7 @@ re-inferred at every application site — `orElse(fn)(IOption<User>)` and
 
 > **orElse**\<`T`, `U`>(`fn`, `opt`): [`IOption`](/0.20260811/api/types/#ioption)\<`T` | `U`>
 
-Defined in: [option/orElse.ts:48](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/orElse.ts#L48)
+Defined in: [option/orElse.ts:48](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/orElse.ts#L48)
 
 Direct form. `T` is inferred from the supplied option; the result widens to `T | U`.
 
@@ -483,7 +483,7 @@ Direct form. `T` is inferred from the supplied option; the result widens to `T |
 
 > **tap**\<`T`>(`fn`): (`opt`) => [`IOption`](/0.20260811/api/types/#ioption)\<`T`>
 
-Defined in: [option/tap.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/tap.ts#L21)
+Defined in: [option/tap.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/tap.ts#L21)
 
 #### Type Parameters
 
@@ -507,7 +507,7 @@ Defined in: [option/tap.ts:21](https://github.com/sandlada/result/blob/b5a22d73c
 
 > **transpose**\<`T`, `E`>(`opt`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<[`IOption`](/0.20260811/api/types/#ioption)\<`T`>, `E`>
 
-Defined in: [option/transpose.ts:28](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/transpose.ts#L28)
+Defined in: [option/transpose.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/transpose.ts#L28)
 
 #### Type Parameters
 
@@ -537,7 +537,7 @@ Defined in: [option/transpose.ts:28](https://github.com/sandlada/result/blob/b5a
 
 > **traverse**\<`A`, `B`>(`fn`): (`items`) => [`IOption`](/0.20260811/api/types/#ioption)\<`B`\[]>
 
-Defined in: [option/traverseArray.ts:66](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/traverseArray.ts#L66)
+Defined in: [option/traverseArray.ts:66](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/traverseArray.ts#L66)
 
 ##### Type Parameters
 
@@ -563,7 +563,7 @@ Defined in: [option/traverseArray.ts:66](https://github.com/sandlada/result/blob
 
 > **traverse**\<`A`, `B`>(`fn`, `items`): [`IOption`](/0.20260811/api/types/#ioption)\<`B`\[]>
 
-Defined in: [option/traverseArray.ts:69](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/traverseArray.ts#L69)
+Defined in: [option/traverseArray.ts:69](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/traverseArray.ts#L69)
 
 ##### Type Parameters
 
@@ -597,7 +597,7 @@ Defined in: [option/traverseArray.ts:69](https://github.com/sandlada/result/blob
 
 > **traverseArray**\<`A`, `B`>(`fn`): (`items`) => [`IOption`](/0.20260811/api/types/#ioption)\<`B`\[]>
 
-Defined in: [option/traverseArray.ts:35](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/traverseArray.ts#L35)
+Defined in: [option/traverseArray.ts:35](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/traverseArray.ts#L35)
 
 ##### Type Parameters
 
@@ -623,7 +623,7 @@ Defined in: [option/traverseArray.ts:35](https://github.com/sandlada/result/blob
 
 > **traverseArray**\<`A`, `B`>(`fn`, `items`): [`IOption`](/0.20260811/api/types/#ioption)\<`B`\[]>
 
-Defined in: [option/traverseArray.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/traverseArray.ts#L38)
+Defined in: [option/traverseArray.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/traverseArray.ts#L38)
 
 ##### Type Parameters
 
@@ -657,7 +657,7 @@ readonly `A`\[]
 
 > **unwrapOr**\<`D`>(`defaultValue`): \<`T`>(`opt`) => `D` | `T`
 
-Defined in: [option/unwrapOr.ts:44](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/unwrapOr.ts#L44)
+Defined in: [option/unwrapOr.ts:44](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/unwrapOr.ts#L44)
 
 Curried form. The inner `<T>` is **deferred** so the option's value type is
 re-inferred at every application site — `unwrapOr(default)(IOption<User>)` and
@@ -684,7 +684,7 @@ re-inferred at every application site — `unwrapOr(default)(IOption<User>)` and
 
 > **unwrapOr**\<`T`, `D`>(`defaultValue`, `opt`): `T` | `D`
 
-Defined in: [option/unwrapOr.ts:49](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/unwrapOr.ts#L49)
+Defined in: [option/unwrapOr.ts:49](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/unwrapOr.ts#L49)
 
 Direct form. `T` is inferred from the supplied option.
 
@@ -720,7 +720,7 @@ Direct form. `T` is inferred from the supplied option.
 
 > **zipWith**\<`T`, `R`>(`fn`): (...`options`) => [`IOption`](/0.20260811/api/types/#ioption)\<`R`>
 
-Defined in: [option/zipWith.ts:55](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/zipWith.ts#L55)
+Defined in: [option/zipWith.ts:55](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/zipWith.ts#L55)
 
 ##### Type Parameters
 
@@ -746,7 +746,7 @@ Defined in: [option/zipWith.ts:55](https://github.com/sandlada/result/blob/b5a22
 
 > **zipWith**\<`T`, `R`>(`fn`, ...`options`): [`IOption`](/0.20260811/api/types/#ioption)\<`R`>
 
-Defined in: [option/zipWith.ts:58](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/option/zipWith.ts#L58)
+Defined in: [option/zipWith.ts:58](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/option/zipWith.ts#L58)
 
 ##### Type Parameters
 

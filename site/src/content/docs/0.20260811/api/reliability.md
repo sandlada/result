@@ -10,7 +10,7 @@ slug: 0.20260811/api/reliability
 
 ### AbortedError
 
-Defined in: [reliability/retry.ts:122](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L122)
+Defined in: [reliability/retry.ts:122](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L122)
 
 Default shape of the error produced when the retry loop never invokes `fn`
 (pre-aborted signal, or a non-finite / negative `times`).
@@ -21,25 +21,25 @@ Default shape of the error produced when the retry loop never invokes `fn`
 
 > `readonly` **kind**: `"Aborted"`
 
-Defined in: [reliability/retry.ts:123](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L123)
+Defined in: [reliability/retry.ts:123](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L123)
 
 ##### reason
 
 > `readonly` **reason**: `unknown`
 
-Defined in: [reliability/retry.ts:124](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L124)
+Defined in: [reliability/retry.ts:124](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L124)
 
 ##### times
 
 > `readonly` **times**: `number`
 
-Defined in: [reliability/retry.ts:125](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L125)
+Defined in: [reliability/retry.ts:125](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L125)
 
 ***
 
 ### EmptyInputsError
 
-Defined in: [reliability/race.ts:66](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/race.ts#L66)
+Defined in: [reliability/race.ts:66](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/race.ts#L66)
 
 Default shape of the error produced by [race](/0.20260811/api/reliability/#race) when the input array is empty.
 Library consumers can extend, narrow, or replace it via the `onEmpty` hook.
@@ -50,13 +50,13 @@ Library consumers can extend, narrow, or replace it via the `onEmpty` hook.
 
 > `readonly` **kind**: `"EmptyInputs"`
 
-Defined in: [reliability/race.ts:67](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/race.ts#L67)
+Defined in: [reliability/race.ts:67](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/race.ts#L67)
 
 ***
 
 ### RetryOptions
 
-Defined in: [reliability/retry.ts:59](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L59)
+Defined in: [reliability/retry.ts:59](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L59)
 
 Options for [retry](/0.20260811/api/reliability/#retry) and [retryLazy](/0.20260811/api/reliability/#retrylazy).
 
@@ -90,7 +90,7 @@ Defaults to [AbortedError](/0.20260811/api/reliability/#abortederror); override 
 
 > `readonly` `optional` **delayMs?**: `number` | ((`attempt`, `error`) => `number`)
 
-Defined in: [reliability/retry.ts:70](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L70)
+Defined in: [reliability/retry.ts:70](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L70)
 
 Delay between attempts in milliseconds.
 Either a fixed number or a function of (zero-based attempt index, last error).
@@ -100,7 +100,7 @@ Default `0` (no delay). Negative values are clamped to `0`.
 
 > `readonly` `optional` **onAborted?**: (`reason`, `times`) => `AE`
 
-Defined in: [reliability/retry.ts:105](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L105)
+Defined in: [reliability/retry.ts:105](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L105)
 
 Optional factory invoked when the retry loop exits without ever calling
 `fn` (pre-aborted signal or non-finite / negative `times`). The returned
@@ -125,7 +125,7 @@ falls back to [AbortedError](/0.20260811/api/reliability/#abortederror).
 
 > `readonly` `optional` **onRetry?**: (`error`, `attempt`) => `void`
 
-Defined in: [reliability/retry.ts:85](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L85)
+Defined in: [reliability/retry.ts:85](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L85)
 
 Optional hook invoked **after** `shouldRetry` approves a retry and
 **before** the backoff delay begins. Useful for logging or metrics
@@ -149,7 +149,7 @@ Optional hook invoked **after** `shouldRetry` approves a retry and
 
 > `readonly` `optional` **onThrow?**: (`thrown`) => `TE`
 
-Defined in: [reliability/retry.ts:98](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L98)
+Defined in: [reliability/retry.ts:98](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L98)
 
 Optional factory that converts a value thrown by `fn` (or by one of the
 hooks above) into your own error type, collapsing `E | TE` back to `E`.
@@ -170,7 +170,7 @@ Without it the library preserves the thrown value verbatim inside a
 
 > `readonly` `optional` **shouldRetry?**: (`error`, `attempt`) => `boolean`
 
-Defined in: [reliability/retry.ts:79](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L79)
+Defined in: [reliability/retry.ts:79](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L79)
 
 Predicate that decides whether to retry after a given failure.
 Return `false` to stop retrying immediately and return the last result.
@@ -197,7 +197,7 @@ has to classify — supply `onThrow` to collapse both into one shape.
 
 > `readonly` `optional` **signal?**: `AbortSignal`
 
-Defined in: [reliability/retry.ts:91](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L91)
+Defined in: [reliability/retry.ts:91](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L91)
 
 Abort signal. If `signal.aborted` becomes `true` during the delay window,
 the loop exits and the last result is returned (the supplied function is
@@ -207,7 +207,7 @@ never re-invoked past that point).
 
 > `readonly` `optional` **times?**: `number`
 
-Defined in: [reliability/retry.ts:64](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L64)
+Defined in: [reliability/retry.ts:64](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L64)
 
 Maximum retry attempts (excluding the first attempt). Default `3`.
 Fractional values are floored — `times: 2.7` performs 3 attempts total.
@@ -216,7 +216,7 @@ Fractional values are floored — `times: 2.7` performs 3 attempts total.
 
 ### ThrownError
 
-Defined in: [reliability/retry.ts:113](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L113)
+Defined in: [reliability/retry.ts:113](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L113)
 
 Default shape of the error produced when `fn` throws instead of returning an
 `Err`. The original thrown value is preserved verbatim in `thrown`, so the
@@ -228,19 +228,19 @@ Default shape of the error produced when `fn` throws instead of returning an
 
 > `readonly` **kind**: `"Thrown"`
 
-Defined in: [reliability/retry.ts:114](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L114)
+Defined in: [reliability/retry.ts:114](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L114)
 
 ##### thrown
 
 > `readonly` **thrown**: `unknown`
 
-Defined in: [reliability/retry.ts:115](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L115)
+Defined in: [reliability/retry.ts:115](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L115)
 
 ***
 
 ### TimeoutError
 
-Defined in: [reliability/timeout.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/timeout.ts#L38)
+Defined in: [reliability/timeout.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/timeout.ts#L38)
 
 Default shape of the error produced by [timeout](/0.20260811/api/reliability/#timeout) when no factory is given.
 Library consumers can extend, narrow, or replace it via the `onTimeout` hook.
@@ -251,13 +251,13 @@ Library consumers can extend, narrow, or replace it via the `onTimeout` hook.
 
 > `readonly` **kind**: `"Timeout"`
 
-Defined in: [reliability/timeout.ts:39](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/timeout.ts#L39)
+Defined in: [reliability/timeout.ts:39](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/timeout.ts#L39)
 
 ##### ms
 
 > `readonly` **ms**: `number`
 
-Defined in: [reliability/timeout.ts:40](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/timeout.ts#L40)
+Defined in: [reliability/timeout.ts:40](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/timeout.ts#L40)
 
 ## Type Aliases
 
@@ -265,7 +265,7 @@ Defined in: [reliability/timeout.ts:40](https://github.com/sandlada/result/blob/
 
 > **Settled**\<`T`, `E`> = \{ `error?`: `never`; `ok`: `true`; `value`: `T`; } | \{ `error`: `E`; `kind?`: `"Err"`; `ok`: `false`; `value?`: `never`; } | \{ `error`: `unknown`; `kind`: `"Rejected"`; `ok`: `false`; `value?`: `never`; }
 
-Defined in: [reliability/allSettled.ts:43](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/allSettled.ts#L43)
+Defined in: [reliability/allSettled.ts:43](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/allSettled.ts#L43)
 
 Discriminated outcome of a single thunk in an `allSettled` batch.
 
@@ -298,7 +298,7 @@ tag:
 
 > **allSettled**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<[`Settled`](/0.20260811/api/reliability/#settled)\<`T`, `E`>\[], `never`>
 
-Defined in: [reliability/allSettled.ts:53](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/allSettled.ts#L53)
+Defined in: [reliability/allSettled.ts:53](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/allSettled.ts#L53)
 
 Run every thunk; the result is **always** `Ok([...settled, ...in input order])`.
 Unhandled rejections are captured as `{ ok: false, error: rejection }` rather than
@@ -330,7 +330,7 @@ readonly [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>\[]
 
 > **any**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`\[], `AnyError`\<`E`>\[]>
 
-Defined in: [reliability/any.ts:45](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/any.ts#L45)
+Defined in: [reliability/any.ts:45](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/any.ts#L45)
 
 AsyncResult analogue of `Promise.any`. Collects outcomes from every thunk; success
 if any succeeded, failure (with all collected errors) if every thunk failed.
@@ -363,7 +363,7 @@ readonly [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>\[]
 
 > **race**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [reliability/race.ts:80](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/race.ts#L80)
+Defined in: [reliability/race.ts:80](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/race.ts#L80)
 
 Race — first `Ok` wins. If every thunk fails, returns the *first* `Err` in input order.
 Inputs are echoed only lazily; calls to `.run()` are independent across all thunks.
@@ -396,7 +396,7 @@ readonly \[[`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>, [`Asy
 
 > **race**\<`T`, `E`, `EE`>(`results`, `onEmpty?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `EE`>
 
-Defined in: [reliability/race.ts:87](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/race.ts#L87)
+Defined in: [reliability/race.ts:87](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/race.ts#L87)
 
 ##### Type Parameters
 
@@ -435,7 +435,7 @@ readonly [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>\[]
 
 > **retry**\<`T`, `E`, `TE`, `AE`>(`fn`, `options?`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E` | `TE` | `AE`>>
 
-Defined in: [reliability/retry.ts:197](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retry.ts#L197)
+Defined in: [reliability/retry.ts:197](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retry.ts#L197)
 
 Runs a fallible function, retrying on failure up to `options.times` times.
 
@@ -498,7 +498,7 @@ rejecting — a broken factory must not take the whole contract down.
 
 > **retryLazy**\<`T`, `E`, `TE`, `AE`>(`ar`, `options?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `TE` | `AE`>
 
-Defined in: [reliability/retryLazy.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/retryLazy.ts#L38)
+Defined in: [reliability/retryLazy.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/retryLazy.ts#L38)
 
 Wraps an `AsyncResult` to add retry semantics without executing it.
 The returned thunk defers work until `.run()` is called.
@@ -545,7 +545,7 @@ covers throws and `AE` covers the never-ran case. Supply `onThrow` /
 
 > **timeout**\<`T`, `E`, `TOE`>(`ms`, `ar`, `onTimeout?`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E` | `TOE`>
 
-Defined in: [reliability/timeout.ts:50](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/timeout.ts#L50)
+Defined in: [reliability/timeout.ts:50](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/timeout.ts#L50)
 
 Wraps an AsyncResult so that slow runs turn into `Err(onTimeout(ms))` after
 `ms` milliseconds have elapsed. The inner `run()` keeps going in the
@@ -589,7 +589,7 @@ background — its eventual settlement is ignored.
 
 > **timeoutEager**\<`T`, `E`, `TOE`>(`ms`, `fn`, `onTimeout?`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E` | `TOE`>>
 
-Defined in: [reliability/timeoutEager.ts:32](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/reliability/timeoutEager.ts#L32)
+Defined in: [reliability/timeoutEager.ts:32](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/reliability/timeoutEager.ts#L32)
 
 Eager `timeout` — accepts a `() => Promise<IResultOfT<T, E>>` and races it
 against the configured timeout window.

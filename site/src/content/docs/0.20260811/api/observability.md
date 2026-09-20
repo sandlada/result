@@ -10,7 +10,7 @@ slug: 0.20260811/api/observability
 
 ### ErrContext
 
-Defined in: [observability/tapErrContext.ts:32](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/tapErrContext.ts#L32)
+Defined in: [observability/tapErrContext.ts:32](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/tapErrContext.ts#L32)
 
 #### Properties
 
@@ -18,13 +18,13 @@ Defined in: [observability/tapErrContext.ts:32](https://github.com/sandlada/resu
 
 > `readonly` **path**: [`PathStack`](/0.20260811/api/observability/#pathstack)
 
-Defined in: [observability/tapErrContext.ts:33](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/tapErrContext.ts#L33)
+Defined in: [observability/tapErrContext.ts:33](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/tapErrContext.ts#L33)
 
 ***
 
 ### FormatOptions
 
-Defined in: [observability/format.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/format.ts#L23)
+Defined in: [observability/format.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/format.ts#L23)
 
 #### Properties
 
@@ -32,7 +32,7 @@ Defined in: [observability/format.ts:23](https://github.com/sandlada/result/blob
 
 > `readonly` `optional` **includeStack?**: `boolean`
 
-Defined in: [observability/format.ts:27](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/format.ts#L27)
+Defined in: [observability/format.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/format.ts#L27)
 
 Include `Error.stack` if available. Default `false`.
 
@@ -40,7 +40,7 @@ Include `Error.stack` if available. Default `false`.
 
 > `readonly` `optional` **maxDepth?**: `number`
 
-Defined in: [observability/format.ts:29](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/format.ts#L29)
+Defined in: [observability/format.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/format.ts#L29)
 
 Truncate long values at `maxDepth` recursive levels for object values. Default `3`.
 
@@ -48,7 +48,7 @@ Truncate long values at `maxDepth` recursive levels for object values. Default `
 
 > `readonly` `optional` **quoteStrings?**: `boolean`
 
-Defined in: [observability/format.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/format.ts#L25)
+Defined in: [observability/format.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/format.ts#L25)
 
 Wrap strings in quotes so values with whitespace don't confuse readers. Default `true`.
 
@@ -56,7 +56,7 @@ Wrap strings in quotes so values with whitespace don't confuse readers. Default 
 
 ### ObserveEvent
 
-Defined in: [observability/observe.ts:29](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L29)
+Defined in: [observability/observe.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L29)
 
 #### Type Parameters
 
@@ -74,19 +74,19 @@ Defined in: [observability/observe.ts:29](https://github.com/sandlada/result/blo
 
 > `readonly` **kind**: `"ok"` | `"err"`
 
-Defined in: [observability/observe.ts:30](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L30)
+Defined in: [observability/observe.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L30)
 
 ##### path
 
 > `readonly` **path**: readonly (`string` | `number`)\[]
 
-Defined in: [observability/observe.ts:32](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L32)
+Defined in: [observability/observe.ts:32](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L32)
 
 ##### result
 
 > `readonly` **result**: [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [observability/observe.ts:31](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L31)
+Defined in: [observability/observe.ts:31](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L31)
 
 ## Type Aliases
 
@@ -94,7 +94,7 @@ Defined in: [observability/observe.ts:31](https://github.com/sandlada/result/blo
 
 > **Inspected**\<`T`, `E`> = \{ `kind`: `"ok"`; `value`: `T`; } | \{ `error`: `E`; `kind`: `"err"`; }
 
-Defined in: [observability/inspect.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/inspect.ts#L21)
+Defined in: [observability/inspect.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/inspect.ts#L21)
 
 #### Type Parameters
 
@@ -112,7 +112,7 @@ Defined in: [observability/inspect.ts:21](https://github.com/sandlada/result/blo
 
 > **Observer** = (`event`) => `void`
 
-Defined in: [observability/observe.ts:35](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L35)
+Defined in: [observability/observe.ts:35](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L35)
 
 #### Parameters
 
@@ -130,7 +130,7 @@ Defined in: [observability/observe.ts:35](https://github.com/sandlada/result/blo
 
 > **PathSegment** = `string` | `number`
 
-Defined in: [observability/ctx.ts:77](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/ctx.ts#L77)
+Defined in: [observability/ctx.ts:77](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/ctx.ts#L77)
 
 A single path segment. Strings are preferred for names; numbers are also accepted.
 
@@ -140,7 +140,7 @@ A single path segment. Strings are preferred for names; numbers are also accepte
 
 > **PathStack** = `ReadonlyArray`\<[`PathSegment`](/0.20260811/api/observability/#pathsegment)>
 
-Defined in: [observability/ctx.ts:80](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/ctx.ts#L80)
+Defined in: [observability/ctx.ts:80](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/ctx.ts#L80)
 
 Read-only snapshot of the current breadcrumb stack.
 
@@ -150,7 +150,7 @@ Read-only snapshot of the current breadcrumb stack.
 
 > `const` **ctx**: `object`
 
-Defined in: [observability/ctx.ts:271](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/ctx.ts#L271)
+Defined in: [observability/ctx.ts:271](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/ctx.ts#L271)
 
 Synchronous + async scope: `ctx.run(fn)` opens a fresh frame chained to
 the enclosing scope's frame (if any) and runs `fn` inside it. The frame
@@ -204,7 +204,7 @@ applies.
 
 > **format**\<`T`, `E`>(`r`, `options?`): `string`
 
-Defined in: [observability/format.ts:89](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/format.ts#L89)
+Defined in: [observability/format.ts:89](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/format.ts#L89)
 
 Render a result as `Ok(...)` / `Err(...)`. Stack traces (when requested)
 appear on subsequent lines after the closing parenthesis.
@@ -239,7 +239,7 @@ appear on subsequent lines after the closing parenthesis.
 
 > **getActiveObserver**(): [`Observer`](/0.20260811/api/observability/#observer) | `null`
 
-Defined in: [observability/observe.ts:102](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L102)
+Defined in: [observability/observe.ts:102](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L102)
 
 Returns the currently active observer or `null`. Mostly exposed for testing.
 
@@ -253,7 +253,7 @@ Returns the currently active observer or `null`. Mostly exposed for testing.
 
 > **getPath**(): [`PathStack`](/0.20260811/api/observability/#pathstack)
 
-Defined in: [observability/ctx.ts:298](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/ctx.ts#L298)
+Defined in: [observability/ctx.ts:298](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/ctx.ts#L298)
 
 Snapshot the current path. Walks the frame chain from the innermost
 scope outward, concatenating segments so that nested `ctx.run`s see
@@ -272,7 +272,7 @@ top-level test without `ctx.run`).
 
 > **inspect**\<`T`, `E`>(`r`): [`Inspected`](/0.20260811/api/observability/#inspected)\<`T`, `E`>
 
-Defined in: [observability/inspect.ts:36](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/inspect.ts#L36)
+Defined in: [observability/inspect.ts:36](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/inspect.ts#L36)
 
 Returns a structurally-friendly view of `r` that drops the `isSuccess`/`isFailure`
 discriminants in favor of a single `kind` discriminator.
@@ -310,7 +310,7 @@ a stable identity like `r.value` / `r.error`).
 
 > **installObserver**(`handler`, `onObserverError?`): () => `void`
 
-Defined in: [observability/observe.ts:76](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L76)
+Defined in: [observability/observe.ts:76](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L76)
 
 Install a process-wide observer. Returns a disposer. Pass `null` to remove.
 
@@ -348,7 +348,7 @@ preserve the pipeline guarantee.
 
 > **observe**\<`T`, `E`>(`r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [observability/observe.ts:116](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/observe.ts#L116)
+Defined in: [observability/observe.ts:116](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/observe.ts#L116)
 
 Side-effecting pass-through. If an observer is installed, fires it with the
 result and the current breadcrumb path; otherwise this is a no-op.
@@ -386,7 +386,7 @@ secondary channel.
 
 > **tapErrContext**\<`T`, `E`>(`fn`): (`r`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [observability/tapErrContext.ts:41](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/tapErrContext.ts#L41)
+Defined in: [observability/tapErrContext.ts:41](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/tapErrContext.ts#L41)
 
 Fires `fn(error, ctx)` for failures, returning the original result wrapped
 in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
@@ -416,7 +416,7 @@ return value (if a Promise) is awaited before the outer Promise resolves.
 
 > **tapErrContext**\<`T`, `E`>(`fn`, `r`): `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>>
 
-Defined in: [observability/tapErrContext.ts:44](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/tapErrContext.ts#L44)
+Defined in: [observability/tapErrContext.ts:44](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/tapErrContext.ts#L44)
 
 Fires `fn(error, ctx)` for failures, returning the original result wrapped
 in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
@@ -454,7 +454,7 @@ return value (if a Promise) is awaited before the outer Promise resolves.
 
 > **withPath**(`segment`): \<`T`, `E`>(`r`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [observability/withPath.ts:44](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/withPath.ts#L44)
+Defined in: [observability/withPath.ts:44](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/withPath.ts#L44)
 
 Push `segment` onto the current path frame and return a curried operator.
 Use this form when you want `withPath(segment)` to slot into `pipe`
@@ -474,7 +474,7 @@ directly, mirroring `tap(segment)` / `map(segment)`.
 
 > **withPath**\<`T`, `E`>(`segment`, `r`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [observability/withPath.ts:49](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/observability/withPath.ts#L49)
+Defined in: [observability/withPath.ts:49](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/observability/withPath.ts#L49)
 
 Direct form — push `segment` and return `r` unchanged.
 

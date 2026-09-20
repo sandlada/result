@@ -1,0 +1,54 @@
+---
+title: '@sandlada/result'
+description: Type-safe Result Pattern and Railway Oriented Programming for TypeScript.
+hero:
+  tagline: Type-safe Result Pattern and Railway Oriented Programming for TypeScript — explicit error handling without exceptions.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      icon: right-arrow
+    - text: API reference
+      link: /api/
+      icon: external
+      variant: minimal
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+`@sandlada/result` replaces `throw`/`catch` for predictable failures with a discriminated union the
+compiler tracks. Success and failure both travel as plain objects, so a function signature tells you
+whether it can fail. The library is fully generic over `TError`, ships as ESM across 14 subpaths, and
+has zero dependencies.
+
+<CardGrid stagger>
+    <LinkCard
+        title="Getting started"
+        href="/getting-started/"
+        description="Install the package and write your first typed Result pipeline."
+    />
+    <LinkCard
+        title="Behavior modes"
+        href="/behavior-modes/"
+        description="Which operators throw, which capture, and which short-circuit on the first failure."
+    />
+    <LinkCard
+        title="API reference"
+        href="/api/"
+        description="Every export of the published subpaths, generated from the source JSDoc."
+    />
+    <LinkCard
+        title="Interactive demo"
+        href="https://stackblitz.com/github/sandlada/result/tree/main/demo"
+        description="Run the examples in StackBlitz without installing anything."
+    />
+</CardGrid>
+
+## Install
+
+```bash
+npm i @sandlada/result
+```
+
+:::caution[ESM only]
+The package cannot be loaded with `require()`. Your project must use ESM (`import`) or dynamic `import()`.
+:::

@@ -10,7 +10,7 @@ slug: 0.20260811/api/primitives
 
 ### Partitioned
 
-Defined in: [primitives/partitionOption.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/partitionOption.ts#L25)
+Defined in: [primitives/partitionOption.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/partitionOption.ts#L25)
 
 #### Type Parameters
 
@@ -24,13 +24,13 @@ Defined in: [primitives/partitionOption.ts:25](https://github.com/sandlada/resul
 
 > `readonly` **noneIndices**: readonly `number`\[]
 
-Defined in: [primitives/partitionOption.ts:27](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/partitionOption.ts#L27)
+Defined in: [primitives/partitionOption.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/partitionOption.ts#L27)
 
 ##### some
 
 > `readonly` **some**: readonly `T`\[]
 
-Defined in: [primitives/partitionOption.ts:26](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/partitionOption.ts#L26)
+Defined in: [primitives/partitionOption.ts:26](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/partitionOption.ts#L26)
 
 ## Functions
 
@@ -38,7 +38,7 @@ Defined in: [primitives/partitionOption.ts:26](https://github.com/sandlada/resul
 
 > **cond**\<`T`, `E`>(`predicate`, `errorOnFalse`, `value`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [primitives/cond.ts:28](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/cond.ts#L28)
+Defined in: [primitives/cond.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/cond.ts#L28)
 
 If `predicate(value)` returns `true`, yields `Ok(value)`; otherwise yields
 `Err(errorOnFalse)`.
@@ -77,7 +77,7 @@ If `predicate(value)` returns `true`, yields `Ok(value)`; otherwise yields
 
 > **condErr**\<`T`, `E`>(`predicate`, `okValue`, `errorOnTrue`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [primitives/condErr.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/condErr.ts#L23)
+Defined in: [primitives/condErr.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/condErr.ts#L23)
 
 #### Type Parameters
 
@@ -115,7 +115,7 @@ Defined in: [primitives/condErr.ts:23](https://github.com/sandlada/result/blob/b
 
 > **lift**\<`A`, `T`, `E`>(`fn`): (...`args`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [primitives/lift.ts:37](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/lift.ts#L37)
+Defined in: [primitives/lift.ts:37](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/lift.ts#L37)
 
 ##### Type Parameters
 
@@ -145,7 +145,7 @@ Defined in: [primitives/lift.ts:37](https://github.com/sandlada/result/blob/b5a2
 
 > **lift**\<`A`, `T`, `E`>(`fn`, `errorFn`): (...`args`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [primitives/lift.ts:40](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/lift.ts#L40)
+Defined in: [primitives/lift.ts:40](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/lift.ts#L40)
 
 ##### Type Parameters
 
@@ -181,7 +181,7 @@ Defined in: [primitives/lift.ts:40](https://github.com/sandlada/result/blob/b5a2
 
 > **partitionOption**\<`T`>(`opts`): [`Partitioned`](/0.20260811/api/primitives/#partitioned)\<`T`>
 
-Defined in: [primitives/partitionOption.ts:33](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/partitionOption.ts#L33)
+Defined in: [primitives/partitionOption.ts:33](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/partitionOption.ts#L33)
 
 Single pass over `opts`, accumulating `Some` values and the indices of `None`s.
 
@@ -207,7 +207,7 @@ readonly [`IOption`](/0.20260811/api/types/#ioption)\<`T`>\[]
 
 > **reduce**\<`T`, `E`, `Acc`>(`reducer`, `initial`, `items`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`Acc`, `E`>
 
-Defined in: [primitives/reduce.ts:29](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/reduce.ts#L29)
+Defined in: [primitives/reduce.ts:29](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/reduce.ts#L29)
 
 Folds `items` left-to-right. If any item is `Err`, the reducer is skipped and the
 failure is returned. If the reducer itself returns `Err`, processing stops.
@@ -250,7 +250,7 @@ readonly [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>\[]
 
 > **sequence**\<`T`, `E`>(`results`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<readonly `T`\[], `E`>
 
-Defined in: [primitives/sequence.ts:27](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/sequence.ts#L27)
+Defined in: [primitives/sequence.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/sequence.ts#L27)
 
 Alias of `combine`: convert `[IResultOfT<T, E>]` into `IResultOfT<readonly T[], E>`,
 short-circuiting on the first failure. The `readonly` modifier matches
@@ -282,7 +282,7 @@ readonly [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>\[]
 
 > **sequenceAsyncResult**\<`T`, `E`>(`results`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`\[], `E`>
 
-Defined in: [primitives/sequenceAsyncResult.ts:26](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/primitives/sequenceAsyncResult.ts#L26)
+Defined in: [primitives/sequenceAsyncResult.ts:26](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/primitives/sequenceAsyncResult.ts#L26)
 
 Lazy sequence for AsyncResults — equivalent to `promiseResultCombine` but exposed
 under a name familiar to ROP practitioners.

@@ -18,7 +18,7 @@ Re-exports Kleisli composition and pipe utilities for Result pipelines.
 
 > **composeK**\<`A`, `B`, `C`, `E`>(`f1`, `f2`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`C`, `E`>
 
-Defined in: [composition/composeK.ts:46](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeK.ts#L46)
+Defined in: [composition/composeK.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeK.ts#L46)
 
 ##### Type Parameters
 
@@ -56,7 +56,7 @@ Defined in: [composition/composeK.ts:46](https://github.com/sandlada/result/blob
 
 > **composeK**\<`A`, `B`, `C`, `D`, `E`>(`f1`, `f2`, `f3`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`D`, `E`>
 
-Defined in: [composition/composeK.ts:52](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeK.ts#L52)
+Defined in: [composition/composeK.ts:52](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeK.ts#L52)
 
 ##### Type Parameters
 
@@ -102,7 +102,7 @@ Defined in: [composition/composeK.ts:52](https://github.com/sandlada/result/blob
 
 > **composeK**\<`A`, `B`, `C`, `D`, `F`, `E`>(`f1`, `f2`, `f3`, `f4`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`F`, `E`>
 
-Defined in: [composition/composeK.ts:59](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeK.ts#L59)
+Defined in: [composition/composeK.ts:59](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeK.ts#L59)
 
 ##### Type Parameters
 
@@ -156,7 +156,7 @@ Defined in: [composition/composeK.ts:59](https://github.com/sandlada/result/blob
 
 > **composeK**\<`A`, `B`, `C`, `D`, `F`, `G`, `E`>(`f1`, `f2`, `f3`, `f4`, `f5`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`G`, `E`>
 
-Defined in: [composition/composeK.ts:67](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeK.ts#L67)
+Defined in: [composition/composeK.ts:67](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeK.ts#L67)
 
 ##### Type Parameters
 
@@ -218,7 +218,7 @@ Defined in: [composition/composeK.ts:67](https://github.com/sandlada/result/blob
 
 > **composeK**\<`A`, `B`, `C`, `D`, `F`, `G`, `H`, `E`>(`f1`, `f2`, `f3`, `f4`, `f5`, `f6`): (`a`) => [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`H`, `E`>
 
-Defined in: [composition/composeK.ts:76](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeK.ts#L76)
+Defined in: [composition/composeK.ts:76](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeK.ts#L76)
 
 ##### Type Parameters
 
@@ -292,7 +292,7 @@ Defined in: [composition/composeK.ts:76](https://github.com/sandlada/result/blob
 
 > **composeKAsync**\<`A`, `B`, `E`>(`f1`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`B`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L38)
+Defined in: [composition/composeKAsync.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L38)
 
 ##### Type Parameters
 
@@ -322,7 +322,7 @@ Defined in: [composition/composeKAsync.ts:38](https://github.com/sandlada/result
 
 > **composeKAsync**\<`A`, `B`, `C`, `E`>(`f1`, `f2`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`C`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:43](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L43)
+Defined in: [composition/composeKAsync.ts:43](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L43)
 
 ##### Type Parameters
 
@@ -360,7 +360,7 @@ Defined in: [composition/composeKAsync.ts:43](https://github.com/sandlada/result
 
 > **composeKAsync**\<`A`, `B`, `C`, `D`, `E`>(`f1`, `f2`, `f3`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`D`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:49](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L49)
+Defined in: [composition/composeKAsync.ts:49](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L49)
 
 ##### Type Parameters
 
@@ -406,7 +406,7 @@ Defined in: [composition/composeKAsync.ts:49](https://github.com/sandlada/result
 
 > **composeKAsync**\<`A`, `B`, `C`, `D`, `F`, `E`>(`f1`, `f2`, `f3`, `f4`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`F`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:56](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L56)
+Defined in: [composition/composeKAsync.ts:56](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L56)
 
 ##### Type Parameters
 
@@ -460,7 +460,7 @@ Defined in: [composition/composeKAsync.ts:56](https://github.com/sandlada/result
 
 > **composeKAsync**\<`A`, `B`, `C`, `D`, `F`, `G`, `E`>(`f1`, `f2`, `f3`, `f4`, `f5`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`G`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:64](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L64)
+Defined in: [composition/composeKAsync.ts:64](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L64)
 
 ##### Type Parameters
 
@@ -522,7 +522,7 @@ Defined in: [composition/composeKAsync.ts:64](https://github.com/sandlada/result
 
 > **composeKAsync**\<`A`, `B`, `C`, `D`, `F`, `G`, `H`, `E`>(`f1`, `f2`, `f3`, `f4`, `f5`, `f6`): (`a`) => `Promise`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`H`, `E`>>
 
-Defined in: [composition/composeKAsync.ts:73](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/composeKAsync.ts#L73)
+Defined in: [composition/composeKAsync.ts:73](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/composeKAsync.ts#L73)
 
 ##### Type Parameters
 
@@ -594,7 +594,7 @@ Defined in: [composition/composeKAsync.ts:73](https://github.com/sandlada/result
 
 > **fromSafeTry**\<`T`, `E`>(`gen`): [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>
 
-Defined in: [composition/safeTry.ts:70](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/safeTry.ts#L70)
+Defined in: [composition/safeTry.ts:70](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/safeTry.ts#L70)
 
 Evaluates a generator function that uses `yield* safeTry(...)` and
 collects the final `IResultOfT`.
@@ -638,7 +638,7 @@ const result = fromSafeTry(function* () {
 
 > **fromSafeTryAsync**\<`T`, `E`>(`gen`): [`AsyncResult`](/0.20260811/api/types/#asyncresult)\<`T`, `E`>
 
-Defined in: [composition/safeTryAsync.ts:68](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/safeTryAsync.ts#L68)
+Defined in: [composition/safeTryAsync.ts:68](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/safeTryAsync.ts#L68)
 
 #### Type Parameters
 
@@ -668,7 +668,7 @@ Defined in: [composition/safeTryAsync.ts:68](https://github.com/sandlada/result/
 
 > **pipe**\<`A`>(`value`): `A`
 
-Defined in: [composition/pipe.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L20)
+Defined in: [composition/pipe.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L20)
 
 ##### Type Parameters
 
@@ -714,7 +714,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`>(`value`, `fn1`): `B`
 
-Defined in: [composition/pipe.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L21)
+Defined in: [composition/pipe.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L21)
 
 ##### Type Parameters
 
@@ -768,7 +768,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`>(`value`, `fn1`, `fn2`): `C`
 
-Defined in: [composition/pipe.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L22)
+Defined in: [composition/pipe.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L22)
 
 ##### Type Parameters
 
@@ -830,7 +830,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`>(`value`, `fn1`, `fn2`, `fn3`): `D`
 
-Defined in: [composition/pipe.ts:23](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L23)
+Defined in: [composition/pipe.ts:23](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L23)
 
 ##### Type Parameters
 
@@ -900,7 +900,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`): `E`
 
-Defined in: [composition/pipe.ts:24](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L24)
+Defined in: [composition/pipe.ts:24](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L24)
 
 ##### Type Parameters
 
@@ -978,7 +978,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`): `F`
 
-Defined in: [composition/pipe.ts:27](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L27)
+Defined in: [composition/pipe.ts:27](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L27)
 
 ##### Type Parameters
 
@@ -1064,7 +1064,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`): `G`
 
-Defined in: [composition/pipe.ts:30](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L30)
+Defined in: [composition/pipe.ts:30](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L30)
 
 ##### Type Parameters
 
@@ -1158,7 +1158,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`): `H`
 
-Defined in: [composition/pipe.ts:34](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L34)
+Defined in: [composition/pipe.ts:34](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L34)
 
 ##### Type Parameters
 
@@ -1260,7 +1260,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`): `I`
 
-Defined in: [composition/pipe.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L38)
+Defined in: [composition/pipe.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L38)
 
 ##### Type Parameters
 
@@ -1370,7 +1370,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`, `fn9`): `J`
 
-Defined in: [composition/pipe.ts:42](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L42)
+Defined in: [composition/pipe.ts:42](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L42)
 
 ##### Type Parameters
 
@@ -1488,7 +1488,7 @@ Ready for Product
 
 > **pipe**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`, `fn9`, `fn10`): `K`
 
-Defined in: [composition/pipe.ts:47](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipe.ts#L47)
+Defined in: [composition/pipe.ts:47](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipe.ts#L47)
 
 ##### Type Parameters
 
@@ -1618,7 +1618,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`>(`value`): `Promise`\<`A`>
 
-Defined in: [composition/pipeAsync.ts:18](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L18)
+Defined in: [composition/pipeAsync.ts:18](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L18)
 
 ##### Type Parameters
 
@@ -1662,7 +1662,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`>(`value`, `fn1`): `Promise`\<`B`>
 
-Defined in: [composition/pipeAsync.ts:19](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L19)
+Defined in: [composition/pipeAsync.ts:19](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L19)
 
 ##### Type Parameters
 
@@ -1714,7 +1714,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`>(`value`, `fn1`, `fn2`): `Promise`\<`C`>
 
-Defined in: [composition/pipeAsync.ts:20](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L20)
+Defined in: [composition/pipeAsync.ts:20](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L20)
 
 ##### Type Parameters
 
@@ -1774,7 +1774,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`>(`value`, `fn1`, `fn2`, `fn3`): `Promise`\<`D`>
 
-Defined in: [composition/pipeAsync.ts:21](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L21)
+Defined in: [composition/pipeAsync.ts:21](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L21)
 
 ##### Type Parameters
 
@@ -1842,7 +1842,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`): `Promise`\<`E`>
 
-Defined in: [composition/pipeAsync.ts:22](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L22)
+Defined in: [composition/pipeAsync.ts:22](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L22)
 
 ##### Type Parameters
 
@@ -1918,7 +1918,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`): `Promise`\<`F`>
 
-Defined in: [composition/pipeAsync.ts:25](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L25)
+Defined in: [composition/pipeAsync.ts:25](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L25)
 
 ##### Type Parameters
 
@@ -2002,7 +2002,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`): `Promise`\<`G`>
 
-Defined in: [composition/pipeAsync.ts:28](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L28)
+Defined in: [composition/pipeAsync.ts:28](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L28)
 
 ##### Type Parameters
 
@@ -2094,7 +2094,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`): `Promise`\<`H`>
 
-Defined in: [composition/pipeAsync.ts:32](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L32)
+Defined in: [composition/pipeAsync.ts:32](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L32)
 
 ##### Type Parameters
 
@@ -2194,7 +2194,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`): `Promise`\<`I`>
 
-Defined in: [composition/pipeAsync.ts:36](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L36)
+Defined in: [composition/pipeAsync.ts:36](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L36)
 
 ##### Type Parameters
 
@@ -2302,7 +2302,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`, `fn9`): `Promise`\<`J`>
 
-Defined in: [composition/pipeAsync.ts:40](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L40)
+Defined in: [composition/pipeAsync.ts:40](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L40)
 
 ##### Type Parameters
 
@@ -2418,7 +2418,7 @@ Ready for Product
 
 > **pipeAsync**\<`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`>(`value`, `fn1`, `fn2`, `fn3`, `fn4`, `fn5`, `fn6`, `fn7`, `fn8`, `fn9`, `fn10`): `Promise`\<`K`>
 
-Defined in: [composition/pipeAsync.ts:45](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/pipeAsync.ts#L45)
+Defined in: [composition/pipeAsync.ts:45](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/pipeAsync.ts#L45)
 
 ##### Type Parameters
 
@@ -2544,7 +2544,7 @@ Ready for Product
 
 > **safeTry**\<`T`, `E`>(`result`): `Generator`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`never`, `E`>, `T` | `undefined`, `unknown`>
 
-Defined in: [composition/safeTry.ts:46](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/safeTry.ts#L46)
+Defined in: [composition/safeTry.ts:46](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/safeTry.ts#L46)
 
 Returns `T` when the inner result is `Ok`, otherwise yields the failure to
 be collected by `fromSafeTry`. The Generator's return type is `T |
@@ -2581,7 +2581,7 @@ generator directly past the yield.
 
 > **safeTryAsync**\<`T`, `E`>(`result`): `AsyncGenerator`\<[`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`never`, `E`>, `T` | `undefined`, `unknown`>
 
-Defined in: [composition/safeTryAsync.ts:38](https://github.com/sandlada/result/blob/b5a22d73ceb79ee07d75a3ecb3dff20b4154cf27/src/composition/safeTryAsync.ts#L38)
+Defined in: [composition/safeTryAsync.ts:38](https://github.com/sandlada/result/blob/a046681687e0d8c2573beff3f5115a87c3383b2b/src/composition/safeTryAsync.ts#L38)
 
 Returns `T` when the inner result is `Ok`, otherwise yields the failure to
 be collected by `fromSafeTryAsync`. The AsyncGenerator's return type is
