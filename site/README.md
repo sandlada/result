@@ -51,6 +51,15 @@ commit once it reaches the remote, so `astro.config.mjs` falls back to the defau
 current commit is still local. An already pushed revision is used verbatim, which is what makes an
 archived version point at the code it shipped with.
 
+## Styling
+
+`src/styles/custom.css` mirrors Starlight's CSS custom properties — colors, typography, layout,
+shadows and z-index — and is registered through the `customCss` option in `astro.config.mjs`.
+It starts out identical to the stock theme, so editing a value is what changes the appearance;
+deleting a declaration falls back to the Starlight default, while keeping it freezes that value
+against Starlight upgrades. The stylesheet is global and unlayered, so it applies to the archived
+versions and to the generated API pages as well.
+
 ## Versions
 
 Archived versions live in `src/content/docs/<slug>/` and are committed. `versions.json` lists them

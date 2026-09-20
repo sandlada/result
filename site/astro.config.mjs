@@ -104,6 +104,7 @@ export default defineConfig({
         starlight({
             title: '@sandlada/result',
             description: siteDescription,
+            customCss: ['./src/styles/custom.css'],
             lastUpdated: true,
             head,
             routeMiddleware: ['./src/starlightRouteData.ts'],
