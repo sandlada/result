@@ -1,0 +1,93 @@
+{
+  "sidebar": [
+    {
+      "label": "Start Here",
+      "items": [
+        "getting-started"
+      ]
+    },
+    {
+      "label": "Reference",
+      "items": [
+        "behavior-modes"
+      ]
+    },
+    {
+      "label": "API Reference",
+      "collapsed": true,
+      "items": [
+        {
+          "label": "adapters",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "async-option",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "async-result",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "combine",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "composition",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "factories",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "observability",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "operators",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "option",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "primitives",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "promise-option",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "promise-result",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "reliability",
+          "collapsed": true,
+          "items": []
+        },
+        {
+          "label": "types",
+          "collapsed": true,
+          "items": []
+        }
+      ]
+    }
+  ],
+  "excluded": []
+}
