@@ -56,3 +56,4 @@ coverage/
 .copilot
 .superpowers
 docs/superpowers
+!docs/*.md

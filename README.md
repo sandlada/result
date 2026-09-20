@@ -120,6 +120,7 @@ function getUser(id: string): AppResult<User> {
 ## :ledger: Further Reading
 
 - [SPEC.md](./SPEC.md) — API index with links to each source file
+- [docs/behavior-modes.md](./docs/behavior-modes.md) — 行為模式：遇錯短路（FailFirst）/ 累積錯誤 / 拋策略對照
 - [ARCH.md](./ARCH.md) — internal architecture and contributor documentation
 - [AGENTS.md](./AGENTS.md) — AI agent conventions and project metadata for tool-assisted development
 

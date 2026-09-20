@@ -222,10 +222,24 @@ import { map, bind } from '@sandlada/result/operators';
 import { pipe } from '@sandlada/result/composition';
 ```
 
+### ADR 11: Throw-Policy Layering and FailFirst Vocabulary
+
+**Decision:** The behavior matrix in `docs/behavior-modes.md` is the single source of truth for throw / short-circuit semantics. The layering is:
+
+1. **Value track (default):** `map`-family operators catch sync callback throws into `Err` (`None` on the Option side). Pure combinators (`combine`, `all`) short-circuit on the first failure (`FailFirst`); `combineWithAllErrors` accumulates instead.
+2. **Switch track (canonical propagate):** `bind`-family operators never catch — a throwing switch function propagates to the caller so programming errors outside the railway are not swallowed.
+3. **Escape hatches (explicit throw):** `unwrap` / `expect` panic with `TypeError`, `unsafe*` rethrows the carried value verbatim, `orThrow` throws a typed `Error`. Each has its own use case; see the decision tree in `docs/behavior-modes.md`.
+4. **Async channels:** eager `promise-*` layers propagate outer `Promise` rejections; only `reliability/` promises NeverRejects. Lazy `async-*` layers defer execution until the terminal operator triggers `run()`.
+
+**Why a separate doc:** `README` / `SPEC` slogans say `exception-free` but the split between catching (`map`) and propagating (`bind`) plus the dual-mode `lift` cannot fit in an API index row. `docs/behavior-modes.md` holds the per-module matrix; `SPEC.md` only carries a summary pointer.
+
+**Terminology:** `FailFirst` is the standard term for short-circuit-on-first-failure (`FailFast` is accepted as a synonym). `Accumulate` is the opposite (collect-all-errors).
+
 ## Document Responsibilities
 
 | Document | Role |
 | -------- | ---- |
 | [ARCH.md](./ARCH.md) | Architecture record — update when source layout, module responsibilities, or decisions change. |
 | [SPEC.md](./SPEC.md) | API index — update when exports or public API behavior change. |
+| [docs/behavior-modes.md](./docs/behavior-modes.md) | Behavior-mode glossary and per-module matrix — update when any throw / short-circuit / empty-input behavior changes. |
 | [AGENTS.md](./AGENTS.md) | AI agent conventions and project metadata. |

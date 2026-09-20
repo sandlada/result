@@ -4,6 +4,10 @@
     "explorer.fileNesting.patterns": {
         "*.ts": "$(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts, $(capture).type-spec.ts",
         "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
-        "*.js": "$(capture).js.map, $(capture).d.ts"
+        "*.js": "$(capture).js.map, $(capture).d.ts",
+        "README.md": "CODE_OF_CONDUCT.md, SECURITY.md, LICENSE",
+        ".gitignore": ".gitattributes",
+        "AGENTS.md": "PROJECT.md, ARCH.md, SPEC.md, BUG.md, BUGS.md, TASK.md, CLAUDE.md",
+        "rolldown.config.ts": "vitest.config.ts"
     }
 }

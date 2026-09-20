@@ -16,6 +16,12 @@ The library exposes:
 
 > No classes, no prototype methods, no sentinel values. Everything is built on plain discriminated union objects with standalone functions.
 
+## Behavior Modes
+
+不同的模塊採用不同的行為模式：同步 `map` 系捕獲回調拋出轉為 `Err`，`bind` 系則直接透傳；`combine` 系在遇錯短路（`FailFirst`）與累積錯誤之間二選一；`promise-*` 外層拒絕保持拒絕傳播，只有 `reliability` 層承諾永不拒絕；恐慌 API（`unwrap` / `expect`）、原樣拋出（`unsafe*`）、定型拋出（`orThrow`）是三種不同的逃生口，不要混用。
+
+完整的術語定義與按模塊對照表見 [docs/behavior-modes.md](./docs/behavior-modes.md)，本文各節的行內註（如 `retry` 的永不拒絕、`race` 的空輸入）以該文檔為準展開。
+
 ## Installation
 
 ```bash
@@ -311,6 +317,7 @@ JSON.stringify(ofNone());  // '{"isSome":false,"isNone":true}'
 
 ## Further Reading
 
+- [docs/behavior-modes.md](./docs/behavior-modes.md) — 行為模式術語與按模塊對照（遇錯短路 / 累積錯誤 / 拋策略）。
 - [ARCH.md](./ARCH.md) — architecture, module responsibilities, ADRs.
 - [README.md](./README.md) — project overview, badges, install.
 - [AGENTS.md](./AGENTS.md) — AI agent conventions.
