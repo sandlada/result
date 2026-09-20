@@ -1,9 +1,31 @@
-# Combine (組合操作)
+# combine
 
-`combine` 模組專注於同時處理多個 `IResultOfT` 或 `IOption` 的集合操作，提供短路（Short-circuiting）與錯誤聚合等不同策略。
+`@sandlada/result/combine` — combines many synchronous Results under two policies: fail first or accumulate every error.
 
-## API 列表
+## Scope
 
-- [`all`](./all.ts): 組合多個 Option，若全部存在則返回值的數組。
-- [`combine`](./combine.ts): 組合多個 Result，遇到第一個 `Err` 即短路並返回。
-- [`combineWithAllErrors`](./combineWithAllErrors.ts): 組合多個 Result，收集所有成功的結果；若有錯誤，則彙整並返回所有錯誤。
+- Operates on: arrays and tuples of `IResultOfT`.
+- Execution model: synchronous, pure value combination with no callbacks.
+- Not here: async combination (`promise-result/combine`, `async-result/combine`), Option combination (`option/all`).
+
+## API
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `combine` | Combines an array or tuple, returning the first `Err` or an `Ok` carrying all values. | [combine.ts](./combine.ts) |
+| `all` | Combines a heterogeneous tuple, preserving each position's type; returns the first `Err`. | [all.ts](./all.ts) |
+| `combineWithAllErrors` | Runs every input and accumulates all errors into `Err(E[])`. | [combineWithAllErrors.ts](./combineWithAllErrors.ts) |
+
+## Contract notes
+
+- `combine` and `all` are `FailFirst`: they keep the first error and never touch the remaining inputs. `combineWithAllErrors` is `Accumulate` and visits every input.
+- An empty input returns `Ok([])` for all three. This is an intentional divergence from [`option/all`](../option/all.ts), which rejects the empty tuple at the type level.
+- `combine` has two overloads: a heterogeneous tuple form and a homogeneous array form (`IResultOfT<A, E>[]` → `IResultOfT<A[], E>`).
+- Nothing here throws; there are no callbacks to capture.
+- Throw and short-circuit policy: [behavior-modes.md §4.3](../../docs/behavior-modes.md#43-composition-srccombine-srccomposition).
+
+## Related
+
+- [`primitives`](../primitives/README.md) — `sequence` delegates to `combine`.
+- [`promise-result`](../promise-result/README.md) and [`async-result`](../async-result/README.md) — async combination with the same two policies.
+- [`option`](../option/README.md) — the Option-side `all` and `zipWith`.

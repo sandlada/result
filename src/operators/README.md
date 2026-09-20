@@ -1,38 +1,84 @@
-# Operators (同步操作符)
+# operators
 
-`operators` 模組提供了所有針對同步 `IResultOfT` 結構的操作符，支援以 Point-free 或函數式風格進行資料轉換與流程控制。
+`@sandlada/result/operators` — data-last curried operators on synchronous `IResultOfT`.
 
-## API 列表
+## Scope
 
-- [`and`](./and.ts): 若當前為 `Ok`，則返回另一個 Result。
-- [`andTee`](./andTee.ts): 若為 `Ok`，執行副作用並返回原值。
-- [`andThrough`](./andThrough.ts): 鏈式傳遞 `Ok` 值，忽略中間步驟的返回值。
-- [`ap`](./ap.ts): 將 Result 內部的函數應用於另一個 Result 內部的值。
-- [`bimap`](./bimap.ts): 同時轉換 `Ok` 與 `Err` 狀態。
-- [`bind`](./bind.ts): 若為 `Ok` 則執行回調返回新 Result（平坦化映射）。
-- [`contains`](./contains.ts): 檢查 `Ok` 是否包含指定值。
-- [`exists`](./exists.ts): 檢查 `Ok` 中的值是否滿足特定條件。
-- [`expect`](./expect.ts): 解包 `Ok`，若為 `Err` 則拋出帶自定義訊息的異常。
-- [`expectErr`](./expectErr.ts): 解包 `Err`，若為 `Ok` 則拋出帶自定義訊息的異常。
-- [`filterOrElse`](./filterOrElse.ts): 根據條件過濾 `Ok` 值，失敗則轉為 `Err`。
-- [`flatten`](./flatten.ts): 拍平嵌套的 `IResultOfT<IResultOfT<T, E>, E>`。
-- [`map`](./map.ts): 映射 `Ok` 中的值。
-- [`mapErr`](./mapErr.ts): 映射 `Err` 中的值。
-- [`mapOr`](./mapOr.ts): 映射 `Ok` 中的值，若為 `Err` 返回預設值。
-- [`mapOrElse`](./mapOrElse.ts): 對 `Ok` 與 `Err` 分別進行映射。
-- [`match`](./match.ts): 對 `Ok` 與 `Err` 分別執行回調並返回統一類型。
-- [`or`](./or.ts): 若當前為 `Err`，則返回另一個 Result。
-- [`orElse`](./orElse.ts): 若為 `Err`，則執行回調回退到新 Result。
-- [`orTee`](./orTee.ts): 若為 `Err` 執行副作用，成功則保持原錯誤。
-- [`orThrow`](./orThrow.ts) / `orThrowWith`: 解包 `Ok`，若為 `Err` 則拋出異常（支援自定義錯誤工廠）。
-- [`separate`](./separate.ts): 將包含 Result 的集合分離為成功與失敗兩組。
-- [`swap`](./swap.ts): 翻轉 `Ok` 與 `Err` 狀態。
-- [`tap`](./tap.ts): 對 `Ok` 狀態執行同步副作用。
-- [`tapErr`](./tapErr.ts): 對 `Err` 狀態執行同步副作用。
-- [`traverseArray`](./traverseArray.ts): 遍歷陣列並組合多個 Result，支援短路。
-- [`unsafeUnwrap`](./unsafeUnwrap.ts): 不安全地解包 `Ok`。
-- [`unsafeUnwrapErr`](./unsafeUnwrapErr.ts): 不安全地解包 `Err`。
-- [`unwrap`](./unwrap.ts): 解包 `Ok`，若為 `Err` 則拋出異常。
-- [`unwrapErr`](./unwrapErr.ts): 解包 `Err`，若為 `Ok` 則拋出異常。
-- [`unwrapOr`](./unwrapOr.ts): 解包 `Ok`，若為 `Err` 則返回預設值。
-- [`unwrapOrElse`](./unwrapOrElse.ts): 解包 `Ok`，若為 `Err` 則執行回調生成預設值。
+- Operates on: `IResultOfT<T, E>`.
+- Execution model: synchronous; every operator returns a new Result or a plain value.
+- Not here: Option operators (`option`), eager async (`promise-result`), lazy thunks (`async-result`).
+
+## API
+
+### Transform
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `map` | Transforms the success value. | [map.ts](./map.ts) |
+| `mapErr` | Transforms the error. | [mapErr.ts](./mapErr.ts) |
+| `bimap` | Transforms both variants in one pass. | [bimap.ts](./bimap.ts) |
+| `swap` | Swaps `Ok` and `Err`. | [swap.ts](./swap.ts) |
+| `flatten` | Flattens a nested `IResultOfT<IResultOfT<T, E>, E>`. | [flatten.ts](./flatten.ts) |
+| `filterOrElse` | Keeps the success value when the predicate passes, otherwise maps it to an error. | [filterOrElse.ts](./filterOrElse.ts) |
+
+### Chain and recover
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `bind` | Monadic chain: the callback returns the next Result. | [bind.ts](./bind.ts) |
+| `orElse` | Recovery: the callback returns a replacement Result on failure. | [orElse.ts](./orElse.ts) |
+| `catchErr` | Lifts `onErr(error)` straight into `Ok`, widening the value channel to `A \| B`. | [catchErr.ts](./catchErr.ts) |
+| `and` / `or` | Picks the second Result on success / failure. | [and.ts](./and.ts), [or.ts](./or.ts) |
+
+### Query and collect
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `contains` | Equality check against the success value. | [contains.ts](./contains.ts) |
+| `exists` | Predicate check on the success value. | [exists.ts](./exists.ts) |
+| `separate` | Partitions a list of Results into `{ ok, err }` arrays. | [separate.ts](./separate.ts) |
+| `traverseArray` | Maps an array with a Result-returning function; fails fast on the first `Err`. | [traverseArray.ts](./traverseArray.ts) |
+| `choose` | Maps an array and keeps the success values, skipping `Err`s and continuing. | [choose.ts](./choose.ts) |
+| `unzip` | Turns `IResultOfT<readonly [A, B], E>` into `[IResultOfT<A, E>, IResultOfT<B, E>]`. | [unzip.ts](./unzip.ts) |
+| `mapOr` / `mapOrElse` | Maps the success value or falls back to a default. | [mapOr.ts](./mapOr.ts), [mapOrElse.ts](./mapOrElse.ts) |
+| `ap` | Applies a wrapped function to a wrapped value. | [ap.ts](./ap.ts) |
+
+### Side effects
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `tap` / `tapErr` | Synchronous side effects on success / failure; the original Result is returned. | [tap.ts](./tap.ts), [tapErr.ts](./tapErr.ts) |
+| `andTee` / `orTee` | Runs a side effect and ignores its result. | [andTee.ts](./andTee.ts), [orTee.ts](./orTee.ts) |
+| `andThrough` | Runs a chained step but keeps the original success value. | [andThrough.ts](./andThrough.ts) |
+
+### Terminals
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `match` | Exhaustive pattern match over both variants. | [match.ts](./match.ts) |
+| `unwrapOr` / `unwrapOrElse` | Extracts the value, falling back to a default. | [unwrapOr.ts](./unwrapOr.ts), [unwrapOrElse.ts](./unwrapOrElse.ts) |
+
+### Escape hatches
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `unwrap` / `expect` / `unwrapErr` / `expectErr` | Panic with a `TypeError` on contract violation (`expect*` adds a message). | [unwrap.ts](./unwrap.ts), [expect.ts](./expect.ts), [unwrapErr.ts](./unwrapErr.ts), [expectErr.ts](./expectErr.ts) |
+| `unsafeUnwrap` / `unsafeUnwrapErr` | Throws the carried value verbatim, without wrapping. | [unsafeUnwrap.ts](./unsafeUnwrap.ts), [unsafeUnwrapErr.ts](./unsafeUnwrapErr.ts) |
+| `orThrow` / `orThrowWith` | Throws a typed error: `orThrow` requires `E extends Error`, `orThrowWith` maps through an error factory first. | [orThrow.ts](./orThrow.ts) |
+
+## Contract notes
+
+- Data-last and curried: `map(fn)(result)`; every operator also accepts the direct form `map(fn, result)`.
+- Throw policy is split by family. The `map` family captures a synchronous callback throw into `Err`; the `bind` / `mapErr` / `match` / `catchErr` / `unwrapOrElse` / `mapOr*` / `exists` family propagates directly. `choose` propagates without capturing and never short-circuits; `separate` accumulates into partitions; everything else fails fast (`FailFirst`). See [behavior-modes.md §4.2](../../docs/behavior-modes.md#42-synchronous-operators-srcoperators).
+- The escape hatches are three distinct channels: panic (`unwrap` / `expect`), raw throw (`unsafe*`), typed throw (`orThrow*`). Choose one deliberately.
+- `catchErr` and `orElse` both recover, but only `catchErr` lifts a plain value into `Ok`; `orElse` expects a new Result.
+
+## Design notes
+
+- **Standalone curried functions, not methods.** Keeping operators off the result objects makes `pipe(...)` composition natural, avoids prototype mutation, and supports dead-code elimination.
+
+## Related
+
+- [`option`](../option/README.md) — the parallel operator set on `IOption`.
+- [`adapters`](../adapters/README.md) — bridges between plain functions and Result-returning ones.
+- [`composition`](../composition/README.md) — `pipe`, `composeK`, `safeTry`.

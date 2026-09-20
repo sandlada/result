@@ -1,9 +1,9 @@
 // Copies repository-level narrative documents into the Starlight content tree.
 //
-// The canonical files stay in the repository root (docs/, ARCH.md, SPEC.md) so
-// that readers of the source tree and readers of the published site see the same
-// text. The generated copies are gitignored and rewritten on every dev/build
-// run, which keeps them from drifting.
+// The canonical files stay in the repository root (docs/) so that readers of
+// the source tree and readers of the published site see the same text. The
+// generated copies are gitignored and rewritten on every dev/build run, which
+// keeps them from drifting.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -71,7 +71,7 @@ function renderFrontmatter(values) {
     return `---\n${lines.join('\n')}\n---\n\n`;
 }
 
-// Repository-relative links such as `../SPEC.md` or `../src/factories/ok.ts`
+// Repository-relative links such as `../src/factories/ok.ts` or `../AGENTS.md`
 // do not resolve inside the published site, so point them at the file in the
 // repository instead. Fragments are kept; GitHub resolves the file itself.
 function rewriteRepositoryLinks(markdown) {

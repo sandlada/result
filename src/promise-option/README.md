@@ -1,34 +1,60 @@
-# PromiseOption (異步可選值管線)
+# promise-option
 
-`promise-option` 模組提供了專門針對 `Promise<IOption<T>>` 的異步操作符。此模組對齊了 `promise-result` 的設計結構，但應用於 Option 類型。
+`@sandlada/result/promise-option` — eager operators on `Promise<IOption<T>>`.
 
-## API 列表
+## Scope
 
-### 構造函數
-- [`asyncErr`](../factories/asyncErr.ts): 引入自 factories，創建異步 Err (作為 Option 的交互補充)。
-- [`asyncOk`](../factories/asyncOk.ts): 引入自 factories，創建異步 Ok。
-- [`ofNone`](../option/ofNone.ts): 創建同步 `None` 實例。
-- [`ofSome`](../option/ofSome.ts): 創建同步 `Some` 實例。
+- Operates on: `Promise<IOption<T>>`; callbacks may be synchronous or asynchronous depending on the operator.
+- Execution model: **eager** — the chain starts on the call and the returned Promise is already in flight.
+- Not here: sync Option operators (`option`), lazy thunks (`async-option`), Result variants (`promise-result`).
 
-### 操作符 (操作 `Promise<IOption>`)
-- [`bindAsyncOption`](./bindAsyncOption.ts): 異步鏈式綁定。
-- [`containsAsyncOption`](./containsAsyncOption.ts): 檢查是否包含特定值。
-- [`existsAsyncOption`](./existsAsyncOption.ts): 檢查值是否滿足條件。
-- [`filterAsyncOption`](./filterAsyncOption.ts): 異步過濾。
-- [`flattenAsyncOption`](./flattenAsyncOption.ts): 拍平嵌套的異步 Option。
-- [`mapAsyncOption`](./mapAsyncOption.ts): 異步映射。
-- [`mapOrAsyncOption`](./mapOrAsyncOption.ts): 異步映射並提供預設值。
-- [`mapOrElseAsyncOption`](./mapOrElseAsyncOption.ts): 異步分支映射。
-- [`matchAsyncOption`](./matchAsyncOption.ts): 異步狀態匹配。
-- [`orElseAsyncOption`](./orElseAsyncOption.ts): 異步回退操作。
-- [`tapAsyncOption`](./tapAsyncOption.ts): 異步副作用 (Some 狀態)。
-- [`tapErrAsyncOption`](./tapErrAsyncOption.ts): 異步副作用 (針對交互轉換場景)。
-- [`unwrapOrAsyncOption`](./unwrapOrAsyncOption.ts): 解包或返回預設值。
-- [`unwrapOrElseAsyncOption`](./unwrapOrElseAsyncOption.ts): 解包或異步生成預設值。
+## API
 
-### 提升操作 (同步 `IOption` 配合異步回調)
-- [`asyncBindOption`](./asyncBindOption.ts): 對同步 Option 執行異步綁定。
-- [`asyncMapOption`](./asyncMapOption.ts): 對同步 Option 執行異步映射。
-- [`asyncMatchOption`](./asyncMatchOption.ts): 對同步 Option 執行異步狀態匹配。
-- [`asyncOrElseOption`](./asyncOrElseOption.ts): 對同步 Option 執行異步回退。
-- [`asyncTapOption`](./asyncTapOption.ts): 對同步 Option 執行異步副作用。
+### Constructors (re-exported)
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `asyncOk` / `asyncErr` | Pre-resolved Result Promises from `factories`. | [../factories/asyncOk.ts](../factories/asyncOk.ts), [../factories/asyncErr.ts](../factories/asyncErr.ts) |
+| `ofSome` / `ofNone` | Sync Option constructors from `option`. | [../option/ofSome.ts](../option/ofSome.ts), [../option/ofNone.ts](../option/ofNone.ts) |
+
+### Operators on `Promise<IOption>`
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `mapAsyncOption` | Transforms the `Some` value with an async callback. | [mapAsyncOption.ts](./mapAsyncOption.ts) |
+| `bindAsyncOption` | Async chain returning the next Option. | [bindAsyncOption.ts](./bindAsyncOption.ts) |
+| `orElseAsyncOption` | Async fallback on `None`. | [orElseAsyncOption.ts](./orElseAsyncOption.ts) |
+| `matchAsyncOption` | Async terminal pattern match. | [matchAsyncOption.ts](./matchAsyncOption.ts) |
+| `mapOrAsyncOption` / `mapOrElseAsyncOption` | Map the `Some` value or fall back asynchronously. | [mapOrAsyncOption.ts](./mapOrAsyncOption.ts), [mapOrElseAsyncOption.ts](./mapOrElseAsyncOption.ts) |
+| `tapAsyncOption` / `tapErrAsyncOption` | Async side effects. | [tapAsyncOption.ts](./tapAsyncOption.ts), [tapErrAsyncOption.ts](./tapErrAsyncOption.ts) |
+| `unwrapOrAsyncOption` / `unwrapOrElseAsyncOption` | Extract the value or an async default. | [unwrapOrAsyncOption.ts](./unwrapOrAsyncOption.ts), [unwrapOrElseAsyncOption.ts](./unwrapOrElseAsyncOption.ts) |
+| `containsAsyncOption` / `existsAsyncOption` / `filterAsyncOption` | Async predicate queries. | [containsAsyncOption.ts](./containsAsyncOption.ts), [existsAsyncOption.ts](./existsAsyncOption.ts), [filterAsyncOption.ts](./filterAsyncOption.ts) |
+| `flattenAsyncOption` | Flattens `Promise<IOption<IOption<T>>>`. | [flattenAsyncOption.ts](./flattenAsyncOption.ts) |
+
+### Lift sync `IOption` → async
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `asyncMapOption` | Async map on a sync `IOption`. | [asyncMapOption.ts](./asyncMapOption.ts) |
+| `asyncBindOption` | Async chain on a sync `IOption`. | [asyncBindOption.ts](./asyncBindOption.ts) |
+| `asyncOrElseOption` | Async fallback on a sync `IOption`. | [asyncOrElseOption.ts](./asyncOrElseOption.ts) |
+| `asyncMatchOption` | Async terminal match on a sync `IOption`. | [asyncMatchOption.ts](./asyncMatchOption.ts) |
+| `asyncTapOption` | Async side effect on a sync `IOption`. | [asyncTapOption.ts](./asyncTapOption.ts) |
+
+## Contract notes
+
+- A rejection of the outer `Promise` itself always stays a rejection; it is never converted into `None`.
+- Callback policy: operators on `Promise<IOption>` collapse a throwing callback or an async rejection into `None` / `false` / the default value; `matchAsyncOption`, `mapOrElseAsyncOption` and `unwrapOrElseAsyncOption` propagate instead. The lifting family (`asyncMapOption`, `asyncBindOption`, `asyncTapOption`, `asyncOrElseOption`) turns a synchronous throw into `None` but lets a rejected Promise propagate. See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
+- This layer has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family.
+- There are no combination APIs here; combine Options with the sync [`option/all`](../option/all.ts) before lifting when needed.
+- Naming: the `AsyncOption` suffix marks operators that consume a `Promise<IOption>`; the `async*Option` prefix marks the lift family that consumes a synchronous `IOption`.
+
+## Design notes
+
+- **Eager and lazy async are separate modules.** `promise-option` mirrors `promise-result` on the Option track, while `async-option` provides the lazy thunk counterpart.
+
+## Related
+
+- [`option`](../option/README.md) — the synchronous operator set.
+- [`async-option`](../async-option/README.md) — the lazy thunk counterpart.
+- [`promise-result`](../promise-result/README.md) — the same shape on the Result track.

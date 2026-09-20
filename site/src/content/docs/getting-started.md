@@ -59,11 +59,11 @@ const name = pipe(
 
 ## Import paths
 
-The main barrel is **type-focused**. Its only runtime export is `moduleMarker`, which exists so the entry and its sourcemap are materialized. Runtime values come from the subpath that matches the shape you are working with.
+The main barrel is **type-focused**. Its only runtime export is an empty default object, which exists so the entry and its sourcemap are materialized. Runtime values come from the subpath that matches the shape you are working with.
 
 | Import path | Contents |
 | --- | --- |
-| `@sandlada/result` | Type contracts (`IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`) and `moduleMarker`. |
+| `@sandlada/result` | Type contracts (`IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`) and the empty default marker. |
 | `@sandlada/result/types` | The same type contracts, kept for backward compatibility. |
 | `@sandlada/result/factories` | `ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, and friends. |
 | `@sandlada/result/operators` | Synchronous operators on `IResultOfT`: `map`, `bind`, `match`, `unwrapOr`, … |

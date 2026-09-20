@@ -7,7 +7,7 @@
         "*.js": "$(capture).js.map, $(capture).d.ts",
         "README.md": "CODE_OF_CONDUCT.md, SECURITY.md, LICENSE",
         ".gitignore": ".gitattributes",
-        "AGENTS.md": "PROJECT.md, ARCH.md, SPEC.md, BUG.md, BUGS.md, TASK.md, CLAUDE.md",
+        "AGENTS.md": "PROJECT.md, BUG.md, BUGS.md, TASK.md, CLAUDE.md",
         "rolldown.config.ts": "vitest.config.ts"
     }
 }

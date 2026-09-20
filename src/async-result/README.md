@@ -1,48 +1,91 @@
-# AsyncResult (異步結果)
+# async-result
 
-`async-result` 模組提供了對 `IResultOfT<T, E>` 的異步封裝（惰性 Thunk 模式），為異步流程控制、鐵路導向編程（ROP）及錯誤處理提供了強大的鏈式 API。
+`@sandlada/result/async-result` — operators on the lazy `AsyncResult<T, E>` thunk.
 
-## API 列表
+## Scope
 
-### 構造函數 (Constructors)
-- [`from`](./from.ts): 從同步/異步函數創建 `AsyncResult`。
-- [`fromPromise`](./fromPromise.ts): 將 `Promise<IResultOfT>` 轉換為 `AsyncResult`。
-- [`fromResult`](./fromResult.ts): 將同步 `IResultOfT` 提升為 `AsyncResult`。
+- Operates on: `AsyncResult<T, E>` — a plain object `{ readonly run: () => Promise<IResultOfT<T, E>> }`.
+- Execution model: **lazy** — middleware returns a new thunk without running anything; terminals such as `match` / `unwrap` / `unwrapOr` return a Promise and call `run()` immediately.
+- Not here: eager Promises (`promise-result`), synchronous operators (`operators`), reliability wrappers (`reliability`).
 
-### 操作符 (Operators)
-- [`and`](./and.ts): 若當前為 `Ok`，則返回另一個 `AsyncResult`。
-- [`andTee`](./andTee.ts): 執行依賴於當前 `Ok` 值的異步副作用，若副作用成功則返回原值。
-- [`andThrough`](./andThrough.ts): 執行鏈式操作，但保持原來的 `Ok` 值不變。
-- [`ap`](./ap.ts): 應用 `AsyncResult` 內部包含的函數。
-- [`bimap`](./bimap.ts): 同時轉換 `Ok` 與 `Err` 狀態的值。
-- [`bind`](./bind.ts): 鏈式綁定，若當前為 `Ok` 則執行返回新 `AsyncResult` 的回調。
-- [`combine`](./combine.ts): 組合多個 `AsyncResult`，遇到第一個 `Err` 即短路。
-- [`combineWithAllErrors`](./combineWithAllErrors.ts): 組合多個 `AsyncResult`，並收集所有錯誤。
-- [`contains`](./contains.ts): 檢查 `Ok` 是否包含指定值。
-- [`containsErr`](./containsErr.ts): 檢查 `Err` 是否包含指定錯誤。
-- [`exists`](./exists.ts): 檢查 `Ok` 中的值是否滿足指定條件。
-- [`expect`](./expect.ts): 解包 `Ok` 的值，若為 `Err` 則拋出帶有自定義訊息的異常。
-- [`expectErr`](./expectErr.ts): 解包 `Err` 的值，若為 `Ok` 則拋出帶有自定義訊息的異常。
-- [`filterOrElse`](./filterOrElse.ts): 根據條件過濾 `Ok` 的值，若不滿足則轉為 `Err`。
-- [`flatten`](./flatten.ts): 拍平嵌套的 `AsyncResult`。
-- [`isErr`](./isErr.ts): 檢查是否為 `Err` 狀態。
-- [`isOk`](./isOk.ts): 檢查是否為 `Ok` 狀態。
-- [`map`](./map.ts): 轉換 `Ok` 狀態中的值（同步映射）。
-- [`mapAsync`](./mapAsync.ts): 轉換 `Ok` 狀態中的值（異步映射）。
-- [`mapErr`](./mapErr.ts): 轉換 `Err` 狀態中的值（同步映射）。
-- [`mapErrAsync`](./mapErrAsync.ts): 轉換 `Err` 狀態中的值（異步映射）。
-- [`mapOr`](./mapOr.ts): 轉換 `Ok` 中的值，若為 `Err` 則返回預設值。
-- [`mapOrElse`](./mapOrElse.ts): 針對 `Ok` 與 `Err` 分別進行映射。
-- [`match`](./match.ts): 針對 `Ok` 與 `Err` 分別執行回調並返回統一類型。
-- [`or`](./or.ts): 若當前為 `Err`，則返回另一個 `AsyncResult`。
-- [`orElse`](./orElse.ts): 若為 `Err`，則執行回調回退到新的 `AsyncResult`。
-- [`orTee`](./orTee.ts): 若為 `Err` 則執行副作用，成功則保持原 `Err`，失敗則返回新錯誤。
-- [`swapAsync`](./swapAsync.ts): 異步翻轉 `Ok` 與 `Err` 的狀態。
-- [`tap`](./tap.ts): 針對 `Ok` 狀態執行同步副作用。
-- [`tapAsync`](./tapAsync.ts): 針對 `Ok` 狀態執行異步副作用。
-- [`tapErr`](./tapErr.ts): 針對 `Err` 狀態執行同步副作用。
-- [`tapErrAsync`](./tapErrAsync.ts): 針對 `Err` 狀態執行異步副作用。
-- [`unwrap`](./unwrap.ts): 解包 `Ok` 的值，若為 `Err` 則拋出異常。
-- [`unwrapErr`](./unwrapErr.ts): 解包 `Err` 的值，若為 `Ok` 則拋出異常。
-- [`unwrapOr`](./unwrapOr.ts): 解包 `Ok` 的值，若為 `Err` 則返回預設值。
-- [`unwrapOrElse`](./unwrapOrElse.ts): 解包 `Ok` 的值，若為 `Err` 則執行回調生成預設值。
+## API
+
+### Constructors
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `from` | Wraps a thunk returning a Result (or a plain Result) into an AsyncResult. | [from.ts](./from.ts) |
+| `fromPromise` | Wraps a thunk returning a Promise; the thunk's throw or the Promise's rejection becomes `Err`. | [fromPromise.ts](./fromPromise.ts) |
+| `fromResult` | Lifts a synchronous `IResultOfT` into an AsyncResult. | [fromResult.ts](./fromResult.ts) |
+
+### Transform
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `map` / `mapAsync` | Transform the success value with a sync / async callback. | [map.ts](./map.ts), [mapAsync.ts](./mapAsync.ts) |
+| `mapErr` / `mapErrAsync` | Transform the error with a sync / async callback. | [mapErr.ts](./mapErr.ts), [mapErrAsync.ts](./mapErrAsync.ts) |
+| `bimap` | Transforms both variants in one pass. | [bimap.ts](./bimap.ts) |
+| `flatten` | Flattens a nested `AsyncResult`. | [flatten.ts](./flatten.ts) |
+| `swapAsync` | Swaps the `Ok` and `Err` tracks. | [swapAsync.ts](./swapAsync.ts) |
+
+### Chain, recover and fall back
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `bind` | Monadic chain: the callback returns the next AsyncResult. | [bind.ts](./bind.ts) |
+| `orElse` | Recovery on failure. | [orElse.ts](./orElse.ts) |
+| `and` / `or` | Picks the second AsyncResult on success / failure, lazily. | [and.ts](./and.ts), [or.ts](./or.ts) |
+| `ap` | Applies a wrapped function to a wrapped value. | [ap.ts](./ap.ts) |
+| `filterOrElse` | Keeps the success value when the predicate passes, otherwise maps it to an error. | [filterOrElse.ts](./filterOrElse.ts) |
+| `catchErr` | Recovery that lifts `onErr(error)` into `Ok`. | [catchErr.ts](./catchErr.ts) |
+| `mapOr` / `mapOrElse` | Map the success value or fall back. | [mapOr.ts](./mapOr.ts), [mapOrElse.ts](./mapOrElse.ts) |
+
+### Side effects
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `tap` / `tapAsync` | Side effects on success. | [tap.ts](./tap.ts), [tapAsync.ts](./tapAsync.ts) |
+| `tapErr` / `tapErrAsync` | Side effects on failure. | [tapErr.ts](./tapErr.ts), [tapErrAsync.ts](./tapErrAsync.ts) |
+| `andTee` / `orTee` | Run a side effect and ignore its result. | [andTee.ts](./andTee.ts), [orTee.ts](./orTee.ts) |
+| `andThrough` | Chained step that keeps the original success value. | [andThrough.ts](./andThrough.ts) |
+
+### Queries
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `contains` / `containsErr` | Equality checks against the success value / error. | [contains.ts](./contains.ts), [containsErr.ts](./containsErr.ts) |
+| `exists` | Predicate check on the success value. | [exists.ts](./exists.ts) |
+| `isOk` / `isErr` | Standalone boolean predicates. | [isOk.ts](./isOk.ts), [isErr.ts](./isErr.ts) |
+
+### Combination
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `combine` | Combines many AsyncResults, selecting the first `Err`. | [combine.ts](./combine.ts) |
+| `combineWithAllErrors` | Combines many AsyncResults, accumulating every error. | [combineWithAllErrors.ts](./combineWithAllErrors.ts) |
+
+### Terminals
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `match` | Exhaustive pattern match; triggers `run()`. | [match.ts](./match.ts) |
+| `unwrap` / `unwrapErr` / `expect` / `expectErr` | Terminal contract panics; `cause` keeps the original `E`. | [unwrap.ts](./unwrap.ts), [unwrapErr.ts](./unwrapErr.ts), [expect.ts](./expect.ts), [expectErr.ts](./expectErr.ts) |
+| `unwrapOr` / `unwrapOrElse` | Extract the value or fall back; triggers `run()`. | [unwrapOr.ts](./unwrapOr.ts), [unwrapOrElse.ts](./unwrapOrElse.ts) |
+
+## Contract notes
+
+- Nothing runs until a terminal calls `run()`; middleware returns a new thunk. Each `run()` invocation re-executes the chain.
+- `mapAsync` propagates directly — the only capture-policy counterexample in this module; everything else in the `map` / `tap` / `bind` / `catchErr` families collapses throws and rejections into `Err`. See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
+- `combine`, `combineWithAllErrors` and the sibling `async-option/all` start every carrier through `Promise.all` once `run()` is called; short-circuiting affects only result selection, not execution.
+- Terminal panics (`unwrap` / `expect`) throw a `TypeError` and keep the original error in `cause`.
+- Naming: the `async` prefix denotes the `AsyncResult` type, not the `async`/`await` keyword; `mapAsync` / `tapAsync` are the async-callback variants.
+
+## Design notes
+
+- **Eager and lazy async are separate modules.** `async-result` defers execution behind `run()`, while `promise-result` operates on Promises already in flight; the two execution models are never mixed in one API.
+
+## Related
+
+- [`promise-result`](../promise-result/README.md) — the eager counterpart.
+- [`reliability`](../reliability/README.md) — `retryLazy`, `timeout`, `race`, `any`, `allSettled` all operate on AsyncResult.
+- [`async-option`](../async-option/README.md) — the Option-flavored thunk, bridged via `okOr` / `transpose`.

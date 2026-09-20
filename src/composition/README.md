@@ -1,11 +1,45 @@
-# Composition (組合與管線)
+# composition
 
-`composition` 模組提供了函數組合（Composition）與管線（Pipeline）操作工具，方便將多個處理步驟串聯為流暢的鐵路導向（ROP）工作流。
+`@sandlada/result/composition` — pipeline and Kleisli composition, plus generator-based error propagation.
 
-## API 列表
+## Scope
 
-- [`composeK`](./composeK.ts): Kleisli 組合，用於將多個返回 `IResultOfT` 的同步函數組合成單一函數。
-- [`composeKAsync`](./composeKAsync.ts): 異步 Kleisli 組合，用於處理返回 `Promise<IResultOfT>` 的函數。
-- [`pipe`](./pipe.ts): 函數管道操作符，將初始值同步傳遞經過一系列函數。
-- [`pipeAsync`](./pipeAsync.ts): 異步管道操作符，處理包含 Promise 或異步操作的函數鏈。
-- [`safeTry`](./safeTry.ts) / [`fromSafeTry`](./safeTry.ts): 基於生成器（Generator）的 Do-notation 實現，允許以類似同步的語法編寫安全的 Result 鏈。
+- Operates on: plain functions and Result-returning functions.
+- Execution model: synchronous (`pipe`, `composeK`, `safeTry`) or eager async (`pipeAsync`, `composeKAsync`); `fromSafeTryAsync` returns a lazy `AsyncResult`.
+- Not here: individual operators (`operators`), function-shape adapters (`adapters`).
+
+## API
+
+### Pipeline
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `pipe` | Left-to-right function composition with explicit overloads for 1–10 steps. | [pipe.ts](./pipe.ts) |
+| `pipeAsync` | Async pipeline for Promise-returning steps. | [pipeAsync.ts](./pipeAsync.ts) |
+
+### Kleisli composition
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `composeK` | Composes Result-returning functions into a single Result-returning function (2–6 overloads). | [composeK.ts](./composeK.ts) |
+| `composeKAsync` | Async Kleisli composition for `Promise<IResultOfT>`-returning functions. | [composeKAsync.ts](./composeKAsync.ts) |
+
+### Generator do-notation
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `safeTry` / `fromSafeTry` | Runs a generator that `yield*`s Results; failures short-circuit the pipeline. | [safeTry.ts](./safeTry.ts) |
+| `safeTryAsync` / `fromSafeTryAsync` | Async counterpart; `fromSafeTryAsync` returns a lazy `AsyncResult`. | [safeTryAsync.ts](./safeTryAsync.ts) |
+
+## Contract notes
+
+- `pipe` and `pipeAsync` are unaware of Results: `pipe` lets a synchronous step throw bubble out, while `pipeAsync` turns a synchronous step throw into a rejection and does not unwrap thenables (a mixed chain passes raw values on).
+- `composeK` and `composeKAsync` capture to values — a synchronous step throw (and, for the async variant, an async rejection) becomes `Err`. Both panic at construction time when given zero functions.
+- `safeTry` / `safeTryAsync` rethrow a generator's own throws. They also throw when the generator succeeds without returning a value or yields more than once; `safeTryAsync` throws a `TypeError` when the resolved value is not a valid `IResultOfT`. See [behavior-modes.md §4.3](../../docs/behavior-modes.md#43-composition-srccombine-srccomposition).
+- Prefer `safeTry` / `safeTryAsync` when the pipeline needs plain `yield*` syntax; use `composeK*` when building a reusable function from a fixed chain.
+
+## Related
+
+- [`operators`](../operators/README.md) — the steps that pipelines usually compose.
+- [`adapters`](../adapters/README.md) — converts plain functions into Result-returning ones.
+- [`async-result`](../async-result/README.md) — `fromSafeTryAsync` returns an AsyncResult thunk.

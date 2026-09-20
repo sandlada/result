@@ -1,37 +1,91 @@
-# AsyncOption (異步可選值)
+# async-option
 
-`async-option` 模組提供了對 `IOption<T>` 的異步封裝（惰性 Thunk 模式），支援鏈式調用與鐵路導向編程（ROP），專為需要延遲執行的異步可選值場景設計。
+`@sandlada/result/async-option` — operators on the lazy `AsyncOption<T>` thunk.
 
-## API 列表
+## Scope
 
-### 構造函數 (Constructors)
-- [`from`](./from.ts): 從同步函數或值創建 `AsyncOption`。
-- [`fromOption`](./fromOption.ts): 將同步的 `IOption` 提升為 `AsyncOption`。
-- [`fromPromise`](./fromPromise.ts): 將返回 `IOption` 的 Promise 轉換為 `AsyncOption`。
-- [`ofNone`](./ofNone.ts): 創建一個固定為 `None` 狀態的 `AsyncOption`。
-- [`ofSome`](./ofSome.ts): 創建一個固定為 `Some` 狀態的 `AsyncOption`。
+- Operates on: `AsyncOption<T>` — a plain object `{ readonly run: () => Promise<IOption<T>> }`.
+- Execution model: **lazy** — middleware returns a new thunk without running anything; terminals such as `match` / `unwrap` / `unwrapOr` return a Promise and call `run()` immediately.
+- Not here: eager Promises (`promise-option`), sync operators (`option`), Result carriers (`async-result`).
 
-### 操作符 (Operators)
-- [`all`](./all.ts): 組合多個 `AsyncOption`，若全部為 `Some` 則返回包含所有值的數組。
-- [`bind`](./bind.ts): 鏈式綁定異步操作，若當前為 `Some` 則執行回調。
-- [`contains`](./contains.ts): 檢查 `AsyncOption` 是否包含指定的值。
-- [`exists`](./exists.ts): 檢查 `AsyncOption` 中的值是否滿足特定條件。
-- [`filter`](./filter.ts): 若條件不滿足，則將 `Some` 轉換為 `None`。
-- [`flatten`](./flatten.ts): 拍平嵌套的 `AsyncOption`。
-- [`isNone`](./isNone.ts): 檢查是否為 `None` 狀態。
-- [`isSome`](./isSome.ts): 檢查是否為 `Some` 狀態。
-- [`map`](./map.ts): 轉換 `Some` 狀態中的值（同步映射）。
-- [`mapAsync`](./mapAsync.ts): 轉換 `Some` 狀態中的值（異步映射）。
-- [`mapOr`](./mapOr.ts): 轉換 `Some` 中的值，若為 `None` 則返回預設值。
-- [`mapOrElse`](./mapOrElse.ts): 轉換 `Some` 中的值，若為 `None` 則執行回調返回預設值。
-- [`match`](./match.ts): 針對 `Some` 與 `None` 狀態分別執行對應的回調分支。
-- [`okOr`](./okOr.ts): 將 `AsyncOption` 轉換為 `AsyncResult`，若為 `None` 則使用提供的錯誤。
-- [`okOrElse`](./okOrElse.ts): 將 `AsyncOption` 轉換為 `AsyncResult`，若為 `None` 則執行回調生成錯誤。
-- [`orElse`](./orElse.ts): 若為 `None`，則回退到另一個 `AsyncOption`。
-- [`tap`](./tap.ts): 針對 `Some` 狀態執行同步副作用。
-- [`tapAsync`](./tapAsync.ts): 針對 `Some` 狀態執行異步副作用。
-- [`transpose`](./transpose.ts): 翻轉 `AsyncOption` 內部結構（需視具體實現而定）。
-- [`unwrap`](./unwrap.ts): 解包 `Some` 的值，若為 `None` 則拋出異常。
-- [`unwrapOr`](./unwrapOr.ts): 解包 `Some` 的值，若為 `None` 則返回預設值。
-- [`unwrapOrElse`](./unwrapOrElse.ts): 解包 `Some` 的值，若為 `None` 則執行回調生成預設值。
-- [`zipWith`](./zipWith.ts): 將 N≥2 個 `AsyncOption` 的值進行組合（variadic；arity 2–10 顯式定義，>10 透過 mapped type 推導）。
+## API
+
+### Constructors
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `from` | Wraps a thunk returning an Option (or a plain Option) into an AsyncOption. | [from.ts](./from.ts) |
+| `fromPromise` | Wraps a thunk returning `Promise<IOption>`; a throw or rejection becomes `None`. | [fromPromise.ts](./fromPromise.ts) |
+| `fromOption` | Lifts a synchronous `IOption` into an AsyncOption. | [fromOption.ts](./fromOption.ts) |
+| `ofSome` / `ofNone` | Direct `Some` / `None` constructors. | [ofSome.ts](./ofSome.ts), [ofNone.ts](./ofNone.ts) |
+
+### Transform
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `map` / `mapAsync` | Transform the `Some` value with a sync / async callback. | [map.ts](./map.ts), [mapAsync.ts](./mapAsync.ts) |
+| `mapOr` / `mapOrElse` | Map the `Some` value or fall back. | [mapOr.ts](./mapOr.ts), [mapOrElse.ts](./mapOrElse.ts) |
+| `filter` | Turns `Some` into `None` when the predicate fails. | [filter.ts](./filter.ts) |
+| `flatten` | Flattens a nested `AsyncOption`. | [flatten.ts](./flatten.ts) |
+| `transpose` | Swaps `AsyncOption<AsyncResult>` and `AsyncResult<AsyncOption>`. | [transpose.ts](./transpose.ts) |
+
+### Chain and recover
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `bind` | Monadic chain: the callback returns the next AsyncOption. | [bind.ts](./bind.ts) |
+| `orElse` | Fallback on `None`. | [orElse.ts](./orElse.ts) |
+
+### Side effects
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `tap` / `tapAsync` | Side effects on `Some`. | [tap.ts](./tap.ts), [tapAsync.ts](./tapAsync.ts) |
+
+### Queries
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `contains` | Equality check against the `Some` value. | [contains.ts](./contains.ts) |
+| `exists` | Predicate check on the `Some` value. | [exists.ts](./exists.ts) |
+| `isSome` / `isNone` | Standalone boolean predicates. | [isSome.ts](./isSome.ts), [isNone.ts](./isNone.ts) |
+
+### Combination
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `all` | Combines many AsyncOptions; an empty array is `Some([])`. | [all.ts](./all.ts) |
+| `zipWith` | Combines N≥2 AsyncOptions with a function (explicit arities 2–10, mapped type beyond). | [zipWith.ts](./zipWith.ts) |
+
+### Bridge to AsyncResult
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `okOr` / `okOrElse` | `Some` becomes `Ok`; `None` becomes `Err(error)` / `Err(errorFn())`. | [okOr.ts](./okOr.ts), [okOrElse.ts](./okOrElse.ts) |
+
+### Terminals
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `match` | Pattern match over `Some` / `None`; triggers `run()`. | [match.ts](./match.ts) |
+| `unwrap` | Terminal contract panic; the only panic API in this module. | [unwrap.ts](./unwrap.ts) |
+| `unwrapOr` / `unwrapOrElse` | Extract the value or fall back; triggers `run()`. | [unwrapOr.ts](./unwrapOr.ts), [unwrapOrElse.ts](./unwrapOrElse.ts) |
+
+## Contract notes
+
+- Nothing runs until a terminal calls `run()`; middleware returns a new thunk.
+- `mapAsync` captures fully here, the opposite of `async-result/mapAsync`: a sync throw or rejected Promise becomes `None`. `match`, `mapOrElse`, `unwrapOrElse`, `exists` and `zipWith` propagate instead. See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
+- `all` starts every carrier through `Promise.all` once `run()` is called; any `None` selects `None`, but every side effect still happens.
+- `zipWith` resolves to `None` when any argument is `None`.
+- The module has only `unwrap` as a panic API; there is no `expect` or `orThrow`. Bridge to AsyncResult with `okOr` / `okOrElse` when a typed throw is required.
+- Naming: the `async` prefix denotes the `AsyncOption` type, not the `async`/`await` keyword.
+
+## Design notes
+
+- **Eager and lazy async are separate modules.** `async-option` mirrors `async-result` on the Option track, while `promise-option` operates on Promises already in flight.
+
+## Related
+
+- [`async-result`](../async-result/README.md) — the Result-flavored thunk, bridged via `okOr` / `transpose`.
+- [`option`](../option/README.md) — the synchronous operator set.
+- [`promise-option`](../promise-option/README.md) — the eager counterpart.

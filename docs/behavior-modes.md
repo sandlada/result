@@ -3,7 +3,7 @@
 > This document is the single source of truth for the error-handling behavior of the whole library: unified terminology plus a per-module list of what every API does with throws, failure inputs, and empty inputs.
 > Full signatures and JSDoc live in the source files; this document only settles behavioral conclusions and links back to them.
 > The channel policy is checked by the consistency guard in `src/tests/hardening/behavior-policy.spec.ts`: a new public export that is not registered in `behavior-matrix.ts`, or a probe that contradicts the declared behavior, fails `npm test`.
-> See also [SPEC.md](../SPEC.md) (API index) and [ARCH.md](../ARCH.md) (architecture decision ADR 11).
+> See also the module map in [AGENTS.md](../AGENTS.md); each module's API index lives in its own `src/<module>/README.md`, and ADR-level rationale lives in `src/types/README.md`.
 
 ## 1. Reading guide: the exact scope of `exception-free`
 
@@ -125,7 +125,7 @@ Shared rule: eager execution that starts the chain on the call; **a rejection of
 | Exports | Callback behavior | Source |
 | --- | --- | --- |
 | `promise-result`'s `map` / `mapErr` / `mapAsync` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` / the `tap` family / `asyncMap` / `asyncTap` | Capture to values; for a synchronous mapper that returns a thenable, `map` additionally throws an `Error` pointing at `mapAsync` | [map.ts](../src/promise-result/map.ts), [mapAsync.ts](../src/promise-result/mapAsync.ts), [bimapAsync.ts](../src/promise-result/bimapAsync.ts), [asyncBindThrough.ts](../src/promise-result/asyncBindThrough.ts), [bindThroughAsync.ts](../src/promise-result/bindThroughAsync.ts) |
-| `promise-result`'s `bind` / `orElse` / `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `filterOrElse` / `ap` / the `catchErrAsync` family | Propagate directly; `mapOrAsync` is the special case that captures, returns the default value, and swallows observer exceptions | [bindAsync.ts](../src/promise-result/bindAsync.ts), [matchAsync.ts](../src/promise-result/matchAsync.ts), [catchErrAsync.ts](../src/promise-result/catchErrAsync.ts) |
+| `promise-result`'s `bind` / `orElse` / `match` / `mapOrElse` / `unwrapOrElse` / `exists` / `filterOrElse` / `ap` / the `catchErrAsync` family / `asyncMatch` | Propagate directly; `mapOrAsync` is the special case that captures, returns the default value, and swallows observer exceptions | [bindAsync.ts](../src/promise-result/bindAsync.ts), [matchAsync.ts](../src/promise-result/matchAsync.ts), [catchErrAsync.ts](../src/promise-result/catchErrAsync.ts), [asyncMatch.ts](../src/promise-result/asyncMatch.ts) |
 | `promise-result`'s `combine` / `combineWithAllErrors` | The former fails fast, the latter accumulates errors; an empty array returns `Ok([])`; a rejection of any outer promise rejects the whole combination | [combine.ts](../src/promise-result/combine.ts) |
 | `promise-option`'s `map` / `bind` / `filter` / `exists` / `orElse` / `tap` / the `mapOr` family | Capture to values: a throwing callback or an async rejection is always collapsed into `None` / `false` / the default value | [mapAsyncOption.ts](../src/promise-option/mapAsyncOption.ts), [bindAsyncOption.ts](../src/promise-option/bindAsyncOption.ts) |
 | `promise-option`'s lifting family `asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption` | A synchronous throw becomes `None`; an async rejection propagates | [asyncMapOption.ts](../src/promise-option/asyncMapOption.ts), [asyncBindOption.ts](../src/promise-option/asyncBindOption.ts), [asyncOrElseOption.ts](../src/promise-option/asyncOrElseOption.ts), [tapErrAsyncOption.ts](../src/promise-option/tapErrAsyncOption.ts) |
@@ -166,7 +166,7 @@ This is the only async layer that promises never to reject: synchronous throws, 
 
 ### 4.9 Observability (`src/observability/`)
 
-`ctx` / `withPath` maintain per-scope breadcrumb frames with `AsyncLocalStorage` (Node/Bun/Deno, falling back to a polyfill), isolated across `await` and supporting nested chains; observer errors from `tapErrContext` / `observe` / `installObserver` are always swallowed (including a second swallow inside `onError`) and never change the main flow. The `format` / `inspect` formatters never throw. See [ctx.ts](../src/observability/ctx.ts) and the [SPEC observability section](../SPEC.md#observability--srcobservability).
+`ctx` / `withPath` maintain per-scope breadcrumb frames with `AsyncLocalStorage` (Node/Bun/Deno, falling back to a polyfill), isolated across `await` and supporting nested chains; observer errors from `tapErrContext` / `observe` / `installObserver` are always swallowed (including a second swallow inside `onError`) and never change the main flow. The `format` / `inspect` formatters never throw. See [ctx.ts](../src/observability/ctx.ts) and the [observability module spec](../src/observability/README.md).
 
 ## 5. Deliberate special cases and asymmetries
 

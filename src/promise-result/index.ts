@@ -42,6 +42,7 @@ export { catchErrAsync } from './catchErrAsync.js';
 export { asyncBind } from './asyncBind.js';
 export { asyncBindThrough } from './asyncBindThrough.js';
 export { asyncMap } from './asyncMap.js';
+export { asyncMatch } from './asyncMatch.js';
 export { asyncOrElse } from './asyncOrElse.js';
 export { asyncTap } from './asyncTap.js';
 export { asyncTapErr } from './asyncTapErr.js';

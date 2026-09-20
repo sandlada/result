@@ -4,7 +4,8 @@
  *
  * @example
  * ```ts
- * import { asyncMatch, ok, err } from '@sandlada/result';
+ * import { asyncMatch } from '@sandlada/result/promise-result';
+ * import { ok } from '@sandlada/result/factories';
  * await asyncMatch({ ok: async (x: number) => `got ${x}`, err: async (e: string) => `error: ${e}` }, ok(42)); // 'got 42'
  * ```
  *

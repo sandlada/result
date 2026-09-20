@@ -39,7 +39,8 @@ npm run clean         # remove build/ (cross-platform, uses Node)
 npm run build         # clean -> tsc declarations -> rolldown ESM -> verify:build
 npm run build:types   # emit .d.ts only (uses tsconfig.build.json)
 npm run build:js      # emit minified ESM + sourcemaps via rolldown.config.ts
-npm run verify:build  # check artifact layout, JSDoc, sourcemaps and entry loading
+npm run verify:build  # check artifact layout, JSDoc, sourcemaps and entry loading, then the module READMEs
+npm run verify:readme # check module READMEs against barrels, the AGENTS.md module map and package.json exports
 npm run typecheck     # tsc --noEmit against the full project
 npm test              # vitest run (single pass, CI mode)
 npm run test:watch    # vitest watch
@@ -74,20 +75,41 @@ Vitest is configured in `vitest.config.ts`. Coverage thresholds are enforced per
 
 ### Mental Model (the big picture)
 
-Read `ARCH.md` for the full decision log and `SPEC.md` for the public API index. The mental model in one paragraph:
+Each module owns its spec at `src/<module>/README.md`; the module map below links them. The mental model in one paragraph:
 
 - **Results are plain objects, not classes.** The contract is a discriminated union (`isSuccess` / `isFailure`) over `IResultSuccess` and `IResultFailure<TError>`. Value-bearing Results use `IResultOfT<TValue, TError>`. Same shape for Options (`isSome` / `isNone`).
 - **Operators are standalone, data-last, curried.** No methods on result objects. This is what makes `pipe(...)` work.
 - **The package layout mirrors the type space.** Because `map` means different things on `IResultOfT` vs `IOption`, every concern lives at its own subpath: `/factories`, `/operators`, `/option`, `/composition`, `/adapters`, `/combine`, `/promise-result`, `/promise-option`, `/async-result`, `/async-option`, `/reliability`, `/observability`, `/primitives`.
-- **The main barrel is type-only** (`src/index.ts`). It re-exports the contract types and a runtime `moduleMarker = {}` whose sole purpose is to keep Rolldown materializing the entry's sourcemap. Functional runtime values are reached exclusively via subpaths — this is the rationale for ADR 9/10 in `ARCH.md`.
-- **Two async flavors.** `promise-result/` / `promise-option/` operate on eager `Promise<IResultOfT>`; `async-result/` / `async-option/` operate on lazy `AsyncResult<T,E>` thunks (`() => Promise<IResultOfT>`). Don't conflate them — see ADR 8.
+- **The main barrel is type-only** (`src/index.ts`). It re-exports the contract types and a runtime empty default object whose sole purpose is to keep Rolldown materializing the entry's sourcemap. Functional runtime values are reached exclusively via subpaths — the rationale is recorded in [`src/types/README.md`](src/types/README.md).
+- **Two async flavors.** `promise-result/` / `promise-option/` operate on eager `Promise<IResultOfT>`; `async-result/` / `async-option/` operate on lazy `AsyncResult<T,E>` thunks (`() => Promise<IResultOfT>`). Don't conflate them — see the module map below.
 - **Three layered concerns sit on top of the core ROP operators:** `reliability/` (retry/timeout/race), `observability/` (breadcrumb `ctx`/`withPath`, formatters, observer hooks), `primitives/` (high-frequency helpers like `cond`/`reduce`/`lift`). Each reuses `IResultOfT`/`AsyncResult` and has its own subpath.
 
-The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files are pure re-export barrels — there are no cyclic re-exports between modules (convention).
+The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files are re-export barrels (the root and `types` entries add an empty `export default {}` marker) — there are no cyclic re-exports between modules (convention).
+
+### Module Map
+
+| Module | Subpath | Spec | Behavior matrix |
+| --- | --- | --- | --- |
+| types | `@sandlada/result` (root barrel) and `@sandlada/result/types` | [src/types/README.md](src/types/README.md) | — |
+| factories | `@sandlada/result/factories` | [src/factories/README.md](src/factories/README.md) | [§4.1](docs/behavior-modes.md#41-factories-srcfactories) |
+| operators | `@sandlada/result/operators` | [src/operators/README.md](src/operators/README.md) | [§4.2](docs/behavior-modes.md#42-synchronous-operators-srcoperators) |
+| option | `@sandlada/result/option` | [src/option/README.md](src/option/README.md) | [§4.5](docs/behavior-modes.md#45-option-srcoption) |
+| composition | `@sandlada/result/composition` | [src/composition/README.md](src/composition/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
+| adapters | `@sandlada/result/adapters` | [src/adapters/README.md](src/adapters/README.md) | [§4.4](docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives) |
+| combine | `@sandlada/result/combine` | [src/combine/README.md](src/combine/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
+| promise-result | `@sandlada/result/promise-result` | [src/promise-result/README.md](src/promise-result/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
+| promise-option | `@sandlada/result/promise-option` | [src/promise-option/README.md](src/promise-option/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
+| async-result | `@sandlada/result/async-result` | [src/async-result/README.md](src/async-result/README.md) | [§4.7](docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option) |
+| async-option | `@sandlada/result/async-option` | [src/async-option/README.md](src/async-option/README.md) | [§4.7](docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option) |
+| reliability | `@sandlada/result/reliability` | [src/reliability/README.md](src/reliability/README.md) | [§4.8](docs/behavior-modes.md#48-reliability-srcreliability) |
+| observability | `@sandlada/result/observability` | [src/observability/README.md](src/observability/README.md) | [§4.9](docs/behavior-modes.md#49-observability-srcobservability) |
+| primitives | `@sandlada/result/primitives` | [src/primitives/README.md](src/primitives/README.md) | [§4.4](docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives) |
+
+`npm run verify:readme` keeps this map, `package.json` `exports` and the module directories in agreement, and checks every module README's API table against its barrel.
 
 ### Error Type Customization (Key Differentiator)
 
-Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter** — users define their own error types (discriminated unions, classes, or plain objects) and pass them as the type argument. The **default** `TError` is `unknown` (matches `IResultFailure<TError = unknown>`), so a bare `err()` returns `IResultOfT<never, unknown>` and callers are forced to narrow — no silent `Error` coercion.
+Unlike the C# reference (which hardcodes `DomainError`), this library uses a **generic `TError` parameter** — users define their own error types (discriminated unions, classes, or plain objects) and pass them as the type argument. The **default** `TError` is `unknown` (matches `IResultFailure<TError = unknown>`), so a failure stays unusable until the caller narrows it — no silent `Error` coercion.
 
 ### Integration Pattern (Pre-configured Result)
 
@@ -156,7 +178,7 @@ These are not "guidelines" — they are checked. Do not propose changes that vio
 
 ## Comment Policy
 
-Comments describe **the code they sit next to** — not the project as a whole. Anything a reader needs to understand intent must be self-contained in the file, or live in `ARCH.md` / `SPEC.md`, which are the canonical records.
+Comments describe **the code they sit next to** — not the project as a whole. Anything a reader needs to understand intent must be self-contained in the file, or live in the canonical records (`AGENTS.md`, `docs/behavior-modes.md`, or the module `README.md` that owns the code).
 
 - **No cross-document pointers in code comments.** Do not link to, reference, or quote from narrative documents such as `README.md`, `bugs.md`, or any other working log / report file inside `.ts` / `.spec.ts` comments. Linking to a core API source file (e.g. `src/types/IResult.ts`) is fine — that is code, not documentation. If you find yourself wanting to write "see bugs.md #44" or "tracked in README", you have instead forgotten to encode the constraint in code or tests; do that, and delete the pointer.
 - **No external-file bug IDs in code comments.** Identifiers like `BUG001`, `bugs.md-BUG001`, "Bug 1 contract", "Issue 7 fix", "Task L5", or any other token that is only meaningful if you have a specific external `.md` open are forbidden in `.ts` / `.spec.ts` comments. The contract under test belongs in the test's `expect(...)` and the operator's type signature, not in a comment that references an external numbering scheme.
@@ -186,6 +208,7 @@ src/
 scripts/                — Build pipeline helpers run by npm scripts
   clean.mjs             — Remove build/ (cross-platform)
   verify-build.mjs      — Check the published artifact after a build
+  verify-readme.mjs     — Check the module READMEs against barrels, the AGENTS.md map and package.json
 ```
 
 ```text
@@ -200,7 +223,7 @@ site/                   — Astro Starlight documentation site (separate package
   scripts/              — Narrative document sync, SEO verification, icon rendering, version archive helpers
 ```
 
-Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files.
+Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files. Every module directory also carries a `README.md` — its spec and API index (see the module map above).
 
 `site/` is a separate npm project, like `demo/`: it has its own `package.json` and lockfile, and the root `tsconfig.json`, `rolldown.config.ts` and `vitest.config.ts` all scope themselves to `src/`, so nothing under `site/` reaches the published package. Cloudflare builds and deploys the site through Workers Builds, using the static-assets Worker defined in `site/wrangler.jsonc`; `.github/workflows/docs.yml` only verifies the build and does not deploy.
 
@@ -229,8 +252,9 @@ If you add a new export, you are also expected to:
 - add a co-located `*.spec.ts` and `*.type-spec.ts` where applicable,
 - update the `package.json` `exports` map if a new subpath is needed,
 - ensure `vitest.config.ts` coverage globs still cover the new files,
-- update `SPEC.md` to list the new export with a link to its source file,
-- update `ARCH.md` if the new export changes module responsibilities or ADRs,
+- register the export in `src/tests/hardening/behavior-matrix.ts` before changing its throw/reject policy,
+- update the owning module README (`src/<module>/README.md`) — its API table must list the new export with a link to its source file,
+- update the module map in `AGENTS.md` if a new module directory or subpath is added,
 - update `AGENTS.md` if the new export changes conventions, workflow, or source-layout descriptions.
 
 ## Things That Are Easy to Miss
@@ -238,16 +262,16 @@ If you add a new export, you are also expected to:
 - `build/` is the only published artifact (`package.json` `"files"`). Source TypeScript is not shipped.
 - Rolldown config (`rolldown.config.ts`) walks `src/` and excludes `*.spec.ts`, `*.type-spec.ts`, `*.d.ts` from its input list.
 - `npm run typecheck` includes `*.spec.ts` but excludes them from output; `npm run build` does the opposite.
-- `bugs.md` is large (~87 KB) and is the working log of bugs/incidents — read it before making changes around any operator you haven't touched before. (Do not link to it from code comments — see Comment Policy.)
+- `bugs.md` is the working log of bugs/incidents — read it before making changes around any operator you haven't touched before. (Do not link to it from code comments — see Comment Policy.)
 
 ## Document Responsibilities
 
 The project maintains complementary documentation with distinct responsibilities:
 
-1. **ARCH.md is the architecture record.** Update whenever source code, interfaces, or module structure change.
+1. **Module READMEs (`src/<module>/README.md`) are the module specs.** Each one is the API index and contract record for its subpath: scope, an export table linked to source files, and the module-specific invariants. Full type signatures and JSDoc live in the source, and throw/short-circuit conclusions defer to `docs/behavior-modes.md`. Update whenever exports, interfaces, or public behavior change — `npm run verify:readme` fails when a README and its barrel disagree.
 
-2. **SPEC.md is the API index.** Update when adding new exports or changing public API behavior. SPEC.md lists each export with a link to its source file — full type signatures and JSDoc live in the source.
+2. **AGENTS.md is the canonical AI instruction set** (broadly supported across coding agents), and it carries the module map. Update when project conventions, workflow, source layout, or module ownership change. **Claude-Code-specific tooling should keep a thin pointer file** at `CLAUDE.md` whose only content is `@AGENTS.md` — do not duplicate the instruction set there.
 
-3. **AGENTS.md is the canonical AI instruction set** (broadly supported across coding agents). Update when project conventions, workflow, or source layout change. **Claude-Code-specific tooling should keep a thin pointer file** at `CLAUDE.md` whose only content is `@AGENTS.md` — do not duplicate the instruction set there.
+3. **docs/behavior-modes.md is the throw/short-circuit policy record.** Update when any throw, short-circuit, or empty-input behavior changes; the consistency guard in `src/tests/hardening/behavior-policy.spec.ts` runs the matrix probes.
 
 4. **site/README.md is the documentation-site record.** Update when the site's build, content pipeline, versioning, or deployment changes. Published pages come from the source tree: `site/src/content/docs/api/` is generated by TypeDoc at build time and `site/src/content/docs/<version>/` holds the archived snapshots.

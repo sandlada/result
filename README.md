@@ -36,7 +36,7 @@ npm i @sandlada/result
 
 ## :ship: Quick Start
 
-The main barrel `@sandlada/result` is **type-focused**. Its only runtime value is `moduleMarker`, used to materialize the entry and sourcemap; functional runtime values come from dedicated subpath packages — pick the one that matches your shape.
+The main barrel `@sandlada/result` is **type-focused**. Its only runtime value is an empty default object, used to materialize the entry and sourcemap; functional runtime values come from dedicated subpath packages — pick the one that matches your shape.
 
 ```ts
 import type { IResultOfT } from '@sandlada/result';              // type contracts
@@ -68,29 +68,29 @@ const name = pipe(
 );
 ```
 
-> **Why subpath imports?** `@sandlada/result` exposes many types — `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Names like `map`, `bind`, `match` exist for both `IResultOfT` and `IOption`. The compiler can't disambiguate; the package layout does. Subpath imports make the type explicit at the call site and keep tree-shaking total. See `ARCH.md` ADR 10.
+> **Why subpath imports?** `@sandlada/result` exposes many types — `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`. Names like `map`, `bind`, `match` exist for both `IResultOfT` and `IOption`. The compiler can't disambiguate; the package layout does. Subpath imports make the type explicit at the call site and keep tree-shaking total. See [`src/types/README.md`](./src/types/README.md) for the rationale.
 
 ## :ledger: API Overview
 
-All exports are listed in [SPEC.md](./SPEC.md) with links to their source files. Full type signatures and JSDoc live in the source.
+Each subpath has its own spec — a module `README.md` with the full export table linked to source files. Full type signatures and JSDoc live in the source.
 
-| Export path | Contents |
-| --- | --- |
-| `@sandlada/result` | **Type-focused barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`, plus the runtime `moduleMarker`. Functional runtime values must use a subpath. |
-| `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, …). |
-| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe`, …). |
-| `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). |
-| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. |
-| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. |
-| `@sandlada/result/promise-result` | Eager async operators on `Promise<IResultOfT>`. |
-| `@sandlada/result/promise-option` | Eager async operators on `Promise<IOption>`. |
-| `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. |
-| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … |
-| `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. |
-| `@sandlada/result/reliability` | `retry`, `retryLazy`, `timeout`, `race`, `any`, `allSettled`. |
-| `@sandlada/result/observability` | `ctx`, `withPath`, `format`, `inspect`, `installObserver`, … |
-| `@sandlada/result/primitives` | `cond`, `condErr`, `sequence`, `reduce`, `partitionOption`, `lift`. |
-| `@sandlada/result/types` | Same type contracts as the main barrel, plus its own runtime `moduleMarker`. Kept for backward compatibility. |
+| Export path | Contents | Spec |
+| --- | --- | --- |
+| `@sandlada/result` | **Type-focused barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`, plus the runtime empty default marker. Functional runtime values must use a subpath. | [src/types/README.md](./src/types/README.md) |
+| `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, …). | [src/factories/README.md](./src/factories/README.md) |
+| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe`, …). | [src/operators/README.md](./src/operators/README.md) |
+| `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). | [src/option/README.md](./src/option/README.md) |
+| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. | [src/async-result/README.md](./src/async-result/README.md) |
+| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. | [src/async-option/README.md](./src/async-option/README.md) |
+| `@sandlada/result/promise-result` | Eager async operators on `Promise<IResultOfT>`. | [src/promise-result/README.md](./src/promise-result/README.md) |
+| `@sandlada/result/promise-option` | Eager async operators on `Promise<IOption>`. | [src/promise-option/README.md](./src/promise-option/README.md) |
+| `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. | [src/composition/README.md](./src/composition/README.md) |
+| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … | [src/adapters/README.md](./src/adapters/README.md) |
+| `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. | [src/combine/README.md](./src/combine/README.md) |
+| `@sandlada/result/reliability` | `retry`, `retryLazy`, `timeout`, `race`, `any`, `allSettled`. | [src/reliability/README.md](./src/reliability/README.md) |
+| `@sandlada/result/observability` | `ctx`, `withPath`, `format`, `inspect`, `installObserver`, … | [src/observability/README.md](./src/observability/README.md) |
+| `@sandlada/result/primitives` | `cond`, `condErr`, `sequence`, `reduce`, `partitionOption`, `lift`. | [src/primitives/README.md](./src/primitives/README.md) |
+| `@sandlada/result/types` | Same type contracts as the main barrel, plus its own empty default marker. Kept for backward compatibility. | [src/types/README.md](./src/types/README.md) |
 
 ## :package: Integration Pattern
 
@@ -121,10 +121,8 @@ function getUser(id: string): AppResult<User> {
 ## :ledger: Further Reading
 
 - [result.sandlada.com](https://result.sandlada.com) — published documentation: guides, behavior modes, and the generated API reference
-- [SPEC.md](./SPEC.md) — API index with links to each source file
+- [AGENTS.md](./AGENTS.md) — the module map: every subpath, its module `README.md` spec, and its behavior-matrix section
 - [docs/behavior-modes.md](./docs/behavior-modes.md) — behavior modes: the fail-fast / accumulate / throw policy matrix for every API
-- [ARCH.md](./ARCH.md) — internal architecture and contributor documentation
-- [AGENTS.md](./AGENTS.md) — AI agent conventions and project metadata for tool-assisted development
 
 ## License
 

@@ -1,13 +1,52 @@
-# Reliability (可靠性與彈性)
+# reliability
 
-`reliability` 模組提供了增強異步操作健壯性的工具，例如重試機制、超時控制與並發競爭，協助處理不穩定的網絡請求或外部依賴。
+`@sandlada/result/reliability` — retry, timeout and concurrency primitives for production pipelines.
 
-## API 列表
+## Scope
 
-- [`allSettled`](./allSettled.ts): 並行執行多個任務，等待全部完成（無論成功或失敗）並收集結果。
-- [`any`](./any.ts): 並行執行多個任務，返回第一個成功的 Result，若全失敗則匯總錯誤。
-- [`race`](./race.ts): 競速執行多個任務，返回最先成功的結果；若全部失敗，則返回輸入順序最前的錯誤（空輸入時返回 `EmptyInputsError`，可由 `onEmpty` 覆寫）。
-- [`retry`](./retry.ts): 針對異步任務提供可配置的重試機制（支援退避策略與最大次數）。
-- [`retryLazy`](./retryLazy.ts): 針對 `AsyncResult` 的惰性重試機制。
-- [`timeout`](./timeout.ts): 為異步任務添加超時限制，超時後返回特定的錯誤 Result。
-- [`timeoutEager`](./timeoutEager.ts): 主動型超時控制，專注於取消未完成的底層任務（依賴具體實現支援）。
+- Operates on: `AsyncResult` thunks (plus one eager retry entry point). This is the only async layer that **never rejects**.
+- Execution model: `retry` and `timeoutEager` are eager; `retryLazy`, `timeout`, `race`, `any` and `allSettled` are lazy and run on `.run()`.
+- Not here: general async operators (`async-result`, `promise-result`).
+
+## API
+
+### Retry
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `retry` | Eager bounded retry; resolves `IResultOfT<T, E \| TE \| AE>` and never rejects. | [retry.ts](./retry.ts) |
+| `retryLazy` | Lazy thunk wrap of `retry` with the same error contract. | [retryLazy.ts](./retryLazy.ts) |
+| `RetryOptions` (type) | `times`, `delayMs`, `shouldRetry`, `onRetry`, `signal`, `onThrow`, `onAborted`. | [retry.ts](./retry.ts) |
+| `ThrownError` (type) | Default `TE` — `{ kind: 'Thrown', thrown }`, preserving the thrown value verbatim. | [retry.ts](./retry.ts) |
+| `AbortedError` (type) | Default `AE` — `{ kind: 'Aborted', reason, times }` when the loop never runs `fn`. | [retry.ts](./retry.ts) |
+
+### Timeout
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `timeout` | Lazily races an AsyncResult against `setTimeout`; the default error is `{ kind: 'Timeout', ms }`. | [timeout.ts](./timeout.ts) |
+| `timeoutEager` | Eager counterpart of `timeout`. | [timeoutEager.ts](./timeoutEager.ts) |
+| `TimeoutError` (type) | Default timeout error shape; replace it through `onTimeout`. | [timeout.ts](./timeout.ts) |
+
+### Concurrency
+
+| Export | Description | Source |
+| --- | --- | --- |
+| `race` | First `Ok` wins; if all fail, the lowest input index wins; an empty array becomes `Err(EmptyInputsError)` unless `onEmpty` overrides it. | [race.ts](./race.ts) |
+| `EmptyInputsError` (type) | Default error for an empty `race` input. | [race.ts](./race.ts) |
+| `any` | Runs everything; returns all successes, or all errors when none succeed (rejections tagged `{ kind: 'Rejected' }`). | [any.ts](./any.ts) |
+| `allSettled` | Always `Ok`: every thunk's outcome in input order. | [allSettled.ts](./allSettled.ts) |
+| `Settled` (type) | Per-thunk outcome: `{ ok: true, value }`, `{ ok: false, error }` or `{ ok: false, kind: 'Rejected', error }`. | [allSettled.ts](./allSettled.ts) |
+
+## Contract notes
+
+- **NeverRejects**: synchronous throws, async rejections and throwing hooks are all collapsed into `Err`. This is a stronger guarantee than the `promise-*` / `async-*` layers.
+- `retry` keeps error channels additive: `E` from your `fn`, `TE` when something throws (`ThrownError` by default), `AE` when the loop never runs `fn` (`AbortedError` by default). Supply `onThrow` / `onAborted` to fold them into your own `E`.
+- A timeout cannot cancel the inner operation: after `Err(onTimeout(ms))` the inner `run()` keeps executing and its settlement is discarded.
+- `race` policy: the first `Ok` wins regardless of order; among errors the lowest input index wins; a genuine `Err` outranks a Promise rejection. A statically non-empty array keeps error type `E`; a dynamically-sized array widens to `E \| EE`.
+- See [behavior-modes.md §4.8](../../docs/behavior-modes.md#48-reliability-srcreliability) for the per-export table.
+
+## Related
+
+- [`async-result`](../async-result/README.md) — the carrier all wrappers consume or return.
+- [`primitives`](../primitives/README.md) — `sequenceAsyncResult` for ordered batch execution.

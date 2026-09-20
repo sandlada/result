@@ -57,8 +57,9 @@ for (const [subpath, entry] of Object.entries(manifest.exports)) {
     }
 }
 
-// The root entry exports `moduleMarker` so that Rolldown materializes the package
-// entry together with a sourcemap; losing either one is a regression.
+// The root entry exports an empty default object so that Rolldown materializes
+// the package entry together with a sourcemap; losing either one is a
+// regression.
 for (const file of Object.values(manifest.exports['.'] ?? {})) {
     const path = resolve(repositoryRoot, file);
 

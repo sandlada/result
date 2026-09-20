@@ -2,7 +2,8 @@
  * Result type definitions — barrel export.
  *
  * Re-exports all discriminated union type interfaces. Its only runtime export
- * is `moduleMarker`, which keeps this entry and its sourcemap materialized.
+ * is an empty default object, which keeps this entry and its sourcemap
+ * materialized.
  */
 
 export type { IResult, IResultSuccess, IResultFailure } from './IResult.js';

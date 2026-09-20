@@ -36,7 +36,7 @@ import {
     mapAsyncOption, orElseAsyncOption, tapErrAsyncOption,
 } from '../../promise-option/index.js';
 import {
-    asyncBindThrough, bindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
+    asyncBindThrough, asyncMatch, bindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
 } from '../../promise-result/index.js';
 import { allSettled, any, race, timeout } from '../../reliability/index.js';
 
@@ -120,6 +120,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     { module: 'promise-result', api: 'bindThroughAsync', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(bindThroughAsync(() => { throw new Error('probe'); }, Promise.resolve(ok(1)))) },
     { module: 'promise-result', api: 'catchErrAsync', scenario: 'recovery callback throw', policy: 'propagate', note: 'declared escape hatch (recovery failures surface)', run: () => asyncChannel(catchErrAsync(() => { throw new Error('probe'); }, Promise.resolve(err('e')))) },
     { module: 'promise-result', api: 'bimapAsync', scenario: 'error branch throw', policy: 'capture', run: () => asyncChannel(bimapAsync(() => 1, () => { throw new Error('probe'); }, Promise.resolve(err('e')))) },
+    { module: 'promise-result', api: 'asyncMatch', scenario: 'handler throw', policy: 'propagate', run: () => asyncChannel(asyncMatch({ ok: () => { throw new Error('probe'); }, err: () => 0 }, ok(1))) },
 
     // ── promise-option (promotion family: sync → None, async → propagate) ──
     { module: 'promise-option', api: 'mapAsyncOption', scenario: 'mapper sync throw', policy: 'capture', run: () => asyncChannel(mapAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
