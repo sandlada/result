@@ -7,6 +7,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightTypeDoc from 'starlight-typedoc';
 import starlightVersions from 'starlight-versions';
 import seoApiPages from './plugins/seo-api-pages.mjs';
+import overloadCodeblocks from './plugins/overload-codeblocks.mjs';
 import { entryPoints, modules, packageName, siteDescription, siteUrl } from './lib/site.mjs';
 import { resolveSourceRevision } from './lib/source-revision.mjs';
 import { syncContent } from './lib/sync-content.mjs';
@@ -95,6 +96,18 @@ export default defineConfig({
                         outputFileStrategy: 'modules',
                         entryFileName: 'index',
                         useHTMLEncodedBrackets: true,
+                        // Parameters, type parameters and properties render as
+                        // tables instead of one heading per field, which keeps
+                        // short signature sections dense.
+                        parametersFormat: 'table',
+                        interfacePropertiesFormat: 'table',
+                        classPropertiesFormat: 'table',
+                        typeAliasPropertiesFormat: 'table',
+                        typeDeclarationFormat: 'table',
+                        indexFormat: 'table',
+                        // Member pages keep their own "Defined in" line, so the
+                        // per-row source column in property tables only repeats it.
+                        tableColumnSettings: { hideSources: true },
                         // Keeps every "Defined in" reference resolvable; see lib/source-revision.mjs.
                         gitRevision: sourceRevision,
                         // The project name becomes the title of the generated module index,
@@ -107,6 +120,9 @@ export default defineConfig({
                         sanitizeComments: true,
                     },
                 }),
+                // Collapses every Call Signature table into the source overload
+                // block, so the archived copy inherits the compact layout.
+                overloadCodeblocks,
                 // Runs after starlightTypeDoc regenerated the API pages and before
                 // starlightVersions archives them, so curated metadata is what gets
                 // archived as well.

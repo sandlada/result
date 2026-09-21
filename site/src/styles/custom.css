@@ -1,3 +1,6 @@
+@import "./override.css";
+@import "@sandlada/material-design-css/preset.css";
+@import "@sandlada/material-design-css/prebuilt-colors/content/h180c60t50-2025.css";
 /*
  * Starlight theme variables.
  *
@@ -80,14 +83,14 @@
 /* Colors (light mode) */
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
-    --sl-color-white: hsl(224, 10%, 10%);
-    --sl-color-gray-1: hsl(224, 14%, 16%);
-    --sl-color-gray-2: hsl(224, 10%, 23%);
-    --sl-color-gray-3: hsl(224, 7%, 36%);
-    --sl-color-gray-4: hsl(224, 6%, 56%);
-    --sl-color-gray-5: hsl(224, 6%, 77%);
-    --sl-color-gray-6: hsl(224, 20%, 94%);
-    --sl-color-gray-7: hsl(224, 19%, 98%);
+    --sl-color-white: hsl(0, 10%, 10%);
+    --sl-color-gray-1: hsl(0, 14%, 16%);
+    --sl-color-gray-2: hsl(0, 10%, 23%);
+    --sl-color-gray-3: hsl(0, 7%, 36%);
+    --sl-color-gray-4: hsl(0, 6%, 56%);
+    --sl-color-gray-5: hsl(0, 6%, 77%);
+    --sl-color-gray-6: hsl(0, 0%, 92%);
+    --sl-color-gray-7: hsl(0, 0%, 98%);
     --sl-color-black: hsl(0, 0%, 100%);
 
     --sl-color-orange-high: hsl(var(--sl-hue-orange), 80%, 25%);
@@ -162,10 +165,10 @@
      * `--apple-system` / `BlinkMacSystemFont` are used before `system-ui`
      * because `system-ui` causes issues on Windows in some languages.
      */
-    --sl-font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    --sl-font-system: "Jetbrains Mono", "Noto Sans Mono", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
         'Noto Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
-    --sl-font-system-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    --sl-font-system-mono: "Jetbrains Mono", "Noto Sans Mono", "Noto Sans Code Space", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
         'Courier New', monospace;
     /* Set --sl-font / --sl-font-mono to prepend a custom family. */
     --__sl-font: var(--sl-font, var(--sl-font-system)), var(--sl-font-system);
@@ -211,3 +214,5 @@
         --sl-mobile-toc-height: 0rem;
     }
 }
+
+

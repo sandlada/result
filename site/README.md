@@ -61,7 +61,16 @@ fails when the two disagree.
 - **API reference** — `starlight-typedoc` runs TypeDoc over the entry points from
   `lib/site.mjs`, one per published subpath export, and writes `src/content/docs/api/`.
   That directory is generated, so it is gitignored. `entryFileName` is `index` so that `/api/`
-  lists every module.
+  lists every module. Parameters, type parameters and properties render as tables
+  (`parametersFormat`, `interfacePropertiesFormat`, `classPropertiesFormat`,
+  `typeAliasPropertiesFormat`, `typeDeclarationFormat`, `indexFormat`) instead of one
+  heading per field, and the per-row source column is hidden (`tableColumnSettings`)
+  because member pages already carry their own "Defined in" line. Function
+  sections are then rewritten by `plugins/overload-codeblocks.mjs`: every `Call
+  Signature` table becomes one fenced `ts` block built from the overload
+  declarations in `../src`, keeping descriptions, examples and `Throws` notes.
+  Rewritten sections read description first, then the signature block with its
+  file-level source link, then examples and notes.
 
   The plugin also ships a `typeDocSidebarGroup`, but it is not used here. It fills its group by
   turning each kind group ("Functions", "Interfaces", …) into an `autogenerate` entry over a
