@@ -11,6 +11,7 @@
 
 .content-panel {
 
+    border-top: none;
 
     .sl-container {
         .sl-markdown-content {
@@ -63,15 +64,33 @@ a {
     }
 }
 
-.header {
+header.header {
     --sl-nav-height: 50px;
-
-    border-radius: 999px;
-    margin-top: 2px;
-    box-sizing: border-box;
-
     background: transparent;
-    backdrop-filter: blur(24px);
+    border-bottom: none;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    margin: 0px;
+    background: var(--sl-color-black);
+
+    transition-property: max-width, width, margin, top;
+    transition-behavior: allow-discrete;
+    transition-duration: 200ms;
+
+    &.collapsed {
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.38;
+            border-radius: inherit;
+            background: linear-gradient(to top, transparent, color-mix(in srgb, var(--md-sys-color-primary-container) 25%, transparent));
+        }
+    }
+
+
 
     & .title-wrapper * {
         font-size: 16px;
@@ -115,5 +134,73 @@ a {
                 max-width: 96px;
             }
         }
+
+        & .sl-flex.social-icons::after {
+            visibility: hidden;
+        }
     }
+}
+
+aside.right-sidebar-container .right-sidebar {
+    background: var(--sl-color-black);
+    position: sticky;
+    top: 0px;
+    border: none;
+    z-index: 1;
+    & nav {
+        border: none;
+        top: 50px;
+        background: var(--sl-color-black);
+    }
+
+    & .dropdown {
+        background: var(--md-sys-color-surface);
+        border: 1px solid var(--md-sys-color-outline-variant);
+    }
+}
+
+ul.top-level:has(details) {
+    a[aria-current="page"] span {
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+    }
+    li {
+        margin-top: 4px;
+    }
+    li,
+    a {
+        background: transparent;
+        padding: 0;
+    }
+    a, span {
+        display: flex;
+        height: 100%;
+    }
+    a span {
+        height: 100%;
+        width: fit-content;
+        border-radius: 999px;
+        padding-inline: 12px;
+        padding-block: 4px;
+
+    }
+    a:not([aria-current="page"]):hover span {
+        background: color-mix(in srgb, var(--md-sys-color-surface-variant) 38%, transparent);
+    }
+}
+
+starlight-toc {
+    a[aria-current="true"] {
+        color: var(--md-sys-color-primary);
+    }
+}
+
+.main-frame {
+}
+
+sl-sidebar-pane {
+    border-inline-end: none;
+}
+.right-sidebar {
+    border-inline-start: none;
 }

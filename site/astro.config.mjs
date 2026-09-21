@@ -53,6 +53,7 @@ const head = [
     { tag: 'meta', attrs: { name: 'twitter:image', content: `${siteUrl}/og.png` } },
     { tag: 'meta', attrs: { name: 'theme-color', content: '#00531f' } },
     { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
+    { tag: 'script', attrs: { src: '/header-controller.js', defer: true } },
     ...verificationMeta('google-site-verification', process.env.GOOGLE_SITE_VERIFICATION),
     ...verificationMeta('msvalidate.01', process.env.BING_SITE_VERIFICATION),
 ];
