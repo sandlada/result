@@ -24,3 +24,6 @@ src/content/docs/api/
 
 # Generated copy of docs/behavior-modes.md
 src/content/docs/behavior-modes.md
+
+# Generated copies of the module READMEs (src/<module>/README.md)
+src/content/docs/specs/

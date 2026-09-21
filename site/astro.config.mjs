@@ -9,6 +9,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightTypeDoc from 'starlight-typedoc';
 import starlightVersions from 'starlight-versions';
 import seoApiPages from './plugins/seo-api-pages.mjs';
+import { modules } from './modules.mjs';
 import { packageName, siteDescription, siteUrl } from './seo-metadata.mjs';
 
 // The TypeScript entry points documented in the API reference. Each one mirrors a
@@ -145,6 +146,7 @@ export default defineConfig({
             sidebar: [
                 { label: 'Start Here', items: ['getting-started'] },
                 { label: 'Reference', items: ['behavior-modes'] },
+                { label: 'Module specs', items: modules.map((module) => `specs/${module}`) },
                 apiSidebarGroup,
             ],
         }),

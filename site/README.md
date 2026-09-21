@@ -35,6 +35,11 @@ themselves to `../src`, so nothing here can leak into the published package.
   `src/content/docs/behavior-modes.md` before every dev/build run. The repository file stays the
   single source of truth; the copy is gitignored and rewritten, so it cannot drift. Links that
   point at repository files are rewritten to GitHub URLs.
+- **Module specs** — the same sync copies every `../src/<module>/README.md` into
+  `src/content/docs/specs/<module>.md`. The module list and the per-page search descriptions live
+  in `modules.mjs`, shared with the sidebar so the two cannot drift; a module without a
+  description fails the sync. Repository links are resolved against the source file: sibling specs
+  and `behavior-modes` stay internal, everything else points at GitHub.
 - **Hand-written pages** — `src/content/docs/*.md` are edited directly.
 - **API search metadata** — `plugins/seo-api-pages.mjs` runs after `starlight-typedoc` in the
   Starlight `plugins` array and replaces the `title` and `description` frontmatter of every
