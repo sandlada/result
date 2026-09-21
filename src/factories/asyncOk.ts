@@ -1,18 +1,15 @@
-/**
- * @fileoverview Creates a resolved async success result.
- *
- * @example
- * ```ts
- * import { asyncOk } from '@sandlada/result';
- * const r = asyncOk(42); // Promise<IResultOfT<number, never>>
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from './ok.js';
 
+/**
+ * Creates a resolved async success result.
+ *
+ * @example
+ * ```ts
+ * import { asyncOk } from '@sandlada/result/factories';
+ * const r = asyncOk(42); // Promise<IResultOfT<number, never>>
+ * ```
+ */
 export function asyncOk<T>(value: T): Promise<IResultOfT<T, never>> {
     // `ok(value)` has the implementation signature `IResult<never> | IResultOfT<T, never>`,
     // which is wider than the signature's `IResultOfT<T, never>`. Cast through
@@ -20,4 +17,3 @@ export function asyncOk<T>(value: T): Promise<IResultOfT<T, never>> {
     // value-bearing success variant, but the static type needs the explicit bridge.
     return Promise.resolve(ok(value));
 }
-

@@ -1,15 +1,3 @@
-/**
- * @fileoverview Transforms the error of a `Promise<IResultOfT<A, E>>`.
- *
- * @example
- * ```ts
- * import { mapErrAsync, asyncErr } from '@sandlada/result';
- * await mapErrAsync((e: string) => `[wrapped] ${e}`, asyncErr('boom'));
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
@@ -20,6 +8,15 @@ export function mapErrAsync<A, E, F>(
     f: (e: E) => F | Promise<F>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<A, F>>;
+/**
+ * Transforms the error of a `Promise<IResultOfT<A, E>>`.
+ *
+ * @example
+ * ```ts
+ * import { mapErrAsync, asyncErr } from '@sandlada/result/promise-result';
+ * await mapErrAsync((e: string) => `[wrapped] ${e}`, asyncErr('boom'));
+ * ```
+ */
 export function mapErrAsync<A, E, F>(
     f: (e: E) => F | Promise<F>,
     r?: Promise<IResultOfT<A, E>>,
@@ -31,4 +28,3 @@ export function mapErrAsync<A, E, F>(
         catch(e: unknown) { return err(e as unknown as F); }
     });
 }
-

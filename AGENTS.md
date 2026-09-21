@@ -41,6 +41,7 @@ npm run build:types   # emit .d.ts only (uses tsconfig.build.json)
 npm run build:js      # emit minified ESM + sourcemaps via rolldown.config.ts
 npm run verify:build  # check artifact layout, JSDoc, sourcemaps and entry loading, then the module READMEs
 npm run verify:readme # check module READMEs against barrels, the AGENTS.md module map and package.json exports
+npm run verify:examples # compile every JSDoc @example block under src/ (tsconfig.examples.json)
 npm run typecheck     # tsc --noEmit against the full project
 npm test              # vitest run (single pass, CI mode)
 npm run test:watch    # vitest watch
@@ -183,6 +184,9 @@ Comments describe **the code they sit next to** — not the project as a whole. 
 - **No cross-document pointers in code comments.** Do not link to, reference, or quote from narrative documents such as `README.md`, `bugs.md`, or any other working log / report file inside `.ts` / `.spec.ts` comments. Linking to a core API source file (e.g. `src/types/IResult.ts`) is fine — that is code, not documentation. If you find yourself wanting to write "see bugs.md #44" or "tracked in README", you have instead forgotten to encode the constraint in code or tests; do that, and delete the pointer.
 - **No external-file bug IDs in code comments.** Identifiers like `BUG001`, `bugs.md-BUG001`, "Bug 1 contract", "Issue 7 fix", "Task L5", or any other token that is only meaningful if you have a specific external `.md` open are forbidden in `.ts` / `.spec.ts` comments. The contract under test belongs in the test's `expect(...)` and the operator's type signature, not in a comment that references an external numbering scheme.
 - **No padding line separators.** Do not write comment lines that exist purely to pad visual length, such as `// ----------`, `// -----------`, `// ====`, `// ************`, `// ---- Bug 1 contract ----`, or any other decoration-only line. A `describe` / `it` block's title is the section header. If you need a section break inside a test, use a nested `describe` and give it a name.
+- **JSDoc placement is part of the API contract.** Public JSDoc must sit directly above the declaration it documents (after the imports): TypeDoc only attaches a comment to the declaration it immediately precedes, so a block parked at the top of the file renders nowhere. For overloaded functions, put the block above the **implementation signature** so the site renders it once at function level instead of repeating it per overload.
+- **No `@fileoverview` or `@note` tags.** `@fileoverview` is not a TypeDoc tag and produces a literal "Fileoverview" heading; unknown tags also emit build warnings. Start the block with the summary sentence. Module barrels use `@packageDocumentation` instead, which TypeDoc renders as the API page intro.
+- **Examples must compile.** Every fenced `ts` block under `@example` is extracted to `.examples/` and type-checked by `npm run verify:examples` (part of `verify:build`). Keep them self-contained: import from the real subpaths (`@sandlada/result/<module>`; runtime values never come from the root barrel) and do not reference fictional helpers.
 
 ## Source Layout
 

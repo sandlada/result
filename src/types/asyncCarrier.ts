@@ -1,27 +1,4 @@
 /**
- * @fileoverview Internal helper: detect whether a value returned from an async
- * callback is a lazy AsyncResult/AsyncOption carrier (has a `.run` function) or
- * a direct `Promise<IResultOfT>` / `Promise<IOption>` value.
- *
- * Used by `async-result/bind`, `async-result/orElse`, `async-result/andThrough`,
- * `async-option/bind`, and `async-option/orElse` to normalize callback returns
- * into a uniform `Promise<IResultOfT>` / `Promise<IOption>`.
- *
- * **Sentinel-safe**: the check is `value !== null && typeof value === 'object'`
- * before `'run' in value`. The sentinel-guard pattern prevents
- * `TypeError: Cannot use 'in' operator` on `null` — the bare-in check would
- * throw on `null` because `typeof null === 'object'`.
- *
- * **Brand**: Internal factories (`fromResult`, `fromPromise`, `from`, `ofSome`,
- * `ofNone` for async-option, etc.) stamp every carrier they produce with
- * {@link ASYNC_CARRIER_BRAND}. `isAsyncCarrier` checks the brand first and
- * falls back to the duck-type check, so user-constructed carriers
- * (`{ run: () => ... }`) keep working without changes.
- *
- * @internal
- */
-
-/**
  * Private symbol used to mark a value as a library-built async carrier. The
  * check is intentional: it lets `isAsyncCarrier` distinguish a true carrier
  * from a duck-typed `Promise` (which has a `.then` method but no `.run`),
@@ -61,6 +38,10 @@ export const markAsyncCarrier = <T extends object>(carrier: T): T & BrandedAsync
 /**
  * Returns `true` when `value` is structurally a lazy AsyncResult or AsyncOption
  * carrier — i.e. a non-null object that has a callable `.run` function.
+ *
+ * Used by `async-result/bind`, `async-result/orElse`, `async-result/andThrough`,
+ * `async-option/bind`, and `async-option/orElse` to normalize callback returns
+ * into a uniform `Promise<IResultOfT>` / `Promise<IOption>`.
  *
  * Returns a TypeScript type predicate `value is { run: () => unknown }` so
  * downstream guards narrow the input and expose `.run` without an explicit

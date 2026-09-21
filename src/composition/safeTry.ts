@@ -1,47 +1,34 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+
 /**
- * @fileoverview Generator-based `yield*` error propagation for Result pipelines.
+ * Generator-based `yield*` error propagation for Result pipelines.
  *
  * `safeTry` wraps a Result into a Generator. On success it returns the value;
  * on failure it yields the error, propagating it up to a `fromSafeTry` runner.
  * This enables flat, non-nested error handling in complex sequential logic.
  *
- * @example
- * ```ts
- * import { safeTry, fromSafeTry, ok, err } from '@sandlada/result';
- *
- * const r = fromSafeTry(function* () {
- *   const a = yield* safeTry(validate('input'));
- *   const b = yield* safeTry(process(a));
- *   return b;
- * });
- * ```
-  *
- * @note Ready for Product
- */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-
-/**
- * Wraps a `IResultOfT<T, E>` into a generator for use with `yield*`.
+ * Wraps a `IResultOfT<T, E>` into a generator for use with `yield*`:
  *
  * - On **success**: the generator returns the value — `yield*` evaluates to it.
  * - On **failure**: the generator yields the error result — `fromSafeTry` catches it.
  *
+ * Returns `T` when the inner result is `Ok`, otherwise yields the failure to be
+ * collected by `fromSafeTry`. The Generator's return type is `T | undefined`:
+ * the success path returns `T`, and the failure path's unreachable tail
+ * explicitly returns `undefined` (matches JS semantics when a generator
+ * exhausts after a yield without a top-level `return`).
+ *
  * @example
  * ```ts
- * const value = yield* safeTry(fallibleOp());
+ * import { safeTry } from '@sandlada/result/composition';
+ * import { ok } from '@sandlada/result/factories';
+ *
+ * function* pipeline() {
+ *   const value = yield* safeTry(ok(42));
+ *   return value;
+ * }
  * ```
- */
-/**
- * Returns `T` when the inner result is `Ok`, otherwise yields the failure to
- * be collected by `fromSafeTry`. The Generator's return type is `T |
- * undefined`: the success path returns `T`, and the failure path's
- * unreachable tail explicitly returns `undefined` (matches JS semantics when
- * a generator exhausts after a yield without a top-level `return`). The
- * previous version used `return undefined as unknown as T` which silently
- * cast `undefined` to `T` — a type lie that misled consumers iterating the
- * generator directly past the yield.
  */
 export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
@@ -61,10 +48,14 @@ export function* safeTry<T, E>(
  *
  * @example
  * ```ts
+ * import { fromSafeTry, safeTry } from '@sandlada/result/composition';
+ * import { ok } from '@sandlada/result/factories';
+ *
  * const result = fromSafeTry(function* () {
- *   const data = yield* safeTry(fetchData());
- *   return data.items.length;
+ *   const value = yield* safeTry(ok(42));
+ *   return value;
  * });
+ * // Ok(42)
  * ```
  */
 export function fromSafeTry<T, E>(

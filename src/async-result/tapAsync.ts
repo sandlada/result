@@ -1,20 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-/**
- * @fileoverview Side-effect on the success track using an async function.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * @example
- * ```ts
- * import { ok } from '@sandlada/result';
- * import { fromResult, tapAsync } from '@sandlada/result/async-result';
- *
- * const ar = tapAsync(async (v: number) => { await save(v); }, fromResult(ok(42)));
- * ```
-  *
- * @note Ready for Product
- */
 export function tapAsync<T, E>(
     fn: (value: T) => void | Promise<void>,
 ): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
@@ -22,6 +8,18 @@ export function tapAsync<T, E>(
     fn: (value: T) => void | Promise<void>,
     ar: AsyncResult<T, E>,
 ): AsyncResult<T, E>;
+/**
+ * Side-effect on the success track using an async function.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result/factories';
+ * import { fromResult, tapAsync } from '@sandlada/result/async-result';
+ *
+ * const ar = tapAsync(async (v: number) => { console.log('saving', v); }, fromResult(ok(42)));
+ * ```
+ */
 export function tapAsync<T, E>(
     fn: (value: T) => void | Promise<void>,
     ar?: AsyncResult<T, E>,

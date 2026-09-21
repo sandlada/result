@@ -1,25 +1,3 @@
-/**
- * @fileoverview Simultaneously maps both variants of an AsyncResult.
- *
- * **Throw policy**: If `onOk` or `onErr` throws (or rejects), the result converts
- * to `err(caughtError)`. Pass `errorFn` to customise how the thrown/rejected
- * value maps onto your error union.
- *
- * @example
- * ```ts
- * import { ok } from '@sandlada/result';
- * import { fromResult, bimap } from '@sandlada/result/async-result';
- *
- * const ar = bimap(
- *   (v: number) => v.toString(),
- *   (e: number) => e * 2,
- *   fromResult(ok(5)),
- * );
- * const result = await ar.run(); // Ok('5')
- * ```
- *
- * @note Ready for Product
- */
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
@@ -36,6 +14,26 @@ export function bimap<T, E, U, F>(
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => F,
 ): AsyncResult<U, F>;
+/**
+ * Simultaneously maps both variants of an AsyncResult.
+ *
+ * **Throw policy**: If `onOk` or `onErr` throws (or rejects), the result converts
+ * to `err(caughtError)`. Pass `errorFn` to customise how the thrown/rejected
+ * value maps onto your error union.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result/factories';
+ * import { fromResult, bimap } from '@sandlada/result/async-result';
+ *
+ * const ar = bimap(
+ *   (v: number) => v.toString(),
+ *   (e: number) => e * 2,
+ *   fromResult(ok(5)),
+ * );
+ * const result = await ar.run(); // Ok('5')
+ * ```
+ */
 export function bimap<T, E, U, F>(
     onOk: (value: T) => U | Promise<U>,
     onErr: (error: E) => F | Promise<F>,

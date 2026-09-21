@@ -1,36 +1,3 @@
-/**
- * @fileoverview Kleisli composition for async switch functions. Each function can return `IResultOfT` or `Promise<IResultOfT>`.
- *
- * F# equivalent: `f1 >=> f2 >=> f3` (async)
- *
- * **Synchronous throw policy** (G1): if any function in the chain throws
- * synchronously, the catch block funnels the unknown rejection through
- * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
- * as the sync `composeK` and `retry.ts:toErrFailure` (Batch 5). The composed
- * function's declared error type `E` is therefore a structural claim only:
- * a synchronous throw at runtime can produce an arbitrary `unknown` value.
- *
- * @example
- * ```ts
- * import { composeKAsync, asyncOk, asyncErr } from '@sandlada/result';
- * const p = composeKAsync(
- *   (x: number) => asyncOk(x * 2),
- *   (x: number) => x > 50 ? asyncOk(x) : asyncErr('too small'),
- * );
- * await p(30); // Ok(60)
- * ```
- *
- * @throws {TypeError} If called with zero functions.
- * @throws {unknown} If any composed step throws synchronously or rejects
- *                   asynchronously, the thrown/rejected value is captured
- *                   into the returned failure's `error` field — but its
- *                   static type widens to `unknown`, not the declared `E`.
- *                   Use `tryCatchAsync(..., errorFn)` per step if you need
- *                   typed errors.
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bindAsync } from '../promise-result/bindAsync.js';
 
@@ -79,6 +46,37 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
     f6: (g: G) => IResultOfT<H, E> | Promise<IResultOfT<H, E>>,
 ): (a: A) => Promise<IResultOfT<H, E>>;
 
+/**
+ * Kleisli composition for async switch functions. Each function can return `IResultOfT` or `Promise<IResultOfT>`.
+ *
+ * F# equivalent: `f1 >=> f2 >=> f3` (async)
+ *
+ * **Synchronous throw policy** (G1): if any function in the chain throws
+ * synchronously, the catch block funnels the unknown rejection through
+ * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
+ * as the sync `composeK` and `retry.ts:toErrFailure` (Batch 5). The composed
+ * function's declared error type `E` is therefore a structural claim only:
+ * a synchronous throw at runtime can produce an arbitrary `unknown` value.
+ *
+ * @example
+ * ```ts
+ * import { composeKAsync } from '@sandlada/result/composition';
+ * import { asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * const p = composeKAsync(
+ *   (x: number) => asyncOk(x * 2),
+ *   (x: number) => x > 50 ? asyncOk(x) : asyncErr('too small'),
+ * );
+ * await p(30); // Ok(60)
+ * ```
+ *
+ * @throws {TypeError} If called with zero functions.
+ * @throws {unknown} If any composed step throws synchronously or rejects
+ *                   asynchronously, the thrown/rejected value is captured
+ *                   into the returned failure's `error` field — but its
+ *                   static type widens to `unknown`, not the declared `E`.
+ *                   Use `tryCatchAsync(..., errorFn)` per step if you need
+ *                   typed errors.
+ */
 export function composeKAsync(
     ...fns: Array<(arg: unknown) => IResultOfT<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>>
 ): (a: unknown) => Promise<IResultOfT<unknown, unknown>> {
@@ -115,4 +113,3 @@ export function composeKAsync(
         }
     };
 }
-

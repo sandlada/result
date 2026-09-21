@@ -1,17 +1,3 @@
-/**
- * @fileoverview Strictly lazy `unwrapOrElse` over a `Promise<IResultOfT>` —
- * extracts the success value or computes a default from the error via a thunk.
- * Returns `Promise<A>` (just the value).
- *
- * @example
- * ```ts
- * import { unwrapOrElse, asyncOk, asyncErr } from '@sandlada/result';
- * await unwrapOrElse((e: string) => 0, asyncOk(42));    // 42
- * await unwrapOrElse((e: string) => 0, asyncErr('x'));  // 0
- * ```
- *
- * @note Ready for Product
- */
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function unwrapOrElse<A, E>(
@@ -21,6 +7,18 @@ export function unwrapOrElse<A, E>(
     onErr: (e: E) => A | Promise<A>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<A>;
+/**
+ * Strictly lazy `unwrapOrElse` over a `Promise<IResultOfT>` —
+ * extracts the success value or computes a default from the error via a thunk.
+ * Returns `Promise<A>` (just the value).
+ *
+ * @example
+ * ```ts
+ * import { unwrapOrElse, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * await unwrapOrElse((e: string) => 0, asyncOk(42));    // 42
+ * await unwrapOrElse((e: string) => 0, asyncErr('x'));  // 0
+ * ```
+ */
 export function unwrapOrElse<A, E>(
     onErr: (e: E) => A | Promise<A>,
     r?: Promise<IResultOfT<A, E>>,

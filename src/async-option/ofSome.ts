@@ -13,8 +13,6 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = ofSome(42);
  * const opt = await ao.run(); // Some(42)
  * ```
- *
- * @note Ready for Product
  */
 export function ofSome<T>(value: T): AsyncOption<T> {
     return markAsyncCarrier({ run: () => Promise.resolve(syncOfSome(value)) });

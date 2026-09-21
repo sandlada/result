@@ -1,10 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 
-/**
- * Returns a Promise<boolean> indicating if the AsyncOption is Some and the predicate holds.
-  *
- * @note Ready for Product
- */
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,
 ): (ao: AsyncOption<T>) => Promise<boolean>;
@@ -12,6 +7,9 @@ export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,
     ao: AsyncOption<T>,
 ): Promise<boolean>;
+/**
+ * Returns a Promise<boolean> indicating if the AsyncOption is Some and the predicate holds.
+ */
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,
     ao?: AsyncOption<T>,

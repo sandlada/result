@@ -1,5 +1,17 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+
+export function mapAsync<T, U, E>(
+    fn: (value: T) => U | Promise<U>,
+    errorFn?: (thrown: unknown) => unknown,
+): (ar: AsyncResult<T, E>) => AsyncResult<U, E>;
+export function mapAsync<T, U, E>(
+    fn: (value: T) => U | Promise<U>,
+    ar: AsyncResult<T, E>,
+    errorFn?: (thrown: unknown) => E,
+): AsyncResult<U, E>;
 /**
- * @fileoverview Maps the success value of an AsyncResult. The callback may be
+ * Maps the success value of an AsyncResult. The callback may be
  * sync or async (`U | Promise<U>`); sync results are awaited internally.
  *
  * Lazy — returns a new AsyncResult without executing the inner computation.
@@ -16,28 +28,13 @@
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, mapAsync } from '@sandlada/result/async-result';
  *
  * const ar = mapAsync((x: number) => x * 2, fromResult(ok(21)));
  * const result = await ar.run(); // Ok(42)
  * ```
- *
- * @note Ready for Product
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-
-export function mapAsync<T, U, E>(
-    fn: (value: T) => U | Promise<U>,
-    errorFn?: (thrown: unknown) => unknown,
-): (ar: AsyncResult<T, E>) => AsyncResult<U, E>;
-export function mapAsync<T, U, E>(
-    fn: (value: T) => U | Promise<U>,
-    ar: AsyncResult<T, E>,
-    errorFn?: (thrown: unknown) => E,
-): AsyncResult<U, E>;
 export function mapAsync<T, U, E>(
     fn: (value: T) => U | Promise<U>,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

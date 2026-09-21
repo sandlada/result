@@ -1,30 +1,3 @@
-/**
- * @fileoverview Maps the success value of an async result, or returns `defaultValue` on failure.
- * The mapping function may be sync or async. Equivalent to `mapAsync(fn).then(unwrapOrAsync(defaultValue))`
- * but more efficient.
- *
- * **Throw policy**: if `fn` throws synchronously or its returned `Promise<B>` rejects,
- * the result is `defaultValue` (not an `Err`). The thrown reason is discarded —
- * use `mapAsync(fn).then(unwrapOrElse(err))` if you need the reason.
- *
- * The curried form accepts an optional `onErr` thunk that observes the rejected
- * reason. Supplying `onErr` makes `E` inferable at the curried site, matching
- * `mapOrElseAsync`'s inference behaviour. The error is still discarded — `onErr`
- * exists purely for inference and side-effect observation, not for value substitution.
- *
- * @example
- * ```ts
- * import { mapOrAsync, asyncOk, asyncErr } from '@sandlada/result';
- * await mapOrAsync(-1, (x: number) => x * 2, asyncOk(5)); // 10
- * await mapOrAsync(-1, (x: number) => x * 2, asyncErr('boom')); // -1
- *
- * // Curried — `E` is now inferable from the onErr observer.
- * const fn = mapOrAsync(-1, (x: number) => x * 2, (e: NetworkError) => logger.error(e));
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function mapOrAsync<A, B, E>(
@@ -48,6 +21,27 @@ export function mapOrAsync<A, B, E>(
     r: Promise<IResultOfT<A, E>>,
     onErr: (e: E) => unknown,
 ): Promise<B>;
+/**
+ * Maps the success value of an async result, or returns `defaultValue` on failure.
+ * The mapping function may be sync or async. Equivalent to `mapAsync(fn).then(unwrapOrAsync(defaultValue))`
+ * but more efficient.
+ *
+ * **Throw policy**: if `fn` throws synchronously or its returned `Promise<B>` rejects,
+ * the result is `defaultValue` (not an `Err`). The thrown reason is discarded —
+ * use `mapAsync(fn).then(unwrapOrElse(err))` if you need the reason.
+ *
+ * The curried form accepts an optional `onErr` thunk that observes the rejected
+ * reason. Supplying `onErr` makes `E` inferable at the curried site, matching
+ * `mapOrElseAsync`'s inference behaviour. The error is still discarded — `onErr`
+ * exists purely for inference and side-effect observation, not for value substitution.
+ *
+ * @example
+ * ```ts
+ * import { mapOrAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * await mapOrAsync(-1, (x: number) => x * 2, asyncOk(5)); // 10
+ * await mapOrAsync(-1, (x: number) => x * 2, asyncErr('boom')); // -1
+ * ```
+ */
 export function mapOrAsync<A, B, E>(
     defaultValue: B,
     fn: (a: A) => B | Promise<B>,

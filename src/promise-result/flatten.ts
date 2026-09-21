@@ -1,18 +1,18 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Strictly synchronous `flatten` over a `Promise<IResultOfT<IResultOfT>>`.
+ * Strictly synchronous `flatten` over a `Promise<IResultOfT<IResultOfT>>`.
  * Unwraps exactly one layer.
  *
  * @example
  * ```ts
- * import { flatten, asyncOk, asyncErr } from '@sandlada/result';
- * await flatten(Promise.resolve(asyncOk(asyncOk(42)))); // Ok(42)
- * await flatten(Promise.resolve(asyncOk(asyncErr('x')))); // Err('x')
- * ```
+ * import { flatten } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
- * @note Ready for Product
+ * await flatten(Promise.resolve(ok(ok(42)))); // Ok(42)
+ * await flatten(Promise.resolve(ok(err('x')))); // Err('x')
+ * ```
  */
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function flatten<A, E>(
     r: Promise<IResultOfT<IResultOfT<A, E>, E>>,
 ): Promise<IResultOfT<A, E>> {

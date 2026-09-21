@@ -1,5 +1,33 @@
+// Local ambient declarations for Node built-ins — `lib: ["ESNext"]` in
+// tsconfig excludes Node types, so we declare only the surface we use.
+// `@types/node` is intentionally NOT added as a dependency: this file
+// keeps the package ESM-only and Node-types-free while still reaching
+// for `node:async_hooks` via `createRequire` for VM-isolated runtimes.
+//
+// Replaced the static `import nodeModule from 'node:module'` with a **lazy**
+// dynamic import wrapped in `loadNodeCreateRequire`. The static import
+// evaluated at module load time and broke browser bundles without a
+// `node:module` polyfill — the very thing `package.json` and `README.md`
+// claim to support. The dynamic form is awaited only when the runtime
+// needs it (Node / VM-isolated contexts) and never throws at load time in
+// the browser.
+type NodeCreateRequire = (url: string | URL) => (id: string) => unknown;
+
+const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
+    try {
+        // @ts-expect-error - Node built-in module not in lib types.
+        const nodeModule = (await import('node:module')) as {
+            createRequire?: NodeCreateRequire;
+        };
+        return nodeModule.createRequire ?? null;
+    } catch {
+        return null;
+    }
+};
+
+/** A single path segment. Strings are preferred for names; numbers are also accepted. */
 /**
- * @fileoverview Per-async-scope path stack — drives `withPath` breadcrumbs and
+ * Per-async-scope path stack — drives `withPath` breadcrumbs and
  * {@link tapErrContext} structured logging.
  *
  * Each `ctx.run(fn)` opens a **fresh frame** with its own `PathSegment[]`.
@@ -35,45 +63,14 @@
  * @example
  * ```ts
  * import { ctx, getPath, withPath, tapErrContext } from '@sandlada/result/observability';
- * import { err } from '@sandlada/result';
+ * import { err } from '@sandlada/result/factories';
  *
  * await ctx.run(async () => {
  *   withPath('fetchUser');
- *   tapErrContext((e, { path }) => logger.error({ path, error: e }), err('boom'));
+ *   tapErrContext((e, { path }) => { console.log(path, e); }, err('boom'));
  * });
  * ```
- *
- * @note Ready for Product
  */
-
-// Local ambient declarations for Node built-ins — `lib: ["ESNext"]` in
-// tsconfig excludes Node types, so we declare only the surface we use.
-// `@types/node` is intentionally NOT added as a dependency: this file
-// keeps the package ESM-only and Node-types-free while still reaching
-// for `node:async_hooks` via `createRequire` for VM-isolated runtimes.
-//
-// Replaced the static `import nodeModule from 'node:module'` with a **lazy**
-// dynamic import wrapped in `loadNodeCreateRequire`. The static import
-// evaluated at module load time and broke browser bundles without a
-// `node:module` polyfill — the very thing `package.json` and `README.md`
-// claim to support. The dynamic form is awaited only when the runtime
-// needs it (Node / VM-isolated contexts) and never throws at load time in
-// the browser.
-type NodeCreateRequire = (url: string | URL) => (id: string) => unknown;
-
-const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
-    try {
-        // @ts-expect-error - Node built-in module not in lib types.
-        const nodeModule = (await import('node:module')) as {
-            createRequire?: NodeCreateRequire;
-        };
-        return nodeModule.createRequire ?? null;
-    } catch {
-        return null;
-    }
-};
-
-/** A single path segment. Strings are preferred for names; numbers are also accepted. */
 export type PathSegment = string | number;
 
 /** Read-only snapshot of the current breadcrumb stack. */

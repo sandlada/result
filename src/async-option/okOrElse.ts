@@ -3,6 +3,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok, err } from '../factories/index.js';
 
+export function okOrElse<T, E>(
+    onNone: () => E | Promise<E>,
+): (ao: AsyncOption<T>) => AsyncResult<T, E>;
+export function okOrElse<T, E>(
+    onNone: () => E | Promise<E>,
+    ao: AsyncOption<T>,
+): AsyncResult<T, E>;
 /**
  * Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, computing the error
  * from a thunk on `None` (lazy — error is only built when needed).
@@ -15,16 +22,7 @@ import { ok, err } from '../factories/index.js';
  * const r1 = await okOrElse(() => 'missing', ofSome(42)).run(); // Ok(42)
  * const r2 = await okOrElse(() => 'missing', ofNone<number>()).run(); // Err('missing')
  * ```
- *
- * @note Ready for Product
  */
-export function okOrElse<T, E>(
-    onNone: () => E | Promise<E>,
-): (ao: AsyncOption<T>) => AsyncResult<T, E>;
-export function okOrElse<T, E>(
-    onNone: () => E | Promise<E>,
-    ao: AsyncOption<T>,
-): AsyncResult<T, E>;
 export function okOrElse<T, E>(
     onNone: () => E | Promise<E>,
     ao?: AsyncOption<T>,

@@ -1,5 +1,15 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+
+export function asyncBindThrough<A, B, F>(
+    fn: (a: A) => Promise<IResultOfT<B, F>>,
+): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<A, E | F>>;
+export function asyncBindThrough<A, B, E, F>(
+    fn: (a: A) => Promise<IResultOfT<B, F>>,
+    r: IResultOfT<A, E>,
+): Promise<IResultOfT<A, E | F>>;
 /**
- * @fileoverview Side-effect on the success track — calls an async function on success
+ * Side-effect on the success track — calls an async function on success
  * that **can** propagate errors. If `fn` returns a failure, that failure propagates.
  * If `fn` returns a success, the **original** success value passes through unchanged.
  *
@@ -11,26 +21,17 @@
  *
  * @example
  * ```ts
- * import { asyncBindThrough, ok, err } from '@sandlada/result';
+ * import { asyncBindThrough } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * // Validate and preserve original value on success:
- * const r = await asyncBindThrough(async (v) => validate(v), ok('data'));
- * // Ok('data') if valid, Err(validationError) if invalid
+ * const r = await asyncBindThrough(
+ *     async (v: string) => v.length > 0 ? ok(v) : err('empty'),
+ *     ok('data'),
+ * );
+ * // Ok('data') if valid, Err('empty') if invalid
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
-
-export function asyncBindThrough<A, B, F>(
-    fn: (a: A) => Promise<IResultOfT<B, F>>,
-): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<A, E | F>>;
-export function asyncBindThrough<A, B, E, F>(
-    fn: (a: A) => Promise<IResultOfT<B, F>>,
-    r: IResultOfT<A, E>,
-): Promise<IResultOfT<A, E | F>>;
 export function asyncBindThrough<A, B, E, F>(
     fn: (a: A) => Promise<IResultOfT<B, F>>,
     r?: IResultOfT<A, E>,

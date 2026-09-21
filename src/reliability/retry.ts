@@ -1,47 +1,3 @@
-/**
- * @fileoverview Retries a fallible function with configurable attempts, backoff, and predicate gating.
- *
- * `retry` is **eager**: it returns `Promise<IResultOfT<T, E>>` and runs the supplied
- * function up to `times + 1` times. Use `shouldRetry` to filter transient errors
- * (timeouts, network blips) and `signal` to abort the retry loop.
- *
- * **Error identity**: a value thrown by `fn` is preserved **verbatim** inside a
- * {@link ThrownError} (`{ kind: 'Thrown', thrown }`), so the original `Error`
- * instance, its `stack` and its `cause` all survive. Pass `onThrow` to map the
- * throw onto your own error type instead.
- *
- * **Aborted / no-attempt cases**: when the loop never invokes `fn` (a
- * pre-aborted `signal` or a non-finite / negative `times`), the resolved `Err`
- * carries an {@link AbortedError} (`{ kind: 'Aborted', reason, times }`).
- * Pass `onAborted` to substitute your own shape.
- *
- * Both channels are *additive* on the return type — `IResultOfT<T, E | TE | AE>` —
- * so the library never claims a fabricated value is one of your `E`s.
- *
- * @example
- * ```ts
- * import { retry } from '@sandlada/result/reliability';
- *
- * const r = await retry(() => tryFetch(`/api/u/${id}`), {
- *   times: 3,
- *   delayMs: n => 50 * (n + 1), // linear backoff
- *   shouldRetry: e => 'kind' in e && e.kind === 'Transient',
- * });
- * // r.error: MyError | ThrownError | AbortedError — each separately narrowable.
- * ```
- *
- * @example Collapsing every channel onto one domain error
- * ```ts
- * const r = await retry<User, MyError, MyError, MyError>(fetchUser, {
- *   onThrow:   (thrown) => ({ kind: 'Unexpected', thrown }),
- *   onAborted: (reason) => ({ kind: 'Cancelled', reason }),
- * });
- * // r.error: MyError
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
@@ -172,7 +128,12 @@ const safeInvoke = async <T, E, TE>(
 };
 
 /**
- * Runs a fallible function, retrying on failure up to `options.times` times.
+ * Retries a fallible function with configurable attempts, backoff, and predicate
+ * gating.
+ *
+ * `retry` is **eager**: it returns `Promise<IResultOfT<T, E>>` and runs the supplied
+ * function up to `times + 1` times. Use `shouldRetry` to filter transient errors
+ * (timeouts, network blips) and `signal` to abort the retry loop.
  *
  * Synchronous throws AND promise rejections from `fn` are converted to `Err`,
  * as are throws escaping `shouldRetry`, `onRetry`, `delayMs`, `onThrow` and
@@ -181,6 +142,16 @@ const safeInvoke = async <T, E, TE>(
  *
  * The retry loop respects `AbortSignal` between attempts only; it cannot
  * interrupt an in-flight invocation.
+ *
+ * **Error identity**: a value thrown by `fn` is preserved **verbatim** inside a
+ * {@link ThrownError} (`{ kind: 'Thrown', thrown }`), so the original `Error`
+ * instance, its `stack` and its `cause` all survive. Pass `onThrow` to map the
+ * throw onto your own error type instead.
+ *
+ * **Aborted / no-attempt cases**: when the loop never invokes `fn` (a
+ * pre-aborted `signal` or a non-finite / negative `times`), the resolved `Err`
+ * carries an {@link AbortedError} (`{ kind: 'Aborted', reason, times }`).
+ * Pass `onAborted` to substitute your own shape.
  *
  * **Error channels** — the resolved error is `E | TE | AE`, where each arm is
  * separately discriminable and separately collapsible:
@@ -193,6 +164,37 @@ const safeInvoke = async <T, E, TE>(
  * If a caller-supplied `onThrow` / `onAborted` factory itself throws, the
  * library falls back to the corresponding default sentinel rather than
  * rejecting — a broken factory must not take the whole contract down.
+ *
+ * @example
+ * ```ts
+ * import { retry } from '@sandlada/result/reliability';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const r = await retry(
+ *   () => Promise.resolve(ok(42)),
+ *   { times: 3, delayMs: n => 50 * (n + 1) }, // linear backoff
+ * );
+ * // Ok(42); on failure r.error: E | ThrownError | AbortedError — each narrowable.
+ * ```
+ *
+ * @example Collapsing every channel onto one domain error
+ * ```ts
+ * import { retry } from '@sandlada/result/reliability';
+ * import { ok } from '@sandlada/result/factories';
+ *
+ * type MyError =
+ *   | { readonly kind: 'Unexpected'; readonly thrown: unknown }
+ *   | { readonly kind: 'Cancelled'; readonly reason: unknown };
+ *
+ * const r = await retry<number, MyError, MyError, MyError>(
+ *   () => Promise.resolve(ok(42)),
+ *   {
+ *     onThrow:   (thrown) => ({ kind: 'Unexpected', thrown }),
+ *     onAborted: (reason) => ({ kind: 'Cancelled', reason }),
+ *   },
+ * );
+ * // r.error: MyError
+ * ```
  */
 export async function retry<T, E, TE = ThrownError, AE = AbortedError>(
     fn: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,

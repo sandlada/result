@@ -1,7 +1,15 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';
+
 /**
- * @fileoverview Lazy counterpart to {@link retry} — wraps an `AsyncResult` and defers
+ * Lazy counterpart to {@link retry} — wraps an `AsyncResult` and defers
  * execution until the returned thunk is `run()`. Use when an existing AsyncResult
  * pipeline should retry transparently without changing upstream code.
+ *
+ * Error channels mirror the eager {@link retry}: `E | TE | AE`, where `TE`
+ * covers throws and `AE` covers the never-ran case. Supply `onThrow` /
+ * `onAborted` to collapse them onto your own error type.
  *
  * **Error identity**: like {@link retry}, a thrown value is preserved verbatim
  * inside a `ThrownError` (`{ kind: 'Thrown', thrown }`) — the original `Error`
@@ -15,25 +23,12 @@
  * @example
  * ```ts
  * import { retryLazy } from '@sandlada/result/reliability';
- * import { fromPromise, map } from '@sandlada/result/async-result';
+ * import { fromPromise } from '@sandlada/result/async-result';
+ * import { ok } from '@sandlada/result/factories';
  *
- * const pipeline = map((x: number) => x)(retryLazy(fromPromise(() => fetchX()), { times: 3 }));
+ * const pipeline = retryLazy(fromPromise(() => Promise.resolve(ok(42))), { times: 3 });
+ * const r = await pipeline.run();
  * ```
- *
- * @note Ready for Product
- */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';
-
-/**
- * Wraps an `AsyncResult` to add retry semantics without executing it.
- * The returned thunk defers work until `.run()` is called.
- *
- * Error channels mirror the eager {@link retry}: `E | TE | AE`, where `TE`
- * covers throws and `AE` covers the never-ran case. Supply `onThrow` /
- * `onAborted` to collapse them onto your own error type.
  */
 export function retryLazy<T, E, TE = ThrownError, AE = AbortedError>(
     ar: AsyncResult<T, E>,

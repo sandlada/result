@@ -17,8 +17,6 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = fromPromise(() => fetch('/api/data').then(r => r.json()));
  * const result = await ao.run();
  * ```
-  *
- * @note Ready for Product
  */
 export function fromPromise<T>(
     thunk: () => Promise<T>,

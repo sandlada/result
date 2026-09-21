@@ -11,14 +11,12 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * @example
  * ```ts
  * import { fromResult } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { expectErr } from '@sandlada/result/async-result';
  *
- * await expectErr(fromResult(ok(42)), 'should have failed'); // throws Error
+ * await expectErr('should have failed', fromResult(ok(42))); // throws Error
  * // The thrown Error carries `cause: 42` so the original success value is preserved.
  * ```
- *
- * @note Ready for Product
  */
 export function expectErr<T, E>(
     message: string,

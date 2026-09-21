@@ -1,5 +1,18 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { isAsyncCarrier } from '../types/asyncCarrier.js';
+
+export function bind<T, U, E, F>(
+    fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
+    errorFn?: (thrown: unknown) => unknown,
+): (ar: AsyncResult<T, E>) => AsyncResult<U, E | F>;
+export function bind<T, U, E, F>(
+    fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
+    ar: AsyncResult<T, E>,
+    errorFn?: (thrown: unknown) => E | F,
+): AsyncResult<U, E | F>;
 /**
- * @fileoverview Chains an AsyncResult-returning function on success (monadic bind / flatMap).
+ * Chains an AsyncResult-returning function on success (monadic bind / flatMap).
  * Supports interoperability with standard `Promise<IResultOfT>`.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
@@ -15,33 +28,20 @@
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, bind } from '@sandlada/result/async-result';
  *
- * // Heterogeneous errors — outer AppError, inner DbError, result widens.
- * pipe(
- *     fromResult(ok(config)),
- *     bind(c => fromPromise(loadUser(c.id))), // AsyncResult<User, DbError>
- * );
- * // AsyncResult<User, AppError | DbError>
- * ```
+ * type AppError = { readonly kind: 'App' };
+ * type DbError = { readonly kind: 'Db' };
  *
- * @note Ready for Product
+ * // Heterogeneous errors - outer AppError, inner DbError, result widens.
+ * const ar = bind<number, number, AppError, DbError>(
+ *     (id) => fromResult<number, DbError>(ok(id + 1)),
+ *     fromResult<number, AppError>(ok(1)),
+ * );
+ * // AsyncResult<number, AppError | DbError>
+ * ```
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { isAsyncCarrier } from '../types/asyncCarrier.js';
-
-export function bind<T, U, E, F>(
-    fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
-    errorFn?: (thrown: unknown) => unknown,
-): (ar: AsyncResult<T, E>) => AsyncResult<U, E | F>;
-export function bind<T, U, E, F>(
-    fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
-    ar: AsyncResult<T, E>,
-    errorFn?: (thrown: unknown) => E | F,
-): AsyncResult<U, E | F>;
 export function bind<T, U, E, F>(
     fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

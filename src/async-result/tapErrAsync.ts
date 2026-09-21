@@ -1,20 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-/**
- * @fileoverview Side-effect on the error track using an async function.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * @example
- * ```ts
- * import { err } from '@sandlada/result';
- * import { fromResult, tapErrAsync } from '@sandlada/result/async-result';
- *
- * const ar = tapErrAsync(async (e: string) => { await log(e); }, fromResult(err('oops')));
- * ```
-  *
- * @note Ready for Product
- */
 export function tapErrAsync<T, E>(
     fn: (error: E) => void | Promise<void>,
 ): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
@@ -22,6 +8,18 @@ export function tapErrAsync<T, E>(
     fn: (error: E) => void | Promise<void>,
     ar: AsyncResult<T, E>,
 ): AsyncResult<T, E>;
+/**
+ * Side-effect on the error track using an async function.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * @example
+ * ```ts
+ * import { err } from '@sandlada/result/factories';
+ * import { fromResult, tapErrAsync } from '@sandlada/result/async-result';
+ *
+ * const ar = tapErrAsync(async (e: string) => { console.log('err:', e); }, fromResult(err('oops')));
+ * ```
+ */
 export function tapErrAsync<T, E>(
     fn: (error: E) => void | Promise<void>,
     ar?: AsyncResult<T, E>,

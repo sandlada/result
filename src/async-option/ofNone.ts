@@ -17,8 +17,6 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = ofNone<number>();
  * const opt = await ao.run(); // None
  * ```
- *
- * @note Ready for Product
  */
 export function ofNone<T = unknown>(): AsyncOption<T> {
     // `syncOfNone<T>()` already returns the correctly-parameterized IOption<T>;

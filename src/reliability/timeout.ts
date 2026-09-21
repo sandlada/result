@@ -1,7 +1,21 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Races an `AsyncResult` against a timeout. If the inner result does not
- * settle before `ms` milliseconds have elapsed, the returned AsyncResult resolves to
- * an `Err` produced by the optional `onTimeout` factory. The default factory yields
+ * Default shape of the error produced by {@link timeout} when no factory is given.
+ * Library consumers can extend, narrow, or replace it via the `onTimeout` hook.
+ */
+export interface TimeoutError {
+    readonly kind: 'Timeout';
+    readonly ms: number;
+}
+
+const defaultOnTimeout = (ms: number): TimeoutError => ({ kind: 'Timeout', ms });
+
+/**
+ * Races an `AsyncResult` against a timeout. If the inner result does not settle
+ * before `ms` milliseconds have elapsed, the returned AsyncResult resolves to an
+ * `Err` produced by the optional `onTimeout` factory. The default factory yields
  * `{ kind: 'Timeout', ms }`.
  *
  * `timeout` is **lazy** — it never triggers `ar.run()` until `.run()` is invoked.
@@ -24,28 +38,6 @@
  * const r = await safe.run();
  * // r is Ok(...) if fetch completed within 2000ms, else Err({ kind: 'Timeout', ms: 2000 }).
  * ```
- *
- * @note Ready for Product
- */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-
-/**
- * Default shape of the error produced by {@link timeout} when no factory is given.
- * Library consumers can extend, narrow, or replace it via the `onTimeout` hook.
- */
-export interface TimeoutError {
-    readonly kind: 'Timeout';
-    readonly ms: number;
-}
-
-const defaultOnTimeout = (ms: number): TimeoutError => ({ kind: 'Timeout', ms });
-
-/**
- * Wraps an AsyncResult so that slow runs turn into `Err(onTimeout(ms))` after
- * `ms` milliseconds have elapsed. The inner `run()` keeps going in the
- * background — its eventual settlement is ignored.
  */
 export function timeout<T, E, TOE = TimeoutError>(
     ms: number,

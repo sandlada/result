@@ -1,19 +1,3 @@
-/**
- * @fileoverview Async `orElse` for sync `IResultOfT`. Lifts a sync Result into
- * the async world and recovers from failure via an async callback.
- *
- * Companion to {@link asyncBind} — asyncBind chains forward on Ok; asyncOrElse
- * recovers on Err.
- *
- * @example
- * ```ts
- * import { asyncOrElse, ok, err } from '@sandlada/result';
- * await asyncOrElse(async (e: string) => ok(0), err('boom')); // Ok(0)
- * await asyncOrElse(async (e: string) => ok(0), ok(42));       // Ok(42)
- * ```
- *
- * @note Ready for Product
- */
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function asyncOrElse<T, E, F>(
@@ -23,6 +7,21 @@ export function asyncOrElse<T, E, F>(
     f: (e: E) => Promise<IResultOfT<T, F>>,
     r: IResultOfT<T, E>,
 ): Promise<IResultOfT<T, E | F>>;
+/**
+ * Async `orElse` for sync `IResultOfT`. Lifts a sync Result into
+ * the async world and recovers from failure via an async callback.
+ *
+ * Companion to {@link asyncBind} — asyncBind chains forward on Ok; asyncOrElse
+ * recovers on Err.
+ *
+ * @example
+ * ```ts
+ * import { asyncOrElse } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * await asyncOrElse(async (e: string) => ok(0), err('boom')); // Ok(0)
+ * await asyncOrElse(async (e: string) => ok(0), ok(42));       // Ok(42)
+ * ```
+ */
 export function asyncOrElse<T, E, F>(
     f: (e: E) => Promise<IResultOfT<T, F>>,
     r?: IResultOfT<T, E>,

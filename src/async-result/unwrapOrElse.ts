@@ -1,5 +1,12 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
+export function unwrapOrElse<T, E, U>(
+    onErr: (error: E) => U | Promise<U>,
+): (ar: AsyncResult<T, E>) => Promise<T | U>;
+export function unwrapOrElse<T, E, U>(
+    onErr: (error: E) => U | Promise<U>,
+    ar: AsyncResult<T, E>,
+): Promise<T | U>;
 /**
  * Extracts the success value from an `AsyncResult`, or computes a default from
  * the error on failure. The handler may be sync or async. Lazy — the handler
@@ -8,22 +15,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * @example
  * ```ts
  * import { fromResult } from '@sandlada/result/async-result';
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  * import { unwrapOrElse } from '@sandlada/result/async-result';
  *
  * const v1 = await unwrapOrElse(() => 0, fromResult(ok(42))); // 42
  * const v2 = await unwrapOrElse((e: string) => -1, fromResult(err('boom'))); // -1
  * ```
- *
- * @note Ready for Product
  */
-export function unwrapOrElse<T, E, U>(
-    onErr: (error: E) => U | Promise<U>,
-): (ar: AsyncResult<T, E>) => Promise<T | U>;
-export function unwrapOrElse<T, E, U>(
-    onErr: (error: E) => U | Promise<U>,
-    ar: AsyncResult<T, E>,
-): Promise<T | U>;
 export function unwrapOrElse<T, E, U>(
     onErr: (error: E) => U | Promise<U>,
     ar?: AsyncResult<T, E>,

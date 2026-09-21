@@ -1,21 +1,19 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+
 /**
- * @fileoverview Unzips a Result containing a tuple into a tuple of Results.
+ * Unzips a Result containing a tuple into a tuple of Results.
  *
  * Rust equivalent: `Result::unzip`
  *
  * @example
  * ```ts
- * import { unzip, ok, err } from '@sandlada/result';
+ * import { unzip } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
  * unzip(ok([1, 'a'])); // [Ok(1), Ok('a')]
  * unzip(err('e')); // [Err('e'), Err('e')]
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-
 export function unzip<A, B, E>(
     r: IResultOfT<readonly [A, B], E>,
 ): [IResultOfT<A, E>, IResultOfT<B, E>] {

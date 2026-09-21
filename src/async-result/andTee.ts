@@ -1,8 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
+export function andTee<T, E>(
+    fn: (value: T) => void | unknown | Promise<void | unknown>,
+): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
+export function andTee<T, E>(
+    fn: (value: T) => void | unknown | Promise<void | unknown>,
+    ar: AsyncResult<T, E>,
+): AsyncResult<T, E>;
 /**
- * @fileoverview Side-effect on success (sync or async), ignoring the callback's result.
+ * Side-effect on success (sync or async), ignoring the callback's result.
  * Calls `fn` with the value on success and passes the original result through unchanged.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
@@ -11,22 +18,13 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, andTee } from '@sandlada/result/async-result';
  *
  * const ar = andTee((v: number) => { console.log(v); }, fromResult(ok(42)));
  * const result = await ar.run(); // Ok(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function andTee<T, E>(
-    fn: (value: T) => void | unknown | Promise<void | unknown>,
-): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
-export function andTee<T, E>(
-    fn: (value: T) => void | unknown | Promise<void | unknown>,
-    ar: AsyncResult<T, E>,
-): AsyncResult<T, E>;
 export function andTee<T, E>(
     fn: (value: T) => void | unknown | Promise<void | unknown>,
     ar?: AsyncResult<T, E>,

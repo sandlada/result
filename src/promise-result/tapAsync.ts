@@ -1,15 +1,3 @@
-/**
- * @fileoverview Side-effect on the success track of an async result.
- *
- * @example
- * ```ts
- * import { tapAsync, asyncOk } from '@sandlada/result';
- * await tapAsync((v: string) => console.log('got:', v), asyncOk('hello'));
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function tapAsync<A>(
@@ -19,6 +7,15 @@ export function tapAsync<A, E>(
     fn: (a: A) => void | Promise<void>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<A, E>>;
+/**
+ * Side-effect on the success track of an async result.
+ *
+ * @example
+ * ```ts
+ * import { tapAsync, asyncOk } from '@sandlada/result/promise-result';
+ * await tapAsync((v: string) => console.log('got:', v), asyncOk('hello'));
+ * ```
+ */
 export function tapAsync<A, E>(
     fn: (a: A) => void | Promise<void>,
     r?: Promise<IResultOfT<A, E>>,
@@ -35,4 +32,3 @@ export function tapAsync<A, E>(
         return inner;
     });
 }
-

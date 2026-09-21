@@ -1,25 +1,4 @@
 ﻿/**
- * @fileoverview IResult — the void result discriminated union.
- *
- * A result is **either** a success ({@link IResultSuccess}, no error)
- * **or** a failure ({@link IResultFailure}, carrying the error).
- *
- * Check `isSuccess` to narrow before accessing `error`:
- *
- * ```ts
- * if (result.isSuccess) {
- *   // result.error — type error: not on the success variant
- * } else {
- *   console.log(result.error); // safe — narrowed to failure
- * }
- * ```
- *
- * @typeParam TError — The error type. Defaults to `unknown`.
- *
- * @note Ready for Product
- */
-
-/**
  * IResultSuccess — the success variant of {@link IResult}.
  *
  * Carries no `error`. The `isSuccess: true` literal discriminates this
@@ -47,10 +26,21 @@ export interface IResultFailure<TError = unknown> {
 }
 
 /**
- * IResult — base result contract as a **discriminated union**.
+ * IResult — the void result discriminated union.
+ *
+ * A result is **either** a success ({@link IResultSuccess}, no error)
+ * **or** a failure ({@link IResultFailure}, carrying the error).
+ *
+ * Check `isSuccess` to narrow before accessing `error`:
+ *
+ * ```ts
+ * if (result.isSuccess) {
+ *   // result.error — type error: not on the success variant
+ * } else {
+ *   console.log(result.error); // safe — narrowed to failure
+ * }
+ * ```
  *
  * @typeParam TError — The error type. Defaults to `unknown`.
- *
- * @note Ready for Product
  */
 export type IResult<TError = unknown> = IResultSuccess | IResultFailure<TError>;

@@ -1,5 +1,8 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { getPath, type PathStack } from './ctx.js';
+
 /**
- * @fileoverview Like `tapErr`, but the callback receives both the error and the
+ * Like `tapErr`, but the callback receives both the error and the
  * current breadcrumb path snapshot. Use to attach structured context when you log
  * or report a failure.
  *
@@ -11,33 +14,21 @@
  * @example
  * ```ts
  * import { ctx, tapErrContext, withPath } from '@sandlada/result/observability';
- * import { pipe } from '@sandlada/result';
+ * import { err } from '@sandlada/result/factories';
  *
- * pipe(
- *   getUser(id),
- *   withPath('getUser'),
- *   withPath(`id:${id}`),
+ * ctx.run(() => {
+ *   withPath('fetchUser');
+ *   withPath('id:42');
  *   tapErrContext((error, { path }) => {
- *     logger.error({ event: 'user.fetch.failed', path, error });
- *   }),
- * );
+ *     console.log({ event: 'user.fetch.failed', path, error });
+ *   }, err('boom'));
+ * });
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { getPath, type PathStack } from './ctx.js';
-
 export interface ErrContext {
     readonly path: PathStack;
 }
 
-/**
- * Fires `fn(error, ctx)` for failures, returning the original result wrapped
- * in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
- * return value (if a Promise) is awaited before the outer Promise resolves.
- */
 export function tapErrContext<T, E>(
     fn: (error: E, context: ErrContext) => unknown,
 ): (r: IResultOfT<T, E>) => Promise<IResultOfT<T, E>>;
@@ -45,6 +36,11 @@ export function tapErrContext<T, E>(
     fn: (error: E, context: ErrContext) => unknown,
     r: IResultOfT<T, E>,
 ): Promise<IResultOfT<T, E>>;
+/**
+ * Fires `fn(error, ctx)` for failures, returning the original result wrapped
+ * in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
+ * return value (if a Promise) is awaited before the outer Promise resolves.
+ */
 export function tapErrContext<T, E>(
     fn: (error: E, context: ErrContext) => unknown,
     r?: IResultOfT<T, E>,

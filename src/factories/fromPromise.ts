@@ -1,19 +1,16 @@
-/**
- * @fileoverview Wraps a Promise into an async result, catching rejections.
- *
- * @example
- * ```ts
- * import { fromPromise } from '@sandlada/result';
- * const r = await fromPromise(fetch('/api/data'));
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
+/**
+ * Wraps a Promise into an async result, catching rejections.
+ *
+ * @example
+ * ```ts
+ * import { fromPromise } from '@sandlada/result/factories';
+ * const r = await fromPromise(fetch('/api/data'));
+ * ```
+ */
 export async function fromPromise<T, E = unknown>(
     promise: Promise<T>,
     errorFn?: (error: unknown) => E,
@@ -32,4 +29,3 @@ export async function fromPromise<T, E = unknown>(
         return err(innerError);
     }
 }
-

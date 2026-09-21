@@ -1,5 +1,10 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import type { IOption } from '../types/Option.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
+
 /**
- * @fileoverview Converts an `IOption<T>` to `IResultOfT<T, E | Error>`. On Some, returns
+ * Converts an `IOption<T>` to `IResultOfT<T, E | Error>`. On Some, returns
  * `ok(value)`. On None, calls `errorFn()` and returns `err(errorFn())`.
  *
  * The error is computed lazily — `errorFn` is only called when the option is None.
@@ -18,25 +23,17 @@
  *
  * @example
  * ```ts
- * import { okOrElseOption, pipe } from '@sandlada/result';
- * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { okOrElse, ofSome, ofNone } from '@sandlada/result/option';
+ * import { pipe } from '@sandlada/result/composition';
  *
- * pipe(ofSome(42), okOrElseOption(() => 'missing')); // Ok(42)
- * pipe(ofNone(),  okOrElseOption(() => 'missing')); // Err('missing')
+ * pipe(ofSome(42), okOrElse(() => 'missing')); // Ok(42)
+ * pipe(ofNone(),  okOrElse(() => 'missing')); // Err('missing')
  *
  * // The return type is widened to IResultOfT<T, E | Error> to reflect the
  * // catch-block's runtime payload when `errorFn` throws.
- * pipe(ofNone(), okOrElseOption(() => { throw new Error('boom'); }));
+ * pipe(ofNone(), okOrElse(() => { throw new Error('boom'); }));
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import type { IOption } from '../types/Option.js';
-import { ok } from '../factories/ok.js';
-import { err } from '../factories/err.js';
-
 export function okOrElse<E>(
     errorFn: () => E,
 ): <T>(opt: IOption<T>) => IResultOfT<T, E | Error> {

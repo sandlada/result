@@ -1,5 +1,9 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
+
 /**
- * @fileoverview Converts a one-track (plain) function into a switch function — lifts it to return a Result.
+ * Converts a one-track (plain) function into a switch function — lifts it to return a Result.
  *
  * Optional `errorFn` (when supplied) maps the caught exception to a typed error;
  * without it the error type defaults to `unknown` — mirrors `tryCatch`/`fromPromise`.
@@ -8,18 +12,11 @@
  *
  * @example
  * ```ts
- * import { switchFn } from '@sandlada/result';
+ * import { switchFn } from '@sandlada/result/adapters';
  * const safe = switchFn((x: number) => x * 2);
  * safe(21); // Ok(42)
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-import { err } from '../factories/err.js';
-
 export function switchFn<A, B, E = unknown>(
     f: (a: A) => B,
     errorFn?: (error: unknown) => E,
@@ -43,4 +40,3 @@ export function switchFn<A, B, E = unknown>(
         }
     };
 }
-

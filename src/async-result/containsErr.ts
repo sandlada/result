@@ -1,20 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
-/**
- * Returns `true` if the `AsyncResult` resolves to `Err` and contains the
- * given value. Strict equality (`===`).
- *
- * @example
- * ```ts
- * import { fromResult } from './fromResult.js';
- * import { err } from '../factories/index.js';
- *
- * await containsErr('boom', fromResult(err('boom'))); // true
- * await containsErr('nope', fromResult(err('boom')));  // false
- * ```
- *
- * @note Ready for Product
- */
 export function containsErr<T, E>(
     error: E,
 ): (ar: AsyncResult<T, E>) => Promise<boolean>;
@@ -22,6 +7,19 @@ export function containsErr<T, E>(
     error: E,
     ar: AsyncResult<T, E>,
 ): Promise<boolean>;
+/**
+ * Returns `true` if the `AsyncResult` resolves to `Err` and contains the
+ * given value. Strict equality (`===`).
+ *
+ * @example
+ * ```ts
+ * import { err } from '@sandlada/result/factories';
+ * import { fromResult, containsErr } from '@sandlada/result/async-result';
+ *
+ * await containsErr('boom', fromResult(err('boom'))); // true
+ * await containsErr('nope', fromResult(err('boom')));  // false
+ * ```
+ */
 export function containsErr<T, E>(
     error: E,
     ar?: AsyncResult<T, E>,

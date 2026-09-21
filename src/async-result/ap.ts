@@ -1,5 +1,16 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+
+export function ap<A, B, E, F>(
+    fnResult: AsyncResult<(a: A) => B, E>,
+): (result: AsyncResult<A, F>) => AsyncResult<B, E | F>;
+export function ap<A, B, E, F>(
+    fnResult: AsyncResult<(a: A) => B, E>,
+    result: AsyncResult<A, F>,
+): AsyncResult<B, E | F>;
 /**
- * @fileoverview AsyncResult applicative `ap` — applies a function wrapped in an
+ * AsyncResult applicative `ap` — applies a function wrapped in an
  * AsyncResult to a value wrapped in an AsyncResult. If either is a failure, the
  * first failure propagates.
  *
@@ -12,27 +23,13 @@
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, ap } from '@sandlada/result/async-result';
  *
  * const applied = await ap(fromResult(ok((x: number) => x * 2)), fromResult(ok(21))).run();
  * // Ok(42)
  * ```
- *
- * @note Ready for Product
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-
-export function ap<A, B, E, F>(
-    fnResult: AsyncResult<(a: A) => B, E>,
-): (result: AsyncResult<A, F>) => AsyncResult<B, E | F>;
-export function ap<A, B, E, F>(
-    fnResult: AsyncResult<(a: A) => B, E>,
-    result: AsyncResult<A, F>,
-): AsyncResult<B, E | F>;
 export function ap<A, B, E, F>(
     fnResult: AsyncResult<(a: A) => B, E>,
     result?: AsyncResult<A, F>,

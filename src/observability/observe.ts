@@ -1,5 +1,8 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { getPath } from './ctx.js';
+
 /**
- * @fileoverview The integration seam between library code and process-wide observers.
+ * The integration seam between library code and process-wide observers.
  *
  * `observe(r)` returns the result unchanged — its only side-effect is firing the
  * currently installed observer (set via {@link installObserver}, off by default).
@@ -10,22 +13,18 @@
  * @example
  * ```ts
  * import { observe, installObserver } from '@sandlada/result/observability';
- * import { pipe, match } from '@sandlada/result';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { match } from '@sandlada/result/operators';
+ * import { ok } from '@sandlada/result/factories';
  *
- * const cancel = installObserver((event) => myReporter.send(event));
+ * const cancel = installObserver((event) => { console.log(event.kind, event.path); });
  *
- * const r = pipe(fetchUser(id), observe, match(view, logError));
+ * const r = pipe(ok(42), observe, match(v => `ok: ${v}`, e => `err: ${e}`));
  *
  * // When done observing:
  * cancel();
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { getPath } from './ctx.js';
-
 export interface ObserveEvent<T, E> {
     readonly kind: 'ok' | 'err';
     readonly result: IResultOfT<T, E>;

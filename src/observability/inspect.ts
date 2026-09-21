@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Structured inspection — returns a `{kind: 'ok', value}` or
+ * Structured inspection — returns a `{kind: 'ok', value}` or
  * `{kind: 'err', error}` object that is **easier to destructure** than the underlying
  * discriminated union. Useful for feeding results into logging frameworks, JSON
  * serialization, or test helpers.
@@ -7,17 +9,12 @@
  * @example
  * ```ts
  * import { inspect } from '@sandlada/result/observability';
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * const summary = inspect(err('boom'));
  * // { kind: 'err', error: 'boom' }
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export type Inspected<T, E> =
     | { readonly kind: 'ok'; readonly value: T }
     | { readonly kind: 'err'; readonly error: E };

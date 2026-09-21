@@ -3,6 +3,8 @@
  *
  * Re-exports small but commonly-missing helpers: `cond`, `condErr`, `sequence`,
  * `sequenceAsyncResult`, `reduce`, `partitionOption`, `lift`.
+ *
+ * @packageDocumentation
  */
 
 export { cond } from './cond.js';

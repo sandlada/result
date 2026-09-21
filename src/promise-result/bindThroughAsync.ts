@@ -1,24 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
-/**
- * @fileoverview Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
- *
- * **Throw policy**: through-family catch policy — a synchronous throw and a
- * rejected Promise from `fn` both converge to `Err(thrown)`, matching
- * `asyncBindThrough` and the sync `andThrough`.
- *
- * @example
- * ```ts
- * import { bindThroughAsync, ok } from '@sandlada/result';
- * const validate = bindThroughAsync(async (x: number) =>
- *   x > 0 ? ok(x) : Promise.reject(new Error('non-positive')),
- * );
- * const r = await validate(Promise.resolve(ok(5))); // Ok(5)
- * ```
-  *
- * @note Ready for Product
- */
 export function bindThroughAsync<A, B, F>(
     fn: (a: A) => IResultOfT<B, F> | Promise<IResultOfT<B, F>>,
 ): <E>(r: Promise<IResultOfT<A, E>>) => Promise<IResultOfT<A, E | F>>;
@@ -26,6 +8,23 @@ export function bindThroughAsync<A, B, E, F>(
     fn: (a: A) => IResultOfT<B, F> | Promise<IResultOfT<B, F>>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<A, E | F>>;
+/**
+ * Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+ *
+ * **Throw policy**: through-family catch policy — a synchronous throw and a
+ * rejected Promise from `fn` both converge to `Err(thrown)`, matching
+ * `asyncBindThrough` and the sync `andThrough`.
+ *
+ * @example
+ * ```ts
+ * import { bindThroughAsync } from '@sandlada/result/promise-result';
+ * import { ok } from '@sandlada/result/factories';
+ * const validate = bindThroughAsync(async (x: number) =>
+ *   x > 0 ? ok(x) : Promise.reject(new Error('non-positive')),
+ * );
+ * const r = await validate(Promise.resolve(ok(5))); // Ok(5)
+ * ```
+ */
 export function bindThroughAsync<A, B, E, F>(
     fn: (a: A) => IResultOfT<B, F> | Promise<IResultOfT<B, F>>,
     r?: Promise<IResultOfT<A, E>>,

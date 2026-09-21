@@ -7,6 +7,8 @@
  * (`./factories`, `./operators`, `./option`, `./async-result`, `./async-option`,
  * `./promise-result`, `./promise-option`, `./composition`, `./adapters`,
  * `./combine`, `./reliability`, `./observability`, `./primitives`).
+ *
+ * @packageDocumentation
  */
 
 export type {

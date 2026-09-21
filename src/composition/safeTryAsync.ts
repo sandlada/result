@@ -1,39 +1,39 @@
-/**
- * @fileoverview Async Generator-based `yield*` error propagation for AsyncResult pipelines.
- *
- * `safeTryAsync` wraps an `AsyncResult` into an `AsyncGenerator`. On success it returns the value;
- * on failure it yields the error so that `fromSafeTryAsync` can short-circuit the pipeline
- * and return the error result.
- *
- * @example
- * ```ts
- * import { safeTryAsync, fromSafeTryAsync } from '@sandlada/result/composition';
- * import { asyncOk, asyncErr } from '@sandlada/result';
- *
- * const result = await fromSafeTryAsync(async function* () {
- *     const a = yield* safeTryAsync(asyncOk(10));
- *     const b = yield* safeTryAsync(asyncErr('boom'));
- *     return a + b;
- * }).run();
- * // Err('boom')
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { asyncOk } from '../factories/asyncOk.js';
 
 /**
- * Returns `T` when the inner result is `Ok`, otherwise yields the failure to
- * be collected by `fromSafeTryAsync`. The AsyncGenerator's return type is
+ * Async Generator-based `yield*` error propagation for AsyncResult pipelines.
+ *
+ * `safeTryAsync` wraps an `AsyncResult` (or a `Promise<IResultOfT>`) into an
+ * `AsyncGenerator`. On success it returns the value; on failure it yields the
+ * error so that `fromSafeTryAsync` can short-circuit the pipeline and return
+ * the error result.
+ *
+ * Returns `T` when the inner result is `Ok`, otherwise yields the failure to be
+ * collected by `fromSafeTryAsync`. The AsyncGenerator's return type is
  * `T | undefined`: the success path returns `T`, and the failure path's
- * unreachable tail returns `undefined` (matches JS semantics when a
- * generator exhausts after a yield without a top-level `return`). The
- * previous version used `return undefined as never` which silently cast
- * `undefined` to `T` — a type lie identical to the F-class bug fixed in
- * `safeTry.ts` (commit 4e24904) that the async counterpart had missed.
+ * unreachable tail returns `undefined` (matches JS semantics when a generator
+ * exhausts after a yield without a top-level `return`).
+ *
+ * @example
+ * ```ts
+ * import { safeTryAsync, fromSafeTryAsync } from '@sandlada/result/composition';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * const ok = await fromSafeTryAsync(async function* () {
+ *     const a = yield* safeTryAsync(asyncOk(40));
+ *     const b = yield* safeTryAsync(asyncOk(2));
+ *     return Number(a) + Number(b);
+ * }).run();
+ * // Ok(42)
+ *
+ * const failure = await fromSafeTryAsync(async function* () {
+ *     yield* safeTryAsync(asyncErr('boom'));
+ *     return 0;
+ * }).run();
+ * // Err('boom')
+ * ```
  */
 export async function* safeTryAsync<T, E>(
     result: AsyncResult<T, E> | Promise<IResultOfT<T, E>>,
@@ -65,6 +65,18 @@ export async function* safeTryAsync<T, E>(
     return undefined;
 }
 
+/**
+ * Runs an async generator that uses `yield* safeTryAsync(...)` and returns a
+ * lazy `AsyncResult` collecting the final `IResultOfT`.
+ *
+ * - If the generator **returns** a value: the value is wrapped in `Ok` when
+ *   `.run()` is called.
+ * - If the generator **yields** a value: that yield is treated as a propagated
+ *   failure and returned as-is.
+ *
+ * Throws when the generator returns `undefined` without yielding, or yields
+ * more than once.
+ */
 export function fromSafeTryAsync<T, E>(
     gen: () => AsyncGenerator<IResultOfT<never, E>, T | undefined, unknown>,
 ): AsyncResult<T, E> {

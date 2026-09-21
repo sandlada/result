@@ -2,21 +2,20 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 /**
- * @fileoverview Flattens a nested AsyncResult.
+ * Flattens a nested AsyncResult.
  *
  * **Single-step only**: unwraps exactly one layer. Call `flatten` repeatedly
  * to flatten deeper nests.
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, flatten } from '@sandlada/result/async-result';
  *
- * const ar = flatten(fromResult(fromResult(ok(42))));
+ * const nested = fromResult(ok(fromResult(ok(42))));
+ * const ar = flatten(nested);
  * const result = await ar.run(); // Ok(42)
  * ```
-  *
- * @note Ready for Product
  */
 export function flatten<T, E>(
     ar: AsyncResult<AsyncResult<T, E>, E>,

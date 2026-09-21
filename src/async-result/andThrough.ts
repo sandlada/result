@@ -3,12 +3,19 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
+export function andThrough<T, E, F>(
+    fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,
+): (ar: AsyncResult<T, E>) => AsyncResult<T, E | F>;
+export function andThrough<T, E, F>(
+    fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,
+    ar: AsyncResult<T, E>,
+): AsyncResult<T, E | F>;
 /**
- * @fileoverview Side-effect on success that can propagate errors. Calls `fn` with the value on success; if `fn` fails the failure widens into the original error type.
+ * Side-effect on success that can propagate errors. Calls `fn` with the value on success; if `fn` fails the failure widens into the original error type.
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, andThrough } from '@sandlada/result/async-result';
  *
  * const validate = andThrough(
@@ -17,16 +24,7 @@ import { isAsyncCarrier } from '../types/asyncCarrier.js';
  * );
  * const result = await validate.run(); // Ok(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function andThrough<T, E, F>(
-    fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,
-): (ar: AsyncResult<T, E>) => AsyncResult<T, E | F>;
-export function andThrough<T, E, F>(
-    fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,
-    ar: AsyncResult<T, E>,
-): AsyncResult<T, E | F>;
 export function andThrough<T, E, F>(
     fn: (value: T) => AsyncResult<unknown, F> | Promise<IResultOfT<unknown, F>>,
     ar?: AsyncResult<T, E>,

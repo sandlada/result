@@ -1,5 +1,16 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
+export function expect<T, E>(
+    message: string,
+    ar: AsyncResult<T, E>,
+    formatErr?: (error: E) => string,
+): Promise<T>;
+export function expect<T, E>(
+    message: string,
+    ar: AsyncResult<T, E>,
+    formatErr: ((error: E) => string) | undefined,
+    throwingFn: (info: { message: string; value: E }) => Error,
+): Promise<T>;
 /**
  * Like {@link unwrap} but throws an `Error` carrying the supplied message.
  * Useful for marking program-contract violations with a domain-specific
@@ -16,26 +27,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * @example
  * ```ts
  * import { fromResult } from '@sandlada/result/async-result';
- * import { err } from '@sandlada/result';
+ * import { err } from '@sandlada/result/factories';
  * import { expect } from '@sandlada/result/async-result';
  *
- * await expect(fromResult(err('boom')), 'config must be valid'); // throws Error
+ * await expect('config must be valid', fromResult(err('boom'))); // throws Error
  * // The thrown Error carries `cause: 'boom'` so the original payload is preserved.
  * ```
- *
- * @note Ready for Product
  */
-export function expect<T, E>(
-    message: string,
-    ar: AsyncResult<T, E>,
-    formatErr?: (error: E) => string,
-): Promise<T>;
-export function expect<T, E>(
-    message: string,
-    ar: AsyncResult<T, E>,
-    formatErr: ((error: E) => string) | undefined,
-    throwingFn: (info: { message: string; value: E }) => Error,
-): Promise<T>;
 export function expect<T, E>(
     message: string,
     ar: AsyncResult<T, E>,

@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Panics on failure — throws a `TypeError` with the error payload. Returns the value on success.
+ * Panics on failure — throws a `TypeError` with the error payload. Returns the value on success.
  *
  * Pass `throwingFn` to customise the error class — e.g. `unwrap(r, info => new MyError(info.message, info.value))`.
  * Without `throwingFn`, a built-in `TypeError` is thrown with `String(r.error)` interpolated.
@@ -8,15 +10,11 @@
  *
  * @example
  * ```ts
- * import { unwrap, ok } from '@sandlada/result';
+ * import { unwrap } from '@sandlada/result/operators';
+ * import { ok } from '@sandlada/result/factories';
  * unwrap(ok(42)); // 42
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function unwrap<T, E>(r: IResultOfT<T, E>, throwingFn?: (info: { message: string; value: E }) => Error): T {
     if (!r.isSuccess) {
         if (throwingFn) {

@@ -6,8 +6,6 @@ import type { IOption } from '../types/Option.js';
  *
  * **Single-step only**: unwraps exactly one layer. Call `flatten` repeatedly
  * to flatten deeper nests.
- *
- * @note Ready for Product
  */
 export function flatten<T>(
     ao: AsyncOption<AsyncOption<T>>,

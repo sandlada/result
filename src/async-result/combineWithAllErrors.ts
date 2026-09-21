@@ -1,11 +1,14 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Combines AsyncResults accumulating **all** errors (validation aggregation).
+ * Combines AsyncResults accumulating **all** errors (validation aggregation).
  * Unlike `combine` (short-circuit on first failure), this collects every error.
  * Lazy — returns a new AsyncResult without executing the inner computations.
  *
  * @example
  * ```ts
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  * import { fromResult, combineWithAllErrors } from '@sandlada/result/async-result';
  *
  * const ar = combineWithAllErrors([
@@ -15,13 +18,7 @@
  * ]);
  * const result = await ar.run(); // Err(['a', 'b'])
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function combineWithAllErrors<T, E>(
     results: readonly AsyncResult<T, E>[],
 ): AsyncResult<T[], E[]> {

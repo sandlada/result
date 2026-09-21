@@ -1,5 +1,17 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+
+export function tap<A>(
+    fn: (a: A) => void,
+    errorFn?: (thrown: unknown) => unknown,
+): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E>;
+export function tap<A, E>(
+    fn: (a: A) => void,
+    r: IResultOfT<A, E>,
+    errorFn?: (thrown: unknown) => E,
+): IResultOfT<A, E>;
 /**
- * @fileoverview Side-effect on the success track. Calls `fn` with the value on success
+ * Side-effect on the success track. Calls `fn` with the value on success
  * and passes the original result through unchanged.
  *
  * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
@@ -13,25 +25,12 @@
  *
  * @example
  * ```ts
- * import { tap, pipe, ok } from '@sandlada/result';
+ * import { tap } from '@sandlada/result/operators';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { ok } from '@sandlada/result/factories';
  * pipe(ok('hello'), tap(v => console.log('got:', v)));
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
-
-export function tap<A>(
-    fn: (a: A) => void,
-    errorFn?: (thrown: unknown) => unknown,
-): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E>;
-export function tap<A, E>(
-    fn: (a: A) => void,
-    r: IResultOfT<A, E>,
-    errorFn?: (thrown: unknown) => E,
-): IResultOfT<A, E>;
 export function tap<A, E>(
     fn: (a: A) => void,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),

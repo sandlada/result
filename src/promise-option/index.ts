@@ -3,6 +3,8 @@
  *
  * Mirrors the structure of `promise-result/` but for the Option type.
  * Callbacks may be sync or async; predicates use catch+convert policy.
+ *
+ * @packageDocumentation
  */
 
 // Convenience factories (pre-resolved Promise<IResultOfT>)

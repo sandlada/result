@@ -1,20 +1,3 @@
-/**
- * @fileoverview Side-effect on the failure track. Calls `fn` with the error on failure
- * and passes the original result through unchanged.
- *
- * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
- * Pass `errorFn` to customise how the thrown value maps onto your error type
- * (canonical tap/tee policy — see AGENTS.md).
- *
- * @example
- * ```ts
- * import { tapErr, err } from '@sandlada/result';
- * tapErr(e => console.log('err:', e), err('boom'));
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
@@ -27,6 +10,21 @@ export function tapErr<A, E>(
     r: IResultOfT<A, E>,
     errorFn?: (thrown: unknown) => E,
 ): IResultOfT<A, E>;
+/**
+ * Side-effect on the failure track. Calls `fn` with the error on failure
+ * and passes the original result through unchanged.
+ *
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
+ * Pass `errorFn` to customise how the thrown value maps onto your error type
+ * (canonical tap/tee policy — see AGENTS.md).
+ *
+ * @example
+ * ```ts
+ * import { tapErr } from '@sandlada/result/operators';
+ * import { err } from '@sandlada/result/factories';
+ * tapErr(e => console.log('err:', e), err('boom'));
+ * ```
+ */
 export function tapErr<A, E>(
     fn: (e: E) => void,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),

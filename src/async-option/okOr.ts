@@ -3,6 +3,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok, err } from '../factories/index.js';
 
+export function okOr<T, E>(
+    error: E,
+): (ao: AsyncOption<T>) => AsyncResult<T, E>;
+export function okOr<T, E>(
+    error: E,
+    ao: AsyncOption<T>,
+): AsyncResult<T, E>;
 /**
  * Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, supplying an error
  * value for the `None` case.
@@ -15,16 +22,7 @@ import { ok, err } from '../factories/index.js';
  * const r1 = await okOr('missing', ofSome(42)).run(); // Ok(42)
  * const r2 = await okOr('missing', ofNone<number>()).run(); // Err('missing')
  * ```
- *
- * @note Ready for Product
  */
-export function okOr<T, E>(
-    error: E,
-): (ao: AsyncOption<T>) => AsyncResult<T, E>;
-export function okOr<T, E>(
-    error: E,
-    ao: AsyncOption<T>,
-): AsyncResult<T, E>;
 export function okOr<T, E>(
     error: E,
     ao?: AsyncOption<T>,

@@ -1,20 +1,17 @@
-/**
- * @fileoverview Executes a synchronous function that may throw, and wraps the result. Unlike `fromThrowable`, `tryCatch` executes the function immediately.
- *
- * @example
- * ```ts
- * import { tryCatch } from '@sandlada/result';
- * const r = tryCatch(() => JSON.parse('{"a":1}'));
- * // r = Ok({ a: 1 })
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
+/**
+ * Executes a synchronous function that may throw, and wraps the result. Unlike `fromThrowable`, `tryCatch` executes the function immediately.
+ *
+ * @example
+ * ```ts
+ * import { tryCatch } from '@sandlada/result/factories';
+ * const r = tryCatch(() => JSON.parse('{"a":1}'));
+ * // r = Ok({ a: 1 })
+ * ```
+ */
 export function tryCatch<T, E = unknown>(
     fn: () => T,
     errorFn?: (error: unknown) => E,
@@ -33,4 +30,3 @@ export function tryCatch<T, E = unknown>(
         return err(innerError);
     }
 }
-

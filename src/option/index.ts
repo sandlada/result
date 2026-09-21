@@ -3,6 +3,8 @@
  *
  * Re-exports everything from the sub-modules: core constructors (`ofSome`/`ofNone`)
  * and operators for use in point-free pipelines.
+ *
+ * @packageDocumentation
  */
 
 export { all } from './all.js';

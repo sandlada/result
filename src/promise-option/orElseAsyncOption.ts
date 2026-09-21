@@ -1,24 +1,6 @@
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 
-/**
- * @fileoverview Error recovery for async options.
- *
- * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
- * the result is `None`. The thrown reason is discarded.
- *
- * @example
- * ```ts
- * import { orElseAsyncOption } from '@sandlada/result';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- * await orElseAsyncOption(
- *   () => Promise.resolve(ofSome(0)),
- *   Promise.resolve(ofNone()),
- * );
- * ```
-  *
- * @note Ready for Product
- */
 export function orElseAsyncOption<T>(
     f: () => IOption<T> | Promise<IOption<T>>,
 ): (r: Promise<IOption<T>>) => Promise<IOption<T>>;
@@ -26,6 +8,22 @@ export function orElseAsyncOption<T>(
     f: () => IOption<T> | Promise<IOption<T>>,
     r: Promise<IOption<T>>,
 ): Promise<IOption<T>>;
+/**
+ * Error recovery for async options.
+ *
+ * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
+ * @example
+ * ```ts
+ * import { orElseAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * await orElseAsyncOption(
+ *   () => Promise.resolve(ofSome(0)),
+ *   Promise.resolve(ofNone()),
+ * );
+ * ```
+ */
 export function orElseAsyncOption<T>(
     f: () => IOption<T> | Promise<IOption<T>>,
     r?: Promise<IOption<T>>,

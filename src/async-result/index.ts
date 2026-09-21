@@ -2,6 +2,8 @@
  * AsyncResult — barrel export.
  *
  * Re-exports all AsyncResult factories and operators.
+ *
+ * @packageDocumentation
  */
 
 // Factories

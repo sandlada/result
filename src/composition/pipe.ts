@@ -1,22 +1,3 @@
-/**
- * @fileoverview Pipes a value through a sequence of functions (left-to-right composition). Each function receives the output of the previous one.
- *
- * F# equivalent: `value |> fn1 |> fn2 |> fn3`
- *
- * @example
- * ```ts
- * import { pipe, map, bind, match, ok, err } from '@sandlada/result';
- * pipe(
- *   ok(42),
- *   map(x => x * 2),
- *   bind(x => x > 50 ? ok(x) : err('too small')),
- *   match(v => `OK: ${v}`, e => `Error: ${e}`),
- * ); // "OK: 84"
- * ```
-  *
- * @note Ready for Product
- */
-
 export function pipe<A>(value: A): A;
 export function pipe<A, B>(value: A, fn1: (a: A) => B): B;
 export function pipe<A, B, C>(value: A, fn1: (a: A) => B, fn2: (b: B) => C): C;
@@ -49,6 +30,24 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K>(
     fn4: (d: D) => E, fn5: (e: E) => F, fn6: (f: F) => G, fn7: (g: G) => H, fn8: (h: H) => I,
     fn9: (i: I) => J, fn10: (j: J) => K,
 ): K;
+/**
+ * Pipes a value through a sequence of functions (left-to-right composition). Each function receives the output of the previous one.
+ *
+ * F# equivalent: `value |> fn1 |> fn2 |> fn3`
+ *
+ * @example
+ * ```ts
+ * import { pipe } from '@sandlada/result/composition';
+ * import { map, bind, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ * pipe(
+ *   ok(42),
+ *   map(x => x * 2),
+ *   bind(x => x > 50 ? ok(x) : err('too small')),
+ *   match(v => `OK: ${v}`, e => `Error: ${e}`),
+ * ); // "OK: 84"
+ * ```
+ */
 export function pipe(value: unknown, ...fns: Array<(arg: unknown) => unknown>): unknown {
     let acc = value;
     for (let i = 0; i < fns.length; i++) {
@@ -56,4 +55,3 @@ export function pipe(value: unknown, ...fns: Array<(arg: unknown) => unknown>): 
     }
     return acc;
 }
-

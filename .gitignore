@@ -21,6 +21,7 @@ build
 *.local
 test-report
 .tgz
+.examples
 
 # Editor directories and files
 !.vscode/extensions.json

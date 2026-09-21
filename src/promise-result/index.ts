@@ -4,6 +4,8 @@
  * Re-exports all asynchronous operators for working with `Promise<IResultOfT<T, E>>` values.
  *
  * For `Promise<IOption<T>>` operators, see `../promise-option/index.js` (subpath `./promise-option`).
+ *
+ * @packageDocumentation
  */
 
 // Convenience factories (pre-resolved Promise<IResultOfT>)

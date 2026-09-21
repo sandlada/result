@@ -1,19 +1,3 @@
-/**
- * @fileoverview Error recovery — tries an alternative path on failure. On failure, calls `f` with the error and its result replaces this one. On success, passes through unchanged.
- *
- * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
- * the error type widened to `F | Error`. Pass `errorFn` to customise how the
- * thrown value maps onto your error union.
- *
- * @example
- * ```ts
- * import { orElse, ok, err } from '@sandlada/result';
- * const fallback = orElse((e: string) => ok('default'), err('boom')); // Ok('default')
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
@@ -26,6 +10,20 @@ export function orElse<A, E, B, F>(
     r: IResultOfT<A, E>,
     errorFn?: (thrown: unknown) => F,
 ): IResultOfT<A | B, F>;
+/**
+ * Error recovery — tries an alternative path on failure. On failure, calls `f` with the error and its result replaces this one. On success, passes through unchanged.
+ *
+ * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
+ * the error type widened to `F | Error`. Pass `errorFn` to customise how the
+ * thrown value maps onto your error union.
+ *
+ * @example
+ * ```ts
+ * import { orElse } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ * const fallback = orElse((e: string) => ok('default'), err('boom')); // Ok('default')
+ * ```
+ */
 export function orElse<A, E, B, F>(
     f: (e: E) => IResultOfT<B, F>,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),

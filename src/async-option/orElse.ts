@@ -20,21 +20,17 @@ import { isAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = orElse(() => fromOption(ofSome(0)), fromOption(ofNone()));
  * const result = await ao.run(); // Some(0)
  *
- * // Cross-type recovery — input `AsyncOption<User>`, fallback `AsyncOption<string>`,
+ * // Cross-type recovery - input `AsyncOption<User>`, fallback `AsyncOption<string>`,
  * // result `AsyncOption<User | string>`.
+ * type User = { readonly id: string };
  * const recovered = orElse(
  *     () => fromOption(ofSome('anonymous' as string)),
  *     fromOption(ofNone<User>()),
  * );
  * ```
  *
- * @note Ready for Product
  */
 
-/**
- * Curried form. The inner `<T>` is **deferred** so the AsyncOption's value
- * type is re-inferred at every application site.
- */
 export function orElse<U>(
     fn: () => AsyncOption<U> | Promise<IOption<U>>,
 ): <T>(ao: AsyncOption<T>) => AsyncOption<T | U>;
@@ -51,6 +47,10 @@ export function orElse<T, U>(
 // Each branch is typed via the public overloads above; the cast through `unknown`
 // here makes the type honesty visible at the boundary instead of relying on a wide
 // return type that masks the curried-vs-direct disambiguation.
+/**
+ * Curried form. The inner `<T>` is **deferred** so the AsyncOption's value
+ * type is re-inferred at every application site.
+ */
 export function orElse(
     fn: () => AsyncOption<unknown> | Promise<IOption<unknown>>,
     ao?: AsyncOption<unknown>,

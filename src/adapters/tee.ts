@@ -1,5 +1,5 @@
 /**
- * @fileoverview Side-effect on the one-track — calls `f` and returns the value unchanged.
+ * Side-effect on the one-track — calls `f` and returns the value unchanged.
  * Unlike `tap` (which operates on the success track of a Result), `tee` operates on a
  * plain value outside the railway.
  *
@@ -10,12 +10,10 @@
  *
  * @example
  * ```ts
- * import { tee } from '@sandlada/result';
+ * import { tee } from '@sandlada/result/adapters';
  * const logged = tee((x: number) => console.log('got:', x));
  * logged(42); // logs "got: 42", returns 42
  * ```
-  *
- * @note Ready for Product
  */
 
 export function tee<A>(f: (a: A) => void): (a: A) => A {
@@ -24,4 +22,3 @@ export function tee<A>(f: (a: A) => void): (a: A) => A {
         return a;
     };
 }
-

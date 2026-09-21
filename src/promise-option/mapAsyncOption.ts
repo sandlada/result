@@ -1,21 +1,6 @@
 import type { IOption } from '../types/Option.js';
 import { ofSome, ofNone } from '../option/index.js';
 
-/**
- * @fileoverview Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
- *
- * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
- * the result is `None`. The thrown reason is discarded.
- *
- * @example
- * ```ts
- * import { mapAsyncOption } from '@sandlada/result';
- * import { ofSome } from '@sandlada/result/option';
- * await mapAsyncOption((x: number) => x * 2, Promise.resolve(ofSome(21))); // Some(42)
- * ```
-  *
- * @note Ready for Product
- */
 export function mapAsyncOption<T, U>(
     f: (a: T) => U | Promise<U>,
 ): (r: Promise<IOption<T>>) => Promise<IOption<U>>;
@@ -23,6 +8,19 @@ export function mapAsyncOption<T, U>(
     f: (a: T) => U | Promise<U>,
     r: Promise<IOption<T>>,
 ): Promise<IOption<U>>;
+/**
+ * Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
+ *
+ * **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
+ * @example
+ * ```ts
+ * import { mapAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/promise-option';
+ * await mapAsyncOption((x: number) => x * 2, Promise.resolve(ofSome(21))); // Some(42)
+ * ```
+ */
 export function mapAsyncOption<T, U>(
     f: (a: T) => U | Promise<U>,
     r?: Promise<IOption<T>>,

@@ -1,24 +1,6 @@
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 
-/**
- * @fileoverview Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
- *
- * **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
- * the result is `None`. The thrown reason is discarded.
- *
- * @example
- * ```ts
- * import { bindAsyncOption } from '@sandlada/result';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- * await bindAsyncOption(
- *   (x: number) => x > 0 ? Promise.resolve(ofSome(x * 2)) : Promise.resolve(ofNone()),
- *   Promise.resolve(ofSome(21)),
- * );
- * ```
-  *
- * @note Ready for Product
- */
 export function bindAsyncOption<T, U>(
     f: (a: T) => IOption<U> | Promise<IOption<U>>,
 ): (r: Promise<IOption<T>>) => Promise<IOption<U>>;
@@ -26,6 +8,22 @@ export function bindAsyncOption<T, U>(
     f: (a: T) => IOption<U> | Promise<IOption<U>>,
     r: Promise<IOption<T>>,
 ): Promise<IOption<U>>;
+/**
+ * Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
+ *
+ * **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
+ * the result is `None`. The thrown reason is discarded.
+ *
+ * @example
+ * ```ts
+ * import { bindAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * await bindAsyncOption(
+ *   (x: number) => x > 0 ? Promise.resolve(ofSome(x * 2)) : Promise.resolve(ofNone()),
+ *   Promise.resolve(ofSome(21)),
+ * );
+ * ```
+ */
 export function bindAsyncOption<T, U>(
     f: (a: T) => IOption<U> | Promise<IOption<U>>,
     r?: Promise<IOption<T>>,

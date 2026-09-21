@@ -1,19 +1,20 @@
-/**
- * @fileoverview Wraps an async function, catching rejections as failures.
- *
- * @example
- * ```ts
- * import { tryCatchAsync } from '@sandlada/result';
- * const r = await tryCatchAsync(() => fetch('/api/data'), e => new ApiError(e));
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
 
+/**
+ * Wraps an async function, catching rejections as failures.
+ *
+ * @example
+ * ```ts
+ * import { tryCatchAsync } from '@sandlada/result/factories';
+ * const r = await tryCatchAsync(
+ *   () => fetch('/api/data'),
+ *   e => new Error(String(e)),
+ * );
+ * // r = Ok(Response) or Err(Error)
+ * ```
+ */
 export async function tryCatchAsync<T, E = unknown>(
     fn: () => Promise<T>,
     errorFn?: (error: unknown) => E,
@@ -32,4 +33,3 @@ export async function tryCatchAsync<T, E = unknown>(
         return err(innerError);
     }
 }
-

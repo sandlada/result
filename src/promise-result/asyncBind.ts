@@ -1,5 +1,14 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
+export function asyncBind<A, B, F>(
+    f: (a: A) => Promise<IResultOfT<B, F>>,
+): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, F>>;
+export function asyncBind<A, B, E, F>(
+    f: (a: A) => Promise<IResultOfT<B, F>>,
+    r: IResultOfT<A, E>,
+): Promise<IResultOfT<B, F>>;
 /**
- * @fileoverview Chains a result-producing async function over a **sync** `IResultOfT`.
+ * Chains a result-producing async function over a **sync** `IResultOfT`.
  * The callback returns `Promise<IResultOfT<B, F>>`, and the result is wrapped
  * into a `Promise<IResultOfT<B, F>>`.
  *
@@ -29,7 +38,8 @@
  *
  * @example
  * ```ts
- * import { asyncBind, ok, err } from '@sandlada/result';
+ * import { asyncBind } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * const r = await asyncBind(async (x: number) => ok(x * 2), ok(21));
  * // Ok(42)
@@ -38,19 +48,7 @@
  * const process = asyncBind(async (x: number) => x > 0 ? ok(x) : err('negative'));
  * const r2 = await process(ok(5));
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
-export function asyncBind<A, B, F>(
-    f: (a: A) => Promise<IResultOfT<B, F>>,
-): <E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, F>>;
-export function asyncBind<A, B, E, F>(
-    f: (a: A) => Promise<IResultOfT<B, F>>,
-    r: IResultOfT<A, E>,
-): Promise<IResultOfT<B, F>>;
 export function asyncBind<A, B, E, F>(
     f: (a: A) => Promise<IResultOfT<B, F>>,
     r?: IResultOfT<A, E>,

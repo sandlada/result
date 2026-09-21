@@ -3,6 +3,8 @@
  *
  * Re-exports formatters, breadcrumbs, global observer hooks, and structured
  * error-context plumbing.
+ *
+ * @packageDocumentation
  */
 
 export { ctx, getPath, type PathSegment, type PathStack } from './ctx.js';

@@ -1,5 +1,30 @@
+import type { AsyncOption } from '../types/AsyncOption.js';
+import type { IOption, IOptionSome } from '../types/Option.js';
+import { ofNone } from '../option/ofNone.js';
+
+// Variadic
+
+export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
+    fn: (...args: T) => R | Promise<R>,
+): (...aos: { [K in keyof T]: AsyncOption<T[K]> }) => AsyncOption<R>;
+export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
+    fn: (...args: T) => R | Promise<R>,
+    ...aos: { [K in keyof T]: AsyncOption<T[K]> }
+): AsyncOption<R>;
+
+// Implementation
+// Same constraint as the public overloads so the implementation cannot be
+// called with arity < 2. Return type is a union: the AsyncOption (direct
+// form) or the curried function (when only `fn` was provided). The public
+// overloads give callers the narrower type.
+//
+// The inner recursive call uses `any` casts because the implementation
+// signature is generic over T and the recursive spread doesn't carry the
+// same tuple information. This is internal — type honesty lives at the
+// public overloads above.
+
 /**
- * @fileoverview Combines N AsyncOptions (N ≥ 2) with a function. If all
+ * Combines N AsyncOptions (N ≥ 2) with a function. If all
  * resolve to Some, returns `AsyncOption<Some(fn(a, b, ...))>`. If any
  * resolves to None, returns `AsyncOption<None>`. Async rejections from the
  * callback propagate (they are not caught).
@@ -31,35 +56,7 @@
  * ).run();
  * // Some(15)
  * ```
- *
- * @note Ready for Product
  */
-
-import type { AsyncOption } from '../types/AsyncOption.js';
-import type { IOption, IOptionSome } from '../types/Option.js';
-import { ofNone } from '../option/ofNone.js';
-
-// Variadic
-
-export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
-    fn: (...args: T) => R | Promise<R>,
-): (...aos: { [K in keyof T]: AsyncOption<T[K]> }) => AsyncOption<R>;
-export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
-    fn: (...args: T) => R | Promise<R>,
-    ...aos: { [K in keyof T]: AsyncOption<T[K]> }
-): AsyncOption<R>;
-
-// Implementation
-// Same constraint as the public overloads so the implementation cannot be
-// called with arity < 2. Return type is a union: the AsyncOption (direct
-// form) or the curried function (when only `fn` was provided). The public
-// overloads give callers the narrower type.
-//
-// The inner recursive call uses `any` casts because the implementation
-// signature is generic over T and the recursive spread doesn't carry the
-// same tuple information. This is internal — type honesty lives at the
-// public overloads above.
-
 export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
     fn: (...args: T) => R | Promise<R>,
     ...aos: { [K in keyof T]: AsyncOption<T[K]> }

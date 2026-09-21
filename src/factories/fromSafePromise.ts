@@ -1,5 +1,9 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from './ok.js';
+import { err } from './err.js';
+
 /**
- * @fileoverview Wraps a Promise into a Result. On resolve returns `ok(value)`;
+ * Wraps a Promise into a Result. On resolve returns `ok(value)`;
  * on reject returns `err(error)`.
  *
  * Mirrors `fromPromise`: takes an optional `errorFn` factory that maps a
@@ -9,19 +13,12 @@
  *
  * @example
  * ```ts
- * import { fromSafePromise, pipe, map } from '@sandlada/result';
+ * import { fromSafePromise } from '@sandlada/result/factories';
  *
  * const data = await fromSafePromise(Promise.resolve(42));
  * // Ok(42)
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from './ok.js';
-import { err } from './err.js';
-
 export async function fromSafePromise<T, E = Error>(
     promise: Promise<T>,
     errorFn?: (error: unknown) => E,

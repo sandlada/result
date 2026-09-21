@@ -2,6 +2,8 @@
  * Reliability — barrel export.
  *
  * Re-exports all retry/timeout/concurrency helpers for production-grade ROP pipelines.
+ *
+ * @packageDocumentation
  */
 
 export { retry, type RetryOptions, type ThrownError, type AbortedError } from './retry.js';

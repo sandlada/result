@@ -1,15 +1,3 @@
-/**
- * @fileoverview Transforms the success value of a `Promise<IResultOfT<A, E>>`. The callback may be sync or async.
- *
- * @example
- * ```ts
- * import { mapAsync, asyncOk } from '@sandlada/result';
- * await mapAsync((x: number) => x * 2, asyncOk(21)); // Ok(42)
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
@@ -21,6 +9,15 @@ export function mapAsync<A, B, E>(
     f: (a: A) => B | Promise<B>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<B, E>>;
+/**
+ * Transforms the success value of a `Promise<IResultOfT<A, E>>`. The callback may be sync or async.
+ *
+ * @example
+ * ```ts
+ * import { mapAsync, asyncOk } from '@sandlada/result/promise-result';
+ * await mapAsync((x: number) => x * 2, asyncOk(21)); // Ok(42)
+ * ```
+ */
 export function mapAsync<A, B, E>(
     f: (a: A) => B | Promise<B>,
     r?: Promise<IResultOfT<A, E>>,
@@ -32,4 +29,3 @@ export function mapAsync<A, B, E>(
         catch(e: unknown) { return err(e as unknown as E); }
     });
 }
-

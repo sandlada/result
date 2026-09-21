@@ -1,5 +1,14 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
+export function unwrapOrElseAsync<A, E, D = A>(
+    onErr: (e: E) => D | Promise<D>,
+): (r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
+export function unwrapOrElseAsync<A, E, D>(
+    onErr: (e: E) => D | Promise<D>,
+    r: Promise<IResultOfT<A, E>>,
+): Promise<A | D>;
 /**
- * @fileoverview Extracts the success value from `Promise<IResultOfT>`, or computes
+ * Extracts the success value from `Promise<IResultOfT>`, or computes
  * a default from the error on failure (lazy). The error handler may return a
  * value or a Promise.
  *
@@ -11,22 +20,11 @@
  *
  * @example
  * ```ts
- * import { unwrapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result';
+ * import { unwrapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
  * await unwrapOrElseAsync((e: string) => 0, asyncOk(42));    // 42
  * await unwrapOrElseAsync((e: string) => 0, asyncErr('x'));  // 0
  * ```
- *
- * @note Ready for Product
  */
-import type { IResultOfT } from '../types/IResultOfT.js';
-
-export function unwrapOrElseAsync<A, E, D = A>(
-    onErr: (e: E) => D | Promise<D>,
-): (r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
-export function unwrapOrElseAsync<A, E, D>(
-    onErr: (e: E) => D | Promise<D>,
-    r: Promise<IResultOfT<A, E>>,
-): Promise<A | D>;
 export function unwrapOrElseAsync<A, E, D = A>(
     onErr: (e: E) => D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,

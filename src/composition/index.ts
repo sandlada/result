@@ -2,6 +2,8 @@
  * Composition utilities — barrel export.
  *
  * Re-exports Kleisli composition and pipe utilities for Result pipelines.
+ *
+ * @packageDocumentation
  */
 
 export { composeK } from './composeK.js';

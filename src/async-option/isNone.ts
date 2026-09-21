@@ -6,13 +6,11 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  *
  * @example
  * ```ts
- * import { ofSome, ofNone } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone, isNone } from '@sandlada/result/async-option';
  *
  * await isNone(ofSome(42)); // false
  * await isNone(ofNone<number>()); // true
  * ```
- *
- * @note Ready for Product
  */
 export function isNone<T>(ao: AsyncOption<T>): Promise<boolean> {
     return ao.run().then(opt => opt.isNone);

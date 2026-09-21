@@ -6,14 +6,12 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  *
  * @example
  * ```ts
- * import { fromResult } from './fromResult.js';
- * import { ok, err } from '../factories/index.js';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, isOk } from '@sandlada/result/async-result';
  *
  * await isOk(fromResult(ok(42)));  // true
  * await isOk(fromResult(err('x'))); // false
  * ```
- *
- * @note Ready for Product
  */
 export function isOk<T, E>(ar: AsyncResult<T, E>): Promise<boolean> {
     return ar.run().then(r => r.isSuccess);

@@ -1,5 +1,10 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
+export function unwrapErr<T, E>(ar: AsyncResult<T, E>): Promise<E>;
+export function unwrapErr<T, E>(
+    ar: AsyncResult<T, E>,
+    throwingFn?: (info: { message: string; value: T }) => Error,
+): Promise<E>;
 /**
  * Extracts the error from a failed `AsyncResult`, or throws on success.
  * The dual of {@link unwrap}.
@@ -11,20 +16,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * @example
  * ```ts
  * import { fromResult } from '@sandlada/result/async-result';
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  * import { unwrapErr } from '@sandlada/result/async-result';
  *
  * await unwrapErr(fromResult(err('boom')));  // 'boom'
  * await unwrapErr(fromResult(ok(42)));       // throws Error with `cause: 42`
  * ```
- *
- * @note Ready for Product
  */
-export function unwrapErr<T, E>(ar: AsyncResult<T, E>): Promise<E>;
-export function unwrapErr<T, E>(
-    ar: AsyncResult<T, E>,
-    throwingFn?: (info: { message: string; value: T }) => Error,
-): Promise<E>;
 export function unwrapErr<T, E>(
     ar: AsyncResult<T, E>,
     throwingFn?: (info: { message: string; value: T }) => Error,

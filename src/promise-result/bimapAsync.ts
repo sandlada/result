@@ -2,21 +2,6 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 
-/**
- * @fileoverview Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
- *
- * @example
- * ```ts
- * import { bimapAsync, ok } from '@sandlada/result';
- * const r = await bimapAsync(
- *   (x: number) => x.toString(),
- *   (e: number) => e * 2,
- *   Promise.resolve(ok(5)),
- * ); // Ok('5')
- * ```
-  *
- * @note Ready for Product
- */
 export function bimapAsync<A, E, B, F>(
     onOk: (a: A) => B | Promise<B>,
     onErr: (e: E) => F | Promise<F>,
@@ -26,6 +11,20 @@ export function bimapAsync<A, E, B, F>(
     onErr: (e: E) => F | Promise<F>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<B, F>>;
+/**
+ * Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+ *
+ * @example
+ * ```ts
+ * import { bimapAsync } from '@sandlada/result/promise-result';
+ * import { ok } from '@sandlada/result/factories';
+ * const r = await bimapAsync(
+ *   (x: number) => x.toString(),
+ *   (e: number) => e * 2,
+ *   Promise.resolve(ok(5)),
+ * ); // Ok('5')
+ * ```
+ */
 export function bimapAsync<A, E, B, F>(
     onOk: (a: A) => B | Promise<B>,
     onErr: (e: E) => F | Promise<F>,

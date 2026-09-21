@@ -1,23 +1,3 @@
-/**
- * @fileoverview Recovers from failure by chaining to an alternative AsyncResult or Promise<IResult>.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * **Throw policy**: If `fn` throws (sync) or rejects (async), the result converts
- * to `err(caughtError)`. Pass `errorFn` to customise how the thrown value maps
- * onto your error union.
- *
- * @example
- * ```ts
- * import { ok, err } from '@sandlada/result';
- * import { fromResult, orElse } from '@sandlada/result/async-result';
- *
- * const ar = orElse((e: string) => fromResult(ok(0)), fromResult(err('fail')));
- * const result = await ar.run(); // Ok(0)
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
@@ -31,6 +11,23 @@ export function orElse<T, E, F>(
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => E | F,
 ): AsyncResult<T, E | F>;
+/**
+ * Recovers from failure by chaining to an alternative AsyncResult or Promise<IResult>.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * **Throw policy**: If `fn` throws (sync) or rejects (async), the result converts
+ * to `err(caughtError)`. Pass `errorFn` to customise how the thrown value maps
+ * onto your error union.
+ *
+ * @example
+ * ```ts
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, orElse } from '@sandlada/result/async-result';
+ *
+ * const ar = orElse((e: string) => fromResult(ok(0)), fromResult(err('fail')));
+ * const result = await ar.run(); // Ok(0)
+ * ```
+ */
 export function orElse<T, E, F>(
     fn: (error: E) => AsyncResult<T, F> | Promise<IResultOfT<T, F>>,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

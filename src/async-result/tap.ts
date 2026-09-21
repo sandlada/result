@@ -1,30 +1,3 @@
-/**
- * @fileoverview Side-effect on the success track. Calls `fn` with the value on success
- * and passes the original result through unchanged.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * The callback may be sync or async — `fn` is awaited internally so async
- * rejections surface before the original result is returned.
- *
- * **Throw policy**: If `fn` throws or rejects, the result converts to
- * `err(caughtError)`. Pass `errorFn` to customise how the thrown value maps
- * onto your error union — e.g. `tap(fn, thrown => new MyError(String(thrown)))`.
- *
- * @example
- * ```ts
- * import { ok } from '@sandlada/result';
- * import { fromResult, tap } from '@sandlada/result/async-result';
- *
- * // Sync callback
- * const ar = tap((v: number) => console.log('got:', v), fromResult(ok(42)));
- *
- * // Async callback — also awaited
- * const ar2 = tap(async (v: number) => await persist(v), fromResult(ok(42)));
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
@@ -37,6 +10,30 @@ export function tap<T, E>(
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<T, E>;
+/**
+ * Side-effect on the success track. Calls `fn` with the value on success
+ * and passes the original result through unchanged.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * The callback may be sync or async — `fn` is awaited internally so async
+ * rejections surface before the original result is returned.
+ *
+ * **Throw policy**: If `fn` throws or rejects, the result converts to
+ * `err(caughtError)`. Pass `errorFn` to customise how the thrown value maps
+ * onto your error union — e.g. `tap(fn, thrown => new MyError(String(thrown)))`.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result/factories';
+ * import { fromResult, tap } from '@sandlada/result/async-result';
+ *
+ * // Sync callback
+ * const ar = tap((v: number) => console.log('got:', v), fromResult(ok(42)));
+ *
+ * // Async callback — also awaited
+ * const ar2 = tap(async (v: number) => { console.log(v); }, fromResult(ok(42)));
+ * ```
+ */
 export function tap<T, E>(
     fn: (value: T) => void | Promise<void>,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

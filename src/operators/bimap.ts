@@ -1,23 +1,3 @@
-/**
- * @fileoverview Simultaneous map over both success and failure variants.
- *
- * **Throw policy**: If either `onOk` or `onErr` throws, the result converts to
- * `err(caughtError)` with the error type widened to `F | Error`. Pass `errorFn`
- * to customise how the thrown value maps onto your error union.
- *
- * The curried form defers `<A2, E2>` to the application site so an input
- * with a different value or error type than the callbacks' parameter types
- * still typechecks — mirrors `map` / `mapErr`'s design.
- *
- * @example
- * ```ts
- * import { bimap, ok } from '@sandlada/result';
- * bimap(x => x * 2, e => `!${e}`, ok(21)); // Ok(42)
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
@@ -39,6 +19,24 @@ export function bimap<A, E, C, F>(
 ): IResultOfT<C, F>;
 
 // Implementation signature — `unknown` opts out of strict overload-shape checks.
+/**
+ * Simultaneous map over both success and failure variants.
+ *
+ * **Throw policy**: If either `onOk` or `onErr` throws, the result converts to
+ * `err(caughtError)` with the error type widened to `F | Error`. Pass `errorFn`
+ * to customise how the thrown value maps onto your error union.
+ *
+ * The curried form defers `<A2, E2>` to the application site so an input
+ * with a different value or error type than the callbacks' parameter types
+ * still typechecks — mirrors `map` / `mapErr`'s design.
+ *
+ * @example
+ * ```ts
+ * import { bimap } from '@sandlada/result/operators';
+ * import { ok } from '@sandlada/result/factories';
+ * bimap(x => x * 2, e => `!${e}`, ok(21)); // Ok(42)
+ * ```
+ */
 export function bimap<A, E, C, F>(
     onOk: (a: A) => C,
     onErr: (e: E) => F,

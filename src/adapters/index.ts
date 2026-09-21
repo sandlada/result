@@ -2,6 +2,8 @@
  * Adapters — barrel export.
  *
  * Re-exports adapter/interop functions for bridging between Result and other patterns.
+ *
+ * @packageDocumentation
  */
 
 export { switchFn } from './switchFn.js';

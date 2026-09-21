@@ -1,22 +1,20 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
+
 /**
- * @fileoverview Combines results accumulating **all** errors (validation aggregation). Unlike `combine` (short-circuit on first failure), this collects every error.
+ * Combines results accumulating **all** errors (validation aggregation). Unlike `combine` (short-circuit on first failure), this collects every error.
  *
  * Wlaschin equivalent: `&&&` (parallel AND in the ROP model)
  *
  * @example
  * ```ts
- * import { combineWithAllErrors, ok, err } from '@sandlada/result';
+ * import { combineWithAllErrors } from '@sandlada/result/combine';
+ * import { ok, err } from '@sandlada/result/factories';
  * combineWithAllErrors([ok(1), err('a'), err('b')]);
  * // Err(['a', 'b'])
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-import { err } from '../factories/err.js';
-
 export function combineWithAllErrors<A, E>(
     results: readonly IResultOfT<A, E>[],
 ): IResultOfT<A[], E[]> {
@@ -30,4 +28,3 @@ export function combineWithAllErrors<A, E>(
     if(errors.length > 0) return err(errors);
     return ok(values);
 }
-

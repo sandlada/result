@@ -2,6 +2,8 @@
  * Sync operators — barrel export.
  *
  * Re-exports all synchronous operators for working with Result values.
+ *
+ * @packageDocumentation
  */
 
 export { and } from './and.js';

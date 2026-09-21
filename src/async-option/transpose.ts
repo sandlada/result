@@ -17,14 +17,12 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * ```ts
  * import { ofSome } from '@sandlada/result/async-option';
  * import { fromResult } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { transpose } from '@sandlada/result/async-option';
  *
  * const r = await transpose(ofSome(fromResult(ok(42)))).run();
  * // r.isSuccess === true; r.value is an AsyncOption resolving to Some(42)
  * ```
- *
- * @note Ready for Product
  */
 export function transpose<T, E>(
     ao: AsyncOption<AsyncResult<T, E>>,

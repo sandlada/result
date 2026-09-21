@@ -1,8 +1,15 @@
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
+export function filterAsyncOption<T>(
+    predicate: (a: T) => boolean | Promise<boolean>,
+): (r: Promise<IOption<T>>) => Promise<IOption<T>>;
+export function filterAsyncOption<T>(
+    predicate: (a: T) => boolean | Promise<boolean>,
+    r: Promise<IOption<T>>,
+): Promise<IOption<T>>;
 /**
- * @fileoverview Filters the value of a `Promise<IOption<T>>` with a predicate.
+ * Filters the value of a `Promise<IOption<T>>` with a predicate.
  * Keeps the Some if the predicate holds; converts to None otherwise. None passes through.
  *
  * **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -11,20 +18,11 @@ import { ofNone } from '../option/ofNone.js';
  *
  * @example
  * ```ts
- * import { filterAsyncOption, ofSome } from '@sandlada/result';
+ * import { filterAsyncOption, ofSome } from '@sandlada/result/promise-option';
  * const r = await filterAsyncOption(async (x: number) => x > 10, Promise.resolve(ofSome(21)));
  * // Some(21)
  * ```
-  *
- * @note Ready for Product
  */
-export function filterAsyncOption<T>(
-    predicate: (a: T) => boolean | Promise<boolean>,
-): (r: Promise<IOption<T>>) => Promise<IOption<T>>;
-export function filterAsyncOption<T>(
-    predicate: (a: T) => boolean | Promise<boolean>,
-    r: Promise<IOption<T>>,
-): Promise<IOption<T>>;
 export function filterAsyncOption<T>(
     predicate: (a: T) => boolean | Promise<boolean>,
     r?: Promise<IOption<T>>,

@@ -1,5 +1,8 @@
+import type { IOption } from '../types/Option.js';
+import { ofNone } from './ofNone.js';
+
 /**
- * @fileoverview Side-effect on the Some track. Calls `fn` with the value and passes the
+ * Side-effect on the Some track. Calls `fn` with the value and passes the
  * original Option through unchanged.
  *
  * **Throw policy**: If `fn` throws, the Option converts to `None`
@@ -7,17 +10,12 @@
  *
  * @example
  * ```ts
- * import { tapOption, pipe } from '@sandlada/result';
- * import { ofSome } from '@sandlada/result/option';
- * pipe(ofSome('hello'), tapOption(v => console.log('got:', v)));
+ * import { tap, ofSome } from '@sandlada/result/option';
+ * import { pipe } from '@sandlada/result/composition';
+ *
+ * pipe(ofSome('hello'), tap(v => console.log('got:', v)));
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IOption } from '../types/Option.js';
-import { ofNone } from './ofNone.js';
-
 export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> {
     return opt => {
         if(opt.isSome) {
@@ -30,4 +28,3 @@ export function tap<T>(fn: (value: T) => void): (opt: IOption<T>) => IOption<T> 
         return opt;
     };
 }
-

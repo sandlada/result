@@ -1,5 +1,9 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
+
 /**
- * @fileoverview `condErr` — the inverse of {@link cond}. When the predicate passes,
+ * `condErr` — the inverse of {@link cond}. When the predicate passes,
  * returns `Err(errorOnTrue)`; otherwise returns `Ok(okValue)`.
  *
  * Use it when a *presence* condition should fail (e.g. "found a forbidden character
@@ -12,14 +16,7 @@
  * const r1 = condErr(s => s.includes('@'), 'alice@x', 'invalid email'); // Err('invalid email')
  * const r2 = condErr(s => s.includes('@'), 'no-at',    'invalid email'); // Ok('no-at')
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok } from '../factories/ok.js';
-import { err } from '../factories/err.js';
-
 export function condErr<T, E>(
     predicate: (value: T) => boolean,
     okValue: T,

@@ -1,15 +1,3 @@
-/**
- * @fileoverview Side-effect on the failure track of an async result.
- *
- * @example
- * ```ts
- * import { tapErrAsync, asyncErr } from '@sandlada/result';
- * await tapErrAsync((e: string) => console.log('err:', e), asyncErr('boom'));
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function tapErrAsync<E>(
@@ -19,6 +7,15 @@ export function tapErrAsync<A, E>(
     fn: (e: E) => void | Promise<void>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<IResultOfT<A, E>>;
+/**
+ * Side-effect on the failure track of an async result.
+ *
+ * @example
+ * ```ts
+ * import { tapErrAsync, asyncErr } from '@sandlada/result/promise-result';
+ * await tapErrAsync((e: string) => console.log('err:', e), asyncErr('boom'));
+ * ```
+ */
 export function tapErrAsync<A, E>(
     fn: (e: E) => void | Promise<void>,
     r?: Promise<IResultOfT<A, E>>,
@@ -35,4 +32,3 @@ export function tapErrAsync<A, E>(
         return inner;
     });
 }
-

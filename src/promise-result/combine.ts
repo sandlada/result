@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Combines an array of `Promise<IResultOfT>` into a single
+ * Combines an array of `Promise<IResultOfT>` into a single
  * `Promise<IResultOfT<T[], E>>`. Short-circuits on the first failure (like
  * `Promise.all`).
  *
@@ -7,15 +9,11 @@
  *
  * @example
  * ```ts
- * import { combine, asyncOk, asyncErr } from '@sandlada/result';
+ * import { combine, asyncOk, asyncErr } from '@sandlada/result/promise-result';
  * await combine([asyncOk(1), asyncOk(2)]); // Ok([1, 2])
  * await combine([asyncOk(1), asyncErr('x')]); // Err('x')
  * ```
- *
- * @note Ready for Product
  */
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function combine<A, E>(
     results: readonly Promise<IResultOfT<A, E>>[],
 ): Promise<IResultOfT<A[], E>> {

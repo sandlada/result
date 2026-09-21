@@ -2,6 +2,8 @@
  * AsyncOption — barrel export.
  *
  * Re-exports all AsyncOption factories and operators.
+ *
+ * @packageDocumentation
  */
 
 // Constructors

@@ -1,22 +1,3 @@
-/**
- * @fileoverview Transforms the success value. If the result is a failure, it is passed through unchanged.
- *
- * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
- * the error type widened to `E | Error` (the thrown value can be any `unknown`).
- * Pass `errorFn` to customise how the thrown value maps onto your error union —
- * e.g. `map(f, e => new MyError(String(e)))`.
- *
- * F# equivalent: `Result.map f r`
- *
- * @example
- * ```ts
- * import { map, pipe, ok } from '@sandlada/result';
- * pipe(ok(5), map(x => x * 2)); // Ok(10)
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
@@ -30,6 +11,24 @@ export function map<A, B, E>(
     r: IResultOfT<A, E>,
     errorFn?: (thrown: unknown) => E,
 ): IResultOfT<B, E>;
+/**
+ * Transforms the success value. If the result is a failure, it is passed through unchanged.
+ *
+ * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
+ * the error type widened to `E | Error` (the thrown value can be any `unknown`).
+ * Pass `errorFn` to customise how the thrown value maps onto your error union —
+ * e.g. `map(f, e => new MyError(String(e)))`.
+ *
+ * F# equivalent: `Result.map f r`
+ *
+ * @example
+ * ```ts
+ * import { map } from '@sandlada/result/operators';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { ok } from '@sandlada/result/factories';
+ * pipe(ok(5), map(x => x * 2)); // Ok(10)
+ * ```
+ */
 export function map<A, B, E>(
     f: (a: A) => B,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),

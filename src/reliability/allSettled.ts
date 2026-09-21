@@ -1,26 +1,3 @@
-/**
- * @fileoverview `allSettled` — never short-circuits. Collects every thunk's outcome
- * into a discriminated array that mirrors the input order. Always returns `Ok`
- * with the collected list, so observability and batch coordination layers can log
- * everything without losing partial successes.
- *
- * @example
- * ```ts
- * import { allSettled } from '@sandlada/result/reliability';
- * import { fromResult } from '@sandlada/result/async-result';
- *
- * const ar = allSettled([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
- * const r = await ar.run();
- * // Ok([
- * //   { ok: true,  value: 1 },
- * //   { ok: false, error: 'a' },
- * //   { ok: true,  value: 2 },
- * // ])
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
@@ -46,9 +23,29 @@ export type Settled<T, E> =
     | { readonly ok: false; readonly error: unknown; readonly value?: never; readonly kind: 'Rejected' };
 
 /**
+ * `allSettled` — never short-circuits. Collects every thunk's outcome into a
+ * discriminated array that mirrors the input order. Always returns `Ok` with the
+ * collected list, so observability and batch coordination layers can log
+ * everything without losing partial successes.
+ *
  * Run every thunk; the result is **always** `Ok([...settled, ...in input order])`.
  * Unhandled rejections are captured as `{ ok: false, error: rejection }` rather than
  * propagated.
+ *
+ * @example
+ * ```ts
+ * import { allSettled } from '@sandlada/result/reliability';
+ * import { fromResult } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const ar = allSettled([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
+ * const r = await ar.run();
+ * // Ok([
+ * //   { ok: true,  value: 1 },
+ * //   { ok: false, error: 'a' },
+ * //   { ok: true,  value: 2 },
+ * // ])
+ * ```
  */
 export function allSettled<T, E>(
     results: readonly AsyncResult<T, E>[],

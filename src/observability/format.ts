@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Human-readable formatting for `IResultOfT`. Useful in logs, error
+ * Human-readable formatting for `IResultOfT`. Useful in logs, error
  * reporters, and assertions. Falls back to `String(...)` for non-primitive errors.
  *
  * - `Ok(42)` → `Ok(42)`
@@ -9,17 +11,12 @@
  * @example
  * ```ts
  * import { format } from '@sandlada/result/observability';
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * console.log(format(ok(42)));           // "Ok(42)"
  * console.log(format(err('boom')));       // "Err(\"boom\")"
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export interface FormatOptions {
     /** Wrap strings in quotes so values with whitespace don't confuse readers. Default `true`. */
     readonly quoteStrings?: boolean;

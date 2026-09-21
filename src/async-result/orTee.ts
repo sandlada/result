@@ -1,8 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
+export function orTee<T, E>(
+    fn: (error: E) => void | unknown | Promise<void | unknown>,
+): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
+export function orTee<T, E>(
+    fn: (error: E) => void | unknown | Promise<void | unknown>,
+    ar: AsyncResult<T, E>,
+): AsyncResult<T, E>;
 /**
- * @fileoverview Side-effect on failure (sync or async), ignoring the callback's result.
+ * Side-effect on failure (sync or async), ignoring the callback's result.
  * Calls `fn` with the error on failure and passes the original result through unchanged.
  * Lazy — returns a new AsyncResult without executing the inner computation.
  *
@@ -11,22 +18,13 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result';
+ * import { err } from '@sandlada/result/factories';
  * import { fromResult, orTee } from '@sandlada/result/async-result';
  *
  * const ar = orTee((e: string) => { console.error(e); }, fromResult(err('oops')));
  * const result = await ar.run(); // Err('oops')
  * ```
-  *
- * @note Ready for Product
  */
-export function orTee<T, E>(
-    fn: (error: E) => void | unknown | Promise<void | unknown>,
-): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
-export function orTee<T, E>(
-    fn: (error: E) => void | unknown | Promise<void | unknown>,
-    ar: AsyncResult<T, E>,
-): AsyncResult<T, E>;
 export function orTee<T, E>(
     fn: (error: E) => void | unknown | Promise<void | unknown>,
     ar?: AsyncResult<T, E>,

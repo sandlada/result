@@ -3,8 +3,15 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/index.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
+export function bind<T, U>(
+    fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
+): (ao: AsyncOption<T>) => AsyncOption<U>;
+export function bind<T, U>(
+    fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
+    ao: AsyncOption<T>,
+): AsyncOption<U>;
 /**
- * @fileoverview Chains an AsyncOption-returning function on success (monadic bind / flatMap).
+ * Chains an AsyncOption-returning function on success (monadic bind / flatMap).
  * Supports interoperability by also accepting a function that returns `Promise<IOption<U>>`.
  * Lazy — returns a new AsyncOption without executing the inner computation.
  *
@@ -16,16 +23,7 @@ import { isAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
  * const result = await ao.run(); // Some(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function bind<T, U>(
-    fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
-): (ao: AsyncOption<T>) => AsyncOption<U>;
-export function bind<T, U>(
-    fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
-    ao: AsyncOption<T>,
-): AsyncOption<U>;
 export function bind<T, U>(
     fn: (value: T) => AsyncOption<U> | Promise<IOption<U>>,
     ao?: AsyncOption<T>,

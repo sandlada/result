@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Combines `Promise<IResultOfT>` accumulating **all** errors
+ * Combines `Promise<IResultOfT>` accumulating **all** errors
  * (validation aggregation). Unlike {@link combine}, this collects every error
  * before failing.
  *
@@ -7,15 +9,11 @@
  *
  * @example
  * ```ts
- * import { combineWithAllErrors, asyncOk, asyncErr } from '@sandlada/result';
+ * import { combineWithAllErrors, asyncOk, asyncErr } from '@sandlada/result/promise-result';
  * await combineWithAllErrors([asyncOk(1), asyncErr('a'), asyncErr('b')]); // Err(['a', 'b'])
  * await combineWithAllErrors([asyncOk(1), asyncOk(2)]); // Ok([1, 2])
  * ```
- *
- * @note Ready for Product
  */
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function combineWithAllErrors<A, E>(
     results: readonly Promise<IResultOfT<A, E>>[],
 ): Promise<IResultOfT<A[], E[]>> {

@@ -1,7 +1,32 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+
 /**
- * @fileoverview First-success-wins combination of `AsyncResult`s. Returns the first
- * thunk to resolve with `Ok`; if every thunk resolves with `Err`, returns the first
- * error (in input order). Lazy — none of the inputs run until `.run()` is called.
+ * Default shape of the error produced by {@link race} when the input array is empty.
+ * Library consumers can extend, narrow, or replace it via the `onEmpty` hook.
+ */
+export interface EmptyInputsError {
+    readonly kind: 'EmptyInputs';
+}
+
+const defaultOnEmpty = (): EmptyInputsError => ({ kind: 'EmptyInputs' });
+
+export function race<T, E>(
+    results: readonly [AsyncResult<T, E>, ...AsyncResult<T, E>[]],
+): AsyncResult<T, E>;
+/**
+ * @typeParam EE — the error produced when `results` is empty. Defaults to
+ * {@link EmptyInputsError}; override by passing `onEmpty`.
+ */
+export function race<T, E, EE = EmptyInputsError>(
+    results: readonly AsyncResult<T, E>[],
+    onEmpty?: () => EE,
+): AsyncResult<T, E | EE>;
+/**
+ * First-success-wins combination of `AsyncResult`s. Returns the first thunk to
+ * resolve with `Ok`; if every thunk resolves with `Err`, returns the first error
+ * (in input order). Lazy — none of the inputs run until `.run()` is called.
  *
  * **Empty input**: if `results` is empty, there is no input value *or* input error to
  * propagate, so `race` produces an error of its own. Rather than fabricating a value
@@ -35,6 +60,7 @@
  * ```ts
  * import { race } from '@sandlada/result/reliability';
  * import { fromResult } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * const ar = race([fromResult(ok(1)), fromResult(err('a'))]);
  * const r = await ar.run(); // Ok(1) — first success wins.
@@ -42,52 +68,19 @@
  *
  * @example Discriminating the empty-input case
  * ```ts
- * const r = await race<number, AppError>([]).run();
- * if (r.isFailure && 'kind' in r.error && r.error.kind === 'EmptyInputs') { … }
+ * import { race } from '@sandlada/result/reliability';
+ * import { fromResult } from '@sandlada/result/async-result';
+ * import { ok } from '@sandlada/result/factories';
  *
- * // …or map it onto your own error union:
- * const custom = await race<number, AppError, AppError>(
+ * const single = await race([fromResult(ok(1))]).run(); // Ok(1)
+ *
+ * // …or map the empty-input case onto your own error union:
+ * const custom = await race<number, Error, { readonly tag: 'NoCandidates' }>(
  *     [],
  *     () => ({ tag: 'NoCandidates' }),
  * ).run();
  * ```
- *
- * @note Ready for Product
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
-
-/**
- * Default shape of the error produced by {@link race} when the input array is empty.
- * Library consumers can extend, narrow, or replace it via the `onEmpty` hook.
- */
-export interface EmptyInputsError {
-    readonly kind: 'EmptyInputs';
-}
-
-const defaultOnEmpty = (): EmptyInputsError => ({ kind: 'EmptyInputs' });
-
-/**
- * Race — first `Ok` wins. If every thunk fails, returns the *first* `Err` in input order.
- * Inputs are echoed only lazily; calls to `.run()` are independent across all thunks.
- *
- * A statically non-empty array cannot reach the empty branch, so that overload keeps
- * the error type at `E` and costs the caller nothing. Only a dynamically-sized array —
- * whose length is unknown at compile time — widens to `E | EE`.
- */
-export function race<T, E>(
-    results: readonly [AsyncResult<T, E>, ...AsyncResult<T, E>[]],
-): AsyncResult<T, E>;
-/**
- * @typeParam EE — the error produced when `results` is empty. Defaults to
- * {@link EmptyInputsError}; override by passing `onEmpty`.
- */
-export function race<T, E, EE = EmptyInputsError>(
-    results: readonly AsyncResult<T, E>[],
-    onEmpty?: () => EE,
-): AsyncResult<T, E | EE>;
 export function race<T, E, EE = EmptyInputsError>(
     results: readonly AsyncResult<T, E>[],
     onEmpty: () => EE = defaultOnEmpty as () => EE,

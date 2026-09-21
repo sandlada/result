@@ -1,5 +1,17 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+
+export function andThrough<A, B, F>(
+    fn: (a: A) => IResultOfT<B, F>,
+    errorFn?: (thrown: unknown) => unknown,
+): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E | F>;
+export function andThrough<A, E, B, F>(
+    fn: (a: A) => IResultOfT<B, F>,
+    r: IResultOfT<A, E>,
+    errorFn?: (thrown: unknown) => E | F,
+): IResultOfT<A, E | F>;
 /**
- * @fileoverview Side-effect on the success track that **can** propagate errors.
+ * Side-effect on the success track that **can** propagate errors.
  * Calls `fn` with the value on success. If `fn` returns a failure, that failure
  * replaces the original result (error propagates). If `fn` returns a success,
  * the **original** result passes through unchanged.
@@ -14,7 +26,9 @@
  *
  * @example
  * ```ts
- * import { andThrough, pipe, ok, err } from '@sandlada/result';
+ * import { andThrough } from '@sandlada/result/operators';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { ok, err } from '@sandlada/result/factories';
  *
  * // Log and pass through on success:
  * pipe(
@@ -25,25 +39,10 @@
  * // Propagate callback error:
  * pipe(
  *   ok('data'),
- *   andThrough(v => validate(v)), // returns Err on invalid
- * ); // Err(validationError) if invalid, Ok('data') if valid
+ *   andThrough(v => v.length > 0 ? ok(v) : err('empty')), // returns Err on invalid
+ * ); // Err('empty') if invalid, Ok('data') if valid
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { err } from '../factories/err.js';
-
-export function andThrough<A, B, F>(
-    fn: (a: A) => IResultOfT<B, F>,
-    errorFn?: (thrown: unknown) => unknown,
-): <E>(r: IResultOfT<A, E>) => IResultOfT<A, E | F>;
-export function andThrough<A, E, B, F>(
-    fn: (a: A) => IResultOfT<B, F>,
-    r: IResultOfT<A, E>,
-    errorFn?: (thrown: unknown) => E | F,
-): IResultOfT<A, E | F>;
 export function andThrough<A, E, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),

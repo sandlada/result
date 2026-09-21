@@ -13,8 +13,6 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * const ao = fromOption(ofSome(42));
  * const result = await ao.run(); // Some(42)
  * ```
-  *
- * @note Ready for Product
  */
 export function fromOption<T>(
     option: IOption<T>,

@@ -1,5 +1,9 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { markAsyncCarrier } from '../types/asyncCarrier.js';
+
 /**
- * @fileoverview Wraps a `Promise<T>` into an AsyncResult, catching rejections.
+ * Wraps a `Promise<T>` into an AsyncResult, catching rejections.
  * The inner Promise is not yet created at construction time; the factory thunk is invoked
  * lazily when `.run()` is called.
  *
@@ -9,14 +13,7 @@
  * const ar = fromPromise(() => fetch('/api/data').then(r => r.json()));
  * const result = await ar.run();
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { AsyncResult } from '../types/AsyncResult.js';
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { markAsyncCarrier } from '../types/asyncCarrier.js';
-
 export function fromPromise<T, E = unknown>(
     thunk: () => Promise<T>,
     errorFn?: (error: unknown) => E,

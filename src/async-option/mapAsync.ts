@@ -2,6 +2,13 @@ import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
 import { ofSome, ofNone } from '../option/index.js';
 
+export function mapAsync<T, U>(
+    fn: (value: T) => Promise<U>,
+): (ao: AsyncOption<T>) => AsyncOption<U>;
+export function mapAsync<T, U>(
+    fn: (value: T) => Promise<U>,
+    ao: AsyncOption<T>,
+): AsyncOption<U>;
 /**
  * Maps the value of an AsyncOption using an async function.
  * Lazy — returns a new AsyncOption without executing the inner computation.
@@ -14,16 +21,7 @@ import { ofSome, ofNone } from '../option/index.js';
  * const ao = mapAsync(async (x: number) => x * 2, fromOption(ofSome(21)));
  * const result = await ao.run(); // Some(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function mapAsync<T, U>(
-    fn: (value: T) => Promise<U>,
-): (ao: AsyncOption<T>) => AsyncOption<U>;
-export function mapAsync<T, U>(
-    fn: (value: T) => Promise<U>,
-    ao: AsyncOption<T>,
-): AsyncOption<U>;
 export function mapAsync<T, U>(
     fn: (value: T) => Promise<U>,
     ao?: AsyncOption<T>,

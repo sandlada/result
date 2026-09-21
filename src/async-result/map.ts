@@ -1,22 +1,3 @@
-/**
- * @fileoverview Maps the success value of an AsyncResult using a synchronous function.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
- * Pass `errorFn` to customise how the thrown value maps onto your error union.
- *
- * @example
- * ```ts
- * import { ok } from '@sandlada/result';
- * import { fromResult, map } from '@sandlada/result/async-result';
- *
- * const ar = map((x: number) => x * 2, fromResult(ok(21)));
- * const result = await ar.run(); // Ok(42)
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
@@ -29,6 +10,22 @@ export function map<T, U, E>(
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<U, E>;
+/**
+ * Maps the success value of an AsyncResult using a synchronous function.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
+ * Pass `errorFn` to customise how the thrown value maps onto your error union.
+ *
+ * @example
+ * ```ts
+ * import { ok } from '@sandlada/result/factories';
+ * import { fromResult, map } from '@sandlada/result/async-result';
+ *
+ * const ar = map((x: number) => x * 2, fromResult(ok(21)));
+ * const result = await ar.run(); // Ok(42)
+ * ```
+ */
 export function map<T, U, E>(
     fn: (value: T) => U,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

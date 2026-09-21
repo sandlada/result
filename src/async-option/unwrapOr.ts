@@ -1,5 +1,12 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 
+export function unwrapOr<T>(
+    defaultValue: T | Promise<T>,
+): (ao: AsyncOption<T>) => Promise<T>;
+export function unwrapOr<T>(
+    defaultValue: T | Promise<T>,
+    ao: AsyncOption<T>,
+): Promise<T>;
 /**
  * Extracts the value from an AsyncOption, or returns a default value.
  *
@@ -11,16 +18,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * const v1 = await unwrapOr(0, fromOption(ofSome(42))); // 42
  * const v2 = await unwrapOr(0, fromOption(ofNone())); // 0
  * ```
-  *
- * @note Ready for Product
  */
-export function unwrapOr<T>(
-    defaultValue: T | Promise<T>,
-): (ao: AsyncOption<T>) => Promise<T>;
-export function unwrapOr<T>(
-    defaultValue: T | Promise<T>,
-    ao: AsyncOption<T>,
-): Promise<T>;
 export function unwrapOr<T>(
     defaultValue: T | Promise<T>,
     ao?: AsyncOption<T>,

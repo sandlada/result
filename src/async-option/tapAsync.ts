@@ -1,8 +1,15 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import { ofNone } from '../option/index.js';
 
+export function tapAsync<T>(
+    fn: (value: T) => void | Promise<void>,
+): (ao: AsyncOption<T>) => AsyncOption<T>;
+export function tapAsync<T>(
+    fn: (value: T) => void | Promise<void>,
+    ao: AsyncOption<T>,
+): AsyncOption<T>;
 /**
- * @fileoverview Side-effect on the success track of an AsyncOption using an async function.
+ * Side-effect on the success track of an AsyncOption using an async function.
  * Calls `fn` with the value on Some and passes the original Option through unchanged.
  * Lazy — returns a new AsyncOption without executing the inner computation.
  *
@@ -14,19 +21,10 @@ import { ofNone } from '../option/index.js';
  * import { ofSome } from '@sandlada/result/option';
  * import { fromOption, tapAsync } from '@sandlada/result/async-option';
  *
- * const ao = tapAsync(async (v: number) => { await save(v); }, fromOption(ofSome(42)));
- * await ao.run(); // returns Some(42) after saving
+ * const ao = tapAsync(async (v: number) => { console.log('saving', v); }, fromOption(ofSome(42)));
+ * await ao.run(); // returns Some(42) after the async side effect
  * ```
-  *
- * @note Ready for Product
  */
-export function tapAsync<T>(
-    fn: (value: T) => void | Promise<void>,
-): (ao: AsyncOption<T>) => AsyncOption<T>;
-export function tapAsync<T>(
-    fn: (value: T) => void | Promise<void>,
-    ao: AsyncOption<T>,
-): AsyncOption<T>;
 export function tapAsync<T>(
     fn: (value: T) => void | Promise<void>,
     ao?: AsyncOption<T>,

@@ -1,22 +1,3 @@
-/**
- * @fileoverview Maps the error of an AsyncResult using a synchronous function.
- * Lazy — returns a new AsyncResult without executing the inner computation.
- *
- * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
- * Pass `errorFn` to customise how the thrown value maps onto your error union.
- *
- * @example
- * ```ts
- * import { err } from '@sandlada/result';
- * import { fromResult, mapErr } from '@sandlada/result/async-result';
- *
- * const ar = mapErr((e: string) => e.toUpperCase(), fromResult(err('oops')));
- * const result = await ar.run(); // Err('OOPS')
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
@@ -29,6 +10,22 @@ export function mapErr<T, E, F>(
     ar: AsyncResult<T, E>,
     errorFn?: (thrown: unknown) => F,
 ): AsyncResult<T, F>;
+/**
+ * Maps the error of an AsyncResult using a synchronous function.
+ * Lazy — returns a new AsyncResult without executing the inner computation.
+ *
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
+ * Pass `errorFn` to customise how the thrown value maps onto your error union.
+ *
+ * @example
+ * ```ts
+ * import { err } from '@sandlada/result/factories';
+ * import { fromResult, mapErr } from '@sandlada/result/async-result';
+ *
+ * const ar = mapErr((e: string) => e.toUpperCase(), fromResult(err('oops')));
+ * const result = await ar.run(); // Err('OOPS')
+ * ```
+ */
 export function mapErr<T, E, F>(
     fn: (error: E) => F,
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),

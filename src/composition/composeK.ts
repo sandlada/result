@@ -1,44 +1,3 @@
-/**
- * @fileoverview Kleisli composition — composes N switch functions into one. Each function returns a Result, and the composed function chains them. Short-circuits on the first failure.
- *
- * F# equivalent: `f1 >=> f2 >=> f3`
- *
- * **Compared to `composeKAsync`**: this is the **sync** variant — each function
- * must return `IResultOfT` synchronously. For async-compatible composition
- * (callbacks may return `Promise<IResultOfT>`), use `composeKAsync` from
- * `@sandlada/result/composition`.
- *
- * **Empty input guard**: calling `composeK()` with zero functions throws
- * `TypeError` at construction time. The async variant has the same policy.
- *
- * **Synchronous throw policy** (G1): if any function in the chain throws
- * synchronously, the catch block funnels the unknown rejection through
- * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
- * documented in `retry.ts:toErrFailure` (Batch 5). The composed function's
- * declared error type `E` is therefore a structural claim only: a synchronous
- * throw at runtime can produce an arbitrary `unknown` value. If you need
- * precise error-type narrowing, wrap each step in `tryCatch` with an
- * `errorFn` that maps to your `E` before composing.
- *
- * @example
- * ```ts
- * import { composeK, ok, err } from '@sandlada/result';
- * const p = composeK(
- *   (x: number) => ok(x * 2),
- *   (x: number) => x > 50 ? ok(x) : err('too small'),
- * );
- * p(30); // Ok(60)
- * ```
- *
- * @throws {TypeError} If called with zero functions.
- * @throws {unknown} If any composed step throws synchronously, the thrown value
- *                   is captured into the returned failure's `error` field — but
- *                   its static type widens to `unknown`, not the declared `E`.
- *                   Use `tryCatch(..., errorFn)` per step if you need typed errors.
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bind } from '../operators/bind.js';
 
@@ -82,6 +41,45 @@ export function composeK<A, B, C, D, F, G, H, E>(
     f6: (g: G) => IResultOfT<H, E>,
 ): (a: A) => IResultOfT<H, E>;
 
+/**
+ * Kleisli composition — composes N switch functions into one. Each function returns a Result, and the composed function chains them. Short-circuits on the first failure.
+ *
+ * F# equivalent: `f1 >=> f2 >=> f3`
+ *
+ * **Compared to `composeKAsync`**: this is the **sync** variant — each function
+ * must return `IResultOfT` synchronously. For async-compatible composition
+ * (callbacks may return `Promise<IResultOfT>`), use `composeKAsync` from
+ * `@sandlada/result/composition`.
+ *
+ * **Empty input guard**: calling `composeK()` with zero functions throws
+ * `TypeError` at construction time. The async variant has the same policy.
+ *
+ * **Synchronous throw policy** (G1): if any function in the chain throws
+ * synchronously, the catch block funnels the unknown rejection through
+ * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
+ * documented in `retry.ts:toErrFailure` (Batch 5). The composed function's
+ * declared error type `E` is therefore a structural claim only: a synchronous
+ * throw at runtime can produce an arbitrary `unknown` value. If you need
+ * precise error-type narrowing, wrap each step in `tryCatch` with an
+ * `errorFn` that maps to your `E` before composing.
+ *
+ * @example
+ * ```ts
+ * import { composeK } from '@sandlada/result/composition';
+ * import { ok, err } from '@sandlada/result/factories';
+ * const p = composeK(
+ *   (x: number) => ok(x * 2),
+ *   (x: number) => x > 50 ? ok(x) : err('too small'),
+ * );
+ * p(30); // Ok(60)
+ * ```
+ *
+ * @throws {TypeError} If called with zero functions.
+ * @throws {unknown} If any composed step throws synchronously, the thrown value
+ *                   is captured into the returned failure's `error` field — but
+ *                   its static type widens to `unknown`, not the declared `E`.
+ *                   Use `tryCatch(..., errorFn)` per step if you need typed errors.
+ */
 export function composeK(
     ...fns: Array<(arg: unknown) => IResultOfT<unknown, unknown>>
 ): (a: unknown) => IResultOfT<unknown, unknown> {
@@ -108,4 +106,3 @@ export function composeK(
         }
     };
 }
-

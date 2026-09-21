@@ -1,25 +1,3 @@
-/**
- * @fileoverview Tests a value against a predicate and wraps it in a Result. Returns `Ok(value)` if the predicate passes, `Err(errorOnFalse)` otherwise.
- *
- * F# equivalent: custom `Result.fromPredicate`
- *
- * @example
- * ```ts
- * import { fromPredicate } from '@sandlada/result';
- *
- * // Direct form
- * const r1 = fromPredicate(n => n > 0, 'must be positive', 5);
- * // r1 = Ok(5)
- *
- * // Curried form
- * const isPositive = fromPredicate((n: number) => n > 0, 'must be positive');
- * const r2 = isPositive(5);
- * // r2 = Ok(5)
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from './err.js';
 import { ok } from './ok.js';
@@ -33,6 +11,25 @@ export function fromPredicate<T, E>(
     errorOnFalse: E,
     value: T,
 ): IResultOfT<T, E>;
+/**
+ * Tests a value against a predicate and wraps it in a Result. Returns `Ok(value)` if the predicate passes, `Err(errorOnFalse)` otherwise.
+ *
+ * F# equivalent: custom `Result.fromPredicate`
+ *
+ * @example
+ * ```ts
+ * import { fromPredicate } from '@sandlada/result/factories';
+ *
+ * // Direct form
+ * const r1 = fromPredicate((n: number) => n > 0, 'must be positive', 5);
+ * // r1 = Ok(5)
+ *
+ * // Curried form
+ * const isPositive = fromPredicate((n: number) => n > 0, 'must be positive');
+ * const r2 = isPositive(5);
+ * // r2 = Ok(5)
+ * ```
+ */
 export function fromPredicate<T, E>(
     predicate: (v: T) => boolean,
     errorOnFalse: E,

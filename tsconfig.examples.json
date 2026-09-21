@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "noEmit": true,
+        "skipLibCheck": true,
+        "lib": ["ESNext", "DOM"],
+        "types": [],
+        "paths": {
+            "@sandlada/result": ["./src/index.ts"],
+            "@sandlada/result/*": ["./src/*/index.ts"]
+        }
+    },
+    "include": [".examples/**/*.ts"]
+}

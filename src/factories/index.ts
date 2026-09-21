@@ -2,6 +2,8 @@
  * Core constructors — barrel export.
  *
  * Re-exports all factory/constructor functions for creating Result and Option values.
+ *
+ * @packageDocumentation
  */
 
 export { asyncErr } from './asyncErr.js';

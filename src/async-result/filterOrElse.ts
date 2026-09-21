@@ -2,8 +2,17 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 
+export function filterOrElse<T, E>(
+    predicate: (value: T) => boolean | Promise<boolean>,
+    errorFn: (value: T) => E | Promise<E>,
+): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
+export function filterOrElse<T, E>(
+    predicate: (value: T) => boolean | Promise<boolean>,
+    errorFn: (value: T) => E | Promise<E>,
+    ar: AsyncResult<T, E>,
+): AsyncResult<T, E>;
 /**
- * @fileoverview Filters the success value of an AsyncResult with a predicate.
+ * Filters the success value of an AsyncResult with a predicate.
  * If the predicate holds, the original success passes through. If it fails,
  * returns `err(errorFn(value))`. Failures pass through unchanged.
  * Lazy — returns a new AsyncResult without executing the inner computation.
@@ -14,23 +23,12 @@ import { err } from '../factories/err.js';
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result';
+ * import { ok } from '@sandlada/result/factories';
  * import { fromResult, filterOrElse } from '@sandlada/result/async-result';
  * const ar = filterOrElse((x: number) => x > 0, (x: number) => `neg: ${x}`, fromResult(ok(42)));
  * const result = await ar.run(); // Ok(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function filterOrElse<T, E>(
-    predicate: (value: T) => boolean | Promise<boolean>,
-    errorFn: (value: T) => E | Promise<E>,
-): (ar: AsyncResult<T, E>) => AsyncResult<T, E>;
-export function filterOrElse<T, E>(
-    predicate: (value: T) => boolean | Promise<boolean>,
-    errorFn: (value: T) => E | Promise<E>,
-    ar: AsyncResult<T, E>,
-): AsyncResult<T, E>;
 export function filterOrElse<T, E>(
     predicate: (value: T) => boolean | Promise<boolean>,
     errorFn: (value: T) => E | Promise<E>,

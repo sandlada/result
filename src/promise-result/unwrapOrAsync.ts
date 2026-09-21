@@ -1,5 +1,14 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
+export function unwrapOrAsync<A, D = A>(
+    defaultValue: D | Promise<D>,
+): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
+export function unwrapOrAsync<A, E, D = A>(
+    defaultValue: D | Promise<D>,
+    r: Promise<IResultOfT<A, E>>,
+): Promise<A | D>;
 /**
- * @fileoverview Extracts the success value from `Promise<IResultOfT>`, or returns
+ * Extracts the success value from `Promise<IResultOfT>`, or returns
  * a default on failure. The default value may itself be a `Promise<A>`; it is
  * awaited internally.
  *
@@ -13,24 +22,12 @@
  *
  * @example
  * ```ts
- * import { unwrapOrAsync, asyncOk, asyncErr } from '@sandlada/result';
+ * import { unwrapOrAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
  * await unwrapOrAsync(0, asyncOk(42));                       // 42
  * await unwrapOrAsync(0, asyncErr('boom'));                  // 0
  * await unwrapOrAsync(Promise.resolve(0), asyncErr('boom')); // 0
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
-export function unwrapOrAsync<A, D = A>(
-    defaultValue: D | Promise<D>,
-): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
-export function unwrapOrAsync<A, E, D = A>(
-    defaultValue: D | Promise<D>,
-    r: Promise<IResultOfT<A, E>>,
-): Promise<A | D>;
 export function unwrapOrAsync<A, E, D = A>(
     defaultValue: D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,

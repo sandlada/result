@@ -1,8 +1,19 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import { ctx, type PathSegment } from './ctx.js';
+
+export function withPath(segment: PathSegment): <T, E>(r: IResultOfT<T, E>) => IResultOfT<T, E>;
+
 /**
- * @fileoverview Tags a result with a path segment so downstream
- * {@link tapErrContext} callbacks (or other observers) can include the breadcrumb
- * trail. The returned result is structurally identical to its input — `withPath`
- * is **observability-only** and does not modify `r.value` or `r.error`.
+ * Direct form — push `segment` and return `r` unchanged.
+ */
+export function withPath<T, E>(segment: PathSegment, r: IResultOfT<T, E>): IResultOfT<T, E>;
+
+// Implementation signature — `unknown` opts out of strict overload-shape checks.
+/**
+ * Tags a result with a path segment so downstream {@link tapErrContext}
+ * callbacks (or other observers) can include the breadcrumb trail. The returned
+ * result is structurally identical to its input — `withPath` is
+ * **observability-only** and does not modify `r.value` or `r.error`.
  *
  * The segment is pushed onto the current frame as soon as `withPath(segment)` is
  * called; you do not need to invoke a returned curried function. Combine with
@@ -20,35 +31,17 @@
  *
  * @example
  * ```ts
- * import { withPath } from '@sandlada/result/observability';
- * import { pipe } from '@sandlada/result';
+ * import { ctx, withPath } from '@sandlada/result/observability';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { ok } from '@sandlada/result/factories';
  *
- * // Direct form
- * const r = withPath('fetchUser', getUser(id));
+ * // Direct form — push a segment and return the result unchanged.
+ * const direct = withPath('fetchUser', ok(42));
  *
- * // Curried form — slots directly into `pipe`
- * const r = pipe(getUser(id), withPath('fetchUser'), withPath(`id:${id}`));
+ * // Curried form — slots directly into `pipe`.
+ * const piped = ctx.run(() => pipe(ok(42), withPath('fetchUser'), withPath('id:42')));
  * ```
- *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-import { ctx, type PathSegment } from './ctx.js';
-
-/**
- * Push `segment` onto the current path frame and return a curried operator.
- * Use this form when you want `withPath(segment)` to slot into `pipe`
- * directly, mirroring `tap(segment)` / `map(segment)`.
- */
-export function withPath(segment: PathSegment): <T, E>(r: IResultOfT<T, E>) => IResultOfT<T, E>;
-
-/**
- * Direct form — push `segment` and return `r` unchanged.
- */
-export function withPath<T, E>(segment: PathSegment, r: IResultOfT<T, E>): IResultOfT<T, E>;
-
-// Implementation signature — `unknown` opts out of strict overload-shape checks.
 export function withPath(segment: PathSegment, r?: IResultOfT<unknown, unknown>): unknown {
     ctx.push(segment);
     if (r === undefined) {

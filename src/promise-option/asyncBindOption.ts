@@ -1,8 +1,15 @@
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
+export function asyncBindOption<T, U>(
+    fn: (value: T) => Promise<IOption<U>>,
+): (opt: IOption<T>) => Promise<IOption<U>>;
+export function asyncBindOption<T, U>(
+    fn: (value: T) => Promise<IOption<U>>,
+    opt: IOption<T>,
+): Promise<IOption<U>>;
 /**
- * @fileoverview Chains an async option-returning function over a **sync** `IOption`.
+ * Chains an async option-returning function over a **sync** `IOption`.
  * Bridges from the sync Option world to the async world — unlike `bind` in
  * `async-option/` which works on `AsyncOption`.
  *
@@ -13,20 +20,11 @@ import { ofNone } from '../option/ofNone.js';
  *
  * @example
  * ```ts
- * import { asyncBindOption, ofSome } from '@sandlada/result';
+ * import { asyncBindOption, ofSome } from '@sandlada/result/promise-option';
  * const r = await asyncBindOption(async (x: number) => ofSome(x * 2), ofSome(21));
  * // Some(42)
  * ```
-  *
- * @note Ready for Product
  */
-export function asyncBindOption<T, U>(
-    fn: (value: T) => Promise<IOption<U>>,
-): (opt: IOption<T>) => Promise<IOption<U>>;
-export function asyncBindOption<T, U>(
-    fn: (value: T) => Promise<IOption<U>>,
-    opt: IOption<T>,
-): Promise<IOption<U>>;
 export function asyncBindOption<T, U>(
     fn: (value: T) => Promise<IOption<U>>,
     opt?: IOption<T>,

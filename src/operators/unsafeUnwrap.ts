@@ -1,5 +1,7 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+
 /**
- * @fileoverview Throws on failure — returns the success value on success.
+ * Throws on failure — returns the success value on success.
  * Unlike `unwrap`, this function does **not** constrain the error type `E`.
  * The raw error object is thrown directly (not wrapped in a `TypeError`).
  *
@@ -8,16 +10,12 @@
  *
  * @example
  * ```ts
- * import { unsafeUnwrap, ok, err } from '@sandlada/result';
+ * import { unsafeUnwrap } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
  * unsafeUnwrap(ok(42)); // 42
  * unsafeUnwrap(err('boom')); // throws 'boom'
  * ```
-  *
- * @note Ready for Product
  */
-
-import type { IResultOfT } from '../types/IResultOfT.js';
-
 export function unsafeUnwrap<A, E>(r: IResultOfT<A, E>): A {
     if(!r.isSuccess) throw r.error;
     return r.value;

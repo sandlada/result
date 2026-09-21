@@ -1,24 +1,3 @@
-/**
- * @fileoverview Async variant of `catchErr` for `AsyncResult`.
- *
- * Recovers from an error by returning a fallback value `T` (or a Promise resolving to `T`),
- * keeping the result track alive as a successful `AsyncResult<T, never>`.
- *
- * **Throw policy**: failures inside `onErr` (sync throw or rejected Promise) are
- * captured into `Err(thrown)`, mirroring `orElse` / `filterOrElse`. A rejection of
- * the source `AsyncResult` itself still propagates.
- *
- * @example
- * ```ts
- * import { catchErr, fromResult } from '@sandlada/result/async-result';
- * import { err } from '@sandlada/result';
- * const r = await catchErr((e: string) => 0, fromResult(err('boom'))).run();
- * // Ok(0)
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
@@ -30,6 +9,24 @@ export function catchErr<A, E>(
     onErr: (e: E) => A | Promise<A>,
     ar: AsyncResult<A, E>,
 ): AsyncResult<A, never>;
+/**
+ * Async variant of `catchErr` for `AsyncResult`.
+ *
+ * Recovers from an error by returning a fallback value `T` (or a Promise resolving to `T`),
+ * keeping the result track alive as a successful `AsyncResult<T, never>`.
+ *
+ * **Throw policy**: failures inside `onErr` (sync throw or rejected Promise) are
+ * captured into `Err(thrown)`, mirroring `orElse` / `filterOrElse`. A rejection of
+ * the source `AsyncResult` itself still propagates.
+ *
+ * @example
+ * ```ts
+ * import { catchErr, fromResult } from '@sandlada/result/async-result';
+ * import { err } from '@sandlada/result/factories';
+ * const r = await catchErr((e: string) => 0, fromResult(err('boom'))).run();
+ * // Ok(0)
+ * ```
+ */
 export function catchErr<A, E>(
     onErr: (e: E) => A | Promise<A>,
     ar?: AsyncResult<A, E>,

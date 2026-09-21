@@ -1,18 +1,3 @@
-/**
- * @fileoverview Maps the success value of an async result, or computes a default from the error
- * on failure. Both callbacks may be sync or async. Equivalent to `mapAsync(fn).then(unwrapOrElseAsync(onErr))`
- * but more efficient.
- *
- * @example
- * ```ts
- * import { mapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result';
- * await mapOrElseAsync((e: string) => 0, (x: number) => x * 2, asyncOk(5)); // 10
- * await mapOrElseAsync((e: string) => -1, (x: number) => x * 2, asyncErr('boom')); // -1
- * ```
-  *
- * @note Ready for Product
- */
-
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function mapOrElseAsync<A, B, E>(
@@ -24,6 +9,18 @@ export function mapOrElseAsync<A, B, E>(
     fn: (a: A) => B | Promise<B>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<B>;
+/**
+ * Maps the success value of an async result, or computes a default from the error
+ * on failure. Both callbacks may be sync or async. Equivalent to `mapAsync(fn).then(unwrapOrElseAsync(onErr))`
+ * but more efficient.
+ *
+ * @example
+ * ```ts
+ * import { mapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * await mapOrElseAsync((e: string) => 0, (x: number) => x * 2, asyncOk(5)); // 10
+ * await mapOrElseAsync((e: string) => -1, (x: number) => x * 2, asyncErr('boom')); // -1
+ * ```
+ */
 export function mapOrElseAsync<A, B, E>(
     onErr: (e: E) => B | Promise<B>,
     fn: (a: A) => B | Promise<B>,

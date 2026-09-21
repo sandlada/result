@@ -6,13 +6,11 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  *
  * @example
  * ```ts
- * import { ofSome, ofNone } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone, unwrap } from '@sandlada/result/async-option';
  *
  * const v = await unwrap(ofSome(42)); // 42
  * await unwrap(ofNone()); // throws Error
  * ```
- *
- * @note Ready for Product
  */
 export function unwrap<T>(ao: AsyncOption<T>): Promise<T> {
     return ao.run().then(opt => {

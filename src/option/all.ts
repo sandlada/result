@@ -1,36 +1,3 @@
-/**
- * @fileoverview Combines a tuple/array of Options, preserving heterogeneous types.
- * Returns the first None or a Some of all values. Like `Promise.all` but for Option.
- *
- * Two overloads:
- * - Tuple overload (`readonly [IOption<unknown>, ...IOption<unknown>[]]`):
- *   preserves per-position types — `all([ofSome(1), ofSome('hi')])` yields
- *   `IOption<readonly [number, string]>`.
- * - Array overload (`readonly IOption<T>[]`): collapses every element to a single
- *   homogeneous type `T`, yielding `IOption<T[]>` — fits runtime-sized arrays that
- *   are not literal tuples.
- *
- * @example
- * ```ts
- * import { all } from '@sandlada/result/option';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- *
- * // Tuple — heterogeneous types preserved.
- * all([ofSome(1), ofSome('hi'), ofSome(true)]);
- * // Some([1, 'hi', true])
- *
- * // Array — runtime-sized homogeneous list.
- * const opts: IOption<number>[] = [ofSome(1), ofSome(2), ofSome(3)];
- * all(opts);
- * // Some([1, 2, 3])
- *
- * all([ofSome(1), ofNone(), ofSome(true)]);
- * // None
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IOption } from '../types/Option.js';
 import { ofSome } from './ofSome.js';
 import { ofNone } from './ofNone.js';
@@ -49,6 +16,36 @@ export function all<T>(options: readonly IOption<T>[]): IOption<T[]>;
 // Each branch is typed via the public overloads above; the cast through `unknown`
 // here makes the type honesty visible at the boundary instead of relying on a wide
 // return type that masks the tuple-vs-array disambiguation.
+/**
+ * Combines a tuple/array of Options, preserving heterogeneous types.
+ * Returns the first None or a Some of all values. Like `Promise.all` but for Option.
+ *
+ * Two overloads:
+ * - Tuple overload (`readonly [IOption<unknown>, ...IOption<unknown>[]]`):
+ *   preserves per-position types — `all([ofSome(1), ofSome('hi')])` yields
+ *   `IOption<readonly [number, string]>`.
+ * - Array overload (`readonly IOption<T>[]`): collapses every element to a single
+ *   homogeneous type `T`, yielding `IOption<T[]>` — fits runtime-sized arrays that
+ *   are not literal tuples.
+ *
+ * @example
+ * ```ts
+ * import { all, ofSome, ofNone } from '@sandlada/result/option';
+ * import type { IOption } from '@sandlada/result';
+ *
+ * // Tuple — heterogeneous types preserved.
+ * all([ofSome(1), ofSome('hi'), ofSome(true)]);
+ * // Some([1, 'hi', true])
+ *
+ * // Array — runtime-sized homogeneous list.
+ * const opts: IOption<number>[] = [ofSome(1), ofSome(2), ofSome(3)];
+ * all(opts);
+ * // Some([1, 2, 3])
+ *
+ * all([ofSome(1), ofNone(), ofSome(true)]);
+ * // None
+ * ```
+ */
 export function all(options: readonly IOption<unknown>[]): IOption<unknown> {
     const values: unknown[] = [];
     for (const opt of options) {

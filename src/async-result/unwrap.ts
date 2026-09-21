@@ -1,5 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
+export function unwrap<T, E>(ar: AsyncResult<T, E>): Promise<T>;
+export function unwrap<T, E>(
+    ar: AsyncResult<T, E>,
+    formatErr?: (error: E) => string,
+): Promise<T>;
+export function unwrap<T, E>(
+    ar: AsyncResult<T, E>,
+    formatErr: ((error: E) => string) | undefined,
+    throwingFn: (info: { message: string; value: E }) => Error,
+): Promise<T>;
 /**
  * Extracts the success value from an `AsyncResult`, or throws on failure.
  * Use sparingly — prefer `unwrapOr`, `unwrapOrElse`, or `match` in most code.
@@ -12,25 +22,13 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * @example
  * ```ts
  * import { fromResult } from '@sandlada/result/async-result';
- * import { ok, err } from '@sandlada/result';
+ * import { ok, err } from '@sandlada/result/factories';
  * import { unwrap } from '@sandlada/result/async-result';
  *
  * await unwrap(fromResult(ok(42)));    // 42
  * await unwrap(fromResult(err('boom'))); // throws Error with `cause: 'boom'`
  * ```
- *
- * @note Ready for Product
  */
-export function unwrap<T, E>(ar: AsyncResult<T, E>): Promise<T>;
-export function unwrap<T, E>(
-    ar: AsyncResult<T, E>,
-    formatErr?: (error: E) => string,
-): Promise<T>;
-export function unwrap<T, E>(
-    ar: AsyncResult<T, E>,
-    formatErr: ((error: E) => string) | undefined,
-    throwingFn: (info: { message: string; value: E }) => Error,
-): Promise<T>;
 export function unwrap<T, E>(
     ar: AsyncResult<T, E>,
     formatErr?: (error: E) => string,

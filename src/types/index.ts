@@ -4,6 +4,8 @@
  * Re-exports all discriminated union type interfaces. Its only runtime export
  * is an empty default object, which keeps this entry and its sourcemap
  * materialized.
+ *
+ * @packageDocumentation
  */
 
 export type { IResult, IResultSuccess, IResultFailure } from './IResult.js';

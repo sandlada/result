@@ -1,28 +1,3 @@
-/**
- * @fileoverview Promise.any-style combination: succeeds with **all** collected successes
- * (in completion order), or fails with every collected error (in completion order).
- *
- * - If at least one thunk resolves with `Ok`, the final result is `Ok([...all-successes])`.
- * - If every thunk resolves with `Err`, the final result is `Err([...all-errors])`.
- *
- * `any` is **lazy** and does **not** short-circuit — all thunks are guaranteed to run.
- *
- * **Order**: `successes` and `errors` are populated in the order their underlying
- * runs settle (microtask scheduling), not input order. Use `allSettled` if input
- * order matters.
- *
- * @example
- * ```ts
- * import { any } from '@sandlada/result/reliability';
- * import { fromResult } from '@sandlada/result/async-result';
- *
- * const ar = any([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
- * const r = await ar.run(); // Ok([1, 2]) — partial success collected.
- * ```
- *
- * @note Ready for Product
- */
-
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
@@ -39,8 +14,27 @@ export type AnyError<E> =
     | { readonly kind: 'Rejected'; readonly error: unknown };
 
 /**
- * AsyncResult analogue of `Promise.any`. Collects outcomes from every thunk; success
- * if any succeeded, failure (with all collected errors) if every thunk failed.
+ * Promise.any-style combination: succeeds with **all** collected successes
+ * (in completion order), or fails with every collected error (in completion order).
+ *
+ * - If at least one thunk resolves with `Ok`, the final result is `Ok([...all-successes])`.
+ * - If every thunk resolves with `Err`, the final result is `Err([...all-errors])`.
+ *
+ * `any` is **lazy** and does **not** short-circuit — all thunks are guaranteed to run.
+ *
+ * **Order**: `successes` and `errors` are populated in the order their underlying
+ * runs settle (microtask scheduling), not input order. Use `allSettled` if input
+ * order matters.
+ *
+ * @example
+ * ```ts
+ * import { any } from '@sandlada/result/reliability';
+ * import { fromResult } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const ar = any([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
+ * const r = await ar.run(); // Ok([1, 2]) — partial success collected.
+ * ```
  */
 export function any<T, E>(
     results: readonly AsyncResult<T, E>[],

@@ -2,6 +2,8 @@
  * Combine utilities — barrel export.
  *
  * Re-exports result aggregation utilities for combining multiple Result values.
+ *
+ * @packageDocumentation
  */
 
 export { combine } from './combine.js';

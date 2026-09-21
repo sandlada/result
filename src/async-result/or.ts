@@ -7,15 +7,12 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { fromResult } from './fromResult.js';
- * import { ok, err } from '../factories/index.js';
- * import { or } from './or.js';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, or } from '@sandlada/result/async-result';
  *
  * const r1 = await or(fromResult(ok(1)), fromResult(ok(2))).run(); // Ok(1)
  * const r2 = await or(fromResult(err<string>('a')), fromResult(ok(2))).run(); // Ok(2)
  * ```
- *
- * @note Ready for Product
  */
 export function or<T, E, F>(
     res1: AsyncResult<T, E>,

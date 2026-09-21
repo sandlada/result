@@ -1,7 +1,14 @@
 import type { IOption } from '../types/Option.js';
 
+export function existsAsyncOption<T>(
+    predicate: (a: T) => boolean | Promise<boolean>,
+): (r: Promise<IOption<T>>) => Promise<boolean>;
+export function existsAsyncOption<T>(
+    predicate: (a: T) => boolean | Promise<boolean>,
+    r: Promise<IOption<T>>,
+): Promise<boolean>;
 /**
- * @fileoverview Returns true if the `Promise<IOption>` is Some and the predicate holds.
+ * Returns true if the `Promise<IOption>` is Some and the predicate holds.
  * Returns false on None or when the predicate does not hold.
  *
  * **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -10,20 +17,11 @@ import type { IOption } from '../types/Option.js';
  *
  * @example
  * ```ts
- * import { existsAsyncOption, ofSome } from '@sandlada/result';
+ * import { existsAsyncOption, ofSome } from '@sandlada/result/promise-option';
  * const r = await existsAsyncOption(async (x: number) => x > 10, Promise.resolve(ofSome(42)));
  * // true
  * ```
-  *
- * @note Ready for Product
  */
-export function existsAsyncOption<T>(
-    predicate: (a: T) => boolean | Promise<boolean>,
-): (r: Promise<IOption<T>>) => Promise<boolean>;
-export function existsAsyncOption<T>(
-    predicate: (a: T) => boolean | Promise<boolean>,
-    r: Promise<IOption<T>>,
-): Promise<boolean>;
 export function existsAsyncOption<T>(
     predicate: (a: T) => boolean | Promise<boolean>,
     r?: Promise<IOption<T>>,

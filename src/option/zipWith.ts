@@ -1,42 +1,3 @@
-/**
- * @fileoverview Combines N Options (N ≥ 2) with a function. If all are Some,
- * returns `Some(fn(a, b, ...))`. If any is None, returns None. If the callback
- * throws, returns None.
- *
- * The arity of `fn` fixes the number of Options accepted — variadic via tuple
- * inference. The catch-all mapped-type variadic handles every arity ≥ 2 in a
- * single pair of overloads.
- *
- * **Design note (type safety):** This file intentionally does NOT declare
- * per-arity overloads like `zipWith<A, B, R>(fn: (a, b) => R): ...`. TypeScript's
- * function-type bivariance would let a 2-argument `fn` match a 3-argument
- * overload (with the third parameter silently ignored), and a 0-argument `fn`
- * match a 2-argument curried form. The single variadic below avoids both holes:
- * `T` is inferred from `fn`'s actual parameter list, and the constraint
- * `readonly [unknown, unknown, ...unknown[]]` requires ≥ 2 elements.
- *
- * @example
- * ```ts
- * import { zipWith, ofSome, ofNone } from '@sandlada/result/option';
- *
- * // Arity 2
- * zipWith((a: number, b: string) => `${a}-${b}`)(ofSome(1), ofSome('a'));
- * // Some('1-a')
- *
- * // Arity 5
- * zipWith(
- *     (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
- * )(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5));
- * // Some(15)
- *
- * // Any None short-circuits to None.
- * zipWith((a: number, b: number) => a + b)(ofSome(1), ofNone() as IOption<number>);
- * // None
- * ```
- *
- * @note Ready for Product
- */
-
 import type { IOption, IOptionSome } from '../types/Option.js';
 import { ofNone } from './ofNone.js';
 import { ofSome } from './ofSome.js';
@@ -76,6 +37,43 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
 // same tuple information. This is internal — type honesty lives at the
 // public overloads above.
 
+/**
+ * Combines N Options (N ≥ 2) with a function. If all are Some,
+ * returns `Some(fn(a, b, ...))`. If any is None, returns None. If the callback
+ * throws, returns None.
+ *
+ * The arity of `fn` fixes the number of Options accepted — variadic via tuple
+ * inference. The catch-all mapped-type variadic handles every arity ≥ 2 in a
+ * single pair of overloads.
+ *
+ * **Design note (type safety):** This file intentionally does NOT declare
+ * per-arity overloads like `zipWith<A, B, R>(fn: (a, b) => R): ...`. TypeScript's
+ * function-type bivariance would let a 2-argument `fn` match a 3-argument
+ * overload (with the third parameter silently ignored), and a 0-argument `fn`
+ * match a 2-argument curried form. The single variadic below avoids both holes:
+ * `T` is inferred from `fn`'s actual parameter list, and the constraint
+ * `readonly [unknown, unknown, ...unknown[]]` requires ≥ 2 elements.
+ *
+ * @example
+ * ```ts
+ * import { zipWith, ofSome, ofNone } from '@sandlada/result/option';
+ * import type { IOption } from '@sandlada/result';
+ *
+ * // Arity 2
+ * zipWith((a: number, b: string) => `${a}-${b}`)(ofSome(1), ofSome('a'));
+ * // Some('1-a')
+ *
+ * // Arity 5
+ * zipWith(
+ *     (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
+ * )(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5));
+ * // Some(15)
+ *
+ * // Any None short-circuits to None.
+ * zipWith((a: number, b: number) => a + b)(ofSome(1), ofNone() as IOption<number>);
+ * // None
+ * ```
+ */
 export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
     fn: (...args: T) => R,
     ...options: { [K in keyof T]: IOption<T[K]> }

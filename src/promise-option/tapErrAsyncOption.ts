@@ -1,27 +1,3 @@
-/**
- * @fileoverview Side-effect on the error track of `Promise<IOption<T>>`.
- *
- * Two callbacks: `fn` runs on the Some branch (with the inner value), `fnNone`
- * runs on the None branch. Splitting the callbacks eliminates the
- * `(value: T | undefined)` lie — on None there is genuinely no value, so the
- * callback can't pretend to receive one.
- *
- * **Throw policy**: a synchronous throw from either callback converts to
- * `None`; a rejected Promise propagates as an outer rejection
- * (promotion-family rule).
- *
- * @example
- * ```ts
- * import { tapErrAsyncOption, asyncSome, asyncNone } from '@sandlada/result';
- * await tapErrAsyncOption(
- *     (v: number) => console.log('value:', v),
- *     () => console.warn('absent'),
- *     asyncNone<number>(),
- * );
- * ```
- *
- * @note Ready for Product
- */
 import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
@@ -52,6 +28,30 @@ export function tapErrAsyncOption<T>(
     r: Promise<IOption<T>>,
     fnNone?: () => void | Promise<void>,
 ): Promise<IOption<T>>;
+/**
+ * Side-effect on the error track of `Promise<IOption<T>>`.
+ *
+ * Two callbacks: `fn` runs on the Some branch (with the inner value), `fnNone`
+ * runs on the None branch. Splitting the callbacks eliminates the
+ * `(value: T | undefined)` lie — on None there is genuinely no value, so the
+ * callback can't pretend to receive one.
+ *
+ * **Throw policy**: a synchronous throw from either callback converts to
+ * `None`; a rejected Promise propagates as an outer rejection
+ * (promotion-family rule).
+ *
+ * @example
+ * ```ts
+ * import { tapErrAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofNone } from '@sandlada/result/option';
+ *
+ * await tapErrAsyncOption(
+ *     (v: number) => console.log('value:', v),
+ *     Promise.resolve(ofNone<number>()),
+ *     () => console.warn('absent'),
+ * );
+ * ```
+ */
 export function tapErrAsyncOption<T>(
     fn: (value: T) => void | Promise<void>,
     rOrFnNone?: Promise<IOption<T>> | (() => void | Promise<void>),

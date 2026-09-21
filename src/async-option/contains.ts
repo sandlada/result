@@ -1,10 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 
-/**
- * Returns a Promise<boolean> indicating if the AsyncOption is Some and contains the given value.
-  *
- * @note Ready for Product
- */
 export function contains<T>(
     value: T,
 ): (ao: AsyncOption<T>) => Promise<boolean>;
@@ -12,6 +7,9 @@ export function contains<T>(
     value: T,
     ao: AsyncOption<T>,
 ): Promise<boolean>;
+/**
+ * Returns a Promise<boolean> indicating if the AsyncOption is Some and contains the given value.
+ */
 export function contains<T>(
     value: T,
     ao?: AsyncOption<T>,
