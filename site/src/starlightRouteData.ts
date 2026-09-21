@@ -23,7 +23,7 @@ import {
     packageName,
     repositoryUrl,
     siteDescription,
-} from '../seo-metadata.mjs';
+} from '../lib/site.mjs';
 
 type Head = StarlightRouteData['head'];
 type HeadEntry = Head[number];

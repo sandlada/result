@@ -27,16 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type-check documentation examples
-        run: npm run check:snippets
-
-      - name: Type-check the documentation site
-        run: npm run check
-        timeout-minutes: 10
-
-      - name: Build (includes link validation)
-        run: npm run build
-        timeout-minutes: 10
+      - name: Verify the documentation site
+        run: npm run verify
+        timeout-minutes: 15
 
       - name: Verify the build left the working tree clean
         working-directory: .

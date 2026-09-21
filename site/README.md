@@ -9,18 +9,57 @@ themselves to `../src`, so nothing here can leak into the published package.
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Start the dev server. Copies the narrative pages first. |
-| `npm run build` | Build to `dist/`. Runs the narrative copy, TypeDoc generation, link validation and `verify:seo`. |
+| `npm run dev` | Start the dev server. The narrative pages sync through the Astro lifecycle. |
+| `npm run build` | Build to `dist/`. Runs the narrative sync, TypeDoc generation, link validation and `verify:seo`. |
 | `npm run check` | `astro check` — type-checks `.astro` files and page frontmatter. |
 | `npm run check:snippets` | Type-checks the examples in `src/snippets/` against `../src`. Requires no library build. |
-| `npm run verify:seo` | Checks the built pages for the search-metadata invariants (titles, descriptions, canonicals, JSON-LD, indexability, sitemap). |
+| `npm run verify` | Full local verification: `check:snippets`, then `check`, then `build`. |
+| `npm run verify:seo` | Checks the built pages for the search-metadata invariants (titles, descriptions, canonicals, JSON-LD, indexability, sitemap). Also runs as part of `npm run build`; can re-check an existing `dist/` on its own. |
+| `npm run sync` | Copies the narrative pages into the content tree. Rarely needed directly — every Astro entry point (`dev`/`build`/`check`/`sync`) runs it automatically. Accepts `--force` to adopt hand-written files. |
 | `npm run generate:icons` | Renders `public/og.png` and `public/apple-touch-icon.png` from their SVG sources. Only needed after editing those sources. |
 | `npm run version:new -- <slug> [label]` | Archives the current documentation as a new version. |
 
+### Call order
+
+Scripts form a chain — run them in this order, or let the aggregate commands do it:
+
+```text
+npm run verify
+ └─ 1. check:snippets   (fastest: type-checks src/snippets/ against ../src)
+ └─ 2. check            (astro check: .astro files and page frontmatter)
+ └─ 3. build
+      └─ 3a. astro build     (content sync → TypeDoc → link validation → static pages)
+      └─ 3b. verify:seo      (checks dist/ metadata invariants)
+```
+
+Notes:
+
+- `check:snippets` runs first because it is the fastest gate; `build` runs last
+  because it is the slowest and depends on everything else being clean.
+- `verify:seo` needs no separate invocation inside `build`, but it can re-check an
+  existing `dist/` on its own without rebuilding.
+- `dev` needs no preparation: the content sync runs inside the Astro lifecycle.
+  `preview` serves an existing `dist/`, so it follows `build`.
+- `sync` is automatic; run it manually only to refresh content while the dev
+  server is already running.
+- `generate:icons` is independent of the chain — run it only after editing
+  `assets/og.svg` or `public/favicon.svg`.
+- `version:new` runs a full `build` internally, so run `npm run verify` first and
+  keep the working tree clean before archiving.
+
 ## How the content is produced
 
-- **API reference** — `starlight-typedoc` runs TypeDoc over the entry points listed in
-  `astro.config.mjs`, one per published subpath export, and writes `src/content/docs/api/`.
+`lib/site.mjs` is the single source of truth for shared site data: the site
+constants, the published module registry (in the same order as the module map in
+the repository's `AGENTS.md`), the TypeDoc `entryPoints` derived from it, the
+curated `apiPages` search metadata, and the repository paths. The sidebar, the
+content sync, the API metadata plugin and the SEO verification all read from it,
+so adding a subpath means adding one registry entry. The sync additionally
+checks the registry against the `exports` map of the root `package.json` and
+fails when the two disagree.
+
+- **API reference** — `starlight-typedoc` runs TypeDoc over the entry points from
+  `lib/site.mjs`, one per published subpath export, and writes `src/content/docs/api/`.
   That directory is generated, so it is gitignored. `entryFileName` is `index` so that `/api/`
   lists every module.
 
@@ -31,28 +70,38 @@ themselves to `../src`, so nothing here can leak into the published package.
   the module labels end up as groups with no links. The sidebar group is built from the same
   `entryPoints` list instead, one link per module, which keeps it in step with generation and
   lets the link validator check every entry.
-- **Behavior modes** — `scripts/sync-narrative.mjs` copies `../docs/behavior-modes.md` into
-  `src/content/docs/behavior-modes.md` before every dev/build run. The repository file stays the
-  single source of truth; the copy is gitignored and rewritten, so it cannot drift. Links that
-  point at repository files are rewritten to GitHub URLs.
+- **Behavior modes** — the `sync-content` Starlight plugin (first in the
+  `plugins` array of `astro.config.mjs`) copies `../docs/behavior-modes.md` into
+  `src/content/docs/behavior-modes.md` during `config:setup`, so every Astro
+  entry point (`dev`/`build`/`check`/`sync`) sees fresh content with no explicit
+  step. The repository file stays the single source of truth; the copy is
+  gitignored and rewritten, so it cannot drift. Links that point at repository
+  files are rewritten to GitHub URLs, except inside fenced code blocks.
 - **Module specs** — the same sync copies every `../src/<module>/README.md` into
-  `src/content/docs/specs/<module>.md`. The module list and the per-page search descriptions live
-  in `modules.mjs`, shared with the sidebar so the two cannot drift; a module without a
-  description fails the sync. Repository links are resolved against the source file: sibling specs
-  and `behavior-modes` stay internal, everything else points at GitHub.
-- **Hand-written pages** — `src/content/docs/*.md` are edited directly.
+  `src/content/docs/specs/<module>.md`. The module list and the per-page search
+  descriptions come from the registry in `lib/site.mjs`, shared with the sidebar
+  so the two cannot drift; a module without a description fails the sync.
+  Repository links are resolved against the source file: sibling specs and
+  `behavior-modes` stay internal, everything else points at GitHub. The
+  implementation lives in `lib/sync-content.mjs` (import-safe, also runnable via
+  `npm run sync`); generated pages carry a marker, unchanged files are left
+  untouched, and stale pages owned by the sync are pruned.
+- **Hand-written pages** — `src/content/docs/*.md` are edited directly. A synced
+  target that exists without the generated marker is never overwritten (the sync
+  fails instead) unless `npm run sync -- --force` is passed.
 - **API search metadata** — `plugins/seo-api-pages.mjs` runs after `starlight-typedoc` in the
   Starlight `plugins` array and replaces the `title` and `description` frontmatter of every
-  generated API page with the curated values from `seo-metadata.mjs`. The generated pages only
+  generated API page with the curated values from `lib/site.mjs`. The generated pages only
   carry the bare module name and no description, so without this step every API page would fall
   back to the site-wide description. A generated page that is missing from the registry fails the
-  build; a registry entry that no longer matches a generated page fails `verify:seo`.
+  build; a registry entry that no longer matches a generated page fails `verify:seo`. Frontmatter
+  parsing is shared with the sync through `lib/frontmatter.mjs`.
 
 `sanitizeComments` is enabled for TypeDoc because JSDoc prose such as `Promise<boolean>` is not
 valid MDX, and `starlight-versions` parses every page with `remark-mdx` when it archives a version.
 
 TypeDoc pins each "Defined in" reference to the commit it was built from. GitHub can only serve a
-commit once it reaches the remote, so `astro.config.mjs` falls back to the default branch while the
+commit once it reaches the remote, so `lib/source-revision.mjs` falls back to the default branch while the
 current commit is still local. An already pushed revision is used verbatim, which is what makes an
 archived version point at the code it shipped with.
 
@@ -77,7 +126,9 @@ git add src/content/docs/0.20260811 src/content/versions src/versions.json
 ```
 
 The script refuses to run when the slug is already configured or its directory already exists, and
-it verifies afterwards that an API reference was archived. Archiving is performed by
+it verifies afterwards that an API reference was archived. A build or verification failure
+restores `versions.json` and removes the archive directories created along the way, leaving the
+working tree as it was found. Archiving is performed by
 `starlight-versions` during the build, which is why the script always builds.
 
 Unlike the current version, an archive keeps its own copy of `src/content/docs/api/`. The API
@@ -103,8 +154,9 @@ Every page needs metadata that page frontmatter cannot provide, so it is split a
   archived versions and the 404 page, `index, follow, max-image-preview:large` everywhere else —
   switches the home page to `og:type: website`, and injects the JSON-LD blocks (`WebSite` and
   `SoftwareSourceCode` on the home page, `TechArticle` plus `BreadcrumbList` elsewhere).
-- **`seo-metadata.mjs`** holds the curated titles and descriptions of the generated API pages;
-  see "How the content is produced".
+- **`lib/site.mjs`** holds the site constants, the module registry, the derived
+  TypeDoc entry points and the curated titles and descriptions of the generated
+  API pages; see "How the content is produced".
 
 `public/robots.txt` points crawlers at `sitemap-index.xml`. `scripts/verify-seo.mjs` runs as part
 of `npm run build` and fails when a page loses its title, description, canonical, social image,

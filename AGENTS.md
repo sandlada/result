@@ -51,9 +51,10 @@ npm run bench:json    # bench -> bench/results.json
 
 # Documentation site (separate package in site/)
 npm --prefix site run dev             # Astro dev server
-npm --prefix site run build           # build to site/dist/ (TypeDoc + link validation + verify:seo)
+npm --prefix site run build           # build to site/dist/ (content sync + TypeDoc + link validation + verify:seo)
 npm --prefix site run check           # astro check for the site
 npm --prefix site run check:snippets  # type-check documented examples against src/
+npm --prefix site run verify          # check:snippets + check + build
 npm --prefix site run verify:seo      # re-check SEO invariants of an existing site/dist/
 npm --prefix site run version:new -- <slug>  # archive a documentation version
 ```
@@ -217,14 +218,14 @@ scripts/                — Build pipeline helpers run by npm scripts
 
 ```text
 site/                   — Astro Starlight documentation site (separate package, not published)
-  seo-metadata.mjs      — Curated titles/descriptions of the generated API pages
+  lib/                  — Shared site data (module registry in site.mjs), content sync, frontmatter and file helpers
   assets/               — SVG sources of the committed social/icon PNGs
   public/               — robots.txt, favicon, apple touch icon, og:image
-  plugins/              — Starlight plugins run at config time (API page metadata)
+  plugins/              — Starlight plugins run at config time (content sync, API page metadata)
   src/content/docs/     — Hand-written pages, generated API reference, archived versions
   src/snippets/         — Type-checked mirrors of documented examples
   src/starlightRouteData.ts — Route middleware: robots policy, og:type, JSON-LD
-  scripts/              — Narrative document sync, SEO verification, icon rendering, version archive helpers
+  scripts/              — Thin CLI shells (content sync, SEO verification, icon rendering, version archive)
 ```
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files. Every module directory also carries a `README.md` — its spec and API index (see the module map above).

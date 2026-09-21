@@ -6,13 +6,15 @@
 // covered without touching this file.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { apiPages, siteDescription, siteUrl } from '../seo-metadata.mjs';
+import { readJsonFile } from '../lib/io.mjs';
+import { apiPages, distDirectory, siteDescription, siteUrl, versionsFile } from '../lib/site.mjs';
 
-const distDirectory = fileURLToPath(new URL('../dist', import.meta.url));
-const versions = JSON.parse(
-    readFileSync(fileURLToPath(new URL('../versions.json', import.meta.url)), 'utf8'),
-).versions;
+if (!existsSync(distDirectory)) {
+    console.error('verify:seo: dist/ does not exist. Run `npm run build` first.');
+    process.exit(1);
+}
+
+const versions = readJsonFile(versionsFile).versions;
 
 const skippedDirectories = new Set(['_astro', 'pagefind']);
 const fallbackDescription = siteDescription;

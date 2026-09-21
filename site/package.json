@@ -4,16 +4,14 @@
     "type": "module",
     "description": "Documentation site for @sandlada/result, built with Astro Starlight.",
     "scripts": {
-        "sync": "node scripts/sync-narrative.mjs",
-        "predev": "npm run sync",
+        "sync": "node scripts/sync-content.mjs",
         "dev": "astro dev",
-        "prebuild": "npm run sync",
         "build": "astro build && npm run verify:seo",
         "preview": "astro preview",
-        "precheck": "npm run sync",
         "check": "astro check",
         "check:snippets": "tsc --project tsconfig.snippets.json",
         "verify:seo": "node scripts/verify-seo.mjs",
+        "verify": "npm run check:snippets && npm run check && npm run build",
         "generate:icons": "node scripts/generate-icons.mjs",
         "version:new": "node scripts/new-version.mjs"
     },
