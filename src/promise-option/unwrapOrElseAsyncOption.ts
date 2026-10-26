@@ -1,10 +1,10 @@
 import type { IOption } from '../types/Option.js';
 
 
-export function unwrapOrElseAsyncOption<T, D = T>(
+export function unwrapOrElseAsyncOption<T = unknown, D = T>(
     onNone: () => D | Promise<D>,
-): (r: Promise<IOption<T>>) => Promise<T | D>;
-export function unwrapOrElseAsyncOption<T, D>(
+): <T2 extends T>(r: Promise<IOption<T2>>) => Promise<T2 | D>;
+export function unwrapOrElseAsyncOption<T, D = T>(
     onNone: () => D | Promise<D>,
     r: Promise<IOption<T>>,
 ): Promise<T | D>;
@@ -28,6 +28,6 @@ export function unwrapOrElseAsyncOption<T, D = T>(
     onNone: () => D | Promise<D>,
     r?: Promise<IOption<T>>,
 ): Promise<T | D> | ((r: Promise<IOption<T>>) => Promise<T | D>) {
-    if (r === undefined) return (r: Promise<IOption<T>>) => unwrapOrElseAsyncOption<T, D>(onNone, r);
+    if (r === undefined) return <T2>(r: Promise<IOption<T2>>): Promise<T2 | D> => unwrapOrElseAsyncOption<T2, D>(onNone, r);
     return r.then(async (inner): Promise<T | D> => inner.isSome ? inner.value : await onNone());
 }

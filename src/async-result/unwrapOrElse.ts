@@ -1,8 +1,8 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 
-export function unwrapOrElse<T, E, U>(
+export function unwrapOrElse<T = unknown, E = unknown, U = unknown>(
     onErr: (error: E) => U | Promise<U>,
-): (ar: AsyncResult<T, E>) => Promise<T | U>;
+): <T2 extends T>(ar: AsyncResult<T2, E>) => Promise<T2 | U>;
 export function unwrapOrElse<T, E, U>(
     onErr: (error: E) => U | Promise<U>,
     ar: AsyncResult<T, E>,
@@ -25,7 +25,7 @@ export function unwrapOrElse<T, E, U>(
 export function unwrapOrElse<T, E, U>(
     onErr: (error: E) => U | Promise<U>,
     ar?: AsyncResult<T, E>,
-): Promise<T | U> | ((ar: AsyncResult<T, E>) => Promise<T | U>) {
-    if (ar === undefined) return (ar: AsyncResult<T, E>) => unwrapOrElse(onErr, ar);
+): Promise<T | U> | (<T2 extends T>(ar: AsyncResult<T2, E>) => Promise<T2 | U>) {
+    if (ar === undefined) return <T2 extends T>(ar: AsyncResult<T2, E>): Promise<T2 | U> => unwrapOrElse<T2, E, U>(onErr, ar);
     return ar.run().then(async r => r.isSuccess ? r.value : await onErr(r.error));
 }

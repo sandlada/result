@@ -1,9 +1,9 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function unwrapOrElseAsync<A, E, D = A>(
+export function unwrapOrElseAsync<A = unknown, E = unknown, D = A>(
     onErr: (e: E) => D | Promise<D>,
-): (r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
-export function unwrapOrElseAsync<A, E, D>(
+): <A2 extends A>(r: Promise<IResultOfT<A2, E>>) => Promise<A2 | D>;
+export function unwrapOrElseAsync<A, E, D = A>(
     onErr: (e: E) => D | Promise<D>,
     r: Promise<IResultOfT<A, E>>,
 ): Promise<A | D>;
@@ -29,6 +29,6 @@ export function unwrapOrElseAsync<A, E, D = A>(
     onErr: (e: E) => D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,
 ): Promise<A | D> | ((r: Promise<IResultOfT<A, E>>) => Promise<A | D>) {
-    if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrElseAsync<A, E, D>(onErr, r);
+    if (r === undefined) return <A2>(r: Promise<IResultOfT<A2, E>>): Promise<A2 | D> => unwrapOrElseAsync<A2, E, D>(onErr, r);
     return r.then(async (inner): Promise<A | D> => inner.isSuccess ? inner.value : await onErr(inner.error));
 }

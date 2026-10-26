@@ -1,8 +1,8 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function unwrapOrAsync<A, D = A>(
+export function unwrapOrAsync<A = unknown, D = A>(
     defaultValue: D | Promise<D>,
-): <E>(r: Promise<IResultOfT<A, E>>) => Promise<A | D>;
+): <A2 extends A, E>(r: Promise<IResultOfT<A2, E>>) => Promise<A2 | D>;
 export function unwrapOrAsync<A, E, D = A>(
     defaultValue: D | Promise<D>,
     r: Promise<IResultOfT<A, E>>,
@@ -32,6 +32,6 @@ export function unwrapOrAsync<A, E, D = A>(
     defaultValue: D | Promise<D>,
     r?: Promise<IResultOfT<A, E>>,
 ): Promise<A | D> | ((r: Promise<IResultOfT<A, E>>) => Promise<A | D>) {
-    if (r === undefined) return (r: Promise<IResultOfT<A, E>>) => unwrapOrAsync<A, E, D>(defaultValue, r);
+    if (r === undefined) return <A2, E2>(r: Promise<IResultOfT<A2, E2>>): Promise<A2 | D> => unwrapOrAsync<A2, E2, D>(defaultValue, r);
     return r.then(async (inner): Promise<A | D> => inner.isSuccess ? inner.value : await defaultValue);
 }

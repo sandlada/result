@@ -1,9 +1,9 @@
 import type { IOption } from '../types/Option.js';
 
-export function unwrapOrAsyncOption<T, D = T>(
+export function unwrapOrAsyncOption<T = unknown, D = T>(
     defaultValue: D | Promise<D>,
-): (r: Promise<IOption<T>>) => Promise<T | D>;
-export function unwrapOrAsyncOption<T, D>(
+): <T2 extends T>(r: Promise<IOption<T2>>) => Promise<T2 | D>;
+export function unwrapOrAsyncOption<T, D = T>(
     defaultValue: D | Promise<D>,
     r: Promise<IOption<T>>,
 ): Promise<T | D>;
@@ -27,6 +27,6 @@ export function unwrapOrAsyncOption<T, D = T>(
     defaultValue: D | Promise<D>,
     r?: Promise<IOption<T>>,
 ): Promise<T | D> | ((r: Promise<IOption<T>>) => Promise<T | D>) {
-    if (r === undefined) return (r: Promise<IOption<T>>) => unwrapOrAsyncOption<T, D>(defaultValue, r);
+    if (r === undefined) return <T2>(r: Promise<IOption<T2>>): Promise<T2 | D> => unwrapOrAsyncOption<T2, D>(defaultValue, r);
     return r.then(async (inner): Promise<T | D> => inner.isSome ? inner.value : await defaultValue);
 }
