@@ -39,7 +39,9 @@ export type AnyError<E> =
 export function any<T, E>(
     results: readonly AsyncResult<T, E>[],
 ): AsyncResult<T[], AnyError<E>[]> {
-    const runs = results.map((ar) => ar.run);
+    // Invoke `run` through the carrier so a method-shorthand AsyncResult keeps
+    // its receiver — detaching `ar.run` would drop `this`.
+    const runs = results.map((ar) => () => ar.run());
     return {
         run: async (): Promise<IResultOfT<T[], AnyError<E>[]>> => {
             if (runs.length === 0) {

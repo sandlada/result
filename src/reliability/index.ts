@@ -11,5 +11,5 @@ export { retryLazy } from './retryLazy.js';
 export { timeout, type TimeoutError } from './timeout.js';
 export { timeoutEager } from './timeoutEager.js';
 export { race, type EmptyInputsError } from './race.js';
-export { any } from './any.js';
+export { any, type AnyError } from './any.js';
 export { allSettled, type Settled } from './allSettled.js';

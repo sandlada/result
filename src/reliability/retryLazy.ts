@@ -34,7 +34,9 @@ export function retryLazy<T, E, TE = ThrownError, AE = AbortedError>(
     ar: AsyncResult<T, E>,
     options: RetryOptions<E, TE, AE> = {},
 ): AsyncResult<T, E | TE | AE> {
-    const arRun = ar.run;
+    // Keep the carrier so `run` is invoked with the carrier as `this` — a
+    // method-shorthand AsyncResult would otherwise lose its receiver.
+    const arRun = (): Promise<IResultOfT<T, E>> => ar.run();
     return {
         run: (): Promise<IResultOfT<T, E | TE | AE>> => retry(arRun, options),
     };

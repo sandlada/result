@@ -44,7 +44,9 @@ export function timeout<T, E, TOE = TimeoutError>(
     ar: AsyncResult<T, E>,
     onTimeout: (ms: number) => TOE = defaultOnTimeout as (ms: number) => TOE,
 ): AsyncResult<T, E | TOE> {
-    const arRun = ar.run;
+    // Keep the carrier so `run` is invoked with the carrier as `this` — a
+    // method-shorthand AsyncResult would otherwise lose its receiver.
+    const arRun = (): Promise<IResultOfT<T, E>> => ar.run();
     return {
         run: (): Promise<IResultOfT<T, E | TOE>> => new Promise<IResultOfT<T, E | TOE>>((resolve) => {
             let settled = false;

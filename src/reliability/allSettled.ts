@@ -5,11 +5,12 @@ import { ok } from '../factories/ok.js';
 /**
  * Discriminated outcome of a single thunk in an `allSettled` batch.
  *
- * Three variants — discriminated by `ok` and, for failures, by the `kind`
- * tag:
- * - `{ ok: true, value: T }` — the thunk resolved with `Ok`.
- * - `{ ok: false, error: E }` — the thunk resolved with `Err`.
- * - `{ ok: false, kind: 'Rejected', error: unknown }` — the inner `.run()`
+ * Three variants - discriminated by `ok` and, for the rejection case, by the
+ * `kind` tag:
+ * - `{ ok: true, value: T }` - the thunk resolved with `Ok`.
+ * - `{ ok: false, error: E }` - the thunk resolved with `Err`. No `kind` tag is
+ *   set for this variant - `kind` is reserved for the rejection envelope.
+ * - `{ ok: false, kind: 'Rejected', error: unknown }` - the inner `.run()`
  *   **rejected** the Promise (an upstream contract violation that
  *   `allSettled` defends against). The rejection value is preserved
  *   verbatim as `unknown` so consumers can narrow on `kind` before
@@ -19,7 +20,7 @@ import { ok } from '../factories/ok.js';
  */
 export type Settled<T, E> =
     | { readonly ok: true; readonly value: T; readonly error?: never }
-    | { readonly ok: false; readonly error: E; readonly value?: never; readonly kind?: 'Err' }
+    | { readonly ok: false; readonly error: E; readonly value?: never; readonly kind?: never }
     | { readonly ok: false; readonly error: unknown; readonly value?: never; readonly kind: 'Rejected' };
 
 /**
@@ -50,7 +51,9 @@ export type Settled<T, E> =
 export function allSettled<T, E>(
     results: readonly AsyncResult<T, E>[],
 ): AsyncResult<Settled<T, E>[], never> {
-    const runs = results.map((ar) => ar.run);
+    // Invoke `run` through the carrier so a method-shorthand AsyncResult keeps
+    // its receiver — detaching `ar.run` would drop `this`.
+    const runs = results.map((ar) => () => ar.run());
     return {
         run: async (): Promise<IResultOfT<Settled<T, E>[], never>> => {
             if (runs.length === 0) {

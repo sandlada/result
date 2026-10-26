@@ -88,6 +88,12 @@ const defaultOnAborted = (reason: unknown, times: number): AbortedError =>
 
 const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
     new Promise((resolve) => {
+        // An already-aborted signal never fires a new `abort` event, so the
+        // listener below would never run and the full delay would elapse.
+        if (signal?.aborted) {
+            resolve();
+            return;
+        }
         if (ms <= 0) {
             queueMicrotask(() => resolve());
             return;
@@ -246,6 +252,9 @@ export async function retry<T, E, TE = ThrownError, AE = AbortedError>(
         if (options.signal?.aborted) break;
         lastResult = await safeInvoke(fn, toThrown);
         if (lastResult.isSuccess) return lastResult;
+        // Honour an abort that landed while the attempt was in flight — the
+        // loop must not schedule another backoff after the signal fired.
+        if (options.signal?.aborted) break;
         if (attempt === times) break;
 
         const error = lastResult.error;

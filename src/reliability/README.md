@@ -35,6 +35,7 @@
 | `race` | First `Ok` wins; if all fail, the lowest input index wins; an empty array becomes `Err(EmptyInputsError)` unless `onEmpty` overrides it. | [race.ts](./race.ts) |
 | `EmptyInputsError` (type) | Default error for an empty `race` input. | [race.ts](./race.ts) |
 | `any` | Runs everything; returns all successes, or all errors when none succeed (rejections tagged `{ kind: 'Rejected' }`). | [any.ts](./any.ts) |
+| `AnyError` (type) | Error channel of `any` — `E` or the `{ kind: 'Rejected', error: unknown }` rejection envelope. | [any.ts](./any.ts) |
 | `allSettled` | Always `Ok`: every thunk's outcome in input order. | [allSettled.ts](./allSettled.ts) |
 | `Settled` (type) | Per-thunk outcome: `{ ok: true, value }`, `{ ok: false, error }` or `{ ok: false, kind: 'Rejected', error }`. | [allSettled.ts](./allSettled.ts) |
 
