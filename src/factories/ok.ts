@@ -2,7 +2,7 @@ import type { IResult } from '../types/IResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
 export function ok(): IResult<never>;
-export function ok<T, E = never>(value: T): IResultOfT<T, never>;
+export function ok<T>(value: T): IResultOfT<T, never>;
 export function ok<T, E>(value: T): IResultOfT<T, E>;
 /**
  * Creates a success result carrying a value. The error type is `never` since a success result has no meaningful error.

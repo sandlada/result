@@ -25,7 +25,7 @@ export function orThrow<T, E extends Error>(r: IResultOfT<T, E>): T {
 
 export function orThrowWith<T, E>(
     errorFn: (error: E) => Error,
-): (r: IResultOfT<T, E>) => T;
+): <T2 extends T>(r: IResultOfT<T2, E>) => T2;
 export function orThrowWith<T, E>(
     errorFn: (error: E) => Error,
     r: IResultOfT<T, E>,
@@ -44,8 +44,8 @@ export function orThrowWith<T, E>(
 export function orThrowWith<T, E>(
     errorFn: (error: E) => Error,
     r?: IResultOfT<T, E>,
-): T | ((r: IResultOfT<T, E>) => T) {
-    if(r === undefined) return (r: IResultOfT<T, E>): T => orThrowWith(errorFn, r);
+): T | (<T2 extends T>(r2: IResultOfT<T2, E>) => T2) {
+    if(r === undefined) return <T2 extends T>(r2: IResultOfT<T2, E>): T2 => orThrowWith(errorFn, r2);
     if(!r.isSuccess) throw errorFn(r.error);
     return r.value;
 }

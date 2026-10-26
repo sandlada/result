@@ -15,6 +15,7 @@
 | `combine` | Combines an array or tuple, returning the first `Err` or an `Ok` carrying all values. | [combine.ts](./combine.ts) |
 | `all` | Combines a heterogeneous tuple, preserving each position's type; returns the first `Err`. | [all.ts](./all.ts) |
 | `combineWithAllErrors` | Runs every input and accumulates all errors into `Err(E[])`. | [combineWithAllErrors.ts](./combineWithAllErrors.ts) |
+| `AllResult` (type) | Result shape of `all` — the success variant carries the projected value tuple, the failure variant carries only the error. | [all.ts](./all.ts) |
 
 ## Contract notes
 

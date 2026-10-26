@@ -1,6 +1,11 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bind } from '../operators/bind.js';
 
+// 1 function
+export function composeK<A, B, E>(
+    f1: (a: A) => IResultOfT<B, E>,
+): (a: A) => IResultOfT<B, E>;
+
 // 2 functions
 export function composeK<A, B, C, E>(
     f1: (a: A) => IResultOfT<B, E>,

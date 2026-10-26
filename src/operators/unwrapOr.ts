@@ -1,11 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-// `A extends infer X` forces TypeScript to widen `A` from the literal —
-// `unwrapOr(0)` infers `A = number`, not `A = 0`.
-type Widen<A> = A extends infer X ? X : never;
-
-export function unwrapOr<A>(defaultValue: A): <E>(r: IResultOfT<Widen<A>, E>) => Widen<A>;
-export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<Widen<A>, E>): Widen<A>;
+export function unwrapOr<A>(defaultValue: A): <E>(r: IResultOfT<A, E>) => A;
+export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<A, E>): A;
 /**
  * Extracts the value on success, or returns a default on failure. Never throws.
  *
@@ -25,7 +21,7 @@ export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<Widen<A>, E>): Wid
  * pipe(err('boom'), unwrapOr(0)); // 0
  * ```
  */
-export function unwrapOr<A, E>(defaultValue: A, r?: IResultOfT<Widen<A>, E>): Widen<A> | (<E>(r: IResultOfT<Widen<A>, E>) => Widen<A>) {
-    if (r === undefined) return <E>(r: IResultOfT<Widen<A>, E>): Widen<A> => unwrapOr<A, E>(defaultValue, r);
-    return r.isSuccess ? (r.value as unknown as Widen<A>) : (defaultValue as unknown as Widen<A>);
+export function unwrapOr<A, E>(defaultValue: A, r?: IResultOfT<A, E>): A | (<E>(r: IResultOfT<A, E>) => A) {
+    if (r === undefined) return <E>(r: IResultOfT<A, E>): A => unwrapOr<A, E>(defaultValue, r);
+    return r.isSuccess ? (r.value as unknown as A) : (defaultValue as unknown as A);
 }

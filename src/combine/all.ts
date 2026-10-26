@@ -39,19 +39,30 @@ export type AllResult<T extends readonly IResultOfT<unknown, unknown>[]> =
  * // Ok([1, 'hi', true])
  * ```
  */
+// Tuple overload — preserves per-position heterogeneous types. `readonly [...T]`
+// forces TypeScript to keep the literal tuple structure instead of widening
+// the literal to an array of unions. The homogeneous overload below then serves
+// runtime-sized arrays (and the empty literal, which has no positions to keep).
+export function all<T extends readonly [IResultOfT<unknown, unknown>, ...IResultOfT<unknown, unknown>[]]>(
+    results: readonly [...T],
+): AllResult<T>;
+
 export function all<T extends readonly IResultOfT<unknown, unknown>[]>(
     results: T,
-): AllResult<T> {
+): AllResult<T>;
+
+// Implementation signature — `unknown` opts out of strict overload-shape checks.
+export function all(
+    results: readonly IResultOfT<unknown, unknown>[],
+): unknown {
     const values: unknown[] = [];
     for(const r of results) {
         if(!r.isSuccess) {
             // Return the failing element with its honest shape — it carries
-            // `error` only, no projected success tuple. The public return
-            // type is the union `AllResult<T>` so this assignment typechecks
-            // without a cast.
-            return r as unknown as Extract<AllResult<T>, { isSuccess: false }>;
+            // `error` only, no projected success tuple.
+            return r as unknown;
         }
         values.push(r.value);
     }
-    return ok(values) as unknown as Extract<AllResult<T>, { isSuccess: true }>;
+    return ok(values) as unknown;
 }

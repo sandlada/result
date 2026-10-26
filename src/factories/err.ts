@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-export function err<E, T = never>(error: E): IResultOfT<T, E>;
+export function err<E>(error: E): IResultOfT<never, E>;
+export function err<T = never, E = unknown>(error: E): IResultOfT<T, E>;
 /**
  * Creates a failure result carrying an error. The value type is `never` as a failure result has no meaningful value.
  *

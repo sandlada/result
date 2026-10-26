@@ -7,5 +7,5 @@
  */
 
 export { combine } from './combine.js';
-export { all } from './all.js';
+export { all, type AllResult } from './all.js';
 export { combineWithAllErrors } from './combineWithAllErrors.js';
