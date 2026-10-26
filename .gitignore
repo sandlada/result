@@ -48,13 +48,16 @@ dist
 .env.*
 !.env.example
 coverage/
+.wrangler
 
 # AI
 .claude
+.codex
 .agents
 .gemini
 .antigravity
 .copilot
-.superpowers
-docs/superpowers
+*superpower*
 !docs/*.md
+.teamwork
+!*/skills/*
