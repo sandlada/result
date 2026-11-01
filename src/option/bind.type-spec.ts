@@ -28,4 +28,12 @@ describe('bind types', () => {
         const _check: (opt: IOption<never>) => IOption<never> = fn;
         expectTypeOf(_check).toBeFunction();
     });
+
+    it('keeps the value type in the canonical shape when the None branch is typed', () => {
+        // `ofNone()` defaults its type parameter to `unknown`, which would
+        // widen the whole pipeline to `IOption<unknown>`. The canonical
+        // example therefore annotates the None branch.
+        const r = bind((n: number) => (n > 0 ? ofSome(n * 2) : ofNone<number>()))(ofSome(21));
+        expectTypeOf(r).toEqualTypeOf<IOption<number>>();
+    });
 });

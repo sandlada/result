@@ -858,6 +858,8 @@ typeof O.okOr('e', O.ofSome(21));          // observed: 'function'
 
 Same for `bind`, `filter`, `tap`, `okOrElse` and `contains`.
 
+**Fixed:** `map`, `bind`, `filter`, `tap`, `okOr`, `okOrElse` and `contains` now accept the direct form (`map(fn, option)`) next to the curried one, so the module README's claim holds for every operator. The direct form previously returned the curried function and dropped the option.
+
 ---
 
 ## BUG-023 — `option/okOrElse` stores a non-`Error` throw value but types it as `Error`
@@ -890,6 +892,8 @@ r.error;               // observed: 'plain-string' (a string)
 r.error instanceof Error;  // observed: false — but the type says Error
 ```
 
+**Fixed:** a thrown value that is not an `Error` instance is wrapped in one (the original value stays available through `cause`), so the declared `IResultOfT<T, E | Error>` error channel holds for every value the caller can receive.
+
 ---
 
 ## BUG-024 — `option/bind` widens the value type to `unknown` in the canonical example
@@ -919,6 +923,8 @@ users copy — silently loses the value type.
 
 **Note:** the same widening affects the `Option` module generally, but it is
 invisible on the Result side (`operators/bind` keeps `A`).
+
+**Fixed:** the canonical `bind` example annotates the `None` branch (`ofNone<number>()`), so the pipeline keeps `IOption<number>` instead of widening to `IOption<unknown>`. A type-level regression test pins the shape.
 
 ---
 
@@ -950,4 +956,4 @@ error** and types as `IOption<unknown[]>`.
 all([]);   // observed: Some([]) — typechecks; documented as a type error
 ```
 
-
+**Fixed:** the documentation now matches the implementation - the tuple overload of `option/all` requires at least one element, but the array overload accepts an empty array, so `all([])` typechecks and returns `Some([])`.

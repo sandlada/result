@@ -71,4 +71,15 @@ describe('map', () => {
         if (r1.isSome) expect(r1.value).toBe(2);
         if (r2.isSome) expect(r2.value).toBe(4);
     });
+
+    it('accepts the direct form map(fn, option)', () => {
+        const result = map((x: number) => x * 2, ofSome(21));
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(42);
+    });
+
+    it('direct form passes None through unchanged', () => {
+        const result = map((x: number) => x * 2, ofNone() as IOption<number>);
+        expect(result.isNone).toBe(true);
+    });
 });

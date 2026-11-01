@@ -52,4 +52,12 @@ describe('tap', () => {
         const result = tap((_v: number) => { throw 'string-throw'; })(ofSome(1));
         expect(result.isNone).toBe(true);
     });
+
+    it('accepts the direct form tap(fn, option)', () => {
+        const seen: number[] = [];
+        const result = tap((v: number) => { seen.push(v); }, ofSome(7));
+        expect(seen).toEqual([7]);
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(7);
+    });
 });

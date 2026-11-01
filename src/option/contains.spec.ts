@@ -36,9 +36,15 @@ describe('Option — contains', () => {
         expectTypeOf<Fn>().toEqualTypeOf<(opt: IOption<'specific'>) => boolean>();
     });
 
-    it('target identity check — same object reference returns true', () => {
+    it('target identity check - same object reference returns true', () => {
         const sentinel = { id: 1 };
         expect(contains(sentinel)(ofSome(sentinel))).toBe(true);
         expect(contains(sentinel)(ofSome({ id: 1 }))).toBe(false);
+    });
+
+    it('accepts the direct form contains(target, option)', () => {
+        expect(contains(42, ofSome(42))).toBe(true);
+        expect(contains(99, ofSome(42))).toBe(false);
+        expect(contains(42, ofNone() as IOption<number>)).toBe(false);
     });
 });

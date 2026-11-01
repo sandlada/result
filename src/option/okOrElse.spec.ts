@@ -56,12 +56,36 @@ describe('Option — okOrElse', () => {
             () => { throw 'string-throw'; },
         )(ofNone() as IOption<number>);
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect(result.error).toBe('string-throw');
+        if (result.isFailure) expect(result.error).toBeInstanceOf(Error);
     });
 
-    it('produces IResultOfT<T, E> — T from input, E from errorFn return (Group B)', () => {
+    it('wraps a non-Error throw in an Error so the declared error type holds', () => {
+        // The error channel is typed `E | Error`, so every value the caller
+        // can receive has to be an `Error` instance - `instanceof Error` must
+        // not be false for a value the type claims to be an Error. The
+        // original thrown value stays available through `cause`.
+        const result = okOrElse<string>(
+            () => { throw 'string-throw'; },
+        )(ofNone() as IOption<number>);
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect((result.error as Error).cause).toBe('string-throw');
+        }
+    });
+
+    it('produces IResultOfT<T, E> - T from input, E from errorFn return (Group B)', () => {
         const fn = okOrElse(() => 'default');
         const r = fn(ofSome(42));
         expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
+    });
+
+    it('accepts the direct form okOrElse(errorFn, option)', () => {
+        const ok = okOrElse(() => 'default', ofSome(42));
+        expect(ok.isSuccess).toBe(true);
+        if (ok.isSuccess) expect(ok.value).toBe(42);
+        const failure = okOrElse(() => 'default', ofNone() as IOption<number>);
+        expect(failure.isFailure).toBe(true);
+        if (failure.isFailure) expect(failure.error).toBe('default');
     });
 });

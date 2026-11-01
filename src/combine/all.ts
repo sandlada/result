@@ -24,11 +24,13 @@ export type AllResult<T extends readonly IResultOfT<unknown, unknown>[]> =
  *
  * **Cross-module divergence (intentional).** `combine/all` accepts an empty
  * tuple (`readonly IResultOfT<unknown, unknown>[]`) and returns `Ok([])`. The
- * sibling `option/all` deliberately keeps the stricter
- * `readonly [IOption<unknown>, ...IOption<unknown>[]]` constraint and rejects
- * the empty tuple. The `combine/all` constraint was relaxed so that `all([])`
- * typechecks; the `option/all` constraint is left as-is because its tests pin
- * the stricter contract. See `combine/all.type-spec.ts` for the regression
+ * sibling `option/all` has the same two-overload shape: its tuple overload
+ * keeps the stricter `readonly [IOption<unknown>, ...IOption<unknown>[]]`
+ * constraint, but its array overload accepts a runtime-sized list - so
+ * `option/all([])` typechecks there as well and returns `Some([])`. The
+ * `combine/all` constraint was relaxed so that `all([])` typechecks; the
+ * `option/all` tuple constraint is left as-is because its tests pin the
+ * stricter contract. See `combine/all.type-spec.ts` for the regression
  * test.
  *
  * @example

@@ -55,9 +55,14 @@ describe('Option — filter', () => {
         if (result.isSome) expect(result.value).toBe(sentinel);
     });
 
-    it('T is preserved through filter — does not widen (Group B)', () => {
+    it('T is preserved through filter - does not widen (Group B)', () => {
         const opt = ofSome('hello' as 'hello');
         const result = filter((s: 'hello') => s.length > 0)(opt);
         if (result.isSome) expectTypeOf(result.value).toEqualTypeOf<'hello'>();
+    });
+
+    it('accepts the direct form filter(predicate, option)', () => {
+        expect(filter((x: number) => x > 0, ofSome(42)).isSome).toBe(true);
+        expect(filter((x: number) => x > 100, ofSome(42)).isNone).toBe(true);
     });
 });

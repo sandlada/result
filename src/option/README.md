@@ -55,7 +55,7 @@
 
 - Every operator except `match` collapses a throwing callback into `None` or the default value; `match` propagates. See [behavior-modes.md §4.5](../../docs/behavior-modes.md#45-option-srcoption).
 - The module deliberately has **no panic APIs** (`unwrap` / `expect` / `orThrow` do not exist here): absence is expressed with `None`, and extraction goes through `unwrapOr`, `okOr` or `match`.
-- `all` requires a non-empty tuple at the type level; unlike `combine/all`, `all([])` does not typecheck.
+- `all` has a tuple overload that keeps the per-position types and needs at least one element, plus an array overload for runtime-sized lists. The array overload accepts an empty array, so `all([])` typechecks and returns `Some([])`.
 - `traverseArray` covers concrete arrays with an index-aware callback; `traverse` covers generic `Iterable` inputs. Both capture callback throws and iterator `next()` throws as `None`.
 - Data-last and curried: `map(fn)(option)`; every operator also accepts the direct form `map(fn, option)`.
 

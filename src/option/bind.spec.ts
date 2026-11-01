@@ -83,4 +83,10 @@ describe('bind', () => {
         const result = bind((_x: number) => { throw new Error('bind-boom'); })(ofSome(1));
         expect(result.isNone).toBe(true);
     });
+
+    it('accepts the direct form bind(fn, option)', () => {
+        const result = bind((x: number) => ofSome(x * 2), ofSome(21));
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(42);
+    });
 });

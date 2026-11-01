@@ -52,4 +52,13 @@ describe('Option — okOr', () => {
         if (r1.isSuccess) expectTypeOf(r1.value).toEqualTypeOf<number>();
         if (r2.isFailure) expectTypeOf(r2.error).toEqualTypeOf<AppErr>();
     });
+
+    it('accepts the direct form okOr(error, option)', () => {
+        const ok = okOr('default', ofSome(42));
+        expect(ok.isSuccess).toBe(true);
+        if (ok.isSuccess) expect(ok.value).toBe(42);
+        const failure = okOr('default', ofNone() as IOption<number>);
+        expect(failure.isFailure).toBe(true);
+        if (failure.isFailure) expect(failure.error).toBe('default');
+    });
 });

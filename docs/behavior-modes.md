@@ -42,7 +42,7 @@ To decide whether an API throws, consult the tables in §4 — do not guess from
 | `composition` | `pipe` / `pipeAsync` propagate (`pipeAsync` turns a synchronous step throw into a rejection and does not unwrap thenables); `composeK` / `composeKAsync` capture to values (the async variant also captures rejections); `safeTry` / `safeTryAsync` rethrow generator throws (the async variant throws `TypeError` on an invalid resolved value and rejects on its own throws) | `FailFirst` (through `bind`) | `composeK` / `composeKAsync` panic at construction time with zero functions | Synchronous composition; `fromSafeTryAsync` is lazy |
 | `adapters` | `switchFn` captures, `tee` propagates, `liftMap` delegates to `map`'s capturing | Propagate / convert; there is no short-circuit concept | Not applicable | Synchronous |
 | `primitives` | `cond` / `reduce` propagate; `lift` is dual-state (captures with an `errorFn`, propagates without one) | `sequence` / `reduce` fail fast | Not applicable | Synchronous; `sequenceAsyncResult` is lazy (construction only grabs the carrier, and a synchronous throw inside `run()` also propagates) |
-| `option` | Everything except `match` captures to `None` / a default value | Short-circuits on `None` | `all([])` is rejected at the type level (unlike `combine`) | Synchronous, zero panic APIs |
+| `option` | Everything except `match` captures to `None` / a default value | Short-circuits on `None` | `all([])` returns `Some([])` (the tuple overload needs at least one element, the array overload does not) | Synchronous, zero panic APIs |
 | `promise-result` | Split: the `map` / `tap` / `bimapAsync` / `asyncBindThrough` / `bindThroughAsync` families capture to values, the `bind` / `match` / `catchErrAsync` families propagate | `FailFirst` / accumulate (as in `combine`) | `Ok([])`; an outer rejection stays a rejection | Eager |
 | `promise-option` | Everything except the lifting family captures to `None` / a default value; the lifting family turns synchronous throws into `None` but lets rejections propagate (`asyncMapOption` / `asyncBindOption` / `asyncTapOption` / `asyncOrElseOption` / `tapErrAsyncOption`) | Short-circuits on `None` | No combination APIs | Eager |
 | `async-result` | Everything except the propagating `mapAsync` / `mapOrElse` / `match` / `exists` / `unwrapOrElse` / `ap` captures to values (`ap` is a lazy middleware) | `FailFirst` / accumulate | `Ok([])` | Lazy: middleware does not run, terminals trigger it |
@@ -116,7 +116,7 @@ The whole module never throws (except `match`, which propagates), callback throw
 | `map` / `bind` / `filter` / `tap` / `orElse` / `okOrElse` / `zipWith` | Capture to values: a throwing callback returns `None` / the default value | [map.ts](../src/option/map.ts), [bind.ts](../src/option/bind.ts), [zipWith.ts](../src/option/zipWith.ts) |
 | `traverseArray` / `traverse` | Capture to values: a throwing callback or a throwing iterator `next()` returns `None` | [traverseArray.ts](../src/option/traverseArray.ts) |
 | `match` | Terminal that propagates | [match.ts](../src/option/match.ts) |
-| `all` | Short-circuits on `None`; an empty tuple is rejected at the type level | [all.ts](../src/option/all.ts) |
+| `all` | Short-circuits on `None`; an empty array returns `Some([])` (the tuple overload requires at least one element, the array overload accepts a runtime-sized list) | [all.ts](../src/option/all.ts) |
 
 ### 4.6 Eager async (`src/promise-result/`, `src/promise-option/`)
 
