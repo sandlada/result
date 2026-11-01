@@ -432,6 +432,47 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             expect(r.isFailure).toBe(true);
             if (r.isFailure) expect(r.error).toBe('raw');
         });
+
+        it('does not resume the generator body after a failed delegation while another run is in flight', async () => {
+            // Two runs must not share the "did this yield come from a
+            // delegation" bookkeeping: otherwise the second run steals the
+            // first run's delegation and resumes its generator body past the
+            // failure, which breaks the short-circuit contract.
+            let sideEffect = 'NOT-RUN';
+            const runA = fromSafeTryAsync(async function* () {
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+                yield* safeTryAsync(err('A-failure'));
+                sideEffect = 'RAN';
+                return 1;
+            }).run();
+            const runB = fromSafeTryAsync(async function* () {
+                await new Promise((resolve) => { setTimeout(resolve, 200); });
+                return 2;
+            }).run();
+
+            const a = await runA;
+            expect(a.isFailure).toBe(true);
+            expect(sideEffect).toBe('NOT-RUN');
+            await runB;
+        });
+
+        it('still detects a double raw yield while another run is in flight', async () => {
+            const runA = fromSafeTryAsync(async function* () {
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+                yield* safeTryAsync(err('A-failure'));
+                return 1;
+            }).run();
+            const runB = fromSafeTryAsync(async function* () {
+                await Promise.resolve();
+                yield err('B-first');
+                yield err('B-second');
+                return 2;
+            }).run();
+
+            const settled = await Promise.allSettled([runA, runB]);
+            expect(settled[0]!.status).toBe('fulfilled');
+            expect(settled[1]!.status).toBe('rejected');
+        });
     });
 
     describe('Undefined success sentinel', () => {

@@ -1,21 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isResultLike } from '../types/resultShape.js';
 import { ok } from '../factories/ok.js';
-
-/**
- * Bookkeeping for the generator that is currently being driven.
- *
- * `safeTry` marks the active run when it yields, so the runner can tell a
- * failure that came from `yield* safeTry(...)` apart from a raw `yield`.
- * Only a raw yield is probed for a second yield: resuming a `safeTry`
- * delegation would run the generator body past the failure, which the
- * short-circuit contract forbids.
- */
-interface ActiveRun {
-    yieldedBySafeTry: boolean;
-}
-
-let activeRun: ActiveRun | undefined;
+import { consumeDelegatedYield, markDelegatedYield } from './delegatedYield.js';
 
 /**
  * Generator-based `yield*` error propagation for Result pipelines.
@@ -50,7 +36,7 @@ export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
 ): Generator<IResultOfT<never, E>, T | undefined, unknown> {
     if(result.isSuccess) return result.value;
-    if(activeRun !== undefined) activeRun.yieldedBySafeTry = true;
+    markDelegatedYield(result);
     yield result as unknown as IResultOfT<never, E>;
     return undefined;
 }
@@ -108,11 +94,7 @@ export function fromSafeTry<T, E>(
     gen: () => Generator<IResultOfT<never, E>, unknown, unknown>,
 ): IResultOfT<T, E> {
     const iterator = gen();
-    const run: ActiveRun = { yieldedBySafeTry: false };
-    const previousRun = activeRun;
-    activeRun = run;
     try {
-        run.yieldedBySafeTry = false;
         const first = iterator.next();
         if (first.done) {
             // Success path: generator returned without yielding.
@@ -138,7 +120,7 @@ export function fromSafeTry<T, E>(
             }
             return ok(value as T);
         }
-        if (run.yieldedBySafeTry) {
+        if (consumeDelegatedYield(first.value)) {
             // The failure came from a `safeTry` delegation. The generator is
             // suspended inside that delegation, so it is closed without being
             // resumed: the body after the failed `yield*` never runs.
@@ -148,7 +130,6 @@ export function fromSafeTry<T, E>(
         // A raw yield is probed for a second yield. Resuming is safe here
         // because the generator is suspended at its own `yield`, not inside a
         // `safeTry` delegation.
-        run.yieldedBySafeTry = false;
         let check: IteratorResult<IResultOfT<never, E>, unknown>;
         try {
             check = iterator.next();
@@ -167,7 +148,5 @@ export function fromSafeTry<T, E>(
         // In case the generator itself throws, we still try to close it.
         closeGenerator(iterator);
         throw e;
-    } finally {
-        activeRun = previousRun;
     }
 }

@@ -280,5 +280,23 @@ describe('safeTry / fromSafeTry', () => {
             expect(result.isFailure).toBe(true);
             if (result.isFailure) expect(result.error).toBe('raw');
         });
+
+        it('attributes a delegation to the right run when a generator nests another fromSafeTry', () => {
+            let sideEffect = 'NOT-RUN';
+            const result = fromSafeTry(function* () {
+                // The nested run delegates first and must not steal the outer
+                // run's delegation bookkeeping.
+                const inner = fromSafeTry(function* () {
+                    yield* safeTry(err('inner'));
+                });
+                expect(inner.isFailure).toBe(true);
+                yield* safeTry(err('outer'));
+                sideEffect = 'RAN';
+                return 1;
+            });
+            expect(result.isFailure).toBe(true);
+            if (result.isFailure) expect(result.error).toBe('outer');
+            expect(sideEffect).toBe('NOT-RUN');
+        });
     });
 });

@@ -973,3 +973,55 @@ all([]);   // observed: Some([]) — typechecks; documented as a type error
 ```
 
 **Fixed:** the documentation now matches the implementation - the tuple overload of `option/all` requires at least one element, but the array overload accepts an empty array, so `all([])` typechecks and returns `Some([])`.
+---
+
+## BUG-026 - concurrent `fromSafeTryAsync` runs cross their delegation bookkeeping
+
+**Severity:** medium - a failed pipeline resumes its generator body, so the
+side effects after the failure still run.
+
+**Where**
+
+- `src/composition/safeTryAsync.ts` (the module-level `activeRun` flag)
+- `src/composition/safeTry.ts` (the same flag in the sync sibling)
+
+**Problem**
+
+The runner has to know whether the value it received came from a
+`yield* safeTry(...)` delegation or from a raw `yield`: only a raw yield may be
+probed for a second yield, because resuming a delegation would run the
+generator body past the failure.
+
+The bookkeeping was a module-level "currently running generator" flag. That
+flag cannot express "which run" - two `fromSafeTryAsync` runs can be in
+flight at the same time, so the flag attributes one run's delegation to the
+other. The run that lost the flag then treats its own delegation as a raw
+yield, resumes its generator, and runs the body after the failure. The
+`finally` block that restores the flag also clobbers the pointer of the run
+that is still in flight, so that run's later delegations are not recognised
+either.
+
+**Reproduction**
+
+```ts
+let sideEffect = 'NOT-RUN';
+const runA = fromSafeTryAsync(async function* () {
+    await new Promise((r) => setTimeout(r, 20));
+    yield* safeTryAsync(err('A-failure'));
+    sideEffect = 'RAN';          // must never run
+    return 1;
+}).run();
+const runB = fromSafeTryAsync(async function* () {
+    await new Promise((r) => setTimeout(r, 200));
+    return 2;
+}).run();
+await runA;
+// observed:  sideEffect === 'RAN'
+// expected:  sideEffect === 'NOT-RUN'
+```
+
+**Fixed:** the attribution is per *value* instead of per run. A `safeTry`
+delegation marks the Result object it yields, and the runner consumes that
+mark when it receives the value - so a delegation is recognised no matter how
+many runs are in flight, and no module-level mutable state is involved. The
+sync sibling uses the same mechanism, which removes its flag as well.
