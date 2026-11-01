@@ -14,11 +14,10 @@ export function catchErr<A, B, E>(
     r: IResultOfT<A, E>,
 ): IResultOfT<A | B, never>;
 
-// Implementation signature — fully typed against the public overloads. Using `unknown`
+// Implementation signature - fully typed against the public overloads. Using `unknown`
 // here breaks TS7's "overload signature must be compatible with the implementation
 // signature" check (the curried overload's inner `<A>` doesn't share a name with the
-// impl's lost generics). The runtime behaviour is unchanged from the locked-A version:
-// an Err is replaced by `Ok(onErr(error))`.
+// impl's lost generics). At runtime an Err is replaced by `Ok(onErr(error))`.
 /**
  * Converts a failure into a success value, maintaining the Result track.
  *

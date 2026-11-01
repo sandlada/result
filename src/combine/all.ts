@@ -8,9 +8,9 @@ type TupleErrors<T extends readonly IResultOfT<unknown, unknown>[]> =
     T[number] extends IResultOfT<unknown, infer E> ? E : never;
 
 /**
- * Public return shape — split so the failure branch honestly carries no value
- * Previously the failure branch was cast to `IResultOfT<tupleValues, E>`,
- * claiming it bore a success tuple it never constructed.
+ * Public return shape - split so the failure branch honestly carries no value:
+ * the failure branch of the union has no `value` property at all, so the type
+ * cannot claim a success tuple it never constructed.
  */
 export type AllResult<T extends readonly IResultOfT<unknown, unknown>[]> =
     | { readonly isSuccess: true; readonly isFailure: false; readonly value: TupleValues<T> }

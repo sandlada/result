@@ -86,7 +86,8 @@ export function allSettled<T, E>(
                     (rej: unknown) => {
                         // Rejections are tagged `kind: 'Rejected'` so
                         // consumers can narrow and read `error` as `unknown`
-                        // — previously this was cast to `E`, hiding the type lie.
+                        // - a rejection is not a domain error, so it is not
+                        // cast to `E`.
                         settledOutcomes[idx] = { ok: false, kind: 'Rejected', error: rej };
                     },
                 )),

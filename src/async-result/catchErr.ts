@@ -42,7 +42,8 @@ export function catchErr<A, E>(
             } catch (thrown: unknown) {
                 // Recovery failures are captured on the Err track (async-result
                 // catch policy). The declared error type stays `never`; a thrown
-                // value can surface at runtime (G1 type-lie convention).
+                // value can surface at runtime, so the declared type is a
+                // structural claim only.
                 return { isSuccess: false as const, isFailure: true as const, error: thrown } as unknown as IResultOfT<A, never>;
             }
         },

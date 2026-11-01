@@ -20,21 +20,14 @@ export function asyncBind<A, B, E, F>(
  * rejection. A rejected Promise from `f` propagates as a rejection. Matches
  * the canonical AsyncResult throw policy.
  *
- * **G14 type-lie fix**: the previous signature returned
- * `Promise<IResultOfT<B, E | F>>`, but the success path of the chain can
- * never produce an `E` (the source `E` is only carried by the failure path,
- * which short-circuits before `f` is invoked). The success path produced
- * `Promise<IResultOfT<B, F>>` only. Additionally, the original used
- * `Promise.resolve().then(() => f(r.value))`, which yields
- * `Promise<Promise<IResultOfT<B, F>>>` — `await` on the outer result would
- * yield a Promise that needs a second `await` to extract the result.
+ * **Type contract**: the success path produces `Promise<IResultOfT<B, F>>`.
+ * The input's error type `E` is not widened into the success branch - at
+ * runtime `E` only flows through on the failure short-circuit, where `f` is
+ * never invoked.
  *
- * The fix:
- *
- * - Drop `E` from the success-path return type (E is only in the failure
- *   branch, handled by the line 43 short-circuit).
- * - Use `Promise.resolve(r.value).then(f)` so the inner promise is properly
- *   unwrapped by the await chain.
+ * The callback is invoked inside the promise chain, so the returned promise
+ * is unwrapped by the await chain exactly once: `await asyncBind(...)` yields
+ * the `IResultOfT`, not a promise of a promise.
  *
  * @example
  * ```ts

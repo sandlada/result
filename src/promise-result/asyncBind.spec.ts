@@ -46,10 +46,9 @@ describe('asyncBind', () => {
     });
 
     it('drops the input E type on the success branch (lift error narrowing)', async () => {
-        // G14 type-lie fix: the success path produces
-        // `Promise<IResultOfT<B, F>>` — the input E is NOT widened into the
-        // success branch. At runtime, the input E only flows through on the
-        // failure short-circuit.
+        // The success path produces `Promise<IResultOfT<B, F>>` - the input E
+        // is NOT widened into the success branch. At runtime, the input E only
+        // flows through on the failure short-circuit.
         type CustomErr = { kind: 'Input'; id: string };
         type BindErr = { kind: 'Bind'; reason: string };
         const r = await asyncBind(

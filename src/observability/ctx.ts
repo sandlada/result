@@ -35,13 +35,13 @@ const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
  * available, so they propagate automatically across `await` boundaries and
  * remain isolated between concurrent scopes.
  *
- * **Why this design?** The previous implementation kept a single
- * process-global mutable stack. That design had three defects:
+ * **Why this design?** A single process-global mutable stack cannot satisfy
+ * three requirements:
  *
- * 1. **No async-context isolation.** Every `ctx.run` shared the same array.
- * 2. **Concurrent pollution.** `Promise.all([ctx.run(a), ctx.run(b)])` saw
- *    interleaved segments from both scopes.
- * 3. **Concurrent cleanup corrupted state.** When scope A's `finally` ran
+ * 1. **Async-context isolation.** Every `ctx.run` would share the same array.
+ * 2. **Concurrent pollution.** `Promise.all([ctx.run(a), ctx.run(b)])` would
+ *    see interleaved segments from both scopes.
+ * 3. **Concurrent cleanup corrupting state.** When scope A's `finally` ran
  *    `stack.length = savedLength`, it could pop segments that scope B was
  *    actively pushing, leaving holes or out-of-order paths.
  *
@@ -52,13 +52,12 @@ const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
  * **Runtime requirement**: Node (any version with `node:async_hooks`),
  * Bun, or Deno. Browser bundles without an `async_hooks` polyfill fall
  * back to a best-effort thread-local frame pointer that is correct for
- * synchronous code and degrades to the previous single-stack behavior
- * under concurrent async flow.
+ * synchronous code and degrades to a shared frame pointer under concurrent
+ * async flow.
  *
  * **Concurrency caveat (polyfill only)**: under the polyfill, concurrent
- * async scopes may observe each other's segments, mirroring the original
- * implementation's caveats. To get full isolation in non-Node runtimes,
- * bundle a real `AsyncLocalStorage` polyfill.
+ * async scopes may observe each other's segments. To get full isolation in
+ * non-Node runtimes, bundle a real `AsyncLocalStorage` polyfill.
  *
  * @example
  * ```ts
@@ -83,8 +82,7 @@ export type PathStack = ReadonlyArray<PathSegment>;
  *
  * `parent` is the frame of the **enclosing** `ctx.run` scope, if any. Nested
  * `ctx.run`s chain frames so `getPath()` returns the concatenated path
- * (outer segments first), matching the original implementation's nesting
- * semantics while keeping each scope's stack isolated.
+ * (outer segments first) while keeping each scope's stack isolated.
  */
 interface Frame {
     stack: PathSegment[];
@@ -125,9 +123,8 @@ const isThenable = <T>(v: unknown): v is PromiseLike<T> => {
 //   - Sequential async chains (`await` outside any concurrent scope): works
 //     because `ctx.run` defers frame restoration until the returned
 //     thenable settles, so the frame remains current across awaits.
-//   - Concurrent async flows: degrades to a thread-local pointer. This
-//     matches the original implementation's behavior and is documented as
-//     a known limitation. Bundling a real ALS polyfill restores isolation.
+//   - Concurrent async flows: degrades to a thread-local pointer. This is a
+//     known limitation. Bundling a real ALS polyfill restores isolation.
 
 /**
  * @internal

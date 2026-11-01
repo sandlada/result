@@ -18,9 +18,9 @@ export function filterOrElseAsync<A, E>(
  * **Throw policy**: A synchronous throw or rejected Promise from `predicate`
  * or `errorFn` propagates to the outer Promise (matches the canonical
  * AsyncResult throw policy — "sync throws and async rejections propagate").
- * The `e as E` cast that previously lived here has been removed; callers that
- * need to capture thrown errors in the `Err` channel should wrap with
- * `tryCatch` or similar.
+ * The thrown value is propagated as-is, not cast into the `E` channel;
+ * callers that need to capture thrown errors in the `Err` channel should wrap
+ * with `tryCatch` or similar.
  *
  * @example
  * ```ts
