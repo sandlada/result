@@ -1142,3 +1142,34 @@ understand the intent.
 
 **Fixed:** all four comments now state the invariant directly and name only
 symbols that exist.
+---
+
+## BUG-031 - five operators document an error-type widening their signature does not have
+
+**Severity:** low - documentation defect; the type system contradicts the
+prose.
+
+**Where**
+
+- `src/operators/map.ts`
+- `src/operators/andThrough.ts`
+- `src/operators/bimap.ts`
+- `src/operators/orElse.ts`
+- `src/operators/filterOrElse.ts`
+
+**Problem**
+
+The JSDoc of these operators claimed that a captured throw widens the error
+type - "the error type widened to `E | Error`", "widening the error type to
+`E | F | Error`". Their signatures return `IResultOfT<B, E>`,
+`IResultOfT<A, E | F>`, `IResultOfT<C, F>`, `IResultOfT<A | B, F>` and
+`IResultOfT<A, E>` respectively: no `Error` arm exists in any of them.
+
+The sibling `operators/tap` already stated the real contract - "Without
+`errorFn` the thrown value is cast to the input result's `E`" - and the rest
+of the library (`composeK`, `tryCatch`, `retry`) documents the same rule: the
+thrown value is captured verbatim and the declared error type is a structural
+claim until an `errorFn` maps the throw onto it.
+
+**Fixed:** all five now state that contract. The signatures are unchanged -
+they already matched the library-wide convention.

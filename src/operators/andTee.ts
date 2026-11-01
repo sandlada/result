@@ -28,6 +28,8 @@ export function andTee<A, E, B, F>(
  * is preserved.
  *
  * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
+ * The thrown value is captured **verbatim** and cast to the declared error
+ * type, so without an `errorFn` the declared type is a structural claim only.
  * Pass `errorFn` to customise how the thrown value maps onto your error type
  * (canonical tap/tee policy).
  *

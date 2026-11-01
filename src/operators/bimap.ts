@@ -24,8 +24,10 @@ export function bimap<A, E, C, F>(
  * Simultaneous map over both success and failure variants.
  *
  * **Throw policy**: If either `onOk` or `onErr` throws, the result converts to
- * `err(caughtError)` with the error type widened to `F | Error`. Pass `errorFn`
- * to customise how the thrown value maps onto your error union.
+ * `err(caughtError)`. The thrown value is captured **verbatim** and cast to the
+ * declared error type, so without an `errorFn` the declared type is a structural
+ * claim only. Pass `errorFn` to customise how the thrown value maps onto your
+ * error union.
  *
  * The curried form defers `<A2, E2>` to the application site so an input
  * with a different value or error type than the callbacks' parameter types

@@ -14,9 +14,10 @@ export function orElse<A, E, B, F>(
 /**
  * Error recovery — tries an alternative path on failure. On failure, calls `f` with the error and its result replaces this one. On success, passes through unchanged.
  *
- * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
- * the error type widened to `F | Error`. Pass `errorFn` to customise how the
- * thrown value maps onto your error union.
+ * **Throw policy**: If `f` throws, the result converts to `err(caughtError)`.
+ * The thrown value is captured **verbatim** and cast to the declared error
+ * type, so without an `errorFn` the declared type is a structural claim only.
+ * Pass `errorFn` to customise how the thrown value maps onto your error union.
  *
  * @example
  * ```ts

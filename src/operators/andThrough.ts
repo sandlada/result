@@ -20,9 +20,10 @@ export function andThrough<A, E, B, F>(
  * The key difference from `bind` is that `andThrough` preserves the **original**
  * success value on success, while `bind` replaces it with `fn`'s result.
  *
- * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`,
- * widening the error type to `E | F | Error` (the thrown value may be any `unknown`).
- * Pass `errorFn` to customise how the thrown value maps onto your error union —
+ * **Throw policy**: If `fn` throws, the result converts to `err(caughtError)`.
+ * The thrown value is captured **verbatim** and cast to the declared error
+ * type, so without an `errorFn` the declared type is a structural claim only.
+ * Pass `errorFn` to customise how the thrown value maps onto your error union -
  * e.g. `andThrough(fn, thrown => new MyError(String(thrown)))`.
  *
  * @example

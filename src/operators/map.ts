@@ -15,8 +15,9 @@ export function map<A, B, E>(
 /**
  * Transforms the success value. If the result is a failure, it is passed through unchanged.
  *
- * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
- * the error type widened to `E | Error` (the thrown value can be any `unknown`).
+ * **Throw policy**: If `f` throws, the result converts to `err(caughtError)`.
+ * The thrown value is captured **verbatim** and cast to the declared error
+ * type, so without an `errorFn` the declared type is a structural claim only.
  * Pass `errorFn` to customise how the thrown value maps onto your error union -
  * e.g. `map(f, e => new MyError(String(e)))`. An `errorFn` that throws itself is
  * collapsed the same way: the mapper's error becomes the error of the result,

@@ -20,8 +20,10 @@ export function filterOrElse<A, E>(
  * Rust equivalent: `result.filter_or_else(errorFn, predicate)`
  *
  * **Throw policy**: If either the predicate or `errorFn` throws, the result converts to
- * `err(caughtError)` with the error type widened to `E | Error`. Pass `throwErrorFn`
- * to customise how the thrown value maps onto your error union.
+ * `err(caughtError)`. The thrown value is captured **verbatim** and cast to the
+ * declared error type, so without a `throwErrorFn` the declared type is a
+ * structural claim only. Pass `throwErrorFn` to customise how the thrown value
+ * maps onto your error union.
  *
  * @example
  * ```ts
