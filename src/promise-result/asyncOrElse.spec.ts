@@ -66,4 +66,19 @@ describe('promise-result asyncOrElse', () => {
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe('original');
     });
+
+    it('passes a thenable error payload through unchanged', async () => {
+        // A thenable error must reach the recovery callback as the original
+        // payload - not as the value the thenable resolves to.
+        const thenable = {
+            then(resolve: (value: unknown) => void): void { resolve('ADOPTED'); },
+        };
+        let captured: unknown;
+        const recovery = async (e: unknown): Promise<IResultOfT<unknown, unknown>> => {
+            captured = e;
+            return ok(0);
+        };
+        await asyncOrElse(recovery, err(thenable) as IResultOfT<unknown, unknown>);
+        expect(captured).toBe(thenable);
+    });
 });

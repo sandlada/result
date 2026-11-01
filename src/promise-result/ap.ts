@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 export function ap<A, B, E>(
     fnResult: Promise<IResultOfT<(a: A) => B, E>>,
@@ -14,6 +15,10 @@ export function ap<A, B, E>(
  * If either is a failure, the first failure propagates.
  *
  * Mirrors `async-result/ap` for promise-based pipelines.
+ *
+ * **Throw policy**: a throwing applied function is captured as `Err(thrown)`.
+ * A rejection of either operand stays a rejection - the outer `Promise` of
+ * this layer never converts a rejection into `Err`.
  *
  * @example
  * ```ts
@@ -30,6 +35,13 @@ export function ap<A, B, E>(
     return Promise.all([fnResult, result]).then(([fnR, valR]) => {
         if (!fnR.isSuccess) return fnR as unknown as IResultOfT<B, E>;
         if (!valR.isSuccess) return valR as unknown as IResultOfT<B, E>;
-        return ok(fnR.value(valR.value));
+        try {
+            return ok(fnR.value(valR.value));
+        } catch (thrown: unknown) {
+            // A throwing applied function is a failure of the application, not
+            // a rejection of the carrier - the sync sibling `operators/ap`
+            // reports it as `Err` too.
+            return err(thrown as unknown as E);
+        }
     });
 }

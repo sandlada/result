@@ -69,11 +69,26 @@ describe('asyncBind', () => {
     });
 
     it('attaches the async callback to the inner Promise on construction (eager)', () => {
-        // The implementation is `Promise.resolve(r.value).then(f)` — `f` is
+        // The implementation is `Promise.resolve(r.value).then(f)` - `f` is
         // invoked asynchronously (next microtask), but the Promise chain
         // is set up synchronously. This is the eager-Promise property: the
         // helper attaches handlers without waiting for an explicit `.then`.
         const r = asyncBind(async (x: number) => ok(x * 2), ok(21));
         expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('passes a thenable value payload through unchanged', async () => {
+        // A thenable value must reach the callback as the original payload -
+        // not as the value the thenable resolves to.
+        const thenable = {
+            then(resolve: (value: unknown) => void): void { resolve('ADOPTED'); },
+        };
+        let captured: unknown;
+        const chain = async (v: unknown): Promise<IResultOfT<unknown, unknown>> => {
+            captured = v;
+            return ok(0);
+        };
+        await asyncBind(chain, ok(thenable) as IResultOfT<unknown, unknown>);
+        expect(captured).toBe(thenable);
     });
 });

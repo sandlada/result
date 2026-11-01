@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
 import { asyncMatch } from './asyncMatch.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 
 describe('promise-result asyncMatch', () => {
     it('calls ok on Ok', async () => {
@@ -66,5 +67,19 @@ describe('promise-result asyncMatch', () => {
             err: (e: string) => -1,
         }, ok(5));
         expect(r).toBeInstanceOf(Promise);
+    });
+
+    it('passes a thenable value payload to the ok handler unchanged', async () => {
+        // A thenable value must reach the handler as the original payload -
+        // not as the value the thenable resolves to.
+        const thenable = {
+            then(resolve: (value: unknown) => void): void { resolve('ADOPTED'); },
+        };
+        let captured: unknown;
+        await asyncMatch({
+            ok: (v: unknown) => { captured = v; return 'ok'; },
+            err: () => 'err',
+        }, ok(thenable) as IResultOfT<unknown, unknown>);
+        expect(captured).toBe(thenable);
     });
 });

@@ -55,13 +55,10 @@ export function asyncBind<A, B, E, F>(
 ): Promise<IResultOfT<B, F>> | (<E>(r: IResultOfT<A, E>) => Promise<IResultOfT<B, F>>) {
     if(r === undefined) return <E>(r: IResultOfT<A, E>): Promise<IResultOfT<B, F>> => asyncBind(f, r);
     if(!r.isSuccess) return Promise.resolve(r as unknown as IResultOfT<B, F>);
-    // `Promise.resolve(r.value).then(f)` — the first `Promise.resolve` lifts
-    // the raw `A` value into a Promise so the `.then` callback is invoked
-    // asynchronously (deferring any synchronous throw from `f` into a Promise
-    // rejection, per the documented throw policy). The second `await` chain
-    // in the caller's `await asyncBind(...)` then unwraps the inner
-    // `Promise<IResultOfT<B, F>>` correctly — unlike the old
-    // `Promise.resolve().then(() => f(r.value))` shape which produced
-    // `Promise<Promise<...>>` and required a second `await`.
-    return Promise.resolve(r.value).then(f);
+    // The payload is read inside the callback, after the promise machinery has
+    // settled. Lifting it with `Promise.resolve(r.value)` would adopt a
+    // thenable value and hand the callback the thenable's resolved value
+    // instead of the original payload. A synchronous throw from `f` still
+    // surfaces as a rejection, per the documented throw policy.
+    return Promise.resolve().then(() => f(r.value));
 }

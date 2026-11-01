@@ -47,11 +47,40 @@ describe('AsyncResult ap', () => {
         expect(order).toEqual(['fn', 'val', 'fn-called']);
     });
 
-    it('does not invoke the value carrier when the function carrier fails', async () => {
+    it('starts the value carrier even when the function carrier fails', async () => {
+        // `ap` does not short-circuit: both carriers are started, and the
+        // short-circuit affects only which result is selected.
         let valCalls = 0;
         const fnAr = fromResult(err<string>('fn fail'));
         const valAr = { run: () => { valCalls++; return Promise.resolve(ok(1)); } };
         await ap(fnAr, valAr).run();
-        expect(valCalls).toBe(0);
+        expect(valCalls).toBe(1);
+    });
+
+    it('captures a throwing applied function as Err', async () => {
+        const boom = new Error('boom');
+        const fnAr = fromResult(ok(() => { throw boom; }));
+        const result = await ap(fnAr, fromResult(ok(21))).run();
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect(result.error).toBe(boom);
+    });
+
+    it('starts both carriers concurrently', async () => {
+        const events: string[] = [];
+        const fnAr = {
+            run: () => new Promise<ReturnType<typeof ok<(x: number) => number>>>((resolve) => {
+                events.push('fn-start');
+                setTimeout(() => { events.push('fn-end'); resolve(ok((x: number) => x)); }, 20);
+            }),
+        };
+        const valAr = {
+            run: () => new Promise<ReturnType<typeof ok<number>>>((resolve) => {
+                events.push('val-start');
+                setTimeout(() => { events.push('val-end'); resolve(ok(1)); }, 20);
+            }),
+        };
+        const result = await ap(fnAr, valAr).run();
+        expect(events).toEqual(['fn-start', 'val-start', 'fn-end', 'val-end']);
+        expect(result.isSuccess).toBe(true);
     });
 });

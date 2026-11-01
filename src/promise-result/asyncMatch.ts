@@ -23,13 +23,11 @@ export function asyncMatch<T, E, U>(
     r?: IResultOfT<T, E>,
 ): Promise<U> | ((r: IResultOfT<T, E>) => Promise<U>) {
     if (r === undefined) return (r: IResultOfT<T, E>) => asyncMatch(handlers, r);
-    // Mirror `asyncBind`'s shape (`Promise.resolve(r.value).then(f)`).
-    // Branch on `isSuccess` first to pick the right handler, then thread the
-    // actual value through `.then`. The old `Promise.resolve().then(() => ternary)`
-    // ran handler in a microtask with no thenable adoption — fine at runtime,
-    // but inconsistent with the rest of the family and prone to type-lie when
-    // handler return types degrade to `Promise<Promise<U>>`.
+    // The payload is read inside the callback, after the promise machinery has
+    // settled. Lifting it with `Promise.resolve(r.value)` would adopt a
+    // thenable payload and hand the handler the thenable's resolved value
+    // instead of the original payload.
     return r.isSuccess
-        ? Promise.resolve(r.value).then(handlers.ok)
-        : Promise.resolve(r.error).then(handlers.err);
+        ? Promise.resolve().then(() => handlers.ok(r.value))
+        : Promise.resolve().then(() => handlers.err(r.error));
 }

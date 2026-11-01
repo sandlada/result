@@ -50,4 +50,11 @@ describe('promise-result ap', () => {
         const result = ap(Promise.resolve(ok((x: number) => x)), pending);
         expect(result).toBeInstanceOf(Promise);
     });
+
+    it('captures a throwing applied function as Err', async () => {
+        const boom = new Error('boom');
+        const r = await ap(Promise.resolve(ok(() => { throw boom; })), Promise.resolve(ok(21)));
+        expect(r.isFailure).toBe(true);
+        if (r.isFailure) expect(r.error).toBe(boom);
+    });
 });
