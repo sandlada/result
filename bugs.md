@@ -1256,7 +1256,7 @@ each other's failure, and an abandoned delegation leaves nothing behind.
 
 ---
 
-## BUG-034 - seven source comments carry an external task ID, and one prescribes the removed thenable-adopting pattern
+## BUG-034 - eight source comments carry an external task ID, and one prescribes the removed thenable-adopting pattern
 
 **Severity:** low - documentation defects; one of them actively misleads.
 
@@ -1267,6 +1267,7 @@ each other's failure, and an abandoned delegation leaves nothing behind.
 - `src/composition/composeKAsync.ts` (three `G1` mentions)
 - `src/promise-result/asyncBind.ts` (`G14 type-lie fix`)
 - `src/promise-result/asyncBind.spec.ts` (`G14 type-lie fix`)
+- `src/observability/ctx.withPath.spec.ts` (`L31 fix`)
 
 **Problem**
 

@@ -56,8 +56,9 @@ describe('ctx / getPath / withPath / tapErrContext', () => {
     it('tapErrContext invokes fn only on failure', async () => {
         const seen: Array<{ err: unknown; path: ReadonlyArray<string | number> }> = [];
         await inScope(async () => {
-            // After the L31 fix, tapErrContext always returns Promise<IResultOfT<T, E>> —
-            // the sync callback path is wrapped in Promise.resolve(r) for type-stability.
+            // `tapErrContext` always returns `Promise<IResultOfT<T, E>>` - the
+            // sync callback path is wrapped in `Promise.resolve(r)` for
+            // type-stability.
             const r1 = await tapErrContext((err, c) => { seen.push({ err, path: c.path }); }, err('boom'));
             const r2 = await tapErrContext(() => { seen.push({ err: 'should not run', path: [] }); }, ok(42));
             expect(r1.isFailure).toBe(true);
