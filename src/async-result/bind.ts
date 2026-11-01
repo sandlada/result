@@ -19,7 +19,7 @@ export function bind<T, U, E, F>(
  * The outer AsyncResult's error type and the inner callback's returned
  * AsyncResult error type are independent — the combined result widens to
  * `E | F`. Mirrors the sync `operators/bind.ts` so heterogeneous-error
- * pipelines (`dbErr`/`validationErr`) compose without manual unification.
+ * pipelines (`AppError`/`DbError`) compose without manual unification.
  *
  * **Throw policy**: If `fn` throws (sync) or rejects (async), the result
  * converts to `err(caughtError)`. Pass `errorFn` to customise how the

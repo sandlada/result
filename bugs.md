@@ -522,7 +522,7 @@ await exists(() => { throw new Error('pred-throw'); }, fromOption(ofSome(1)));
 behaviour is *documented* — the defect is the divergence from the eager layer
 under the same name.
 
-**Fixed:** `async-option/exists` collapses a throwing or rejecting predicate to `false`, matching the eager sibling `promise-option/existsAsyncOption` and the sync `option/exists`. The policy change is recorded in `docs/behavior-modes.md` and in the behaviour matrix.
+**Fixed:** `async-option/exists` collapses a throwing or rejecting predicate to `false`, matching the eager sibling `promise-option/existsAsyncOption` and the convention of the Option layer, where every callback captures its failure. The policy change is recorded in `docs/behavior-modes.md` and in the behaviour matrix.
 
 ---
 
@@ -1106,3 +1106,31 @@ exists in that module.
 
 **Fixed:** the reference is replaced by the plain constraint (the thunk is
 synchronous; bridge the async work yourself).
+---
+
+## BUG-030 - three source comments point at symbols or states that do not exist
+
+**Severity:** low - documentation defects.
+
+**Where**
+
+- `src/types/asyncCarrier.ts` (the `unwrapAsyncCarrier` reference)
+- `src/option/zipWith.ts` (the `zipWith3` / `zipWith4` reference)
+- `src/async-result/map.ts` and `src/observability/ctx.spec.ts` (the
+  "pre-fix" / "pre-merge" references)
+
+**Problem**
+
+The `isAsyncCarrier` JSDoc told the reader to "Use `unwrapAsyncCarrier`" -
+no such function exists anywhere in the library. The `option/zipWith`
+comment referred to "the pre-merge `zipWith` / `zipWith3` / `zipWith4`" -
+neither `zipWith3` nor `zipWith4` exists, and the reference points at a
+repository state rather than at the code next to it.
+
+Two more comments described a "pre-fix" / "pre-merge" implementation instead
+of the code they sit next to, which is exactly the kind of non-self-contained
+prose the comment policy forbids: the reader has to know the history to
+understand the intent.
+
+**Fixed:** all four comments now state the invariant directly and name only
+symbols that exist.

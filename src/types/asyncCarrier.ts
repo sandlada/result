@@ -45,8 +45,8 @@ export const markAsyncCarrier = <T extends object>(carrier: T): T & BrandedAsync
  *
  * Returns a TypeScript type predicate `value is { run: () => unknown }` so
  * downstream guards narrow the input and expose `.run` without an explicit
- * cast. Use `unwrapAsyncCarrier` (or your own narrowing) to read the value
- * at the call site.
+ * cast. The predicate narrows the value to `{ run: () => unknown }`, so the
+ * call site can invoke `run()` directly.
  *
  * Order of checks:
  * 1. **Brand first** — if the value was produced by a library factory

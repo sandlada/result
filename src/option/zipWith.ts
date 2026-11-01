@@ -96,7 +96,7 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
         if (!opt.isSome) return ofNone();
     }
     // Extract inner values, apply the callback. A throw is caught and surfaced
-    // as None — same as the pre-merge `zipWith` / `zipWith3` / `zipWith4`.
+    // as None.
     try {
         const values = options.map((o) => (o as IOptionSome<unknown>).value);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

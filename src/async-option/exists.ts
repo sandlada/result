@@ -12,7 +12,8 @@ export function exists<T>(
  *
  * **Throw policy**: a predicate that throws synchronously or rejects is
  * collapsed to `false` - the same contract the eager sibling
- * `promise-option/existsAsyncOption` and the sync `option/exists` have.
+ * `promise-option/existsAsyncOption` has, and the convention of this module,
+ * where every callback captures its failure instead of propagating it.
  */
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,

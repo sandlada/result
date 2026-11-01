@@ -184,11 +184,9 @@ describe('observability/ctx', () => {
             }
             // The frame must be restored after the run completes.
             const after = (polyfillStore as unknown as { getStore(): unknown }).getStore();
-            // Pre-fix: the .then getter would have been read inside
-            // Promise.resolve(trap), throwing synchronously and leaving
-            // `currentFrame` stuck at the leak-test frame. Post-fix:
-            // isThenable returns false on the hostile getter, the
-            // synchronous restoration path runs, and `after` is null.
+            // A hostile `.then` getter must not be read: `isThenable` returns
+            // false on it, the synchronous restoration path runs, and `after`
+            // is null.
             expect(caught).toBeNull();
             // The value is returned synchronously (the polyfill doesn't
             // even call Promise.resolve on it because isThenable lied).
