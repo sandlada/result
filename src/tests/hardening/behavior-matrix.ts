@@ -25,7 +25,11 @@ import {
 import { composeKAsync, pipeAsync } from '../../composition/index.js';
 import { err, fromPromise, fromSafePromise, ok } from '../../factories/index.js';
 import { installObserver, observe, tapErrContext } from '../../observability/index.js';
-import { choose, map as opMap, traverseArray as opTraverseArray } from '../../operators/index.js';
+import {
+    andTee as opAndTee, andThrough as opAndThrough, bimap as opBimap, choose, filterOrElse as opFilterOrElse,
+    map as opMap, orElse as opOrElse, orTee as opOrTee, tap as opTap, tapErr as opTapErr,
+    traverseArray as opTraverseArray,
+} from '../../operators/index.js';
 import {
     map as optMap, ofNone, ofSome, traverse as optTraverse, traverseArray as optTraverseArray,
     zipWith as optZipWith,
@@ -81,6 +85,14 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     // ── operators ───────────────────────────────────────────────────────
     { module: 'operators', api: 'map', scenario: 'callback throw', policy: 'capture', run: () => syncChannel(() => opMap(() => { throw new Error('probe'); }, ok(1))) },
     { module: 'operators', api: 'map', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opMap(() => { throw new Error('probe'); }, ok(1), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'tap', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opTap(() => { throw new Error('probe'); }, ok(1), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'tapErr', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opTapErr(() => { throw new Error('probe'); }, err('orig'), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'andTee', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opAndTee(() => { throw new Error('probe'); }, ok(1), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'orTee', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opOrTee(() => { throw new Error('probe'); }, err('orig'), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'andThrough', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opAndThrough(() => { throw new Error('probe'); }, ok(1), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'bimap', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opBimap(() => { throw new Error('probe'); }, (e: string) => e, ok(1), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'orElse', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opOrElse(() => { throw new Error('probe'); }, err('orig'), () => { throw new Error('probe-errorfn'); })) },
+    { module: 'operators', api: 'filterOrElse', scenario: 'errorFn throw', policy: 'capture', note: 'a buggy errorFn never escapes the Result wrapper', run: () => syncChannel(() => opFilterOrElse(() => { throw new Error('probe'); }, () => 'orig', ok(1), () => { throw new Error('probe-errorfn'); })) },
     { module: 'operators', api: 'traverseArray', scenario: 'callback throw', policy: 'capture', run: () => syncChannel(() => opTraverseArray(() => { throw new Error('probe'); }, [1])) },
     { module: 'operators', api: 'choose', scenario: 'callback throw', policy: 'propagate', note: 'declared: no Err channel in the return type', run: () => syncChannel(() => choose(() => { throw new Error('probe'); }, [1])) },
 
