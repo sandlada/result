@@ -53,14 +53,14 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `ap` | Applies a wrapped function to a wrapped value. | [ap.ts](./ap.ts) |
+| `ap` | Applies a wrapped function to a wrapped value; a throwing applied function becomes `Err`. | [ap.ts](./ap.ts) |
 | `combine` | Combines many Promises, selecting the first `Err` in input order. | [combine.ts](./combine.ts) |
 | `combineWithAllErrors` | Combines many Promises, accumulating every error. | [combineWithAllErrors.ts](./combineWithAllErrors.ts) |
 
 ## Contract notes
 
 - A rejection of the outer `Promise` itself always stays a rejection; it is never converted into `Err`.
-- Callback policy is split: the `map` / `tap` / `bimapAsync` / `*BindThrough` families capture to values, the `bind` / `match` / `catchErrAsync` families propagate; `mapOrAsync` captures and returns the default. `map` throws an `Error` pointing at `mapAsync` when its sync mapper returns a thenable. See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
+- Callback policy is split: the `map` / `tap` / `bimapAsync` / `*BindThrough` families capture to values, the `bind` / `match` / `catchErrAsync` families propagate; `mapOrAsync` captures and returns the default. `ap` captures a throwing applied function as `Err` while a rejection of either operand stays a rejection. `map` throws an `Error` pointing at `mapAsync` when its sync mapper returns a thenable. See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
 - This layer has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family, whose async rejections travel on the outer rejection channel.
 - `unwrapOrAsync` / `unwrapOrElseAsync` resolve to the bare value (`Promise<A>`), not to a Result.
 - `combine` / `combineWithAllErrors` start every input Promise immediately; short-circuiting affects only which result is selected.

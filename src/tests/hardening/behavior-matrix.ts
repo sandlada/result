@@ -19,7 +19,7 @@ import {
     zipWith as aoZipWith,
 } from '../../async-option/index.js';
 import {
-    andThrough, bind as arBind, catchErr, fromResult, map as arMap, mapAsync as arMapAsync,
+    andThrough, ap as arAp, bind as arBind, catchErr, fromResult, map as arMap, mapAsync as arMapAsync,
     mapOr as arMapOr, mapOrElse as arMapOrElse, orElse as arOrElse, tapAsync as arTapAsync,
 } from '../../async-result/index.js';
 import { composeKAsync, pipeAsync } from '../../composition/index.js';
@@ -36,7 +36,7 @@ import {
     mapAsyncOption, orElseAsyncOption, tapErrAsyncOption,
 } from '../../promise-option/index.js';
 import {
-    asyncBindThrough, asyncMatch, bindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
+    ap as prAp, asyncBindThrough, asyncMatch, bindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
 } from '../../promise-result/index.js';
 import { allSettled, any, race, timeout } from '../../reliability/index.js';
 
@@ -98,6 +98,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     { module: 'async-result', api: 'mapOr', scenario: 'mapper throw → default', policy: 'capture', run: () => asyncChannel(arMapOr('default', () => { throw new Error('probe'); }, fromResult(ok(1)))) },
     { module: 'async-result', api: 'mapOrElse', scenario: 'handler throw', policy: 'propagate', run: () => asyncChannel(arMapOrElse(() => { throw new Error('probe'); }, () => 'default', fromResult(err('e')))) },
     { module: 'async-result', api: 'tapAsync', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(arTapAsync(() => { throw new Error('probe'); }, fromResult(ok(1))).run()) },
+    { module: 'async-result', api: 'ap', scenario: 'applied function throw', policy: 'capture', run: () => asyncChannel(arAp(fromResult(ok(() => { throw new Error('probe'); })), fromResult(ok(1))).run()) },
 
     // ── async-option ────────────────────────────────────────────────────
     { module: 'async-option', api: 'map', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(aoMap(() => { throw new Error('probe'); }, fromOption(ofSome(1))).run()) },
@@ -121,6 +122,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     { module: 'promise-result', api: 'catchErrAsync', scenario: 'recovery callback throw', policy: 'propagate', note: 'declared escape hatch (recovery failures surface)', run: () => asyncChannel(catchErrAsync(() => { throw new Error('probe'); }, Promise.resolve(err('e')))) },
     { module: 'promise-result', api: 'bimapAsync', scenario: 'error branch throw', policy: 'capture', run: () => asyncChannel(bimapAsync(() => 1, () => { throw new Error('probe'); }, Promise.resolve(err('e')))) },
     { module: 'promise-result', api: 'asyncMatch', scenario: 'handler throw', policy: 'propagate', run: () => asyncChannel(asyncMatch({ ok: () => { throw new Error('probe'); }, err: () => 0 }, ok(1))) },
+    { module: 'promise-result', api: 'ap', scenario: 'applied function throw', policy: 'capture', run: () => asyncChannel(prAp(Promise.resolve(ok(() => { throw new Error('probe'); })), Promise.resolve(ok(1)))) },
 
     // ── promise-option (promotion family: sync → None, async → propagate) ──
     { module: 'promise-option', api: 'mapAsyncOption', scenario: 'mapper sync throw', policy: 'capture', run: () => asyncChannel(mapAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
@@ -161,7 +163,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
 export const UNPROBED_EXPORTS: Readonly<Record<string, readonly string[]>> = {
     adapters: ['switchFn', 'switchFnAsync', 'tee', 'teeAsync', 'toOption', 'fromOption'],
     'async-option': ['from', 'fromPromise', 'fromOption', 'ofSome', 'ofNone', 'all', 'contains', 'exists', 'filter', 'flatten', 'isNone', 'isSome', 'mapOr', 'mapOrElse', 'match', 'okOr', 'okOrElse', 'tap', 'tapAsync', 'transpose', 'unwrap', 'unwrapOr', 'unwrapOrElse'],
-    'async-result': ['from', 'fromPromise', 'fromResult', 'and', 'andTee', 'ap', 'bimap', 'combine', 'combineWithAllErrors', 'contains', 'containsErr', 'exists', 'expect', 'expectErr', 'filterOrElse', 'flatten', 'isErr', 'isOk', 'mapErr', 'mapErrAsync', 'match', 'or', 'orTee', 'swapAsync', 'tap', 'tapErr', 'tapErrAsync', 'unwrap', 'unwrapErr', 'unwrapOr', 'unwrapOrElse'],
+    'async-result': ['from', 'fromPromise', 'fromResult', 'and', 'andTee', 'bimap', 'combine', 'combineWithAllErrors', 'contains', 'containsErr', 'exists', 'expect', 'expectErr', 'filterOrElse', 'flatten', 'isErr', 'isOk', 'mapErr', 'mapErrAsync', 'match', 'or', 'orTee', 'swapAsync', 'tap', 'tapErr', 'tapErrAsync', 'unwrap', 'unwrapErr', 'unwrapOr', 'unwrapOrElse'],
     combine: ['combine', 'all', 'combineWithAllErrors'],
     composition: ['composeK', 'fromSafeTry', 'pipe', 'safeTry', 'fromSafeTryAsync', 'safeTryAsync'],
     factories: ['asyncErr', 'asyncOk', 'err', 'fromPredicate', 'fromThrowable', 'ok', 'tryCatch', 'tryCatchAsync'],
@@ -170,6 +172,6 @@ export const UNPROBED_EXPORTS: Readonly<Record<string, readonly string[]>> = {
     option: ['all', 'bind', 'contains', 'filter', 'flatten', 'match', 'ofNone', 'ofSome', 'okOr', 'okOrElse', 'orElse', 'tap', 'transpose', 'unwrapOr'],
     primitives: ['cond', 'condErr', 'sequence', 'reduce', 'partitionOption', 'lift'],
     'promise-option': ['asyncOk', 'asyncErr', 'ofSome', 'ofNone', 'containsAsyncOption', 'existsAsyncOption', 'filterAsyncOption', 'flattenAsyncOption', 'mapOrAsyncOption', 'mapOrElseAsyncOption', 'matchAsyncOption', 'tapAsyncOption', 'unwrapOrAsyncOption', 'unwrapOrElseAsyncOption', 'asyncMatchOption'],
-    'promise-result': ['asyncOk', 'asyncErr', 'flatten', 'mapErr', 'unwrapOr', 'unwrapOrElse', 'containsAsync', 'existsAsync', 'filterOrElseAsync', 'flattenAsync', 'mapAsync', 'mapErrAsync', 'mapOrAsync', 'mapOrElseAsync', 'matchAsync', 'orElseAsync', 'swapAsync', 'tapAsync', 'tapErrAsync', 'unwrapOrAsync', 'unwrapOrElseAsync', 'asyncBind', 'asyncMap', 'asyncOrElse', 'asyncTap', 'asyncTapErr', 'ap', 'combine', 'combineWithAllErrors'],
+    'promise-result': ['asyncOk', 'asyncErr', 'flatten', 'mapErr', 'unwrapOr', 'unwrapOrElse', 'containsAsync', 'existsAsync', 'filterOrElseAsync', 'flattenAsync', 'mapAsync', 'mapErrAsync', 'mapOrAsync', 'mapOrElseAsync', 'matchAsync', 'orElseAsync', 'swapAsync', 'tapAsync', 'tapErrAsync', 'unwrapOrAsync', 'unwrapOrElseAsync', 'asyncBind', 'asyncMap', 'asyncOrElse', 'asyncTap', 'asyncTapErr', 'combine', 'combineWithAllErrors'],
     reliability: ['retry', 'retryLazy', 'timeoutEager'],
 };

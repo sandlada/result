@@ -44,7 +44,7 @@
 - `sequence` delegates to `combine` and is `FailFirst`; `reduce` is also `FailFirst` on either a failed source or a failed reducer step.
 - `lift` is dual-state: with an `errorFn` it captures to `Err`, without one it rethrows as-is. An `E = never` return type is a type-level promise only — the runtime can still throw.
 - `partitionOption` returns the `None` **indices**, not the `None` values (there is no payload to preserve); use [`operators/separate`](../operators/separate.ts) for Results.
-- `sequenceAsyncResult` is lazy: construction only grabs the `run` reference; a synchronous throw or runtime rejection inside `run()` propagates as a rejection and fails fast.
+- `sequenceAsyncResult` is lazy: construction only grabs the carrier, so `run()` keeps its receiver; a synchronous throw or runtime rejection inside `run()` propagates as a rejection and fails fast.
 - Throw policy: [behavior-modes.md §4.4](../../docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives).
 
 ## Related

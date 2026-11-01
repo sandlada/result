@@ -14,7 +14,7 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `from` | Wraps a thunk returning an Option (or a plain Option) into an AsyncOption. | [from.ts](./from.ts) |
+| `from` | Wraps a thunk returning an Option (or a plain Option) into an AsyncOption; a synchronous throw surfaces as a rejected promise. | [from.ts](./from.ts) |
 | `fromPromise` | Wraps a thunk returning `Promise<IOption>`; a throw or rejection becomes `None`. | [fromPromise.ts](./fromPromise.ts) |
 | `fromOption` | Lifts a synchronous `IOption` into an AsyncOption. | [fromOption.ts](./fromOption.ts) |
 | `ofSome` / `ofNone` | Direct `Some` / `None` constructors. | [ofSome.ts](./ofSome.ts), [ofNone.ts](./ofNone.ts) |

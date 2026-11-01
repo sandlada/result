@@ -14,7 +14,7 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `from` | Wraps a thunk returning a Result (or a plain Result) into an AsyncResult. | [from.ts](./from.ts) |
+| `from` | Wraps a thunk returning a Result (or a plain Result) into an AsyncResult; a synchronous throw surfaces as a rejected promise. | [from.ts](./from.ts) |
 | `fromPromise` | Wraps a thunk returning a Promise; the thunk's throw or the Promise's rejection becomes `Err`. | [fromPromise.ts](./fromPromise.ts) |
 | `fromResult` | Lifts a synchronous `IResultOfT` into an AsyncResult. | [fromResult.ts](./fromResult.ts) |
 
@@ -35,7 +35,7 @@
 | `bind` | Monadic chain: the callback returns the next AsyncResult. | [bind.ts](./bind.ts) |
 | `orElse` | Recovery on failure. | [orElse.ts](./orElse.ts) |
 | `and` / `or` | Picks the second AsyncResult on success / failure, lazily. | [and.ts](./and.ts), [or.ts](./or.ts) |
-| `ap` | Applies a wrapped function to a wrapped value. | [ap.ts](./ap.ts) |
+| `ap` | Applies a wrapped function to a wrapped value; both carriers run concurrently and a throwing applied function becomes `Err`. | [ap.ts](./ap.ts) |
 | `filterOrElse` | Keeps the success value when the predicate passes, otherwise maps it to an error. | [filterOrElse.ts](./filterOrElse.ts) |
 | `catchErr` | Recovery that lifts `onErr(error)` into `Ok`. | [catchErr.ts](./catchErr.ts) |
 | `mapOr` / `mapOrElse` | Map the success value or fall back. | [mapOr.ts](./mapOr.ts), [mapOrElse.ts](./mapOrElse.ts) |
@@ -76,7 +76,7 @@
 
 - Nothing runs until a terminal calls `run()`; middleware returns a new thunk. Each `run()` invocation re-executes the chain.
 - `mapAsync` propagates directly — the only capture-policy counterexample in this module; everything else in the `map` / `tap` / `bind` / `catchErr` families collapses throws and rejections into `Err`. See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
-- `combine`, `combineWithAllErrors` and the sibling `async-option/all` start every carrier through `Promise.all` once `run()` is called; short-circuiting affects only result selection, not execution.
+- `combine`, `combineWithAllErrors`, the sibling `async-option/all` and `ap` start every carrier through `Promise.all` once `run()` is called; short-circuiting affects only result selection, not execution.
 - Terminal panics (`unwrap` / `expect`) throw a `TypeError` and keep the original error in `cause`.
 - Naming: the `async` prefix denotes the `AsyncResult` type, not the `async`/`await` keyword; `mapAsync` / `tapAsync` are the async-callback variants.
 
