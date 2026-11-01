@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function filterOrElse<A, E>(
     predicate: (a: A) => boolean,
@@ -47,9 +48,7 @@ export function filterOrElse<A, E>(
             } catch (thrown: unknown) {
                 // Wrap `tFn(thrown)` so a buggy mapper does not escape the
                 // try/catch and bypass the Result wrapper.
-                const innerError = tFn
-                    ? (() => { try { return tFn(thrown) as unknown as E; } catch (t: unknown) { return t as unknown as E; } })()
-                    : (thrown as unknown as E);
+                const innerError = applyErrorFn(tFn, thrown) as unknown as E;
                 return err(innerError) as unknown as IResultOfT<A, E>;
             }
         };
@@ -62,9 +61,7 @@ export function filterOrElse<A, E>(
     } catch (thrown: unknown) {
         // Wrap `throwErrorFn(thrown)` so a buggy mapper does not escape the
         // try/catch and bypass the Result wrapper.
-        const innerError = throwErrorFn
-            ? (() => { try { return throwErrorFn(thrown) as unknown as E; } catch (t: unknown) { return t as unknown as E; } })()
-            : (thrown as unknown as E);
+        const innerError = applyErrorFn(throwErrorFn, thrown) as unknown as E;
         return err(innerError);
     }
 }

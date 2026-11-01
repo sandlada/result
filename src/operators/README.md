@@ -69,7 +69,7 @@
 ## Contract notes
 
 - Data-last and curried: `map(fn)(result)`; every operator also accepts the direct form `map(fn, result)`.
-- Throw policy is split by family. The `map` family captures a synchronous callback throw into `Err`; the `bind` / `mapErr` / `match` / `catchErr` / `unwrapOrElse` / `mapOr*` / `exists` family propagates directly. `choose` propagates without capturing and never short-circuits; `separate` accumulates into partitions; everything else fails fast (`FailFirst`). See [behavior-modes.md §4.2](../../docs/behavior-modes.md#42-synchronous-operators-srcoperators).
+- Throw policy is split by family. The `map` family captures a synchronous callback throw into `Err` (a buggy `errorFn` is collapsed too - it never escapes the Result wrapper); the `bind` / `mapErr` / `match` / `catchErr` / `unwrapOrElse` / `mapOr*` / `exists` family propagates directly. `choose` propagates without capturing and never short-circuits; `separate` accumulates into partitions; everything else fails fast (`FailFirst`). See [behavior-modes.md §4.2](../../docs/behavior-modes.md#42-synchronous-operators-srcoperators).
 - The escape hatches are three distinct channels: panic (`unwrap` / `expect`), raw throw (`unsafe*`), typed throw (`orThrow*`). Choose one deliberately.
 - `catchErr` and `orElse` both recover, but only `catchErr` lifts a plain value into `Ok`; `orElse` expects a new Result.
 

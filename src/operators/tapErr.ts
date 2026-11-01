@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function tapErr<E>(
     fn: (e: E) => void,
@@ -37,9 +38,7 @@ export function tapErr<A, E>(
                 try {
                     fn(r.error);
                 } catch (thrown: unknown) {
-                    const innerError = eFn
-                        ? eFn(thrown)
-                        : (thrown as unknown as E);
+                    const innerError = applyErrorFn(eFn, thrown) as unknown as E;
                     return err(innerError) as unknown as IResultOfT<A2, E>;
                 }
             }
@@ -51,7 +50,7 @@ export function tapErr<A, E>(
         try {
             fn(r.error);
         } catch (thrown: unknown) {
-            const innerError = errorFn ? errorFn(thrown) : (thrown as unknown as E);
+            const innerError = applyErrorFn(errorFn, thrown) as unknown as E;
             return err(innerError);
         }
     }

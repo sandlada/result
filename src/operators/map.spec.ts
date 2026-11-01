@@ -76,5 +76,14 @@ describe('map', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
     });
+    it('collapses a throwing errorFn into the error channel', () => {
+        // A mapper that throws itself must not escape the Result wrapper.
+        const result = map(
+            () => { throw new Error('fn-boom'); },
+            ok(1),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
 });
-

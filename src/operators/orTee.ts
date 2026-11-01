@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function orTee<E, B, F>(
     fn: (e: E) => IResultOfT<B, F>,
@@ -48,9 +49,7 @@ export function orTee<A, E, B, F>(
                 try {
                     fn(r.error);
                 } catch (thrown: unknown) {
-                    const innerError = eFn
-                        ? eFn(thrown)
-                        : (thrown as unknown as E);
+                    const innerError = applyErrorFn(eFn, thrown) as unknown as E;
                     return err(innerError) as unknown as IResultOfT<A2, E>;
                 }
             }
@@ -62,7 +61,7 @@ export function orTee<A, E, B, F>(
         try {
             fn(r.error);
         } catch (thrown: unknown) {
-            const innerError = errorFn ? errorFn(thrown) : (thrown as unknown as E);
+            const innerError = applyErrorFn(errorFn, thrown) as unknown as E;
             return err(innerError);
         }
     }

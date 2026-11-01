@@ -74,7 +74,7 @@
 ## Contract notes
 
 - Nothing runs until a terminal calls `run()`; middleware returns a new thunk.
-- `mapAsync` captures fully here, the opposite of `async-result/mapAsync`: a sync throw or rejected Promise becomes `None`. `match`, `mapOrElse`, `unwrapOrElse`, `exists` and `zipWith` propagate instead. See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
+- `mapAsync` captures fully here, the opposite of `async-result/mapAsync`: a sync throw or rejected Promise becomes `None`. `match`, `mapOrElse` and `unwrapOrElse` propagate instead; `exists` and `zipWith` capture - a throwing predicate becomes `false` and a synchronous throw from the `zipWith` callback becomes `None` (an async rejection from that callback still propagates). See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
 - `all` starts every carrier through `Promise.all` once `run()` is called; any `None` selects `None`, but every side effect still happens.
 - `zipWith` resolves to `None` when any argument is `None`.
 - The module has only `unwrap` as a panic API; there is no `expect` or `orThrow`. Bridge to AsyncResult with `okOr` / `okOrElse` when a typed throw is required.

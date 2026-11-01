@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function map<A, B>(
     f: (a: A) => B,
@@ -16,8 +17,10 @@ export function map<A, B, E>(
  *
  * **Throw policy**: If `f` throws, the result converts to `err(caughtError)` with
  * the error type widened to `E | Error` (the thrown value can be any `unknown`).
- * Pass `errorFn` to customise how the thrown value maps onto your error union —
- * e.g. `map(f, e => new MyError(String(e)))`.
+ * Pass `errorFn` to customise how the thrown value maps onto your error union -
+ * e.g. `map(f, e => new MyError(String(e)))`. An `errorFn` that throws itself is
+ * collapsed the same way: the mapper's error becomes the error of the result,
+ * it never escapes the Result wrapper.
  *
  * F# equivalent: `Result.map f r`
  *
@@ -41,9 +44,7 @@ export function map<A, B, E>(
             try {
                 return ok(f(r.value));
             } catch (thrown: unknown) {
-                const innerError = eFn
-                    ? eFn(thrown)
-                    : (thrown as unknown as E2);
+                const innerError = applyErrorFn(eFn, thrown) as unknown as E2;
                 return err(innerError) as unknown as IResultOfT<B, E2>;
             }
         };
@@ -53,9 +54,7 @@ export function map<A, B, E>(
     try {
         return ok(f(r.value));
     } catch (thrown: unknown) {
-        const innerError = errorFn
-            ? errorFn(thrown)
-            : (thrown as unknown as E);
+        const innerError = applyErrorFn(errorFn, thrown) as unknown as E;
         return err(innerError);
     }
 }

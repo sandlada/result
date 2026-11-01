@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 import { ok } from '../factories/ok.js';
 
 // Curried — `<A2, E2>` are deferred to the application site so a wider
@@ -52,9 +53,7 @@ export function bimap<A, E, C, F>(
             } catch (thrown: unknown) {
                 // Wrap `eFn(thrown)` so a buggy mapper does not escape the
                 // try/catch and bypass the Result wrapper.
-                const innerError = eFn
-                    ? (() => { try { return eFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
-                    : (thrown as unknown as F);
+                const innerError = applyErrorFn(eFn, thrown) as unknown as F;
                 return err(innerError) as unknown as IResultOfT<C, F>;
             }
         };
@@ -66,9 +65,7 @@ export function bimap<A, E, C, F>(
     } catch (thrown: unknown) {
         // Wrap `errorFn(thrown)` so a buggy mapper does not escape the
         // try/catch and bypass the Result wrapper.
-        const innerError = errorFn
-            ? (() => { try { return errorFn(thrown) as unknown as F; } catch (t: unknown) { return t as unknown as F; } })()
-            : (thrown as unknown as F);
+        const innerError = applyErrorFn(errorFn, thrown) as unknown as F;
         return err(innerError);
     }
 }

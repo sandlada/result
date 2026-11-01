@@ -89,4 +89,13 @@ describe('orTee', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('wrapped:Error: fn-boom');
     });
+    it('collapses a throwing errorFn into the error channel', () => {
+        const result = orTee(
+            () => { throw new Error('fn-boom'); },
+            err('orig'),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
 });

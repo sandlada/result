@@ -38,9 +38,16 @@ describe('AsyncOption zipWith', () => {
     });
 
     it('propagates rejection from async fn (does not catch)', async () => {
-        // zipWith has no try/catch around fn — async rejections propagate.
+        // An async rejection from the callback propagates - only a
+        // *synchronous* throw collapses to None.
         await expect(zipWith(async (a: number, b: number) => { throw new Error('rej'); }, ofSome(1), ofSome(2)).run())
             .rejects.toThrow('rej');
+    });
+
+    it('converts a synchronous throw from the callback to None', async () => {
+        // Every other callback of this module collapses a throw to None.
+        const r = await zipWith((() => { throw new Error('boom'); }) as (a: number, b: number) => number, ofSome(1), ofSome(2)).run();
+        expect(r.isNone).toBe(true);
     });
 });
 

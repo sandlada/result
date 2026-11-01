@@ -71,4 +71,13 @@ describe('andThrough', () => {
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect(result.error).toBe('inner');
     });
+    it('collapses a throwing errorFn into the error channel', () => {
+        const result = andThrough(
+            () => { throw new Error('fn-boom'); },
+            ok(1),
+            () => { throw new Error('errorFn-boom'); },
+        );
+        expect(result.isFailure).toBe(true);
+        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+    });
 });

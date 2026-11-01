@@ -522,6 +522,8 @@ await exists(() => { throw new Error('pred-throw'); }, fromOption(ofSome(1)));
 behaviour is *documented* — the defect is the divergence from the eager layer
 under the same name.
 
+**Fixed:** `async-option/exists` collapses a throwing or rejecting predicate to `false`, matching the eager sibling `promise-option/existsAsyncOption` and the sync `option/exists`. The policy change is recorded in `docs/behavior-modes.md` and in the behaviour matrix.
+
 ---
 
 ## BUG-014 — `map` / `tap` / `tapErr` let a throwing `errorFn` escape, unlike their siblings
@@ -565,6 +567,8 @@ so the current behaviour is intentional and pinned by the policy document. The
 defect is the inconsistency with `bimap` / `filterOrElse` / `orElse`, which
 collapse the second throw. Either family should converge.
 
+**Fixed:** the `map` / `tap` / `tapErr` / `andTee` / `orTee` / `andThrough` family now collapses a throwing `errorFn` into the error channel, exactly like `bimap` / `orElse` / `filterOrElse`. A buggy mapper never escapes the Result wrapper any more.
+
 ---
 
 ## BUG-015 — `composeK` / `composeKAsync` JSDoc references a non-existent symbol and an external numbering scheme
@@ -596,6 +600,8 @@ Two problems:
    L5', or any other token that is only meaningful if you have a specific
    external `.md` open are forbidden in `.ts` / `.spec.ts` comments."*
 
+**Fixed:** the `composeK` / `composeKAsync` JSDoc no longer references the non-existent `retry.ts:toErrFailure` symbol or the external `(Batch 5)` numbering. Two more comments in the same class (`tapErrContext.type-spec.ts`, `promise-result/map.spec.ts`) were rewritten as well.
+
 ---
 
 ## BUG-016 — `combine/all` and `option/all` disagree on the empty-input type
@@ -621,6 +627,8 @@ The divergence is deliberate and pinned by
 `src/combine/all.type-spec.ts`, so this is a note rather than a defect — but
 the three combiners in the library (`combine`, `combine/all`, `option/all`)
 now give three different types for "combine nothing".
+
+**Noted:** the divergence is documented instead of changed. `option/all` now states that the three combiners of the library give three different static types for "combine nothing" (`combine([])` -> `IResultOfT<[], never>`, `combine/all([])` -> `IResultOfT<unknown[], unknown>`, `option/all([])` -> `IOption<unknown[]>`) while the runtime behaviour is the same everywhere.
 
 ---
 
@@ -653,6 +661,8 @@ await zipWith(() => { throw new Error('boom'); }, ofSome(1), ofSome(2)).run();
 // observed:  rejects with 'boom'
 // expected:  None — matching async-option/map
 ```
+
+**Fixed:** a *synchronous* throw from the `async-option/zipWith` callback collapses to `None`; an async rejection from the callback still propagates. The policy change is recorded in `docs/behavior-modes.md` and in the behaviour matrix.
 
 ---
 

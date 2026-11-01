@@ -61,8 +61,8 @@ export function composeK<A, B, C, D, F, G, H, E>(
  *
  * **Synchronous throw policy** (G1): if any function in the chain throws
  * synchronously, the catch block funnels the unknown rejection through
- * `as unknown as IResultOfT<unknown, unknown>` — the same honesty trade-off
- * documented in `retry.ts:toErrFailure` (Batch 5). The composed function's
+ * `as unknown as IResultOfT<unknown, unknown>` - the same honesty trade-off
+ * the sync `composeK` and the `retry` module make. The composed function's
  * declared error type `E` is therefore a structural claim only: a synchronous
  * throw at runtime can produce an arbitrary `unknown` value. If you need
  * precise error-type narrowing, wrap each step in `tryCatch` with an

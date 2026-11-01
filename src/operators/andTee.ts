@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function andTee<A, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
@@ -71,9 +72,7 @@ export function andTee<A, E, B, F>(
                 try {
                     fn(r.value);
                 } catch (thrown: unknown) {
-                    const innerError = eFn
-                        ? eFn(thrown)
-                        : (thrown as unknown as E2);
+                    const innerError = applyErrorFn(eFn, thrown) as unknown as E2;
                     return err(innerError) as unknown as IResultOfT<A, E2>;
                 }
             }
@@ -85,7 +84,7 @@ export function andTee<A, E, B, F>(
         try {
             fn(r.value);
         } catch (thrown: unknown) {
-            const innerError = errorFn ? errorFn(thrown) : (thrown as unknown as E);
+            const innerError = applyErrorFn(errorFn, thrown) as unknown as E;
             return err(innerError);
         }
     }

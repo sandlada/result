@@ -26,8 +26,9 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
 /**
  * Combines N AsyncOptions (N ≥ 2) with a function. If all
  * resolve to Some, returns `AsyncOption<Some(fn(a, b, ...))>`. If any
- * resolves to None, returns `AsyncOption<None>`. Async rejections from the
- * callback propagate (they are not caught).
+ * resolves to None, returns `AsyncOption<None>`. A *synchronous* throw from
+ * the callback collapses to `None`; async rejections from the callback
+ * propagate (they are not caught).
  *
  * The arity of `fn` fixes the number of AsyncOptions accepted — variadic via
  * tuple inference. The catch-all mapped-type variadic handles every arity ≥ 2
@@ -81,12 +82,20 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
                 if (!opt.isSome) return ofNone() as IOption<R>;
             }
             const values = opts.map((o) => (o as IOptionSome<unknown>).value);
-            // Async rejections from `fn` propagate — not caught (matches pre-merge behavior).
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // A *synchronous* throw from `fn` collapses to None - every other
+            // callback of this module captures its throws the same way. The
+            // call itself is guarded, so an async rejection still propagates.
+            let result: R | Promise<R>;
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                result = (fn as any)(...values);
+            } catch {
+                return ofNone() as IOption<R>;
+            }
             return {
                 isSome: true as const,
                 isNone: false as const,
-                value: (await (fn as any)(...values)) as R,
+                value: (await result) as R,
             };
         },
     };

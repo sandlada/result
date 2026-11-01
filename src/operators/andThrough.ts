@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { applyErrorFn } from './errorMapper.js';
 
 export function andThrough<A, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
@@ -56,9 +57,7 @@ export function andThrough<A, E, B, F>(
             try {
                 inner = fn(r.value);
             } catch (thrown: unknown) {
-                const innerError = eFn
-                    ? eFn(thrown)
-                    : (thrown as unknown as (E2 | F));
+                const innerError = applyErrorFn(eFn, thrown) as unknown as (E2 | F);
                 return err(innerError) as unknown as IResultOfT<A, E2 | F>;
             }
             if (!inner.isSuccess) return inner as unknown as IResultOfT<A, E2 | F>;
@@ -71,9 +70,7 @@ export function andThrough<A, E, B, F>(
     try {
         inner = fn(r.value);
     } catch (thrown: unknown) {
-        const innerError = errorFn
-            ? errorFn(thrown)
-            : (thrown as unknown as (E | F));
+        const innerError = applyErrorFn(errorFn, thrown) as unknown as (E | F);
         return err(innerError);
     }
     if (!inner.isSuccess) return inner as unknown as IResultOfT<A, E | F>;
