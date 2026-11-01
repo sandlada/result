@@ -1,5 +1,21 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { isResultLike } from '../types/resultShape.js';
 import { ok } from '../factories/ok.js';
+
+/**
+ * Bookkeeping for the generator that is currently being driven.
+ *
+ * `safeTry` marks the active run when it yields, so the runner can tell a
+ * failure that came from `yield* safeTry(...)` apart from a raw `yield`.
+ * Only a raw yield is probed for a second yield: resuming a `safeTry`
+ * delegation would run the generator body past the failure, which the
+ * short-circuit contract forbids.
+ */
+interface ActiveRun {
+    yieldedBySafeTry: boolean;
+}
+
+let activeRun: ActiveRun | undefined;
 
 /**
  * Generator-based `yield*` error propagation for Result pipelines.
@@ -34,17 +50,47 @@ export function* safeTry<T, E>(
     result: IResultOfT<T, E>,
 ): Generator<IResultOfT<never, E>, T | undefined, unknown> {
     if(result.isSuccess) return result.value;
+    if(activeRun !== undefined) activeRun.yieldedBySafeTry = true;
     yield result as unknown as IResultOfT<never, E>;
     return undefined;
 }
 
 /**
+ * Closes a generator without letting a cleanup error shadow the primary
+ * failure. `iterator.return()` runs the generator's `finally` blocks; a
+ * `finally` that throws is a secondary concern.
+ */
+const closeGenerator = <T, E>(
+    iterator: Generator<IResultOfT<never, E>, T | undefined, unknown>,
+): void => {
+    if (typeof iterator.return === 'function') {
+        try {
+            iterator.return(undefined!);
+        } catch {
+            /* swallow cleanup errors — the primary failure takes precedence */
+        }
+    }
+};
+
+export function fromSafeTry<T, E>(
+    gen: () => Generator<IResultOfT<never, E>, IResultOfT<T, E>, unknown>,
+): IResultOfT<T, E>;
+export function fromSafeTry<T, E>(
+    gen: () => Generator<IResultOfT<never, E>, T | undefined, unknown>,
+): IResultOfT<T, E>;
+/**
  * Evaluates a generator function that uses `yield* safeTry(...)` and
  * collects the final `IResultOfT`.
  *
  * - If the generator **returns** a value: the value is wrapped in `ok()`.
+ * - If the generator **returns** a Result: that Result is used as-is, so the
+ *   documented `return ok(undefined)` workaround yields `Ok(undefined)`
+ *   instead of a doubly wrapped Result.
  * - If the generator **yields** a value: that yield is treated as a propagated
  *   failure and returned as-is.
+ *
+ * A generator that yields twice throws - the runner probes a raw yield for a
+ * second one before reporting the failure.
  *
  * @example
  * ```ts
@@ -59,10 +105,14 @@ export function* safeTry<T, E>(
  * ```
  */
 export function fromSafeTry<T, E>(
-    gen: () => Generator<IResultOfT<never, E>, T | undefined, unknown>,
+    gen: () => Generator<IResultOfT<never, E>, unknown, unknown>,
 ): IResultOfT<T, E> {
     const iterator = gen();
+    const run: ActiveRun = { yieldedBySafeTry: false };
+    const previousRun = activeRun;
+    activeRun = run;
     try {
+        run.yieldedBySafeTry = false;
         const first = iterator.next();
         if (first.done) {
             // Success path: generator returned without yielding.
@@ -70,7 +120,8 @@ export function fromSafeTry<T, E>(
             // the success-path return type is `T`, not `T | undefined`. The
             // sentinel collision is unavoidable; the error message guides users
             // toward `ok(undefined)` if they need to return undefined as a value.
-            if (first.value === undefined) {
+            const value = first.value;
+            if (value === undefined) {
                 throw new Error(
                     'safeTry: generator returned undefined without yielding. ' +
                     'If you intended undefined as a legitimate success value, ' +
@@ -79,38 +130,44 @@ export function fromSafeTry<T, E>(
                     'or to `yield* safeTry(...)` a failure.',
                 );
             }
-            return ok(first.value);
-        }
-        // A failure was yielded via safeTry. Ensure the generator is closed.
-        // Swallow cleanup errors so they do not shadow the original failure:
-        // a user-defined `finally` block that throws during cleanup is a
-        // secondary concern; the primary failure (yielded via safeTry) must
-        // reach the caller. The outer catch below would re-attempt closure
-        // (idempotent for standard generators) and re-throw the original
-        // error, but inlining the swallow here keeps the failure path linear
-        // and avoids a redundant second `iterator.return` call.
-        if (typeof iterator.return === 'function') {
-            try {
-                iterator.return(undefined!);
-            } catch {
-                /* swallow cleanup errors — primary failure takes precedence */
+            // A generator that returns a Result is taken at face value. This
+            // is what makes the documented `return ok(undefined)` workaround
+            // produce `Ok(undefined)` instead of `Ok(Ok(undefined))`.
+            if (isResultLike<T, E>(value)) {
+                return value as unknown as IResultOfT<T, E>;
             }
+            return ok(value as T);
         }
-        // Verify the generator doesn't yield again — safeTry should yield at most once.
-        const check = iterator.next();
+        if (run.yieldedBySafeTry) {
+            // The failure came from a `safeTry` delegation. The generator is
+            // suspended inside that delegation, so it is closed without being
+            // resumed: the body after the failed `yield*` never runs.
+            closeGenerator(iterator);
+            return first.value as unknown as IResultOfT<T, E>;
+        }
+        // A raw yield is probed for a second yield. Resuming is safe here
+        // because the generator is suspended at its own `yield`, not inside a
+        // `safeTry` delegation.
+        run.yieldedBySafeTry = false;
+        let check: IteratorResult<IResultOfT<never, E>, unknown>;
+        try {
+            check = iterator.next();
+        } catch {
+            // The body threw while being resumed. The yielded failure takes
+            // precedence over that secondary error.
+            closeGenerator(iterator);
+            return first.value as unknown as IResultOfT<T, E>;
+        }
         if (!check.done) {
+            closeGenerator(iterator);
             throw new Error('safeTry: generator yielded more than once. Each safeTry() call should only yield on failure.');
         }
         return first.value as unknown as IResultOfT<T, E>;
     } catch (e) {
         // In case the generator itself throws, we still try to close it.
-        if (typeof iterator.return === 'function') {
-            try {
-                iterator.return(undefined!);
-            } catch {
-                /* ignore */
-            }
-        }
+        closeGenerator(iterator);
         throw e;
+    } finally {
+        activeRun = previousRun;
     }
 }

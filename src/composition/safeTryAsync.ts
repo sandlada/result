@@ -1,6 +1,22 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { isResultLike } from '../types/resultShape.js';
 import { asyncOk } from '../factories/asyncOk.js';
+
+/**
+ * Bookkeeping for the generator that is currently being driven.
+ *
+ * `safeTryAsync` marks the active run when it yields, so the runner can tell a
+ * failure that came from `yield* safeTryAsync(...)` apart from a raw `yield`.
+ * Only a raw yield is probed for a second yield: resuming a `safeTryAsync`
+ * delegation would run the generator body past the failure, which the
+ * short-circuit contract forbids.
+ */
+interface ActiveRun {
+    yieldedBySafeTry: boolean;
+}
+
+let activeRun: ActiveRun | undefined;
 
 /**
  * Async Generator-based `yield*` error propagation for AsyncResult pipelines.
@@ -61,16 +77,43 @@ export async function* safeTryAsync<T, E>(
         );
     }
     if (r.isSuccess) return r.value;
+    if (activeRun !== undefined) activeRun.yieldedBySafeTry = true;
     yield r as unknown as IResultOfT<never, E>;
     return undefined;
 }
 
+/**
+ * Closes a generator without letting a cleanup error shadow the primary
+ * failure. `iterator.return()` runs the generator's `finally` blocks; a
+ * `finally` that throws is a secondary concern.
+ */
+const closeGenerator = async <T, E>(
+    iterator: AsyncGenerator<IResultOfT<never, E>, T | undefined, unknown>,
+): Promise<void> => {
+    if (typeof iterator.return === 'function') {
+        try {
+            await iterator.return(undefined!);
+        } catch {
+            /* swallow cleanup errors - primary failure takes precedence */
+        }
+    }
+};
+
+export function fromSafeTryAsync<T, E>(
+    gen: () => AsyncGenerator<IResultOfT<never, E>, IResultOfT<T, E>, unknown>,
+): AsyncResult<T, E>;
+export function fromSafeTryAsync<T, E>(
+    gen: () => AsyncGenerator<IResultOfT<never, E>, T | undefined, unknown>,
+): AsyncResult<T, E>;
 /**
  * Runs an async generator that uses `yield* safeTryAsync(...)` and returns a
  * lazy `AsyncResult` collecting the final `IResultOfT`.
  *
  * - If the generator **returns** a value: the value is wrapped in `Ok` when
  *   `.run()` is called.
+ * - If the generator **returns** a Result: that Result is used as-is, so the
+ *   documented `return asyncOk(undefined)` workaround yields `Ok(undefined)`
+ *   instead of a doubly wrapped Result.
  * - If the generator **yields** a value: that yield is treated as a propagated
  *   failure and returned as-is.
  *
@@ -78,15 +121,20 @@ export async function* safeTryAsync<T, E>(
  * more than once.
  */
 export function fromSafeTryAsync<T, E>(
-    gen: () => AsyncGenerator<IResultOfT<never, E>, T | undefined, unknown>,
+    gen: () => AsyncGenerator<IResultOfT<never, E>, unknown, unknown>,
 ): AsyncResult<T, E> {
     return {
         run: async () => {
             const iterator = gen();
+            const run: ActiveRun = { yieldedBySafeTry: false };
+            const previousRun = activeRun;
+            activeRun = run;
             try {
+                run.yieldedBySafeTry = false;
                 const first = await iterator.next();
                 if (first.done) {
-                    if (first.value === undefined) {
+                    const value = first.value;
+                    if (value === undefined) {
                         // Guide users to `asyncOk(undefined)` if they intended
                         // undefined as a legitimate success value.
                         throw new Error(
@@ -97,20 +145,38 @@ export function fromSafeTryAsync<T, E>(
                             'or to `yield* safeTryAsync(...)` a failure.',
                         );
                     }
-                    return (await asyncOk(first.value)) as unknown as IResultOfT<T, E>;
-                }
-                if (typeof iterator.return === 'function') {
-                    // Swallow cleanup errors: a user-defined `finally` block
-                    // that throws during cleanup must not shadow the primary
-                    // failure yielded via safeTryAsync.
-                    try {
-                        await iterator.return(undefined!);
-                    } catch {
-                        /* swallow cleanup errors — primary failure takes precedence */
+                    // A generator that returns a Result is taken at face value.
+                    // This is what makes the documented
+                    // `return asyncOk(undefined)` workaround produce
+                    // `Ok(undefined)` instead of `Ok(Ok(undefined))`.
+                    if (isResultLike<T, E>(value)) {
+                        return value as unknown as IResultOfT<T, E>;
                     }
+                    return (await asyncOk(value as T)) as unknown as IResultOfT<T, E>;
                 }
-                const check = await iterator.next();
+                if (run.yieldedBySafeTry) {
+                    // The failure came from a `safeTryAsync` delegation. The
+                    // generator is suspended inside that delegation, so it is
+                    // closed without being resumed: the body after the failed
+                    // `yield*` never runs.
+                    await closeGenerator(iterator);
+                    return first.value as unknown as IResultOfT<T, E>;
+                }
+                // A raw yield is probed for a second yield. Resuming is safe
+                // here because the generator is suspended at its own `yield`,
+                // not inside a `safeTryAsync` delegation.
+                run.yieldedBySafeTry = false;
+                let check: IteratorResult<IResultOfT<never, E>, unknown>;
+                try {
+                    check = await iterator.next();
+                } catch {
+                    // The body threw while being resumed. The yielded failure
+                    // takes precedence over that secondary error.
+                    await closeGenerator(iterator);
+                    return first.value as unknown as IResultOfT<T, E>;
+                }
                 if (!check.done) {
+                    await closeGenerator(iterator);
                     throw new Error('safeTryAsync: generator yielded more than once. Each safeTryAsync() call should only yield on failure.');
                 }
                 return first.value as unknown as IResultOfT<T, E>;
@@ -123,6 +189,8 @@ export function fromSafeTryAsync<T, E>(
                     // Ignore errors during cleanup
                 }
                 throw error;
+            } finally {
+                activeRun = previousRun;
             }
         },
     };

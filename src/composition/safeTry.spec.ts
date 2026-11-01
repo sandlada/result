@@ -254,5 +254,31 @@ describe('safeTry / fromSafeTry', () => {
             );
             expect(() => fromSafeTry(gen)).toThrow(/wrap it explicitly/);
         });
+
+        it('returns Ok(undefined) when the generator returns ok(undefined)', () => {
+            // The documented workaround must not produce a doubly wrapped
+            // Result - `value` is `undefined`, not another Result.
+            const nested = fromSafeTry(function* () { return ok(undefined); });
+            expect(nested.isSuccess).toBe(true);
+            if (nested.isSuccess) expect(nested.value).toBe(undefined);
+        });
+    });
+
+    describe('Double yield', () => {
+        it('throws when a real generator yields twice', () => {
+            function* twice() {
+                yield err('first');
+                yield err('second');
+            }
+            expect(() => fromSafeTry(twice)).toThrow('safeTry: generator yielded more than once');
+        });
+
+        it('reports the yielded failure for a single raw yield', () => {
+            const result = fromSafeTry(function* () {
+                yield err('raw');
+            });
+            expect(result.isFailure).toBe(true);
+            if (result.isFailure) expect(result.error).toBe('raw');
+        });
     });
 });

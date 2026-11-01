@@ -412,4 +412,36 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             ).rejects.toThrow(/not a valid IResultOfT/);
         });
     });
+
+    describe('Double yield', () => {
+        it('throws when a real generator yields twice', async () => {
+            async function* twice() {
+                yield err('first');
+                yield err('second');
+            }
+            await expect(fromSafeTryAsync(twice).run()).rejects.toThrow(
+                'safeTryAsync: generator yielded more than once',
+            );
+        });
+
+        it('reports the yielded failure for a single raw yield', async () => {
+            const result = fromSafeTryAsync(async function* () {
+                yield err('raw');
+            });
+            const r = await result.run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) expect(r.error).toBe('raw');
+        });
+    });
+
+    describe('Undefined success sentinel', () => {
+        it('returns Ok(undefined) when the generator returns ok(undefined)', async () => {
+            // The documented workaround must not produce a doubly wrapped
+            // Result - `value` is `undefined`, not another Result.
+            const nested = fromSafeTryAsync(async function* () { return ok(undefined); });
+            const r = await nested.run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(undefined);
+        });
+    });
 });
