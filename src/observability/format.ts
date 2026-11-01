@@ -30,6 +30,12 @@ const QUOTE_DEFAULT = true;
 const STACK_DEFAULT = false;
 const MAX_DEPTH_DEFAULT = 3;
 
+/**
+ * The header of an `Error` rendering: `Name: message` (the message part is
+ * omitted for an empty message).
+ */
+const errorHeader = (v: Error): string => v.name + (v.message ? ': ' + v.message : '');
+
 const formatValue = (
     v: unknown,
     depth: number,
@@ -43,12 +49,12 @@ const formatValue = (
     if (t === 'number' || t === 'boolean' || t === 'bigint' || t === 'symbol') return String(v);
     if (t === 'function') return '[Function]';
     if (v instanceof Error) {
-        const msg = v.message ? ': ' + v.message : '';
+        const header = errorHeader(v);
         if (opts.includeStack && v.stack) {
             // Emits `<Name>: <msg>\n<stack>` so the stack is emitted on a fresh line.
-            return v.name + msg + '\n' + v.stack;
+            return header + '\n' + v.stack;
         }
-        return v.name + msg;
+        return header;
     }
     // Object types need cycle detection. The check is **path-scoped**: only the
     // objects on the current ancestor chain count as circular. A single global
@@ -96,10 +102,14 @@ export function format<T, E>(
         maxDepth: options.maxDepth ?? MAX_DEPTH_DEFAULT,
     };
     const tag = r.isSuccess ? 'Ok(' : 'Err(';
-    const body = formatValue(r.isSuccess ? r.value : r.error, 0, opts, []);
-    // When `body` contains a newline (e.g. an Error stack), close parens *before*
-    // the newline so the trace starts cleanly on its own line.
-    const nl = body.indexOf('\n');
-    if (nl < 0) return tag + body + ')';
-    return tag + body.slice(0, nl) + ')' + body.slice(nl);
+    const value = r.isSuccess ? r.value : r.error;
+    const body = formatValue(value, 0, opts, []);
+    if (value instanceof Error && opts.includeStack && value.stack) {
+        // The stack trace starts on its own line, so the closing parenthesis
+        // goes before it. Only the stack separator is skipped - a newline that
+        // belongs to the *message* keeps the parenthesis at the very end.
+        const header = errorHeader(value);
+        return tag + header + ')' + body.slice(header.length);
+    }
+    return tag + body + ')';
 }

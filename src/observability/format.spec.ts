@@ -172,4 +172,19 @@ describe('format', () => {
         format(r, { maxDepth: 10 });
         expect(JSON.stringify(r)).toBe(before);
     });
+
+    it('keeps the closing parenthesis after a newline inside the error message', () => {
+        // The newline belongs to the message, not to a stack trace, so the
+        // parenthesis has to close at the very end.
+        expect(format(err(new Error('line1\nline2')))).toBe('Err(Error: line1\nline2)');
+    });
+
+    it('closes the parenthesis before the stack, not before a newline in the message', () => {
+        const e = new Error('line1\nline2');
+        const out = format(err(e), { includeStack: true });
+        const lines = out.split('\n');
+        expect(lines[0]).toBe('Err(Error: line1');
+        expect(lines[1]).toBe('line2)');
+        expect(lines.slice(2).join('\n')).toBe(e.stack ?? '');
+    });
 });

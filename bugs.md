@@ -297,6 +297,8 @@ format(err(new Error('line1\nline2')));
 `ok('a\nb')` is unaffected — `JSON.stringify` escapes the newline. Only
 `Error.message` and `Error.stack` are affected.
 
+**Fixed:** `format` closes the parenthesis at the end of the rendered value. Only a stack trace is moved to a line of its own, so a newline that belongs to the error message no longer splits the parenthesis.
+
 ---
 
 ## BUG-008 — `installObserver(null)` destroys every installed observer, not just the active one
@@ -335,6 +337,8 @@ getActiveObserver() === a;   // observed: false — 'a' was destroyed
 **Note:** the intent of `installObserver(null)` is ambiguous — the README says
 "clears", which does not distinguish *the active observer* from *all
 observers*. The asymmetry with the disposer path is the concrete defect.
+
+**Fixed:** `installObserver(null)` removes the active observer (the top of the stack) only, so the observers below it survive - the same single-entry semantics the disposer path has.
 
 ---
 

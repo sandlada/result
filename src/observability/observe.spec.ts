@@ -48,9 +48,11 @@ describe('observe / installObserver', () => {
         const first = vi.fn();
         const second = vi.fn();
         const cancelFirst = installObserver(first);
-        installObserver(second);
+        const cancelSecond = installObserver(second);
         cancelFirst();
         expect(getActiveObserver()).toBe(second);
+        cancelSecond();
+        expect(getActiveObserver()).toBeNull();
     });
 
     it('passing null to installObserver clears the active observer', () => {
@@ -206,6 +208,20 @@ describe('observe / installObserver', () => {
     it('installObserver(null) twice in a row leaves active as null', () => {
         installObserver(null);
         installObserver(null);
+        expect(getActiveObserver()).toBeNull();
+    });
+
+    it('installObserver(null) removes only the active observer', () => {
+        // The disposer path removes a single entry, so clearing the active
+        // observer must not destroy the observers below it.
+        const a = vi.fn();
+        const b = vi.fn();
+        const cancelA = installObserver(a);
+        const cancelB = installObserver(b);
+        installObserver(null);
+        cancelB();
+        expect(getActiveObserver()).toBe(a);
+        cancelA();
         expect(getActiveObserver()).toBeNull();
     });
 

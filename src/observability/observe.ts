@@ -56,13 +56,18 @@ const stack: ObserverEntry[] = [];
 const topObserver = (): ObserverEntry | null => stack[stack.length - 1] ?? null;
 
 /**
- * Install a process-wide observer. Returns a disposer. Pass `null` to remove.
+ * Install a process-wide observer. Returns a disposer. Pass `null` to remove
+ * the active observer.
  *
  * **Disposal semantics**: the returned disposer follows LIFO restoration-stack
  * behavior — when called, it removes its own entry from the stack. If observer
  * A is installed, then B, then A's disposer is called while B is still
  * active, the call is a no-op (B remains active). Disposers must be called in
  * **LIFO** order to clean up correctly.
+ *
+ * **Clearing**: `installObserver(null)` removes the **active** observer (the
+ * top of the stack) only — the observers below it stay installed and become
+ * active again. This mirrors the disposer, which also removes a single entry.
  *
  * **Observer error audit hook**: the optional `onObserverError` callback
  * receives any error thrown by the installed observer. Without it,
@@ -77,9 +82,11 @@ export function installObserver(
     onObserverError?: (error: unknown) => void,
 ): () => void {
     if (handler === null) {
-        // Passing `null` clears the active observer. The disposer is a
-        // no-op because the handler slot was already removed.
-        stack.length = 0;
+        // Passing `null` removes the **active** observer - the top of the
+        // stack - and nothing else. The disposer path removes a single entry
+        // as well, so clearing must not destroy the observers below it. The
+        // returned disposer is a no-op because the entry was already removed.
+        stack.pop();
         return () => { /* no-op */ };
     }
     const entry: ObserverEntry = onObserverError !== undefined

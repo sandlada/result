@@ -36,7 +36,7 @@
 | Export | Description | Source |
 | --- | --- | --- |
 | `observe` | Pass-through hook that fires the installed observer with the result and current path. | [observe.ts](./observe.ts) |
-| `installObserver` | Installs a process-wide observer (or clears with `null`) and returns a LIFO disposer. | [observe.ts](./observe.ts) |
+| `installObserver` | Installs a process-wide observer (or removes the **active** one with `null`) and returns a LIFO disposer. | [observe.ts](./observe.ts) |
 | `getActiveObserver` | Returns the currently active observer or `null`. | [observe.ts](./observe.ts) |
 | `Observer` (type) | Observer callback signature. | [observe.ts](./observe.ts) |
 | `ObserveEvent` (type) | `{ kind: 'ok' \| 'err', result, path }` passed to observers. | [observe.ts](./observe.ts) |
@@ -45,7 +45,7 @@
 
 - `ctx.run` opens an independent frame per scope: concurrent scopes never observe each other's segments. Without a real `AsyncLocalStorage` (browser bundles without a polyfill), the fallback is correct for synchronous code and degrades to a thread-local pointer under concurrent async flow.
 - Observer errors from `observe` / `installObserver` / `tapErrContext` are always swallowed and never change the main flow; `installObserver` accepts an optional `onObserverError` audit hook whose own failures are swallowed too.
-- `format` and `inspect` never throw.
+- `format` and `inspect` never throw. `format` closes the parenthesis at the end of the rendered value; only a stack trace (requested with `includeStack`) is moved to a line of its own.
 - Throw policy: [behavior-modes.md §4.9](../../docs/behavior-modes.md#49-observability-srcobservability).
 
 ## Related
