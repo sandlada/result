@@ -1173,3 +1173,25 @@ claim until an `errorFn` maps the throw onto it.
 
 **Fixed:** all five now state that contract. The signatures are unchanged -
 they already matched the library-wide convention.
+---
+
+## BUG-032 - the module summary table still lists `async-result`'s `ap` as propagating
+
+**Severity:** low - documentation defect; the per-module table says the
+opposite.
+
+**Where**
+
+- `docs/behavior-modes.md` (the module summary table, the `async-result` row)
+
+**Problem**
+
+The summary row read "Everything except the propagating `mapAsync` /
+`mapOrElse` / `match` / `exists` / `unwrapOrElse` / `ap` captures to values".
+`ap` captures a throwing applied function as `Err` since the capture policy
+was aligned with the sync sibling - the per-module table states that
+correctly, the summary row was left behind.
+
+**Fixed:** the summary row no longer lists `ap` as propagating and states
+what `ap` does: the applied function's throw is captured as `Err`, a
+rejection of either carrier still propagates.
