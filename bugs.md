@@ -8,7 +8,15 @@ rather than by deleting it, so the history stays readable.
 
 **Scope note:** this file is a catalogue of defects, not a work log. Do not
 reference entry IDs from `.ts` / `.spec.ts` comments (see the Comment Policy in
-`AGENTS.md`) — encode the constraint in the code or the test instead.
+`AGENTS.md`) - encode the constraint in the code or the test instead.
+
+**Pointer note:** the `Where` section of an entry gives the file path and the
+line numbers *as they were when the defect was found*. The line numbers are a
+historical anchor, not a live index - the code at that location has usually
+been rewritten by the fix, so a line number can point past the end of the
+current file. The durable identifiers are the **file path** and the **quoted
+snippet**; use those to find the code. Every entry carries a `Fixed` note that
+describes the current state.
 
 ---
 

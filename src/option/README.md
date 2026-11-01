@@ -41,7 +41,7 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `okOr` / `okOrElse` | `Some` becomes `Ok`; `None` becomes `Err(error)` / `Err(errorFn())`. | [okOr.ts](./okOr.ts), [okOrElse.ts](./okOrElse.ts) |
+| `okOr` / `okOrElse` | `Some` becomes `Ok`; `None` becomes `Err(error)` / `Err(errorFn())`. `okOrElse` widens its error type to `E \| Error`, because a throwing `errorFn` can surface any value. | [okOr.ts](./okOr.ts), [okOrElse.ts](./okOrElse.ts) |
 | `transpose` | Swaps `IOption<IResultOfT<T, E>>` and `IResultOfT<IOption<T>, E>`. | [transpose.ts](./transpose.ts) |
 
 ### Terminals
