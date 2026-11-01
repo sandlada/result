@@ -51,7 +51,7 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
  *
  * F# equivalent: `f1 >=> f2 >=> f3` (async)
  *
- * **Synchronous throw policy** (G1): if any function in the chain throws
+ * **Synchronous throw policy**: if any function in the chain throws
  * synchronously, the catch block funnels the unknown rejection through
  * `as unknown as IResultOfT<unknown, unknown>` - the same honesty trade-off
  * the sync `composeK` and the `retry` module make. The composed function's
@@ -91,9 +91,9 @@ export function composeKAsync(
     //
     // A sync throw from any step (including reduce-intermediate steps, not
     // just `head`) is caught by the outer try/catch and converted to a
-    // failure result with `error: unknown`. This is the documented G1 type
-    // lie — the declared error type `E` does not reflect the actual runtime
-    // error type when a step throws synchronously. Wrap throwing steps in
+    // failure result with `error: unknown`. The declared error type `E` does
+    // not reflect the actual runtime error type when a step throws
+    // synchronously - it is a structural claim only. Wrap throwing steps in
     // `tryCatchAsync(..., errorFn)` if you need typed errors.
     const [head, ...rest] = fns;
     const composed = rest.reduce(
@@ -104,8 +104,8 @@ export function composeKAsync(
         try {
             return await composed(a);
         } catch (e: unknown) {
-            // G1 type lie: declared error type is `E` (per the public overloads),
-            // but the runtime value here is the raw `unknown` thrown/rejected by a
+            // The declared error type is `E` (per the public overloads), but the
+            // runtime value here is the raw `unknown` thrown/rejected by a
             // step function. The cast goes through `unknown` so the cross-variant
             // widening is explicit. Consumers should wrap throwing steps in
             // `tryCatchAsync(..., errorFn)` if they need a typed `E`.

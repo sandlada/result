@@ -2,7 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isResultLike } from '../types/resultShape.js';
 import { asyncOk } from '../factories/asyncOk.js';
-import { consumeDelegatedYield, markDelegatedYield } from './delegatedYield.js';
+import { SafeTryShortCircuit } from './delegationSignal.js';
 
 /**
  * Async Generator-based `yield*` error propagation for AsyncResult pipelines.
@@ -17,6 +17,13 @@ import { consumeDelegatedYield, markDelegatedYield } from './delegatedYield.js';
  * `T | undefined`: the success path returns `T`, and the failure path's
  * unreachable tail returns `undefined` (matches JS semantics when a generator
  * exhausts after a yield without a top-level `return`).
+ *
+ * The failure is yielded, and the generator **throws** when it is resumed
+ * past that yield. A runner that resumes a delegation therefore ends the
+ * generator instead of running the body after the failed `yield*` - the
+ * short-circuit contract holds without any bookkeeping that would have to be
+ * attributed to one specific run, which matters when several runs are in
+ * flight at the same time.
  *
  * @example
  * ```ts
@@ -63,9 +70,10 @@ export async function* safeTryAsync<T, E>(
         );
     }
     if (r.isSuccess) return r.value;
-    markDelegatedYield(r);
     yield r as unknown as IResultOfT<never, E>;
-    return undefined;
+    // Resuming past this yield means the failure was not consumed. Throwing
+    // ends the generator, so the body after the failed `yield*` never runs.
+    throw new SafeTryShortCircuit(r);
 }
 
 /**
@@ -136,23 +144,19 @@ export function fromSafeTryAsync<T, E>(
                     }
                     return (await asyncOk(value as T)) as unknown as IResultOfT<T, E>;
                 }
-                if (consumeDelegatedYield(first.value)) {
-                    // The failure came from a `safeTryAsync` delegation. The
-                    // generator is suspended inside that delegation, so it is
-                    // closed without being resumed: the body after the failed
-                    // `yield*` never runs.
-                    await closeGenerator(iterator);
-                    return first.value as unknown as IResultOfT<T, E>;
-                }
-                // A raw yield is probed for a second yield. Resuming is safe
-                // here because the generator is suspended at its own `yield`,
-                // not inside a `safeTryAsync` delegation.
+                // The value is a propagated failure. The generator is probed
+                // for a second yield. Resuming is safe for a delegation too: a
+                // `safeTryAsync` delegation throws when it is resumed, which
+                // ends the generator instead of running the body after the
+                // failed `yield*`.
                 let check: IteratorResult<IResultOfT<never, E>, unknown>;
                 try {
                     check = await iterator.next();
                 } catch {
-                    // The body threw while being resumed. The yielded failure
-                    // takes precedence over that secondary error.
+                    // The resumed delegation ended the generator (its failure
+                    // was consumed), or the body threw while being resumed.
+                    // The yielded failure takes precedence over that
+                    // secondary error.
                     await closeGenerator(iterator);
                     return first.value as unknown as IResultOfT<T, E>;
                 }

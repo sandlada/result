@@ -1195,3 +1195,90 @@ correctly, the summary row was left behind.
 **Fixed:** the summary row no longer lists `ap` as propagating and states
 what `ap` does: the applied function's throw is captured as `Err`, a
 rejection of either carrier still propagates.
+---
+
+## BUG-033 - the delegation marker of `safeTry` leaks and disables the double-yield detection
+
+**Severity:** medium - a documented error path (the double-yield detection)
+silently stops working, and the marker can be misattributed between runs.
+
+**Where**
+
+- `src/composition/delegatedYield.ts` (the `WeakSet` of marked values)
+- `src/composition/safeTry.ts` / `src/composition/safeTryAsync.ts` (the
+  `markDelegatedYield` / `consumeDelegatedYield` pair)
+
+**Problem**
+
+The runner has to know whether the value it received came from a
+`yield* safeTry(...)` delegation or from a raw `yield`: only a raw yield may be
+probed for a second yield, because resuming a delegation would run the
+generator body past the failure.
+
+The attribution was a marker on the **value** (a `WeakSet` of Result objects).
+A marker's lifetime is not tied to the run that created it, which breaks in
+three ways:
+
+1. **Leak.** A delegation that is driven by hand and then abandoned leaves its
+   mark on the Result object forever. A later run that yields the very same
+   object raw consumes that stale mark, mistakes the raw yield for a
+   delegation, and skips the second-yield probe - the documented "generator
+   yielded more than once" error is never raised.
+2. **Shared value.** Two runs that delegate the *same* Result object interfere:
+   the first run to consume the mark deletes it, so the second run sees no
+   mark and treats its own delegation as a raw yield - it resumes the
+   generator and runs the body past the failure.
+3. **Cleanup.** A `finally` block that delegates a failure marks a value that
+   no runner ever consumes - the same leak as (1).
+
+**Reproduction**
+
+```ts
+const shared = err('shared');
+const abandoned = safeTry(shared);
+abandoned.next();          // marks `shared`, never consumed
+
+fromSafeTry(function* () {
+    yield shared;
+    yield shared;
+});
+// observed:  returns Err('shared') - the double yield is not reported
+// expected:  throws "safeTry: generator yielded more than once"
+```
+
+**Fixed:** the attribution no longer lives on the value. A delegation now
+yields its failure and **throws** when it is resumed past that yield, which
+ends the generator instead of running the body after the failed `yield*`. The
+runner probes every yielded value; a resumed delegation ends the generator, a
+raw yield is probed for a second one. The attribution travels with the
+exception, so it belongs to exactly one run: concurrent runs cannot steal
+each other's failure, and an abandoned delegation leaves nothing behind.
+
+---
+
+## BUG-034 - seven source comments carry an external task ID, and one prescribes the removed thenable-adopting pattern
+
+**Severity:** low - documentation defects; one of them actively misleads.
+
+**Where**
+
+- `src/async-result/catchErr.ts` (`G1 type-lie convention`)
+- `src/composition/composeK.ts` (two `G1` mentions)
+- `src/composition/composeKAsync.ts` (three `G1` mentions)
+- `src/promise-result/asyncBind.ts` (`G14 type-lie fix`)
+- `src/promise-result/asyncBind.spec.ts` (`G14 type-lie fix`)
+
+**Problem**
+
+The comment policy forbids identifiers that are only meaningful when a
+specific external document is open - `G1` and `G14` are exactly that, and the
+earlier cleanup pass only looked for `BUG-` and `Batch N` prefixes.
+
+The `asyncBind` JSDoc was worse than a dangling ID: it described an earlier
+implementation as "The fix:" and recommended `Promise.resolve(r.value).then(f)`
+- the very pattern that adopts a thenable payload and was removed by the
+thenable fix. A reader following the comment would reintroduce the defect.
+
+**Fixed:** all seven comments now state the contract directly. The `asyncBind`
+JSDoc describes the current type contract and the single-await unwrapping
+without naming a removed implementation or recommending the buggy pattern.

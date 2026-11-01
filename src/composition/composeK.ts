@@ -59,7 +59,7 @@ export function composeK<A, B, C, D, F, G, H, E>(
  * **Empty input guard**: calling `composeK()` with zero functions throws
  * `TypeError` at construction time. The async variant has the same policy.
  *
- * **Synchronous throw policy** (G1): if any function in the chain throws
+ * **Synchronous throw policy**: if any function in the chain throws
  * synchronously, the catch block funnels the unknown rejection through
  * `as unknown as IResultOfT<unknown, unknown>` - the same honesty trade-off
  * the sync `composeK` and the `retry` module make. The composed function's
@@ -101,8 +101,8 @@ export function composeK(
             }
             return acc;
         } catch (e: unknown) {
-            // G1 type lie: declared error type is `E` (per the public overloads),
-            // but the runtime value here is the raw `unknown` thrown by a step
+            // The declared error type is `E` (per the public overloads), but the
+            // runtime value here is the raw `unknown` thrown by a step
             // function. The cast goes through `unknown` so the cross-variant
             // widening is explicit, matching the `as unknown as IResultOfT<...>`
             // convention used elsewhere in the library. Consumers should wrap

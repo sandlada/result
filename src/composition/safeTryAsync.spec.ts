@@ -173,7 +173,9 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
     it('generator yield safeTryAsync directly without value', async () => {
         const gen = safeTryAsync(asyncErr('direct-yield'));
         expect((await gen.next()).value).toEqual(err('direct-yield'));
-        expect((await gen.next()).value).toBe(undefined);
+        // Resuming past the failure ends the delegation with the
+        // short-circuit signal instead of completing silently.
+        await expect(gen.next()).rejects.toThrow(/resumed past/);
     });
 
     it('identifies non-AsyncResult objects gracefully (e.g. promise that happens to have a run property not as function)', async () => {
@@ -472,6 +474,33 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             const settled = await Promise.allSettled([runA, runB]);
             expect(settled[0]!.status).toBe('fulfilled');
             expect(settled[1]!.status).toBe('rejected');
+        });
+
+        it('short-circuits both runs when they delegate the very same Result object', async () => {
+            // The attribution must travel with the delegation itself: two runs
+            // that share one Result object must not steal each other's
+            // delegation and run their body past the failure.
+            const shared = err('shared');
+            let aEffect = 'NOT-RUN';
+            let bEffect = 'NOT-RUN';
+            const runA = fromSafeTryAsync(async function* () {
+                await new Promise((resolve) => { setTimeout(resolve, 20); });
+                yield* safeTryAsync(shared);
+                aEffect = 'RAN';
+                return 1;
+            }).run();
+            const runB = fromSafeTryAsync(async function* () {
+                await new Promise((resolve) => { setTimeout(resolve, 21); });
+                yield* safeTryAsync(shared);
+                bEffect = 'RAN';
+                return 2;
+            }).run();
+
+            const [a, b] = await Promise.all([runA, runB]);
+            expect(a.isFailure).toBe(true);
+            expect(b.isFailure).toBe(true);
+            expect(aEffect).toBe('NOT-RUN');
+            expect(bEffect).toBe('NOT-RUN');
         });
     });
 

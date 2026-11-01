@@ -161,14 +161,26 @@ describe('safeTry / fromSafeTry', () => {
         expect(() => fromSafeTry(gen)).toThrow(/generator returned undefined without yielding/);
     });
 
-    it('covers the safeTry undefined return path', () => {
+    it('covers the safeTry short-circuit path', () => {
         const gen = function* () {
             const iterator = safeTry(err('test'));
             iterator.next(); // yield err('test')
-            iterator.next(); // return undefined
+            // Resuming past the failure ends the delegation: the runner
+            // consumes the failure instead of running the body after it.
+            try {
+                iterator.next();
+            } catch {
+                // The short-circuit signal ends the delegation.
+            }
         };
         const iterator = gen();
         iterator.next();
+    });
+
+    it('a delegation that is resumed past its failure throws the short-circuit signal', () => {
+        const iterator = safeTry(err('test'));
+        expect(iterator.next().done).toBe(false);
+        expect(() => iterator.next()).toThrow(/resumed past/);
     });
 
     it('preserves a falsy success value (0, false, "")', () => {
@@ -296,6 +308,35 @@ describe('safeTry / fromSafeTry', () => {
             });
             expect(result.isFailure).toBe(true);
             if (result.isFailure) expect(result.error).toBe('outer');
+            expect(sideEffect).toBe('NOT-RUN');
+        });
+
+        it('still reports a double yield after a delegation was driven manually', () => {
+            // A delegation that is driven by hand and then abandoned must not
+            // leave a trace that a later run could mistake for its own: the
+            // double-yield detection has to stay intact.
+            const shared = err('shared');
+            const abandoned = safeTry(shared);
+            abandoned.next();
+
+            expect(() => fromSafeTry(function* () {
+                yield shared;
+                yield shared;
+            })).toThrow('safeTry: generator yielded more than once');
+        });
+
+        it('does not run the body after a delegation even when the same Result was delegated before', () => {
+            const shared = err('shared');
+            const abandoned = safeTry(shared);
+            abandoned.next();
+
+            let sideEffect = 'NOT-RUN';
+            const result = fromSafeTry(function* () {
+                yield* safeTry(shared);
+                sideEffect = 'RAN';
+                return 1;
+            });
+            expect(result.isFailure).toBe(true);
             expect(sideEffect).toBe('NOT-RUN');
         });
     });
