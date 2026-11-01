@@ -25,8 +25,14 @@ export function all<T>(options: readonly IOption<T>[]): IOption<T[]>;
  *   preserves per-position types — `all([ofSome(1), ofSome('hi')])` yields
  *   `IOption<readonly [number, string]>`.
  * - Array overload (`readonly IOption<T>[]`): collapses every element to a single
- *   homogeneous type `T`, yielding `IOption<T[]>` — fits runtime-sized arrays that
+ *   homogeneous type `T`, yielding `IOption<T[]>` - fits runtime-sized arrays that
  *   are not literal tuples.
+ *
+ * **Empty input (cross-module note)**: the three combiners of the library give
+ * three different types for "combine nothing" - `combine([])` yields
+ * `IResultOfT<[], never>`, `combine/all([])` yields `IResultOfT<unknown[], unknown>`
+ * and `option/all([])` yields `IOption<unknown[]>`. The runtime behaviour is the
+ * same everywhere (an empty success); only the static type differs.
  *
  * @example
  * ```ts

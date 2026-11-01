@@ -66,9 +66,9 @@ describe('promise-result map (sync)', () => {
     });
 
     it('converts mapper returning a thenable to Err (use mapAsync instead)', async () => {
-        // Regression: BUG-047 — silently wrapping a Promise in `Ok(...)` was
-        // a type lie. Now the mapper is required to be sync; a thenable
-        // return is rejected with a clear runtime message.
+        // Silently wrapping a Promise in `Ok(...)` would be a type lie. The
+        // mapper is required to be sync; a thenable return is rejected with a
+        // clear runtime message.
         const r = await map((x: number) => Promise.resolve(x * 2), Promise.resolve(ok(21)));
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) {
