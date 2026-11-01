@@ -185,4 +185,21 @@ describe('timeout (lazy)', () => {
         });
     });
 
+    describe('malformed carriers', () => {
+        it('never rejects when the inner run() resolves with a non-Result', async () => {
+            const ar = { run: async () => undefined };
+            const r = await timeout(100, ar as never).run();
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('never rejects when the inner run() returns a plain (non-Promise) Result', async () => {
+            const ar = {
+                run: () => ({ isSuccess: true as const, isFailure: false as const, value: 7 }),
+            };
+            const r = await timeout(100, ar as never).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(7);
+        });
+    });
+
 });

@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { isResultLike } from '../types/resultShape.js';
 
 /**
  * Default shape of the error produced by {@link timeout} when no factory is given.
@@ -71,11 +72,22 @@ export function timeout<T, E, TOE = TimeoutError>(
                 // funnel it into the rejection handler below so it converges to Err.
                 innerRun = Promise.reject(thrown);
             }
-            innerRun.then(
-                (r) => {
+            // `Promise.resolve` accepts an inner run() that resolves with a
+            // plain (non-Promise) value; calling `.then` on the raw value
+            // would throw inside the executor and reject.
+            Promise.resolve(innerRun).then(
+                (r: unknown) => {
                     if (settled) return;
                     settled = true;
                     clearTimeout(timer);
+                    if (!isResultLike<T, E>(r)) {
+                        // The inner run() resolved with something that is not a
+                        // Result. The outer promise still has to settle with a
+                        // Result, so the malformed value is reported as the
+                        // failure instead of leaking through as a raw value.
+                        resolve({ isSuccess: false as const, isFailure: true as const, error: r as unknown as E } as unknown as IResultOfT<T, E | TOE>);
+                        return;
+                    }
                     resolve(r as unknown as IResultOfT<T, E | TOE>);
                 },
                 (err: unknown) => {

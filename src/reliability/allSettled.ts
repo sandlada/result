@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { isResultLike } from '../types/resultShape.js';
 
 /**
  * Discriminated outcome of a single thunk in an `allSettled` batch.
@@ -69,8 +70,16 @@ export function allSettled<T, E>(
                 }
             };
             await Promise.all(
-                runs.map((run, idx) => startCarrier(run).then(
-                    (r) => {
+                runs.map((run, idx) => Promise.resolve(startCarrier(run)).then(
+                    (r: unknown) => {
+                        if (!isResultLike<T, E>(r)) {
+                            // A carrier that resolves with a non-Result breaks
+                            // the AsyncResult contract. It is tagged like a
+                            // rejection so `allSettled` keeps its "always
+                            // returns Ok" promise.
+                            settledOutcomes[idx] = { ok: false, kind: 'Rejected', error: r };
+                            return;
+                        }
                         if (r.isSuccess) settledOutcomes[idx] = { ok: true, value: r.value };
                         else settledOutcomes[idx] = { ok: false, error: r.error };
                     },

@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { isResultLike } from '../types/resultShape.js';
 
 /**
  * Default shape of the error produced by {@link race} when the input array is empty.
@@ -136,9 +137,23 @@ export function race<T, E, EE = EmptyInputsError>(
                         // violation instead of escaping .run().
                         carrier = Promise.reject(thrown);
                     }
-                    carrier.then(
-                        (r) => {
+                    // `Promise.resolve` accepts a carrier that resolves with a
+                    // plain (non-Promise) value; calling `.then` on the raw
+                    // value would throw inside the executor and reject.
+                    Promise.resolve(carrier).then(
+                        (r: unknown) => {
                             if (settled) return;
+                            if (!isResultLike<T, E>(r)) {
+                                // The carrier resolved with something that is not
+                                // a Result. That breaks the AsyncResult contract,
+                                // so it is recorded in the rejection channel — the
+                                // race still settles with an `Err` instead of
+                                // hanging forever.
+                                rejectionsByArrival.push(r);
+                                pending--;
+                                if (pending === 0) settleWithFailure();
+                                return;
+                            }
                             if (r.isSuccess) {
                                 settled = true;
                                 resolve(r);

@@ -431,4 +431,56 @@ describe('retry', () => {
         expect(fn).toHaveBeenCalledTimes(1);
         expect(delayMs).not.toHaveBeenCalled();
     });
+
+    describe('malformed resolutions', () => {
+        it('never rejects when fn resolves with a non-Result', async () => {
+            const fn = vi.fn(() => undefined as never);
+            const r = await retry(fn, { times: 1 });
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('routes a non-Result resolution through the throw channel', async () => {
+            const fn = vi.fn(() => ({ notAResult: true }) as never);
+            const r = await retry(fn, { times: 0 });
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                expect(r.error).toEqual({ kind: 'Thrown', thrown: { notAResult: true } });
+            }
+        });
+    });
+
+    describe('delay clamping', () => {
+        it('clamps an infinite delay to the maximum timer interval', async () => {
+            vi.useFakeTimers();
+            const spy = vi.spyOn(globalThis, 'setTimeout');
+            const p = retry(async () => err('x'), { times: 1, delayMs: () => Number.POSITIVE_INFINITY });
+            await vi.advanceTimersByTimeAsync(0);
+            const delays = spy.mock.calls
+                .map((call) => call[1])
+                .filter((delay): delay is number => typeof delay === 'number');
+            expect(delays).toContain(2_147_483_647);
+            await vi.advanceTimersByTimeAsync(2_147_483_647);
+            const r = await p;
+            spy.mockRestore();
+            vi.useRealTimers();
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('never hands a non-finite delay to the timer', async () => {
+            vi.useFakeTimers();
+            const spy = vi.spyOn(globalThis, 'setTimeout');
+            const p = retry(async () => err('x'), { times: 1, delayMs: () => Number.NaN });
+            await vi.advanceTimersByTimeAsync(1);
+            const r = await p;
+            const delays = spy.mock.calls
+                .map((call) => call[1])
+                .filter((delay): delay is number => typeof delay === 'number');
+            spy.mockRestore();
+            vi.useRealTimers();
+            expect(r.isFailure).toBe(true);
+            for (const delay of delays) {
+                expect(Number.isFinite(delay)).toBe(true);
+            }
+        });
+    });
 });

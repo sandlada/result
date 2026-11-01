@@ -182,4 +182,22 @@ describe('allSettled', () => {
             }
         }
     });
+
+    describe('malformed carriers', () => {
+        it('never rejects when a carrier resolves with a non-Result', async () => {
+            const r = await allSettled([{ run: async () => undefined } as never]).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) {
+                expect(r.value).toEqual([{ ok: false, kind: 'Rejected', error: undefined }]);
+            }
+        });
+
+        it('never rejects when a carrier run() returns a plain (non-Promise) Result', async () => {
+            const r = await allSettled([{ run: () => ok(1) } as never]).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) {
+                expect(r.value).toEqual([{ ok: true, value: 1 }]);
+            }
+        });
+    });
 });

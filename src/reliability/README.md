@@ -41,8 +41,9 @@
 
 ## Contract notes
 
-- **NeverRejects**: synchronous throws, async rejections and throwing hooks are all collapsed into `Err`. This is a stronger guarantee than the `promise-*` / `async-*` layers.
-- `retry` keeps error channels additive: `E` from your `fn`, `TE` when something throws (`ThrownError` by default), `AE` when the loop never runs `fn` (`AbortedError` by default). Supply `onThrow` / `onAborted` to fold them into your own `E`.
+- **NeverRejects**: synchronous throws, async rejections and throwing hooks are all collapsed into `Err`. This is a stronger guarantee than the `promise-*` / `async-*` layers. A carrier that breaks the `AsyncResult` contract at runtime - its `run()` resolves with something that is not a Result - is treated as an upstream contract violation and reported through the error channel too, never as a rejection.
+- `retry` keeps error channels additive: `E` from your `fn`, `TE` when something throws (`ThrownError` by default), `AE` when the loop never runs `fn` (`AbortedError` by default). Supply `onThrow` / `onAborted` to fold them into your own `E`. A `fn` that resolves with a non-Result is reported through the `TE` channel.
+- A non-finite `delayMs` is clamped before it reaches the timer: an infinite delay becomes the maximum timer interval, `NaN` becomes zero.
 - A timeout cannot cancel the inner operation: after `Err(onTimeout(ms))` the inner `run()` keeps executing and its settlement is discarded.
 - `race` policy: the first `Ok` wins regardless of order; among errors the lowest input index wins; a genuine `Err` outranks a Promise rejection. A statically non-empty array keeps error type `E`; a dynamically-sized array widens to `E \| EE`.
 - See [behavior-modes.md §4.8](../../docs/behavior-modes.md#48-reliability-srcreliability) for the per-export table.

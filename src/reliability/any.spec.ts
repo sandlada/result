@@ -153,4 +153,22 @@ describe('any', () => {
         expect(ar1.run).not.toHaveBeenCalled();
         expect(ar2.run).not.toHaveBeenCalled();
     });
+
+    describe('malformed carriers', () => {
+        it('never rejects when a carrier resolves with a non-Result', async () => {
+            const r = await any([{ run: async () => undefined } as never]).run();
+            expect(r.isFailure).toBe(true);
+            if (r.isFailure) {
+                expect(r.error).toHaveLength(1);
+                const first = r.error[0]!;
+                expect(first).toEqual({ kind: 'Rejected', error: undefined });
+            }
+        });
+
+        it('never rejects when a carrier run() returns a plain (non-Promise) Result', async () => {
+            const r = await any([{ run: () => ok(1) } as never]).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toEqual([1]);
+        });
+    });
 });

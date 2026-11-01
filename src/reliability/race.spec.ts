@@ -280,4 +280,25 @@ describe('race', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('first-arrival');
     });
+
+    describe('malformed carriers', () => {
+        it('never rejects when a carrier resolves with a non-Result', async () => {
+            const r = await race([{ run: async () => undefined } as never]).run();
+            expect(r.isFailure).toBe(true);
+        });
+
+        it('never rejects when a carrier run() returns a plain (non-Promise) Result', async () => {
+            const r = await race([{ run: () => ok(1) } as never]).run();
+            expect(r.isSuccess).toBe(true);
+            if (r.isSuccess) expect(r.value).toBe(1);
+        });
+
+        it('settles instead of hanging when the only carrier resolves with a non-Result', async () => {
+            const settled = await Promise.race([
+                race([{ run: async () => undefined } as never]).run().then(() => 'settled'),
+                new Promise<string>((resolve) => { setTimeout(() => { resolve('hung'); }, 50); }),
+            ]);
+            expect(settled).toBe('settled');
+        });
+    });
 });

@@ -2,6 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
+import { isResultLike } from '../types/resultShape.js';
 
 /**
  * Tagged envelope for an inner `.run()` Promise rejection. `any` collects
@@ -58,8 +59,16 @@ export function any<T, E>(
                 }
             };
             await Promise.all(
-                runs.map((run) => startCarrier(run).then(
-                    (r) => {
+                runs.map((run) => Promise.resolve(startCarrier(run)).then(
+                    (r: unknown) => {
+                        if (!isResultLike<T, E>(r)) {
+                            // A carrier that resolves with a non-Result breaks
+                            // the AsyncResult contract. It is tagged like a
+                            // rejection so the module keeps its never-rejects
+                            // promise.
+                            errors.push({ kind: 'Rejected', error: r });
+                            return;
+                        }
                         if (r.isSuccess) successes.push(r.value);
                         else errors.push(r.error);
                     },
