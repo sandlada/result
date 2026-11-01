@@ -1,9 +1,15 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
- * Creates an AsyncResult from a thunk that returns a Promise<IResultOfT>.
- * The thunk is lazy — it won't execute until `.run()` is called.
+ * Creates an AsyncResult from a thunk that returns a Result or a
+ * Promise<Result>. The thunk is lazy - it won't execute until `.run()` is
+ * called.
+ *
+ * The carrier's `run()` always returns a Promise: a thunk that returns a plain
+ * Result is awaited, and a thunk that throws synchronously surfaces as a
+ * rejected promise instead of escaping as a raw exception.
  *
  * @example
  * ```ts
@@ -16,7 +22,9 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * ```
  */
 export function from<T, E = unknown>(
-    thunk: () => Promise<import('../types/IResultOfT.js').IResultOfT<T, E>>,
+    thunk: () => IResultOfT<T, E> | Promise<IResultOfT<T, E>>,
 ): AsyncResult<T, E> {
-    return markAsyncCarrier({ run: thunk });
+    return markAsyncCarrier({
+        run: async (): Promise<IResultOfT<T, E>> => await thunk(),
+    });
 }

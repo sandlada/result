@@ -67,4 +67,18 @@ describe('AsyncOption from', () => {
         expect(r.isSome).toBe(true);
         if (r.isSome) expect(r.value).toBe(7);
     });
+
+    it('always returns a Promise from run()', async () => {
+        const ao = from(() => ofSome(1));
+        const promise = ao.run();
+        expect(promise).toBeInstanceOf(Promise);
+        const result = await promise;
+        expect(result.isSome).toBe(true);
+        if (result.isSome) expect(result.value).toBe(1);
+    });
+
+    it('turns a synchronous throw into a rejected promise', async () => {
+        const ao = from(() => { throw new Error('sync-throw'); });
+        await expect(ao.run()).rejects.toThrow('sync-throw');
+    });
 });

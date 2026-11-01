@@ -23,7 +23,9 @@ import { ok } from '../factories/ok.js';
 export function sequenceAsyncResult<T, E>(
     results: readonly AsyncResult<T, E>[],
 ): AsyncResult<T[], E> {
-    const runs = results.map((ar) => ar.run);
+    // Invoke `run` through the carrier so a method-shorthand AsyncResult keeps
+    // its receiver — detaching `ar.run` would drop `this`.
+    const runs = results.map((ar) => () => ar.run());
     return {
         run: async (): Promise<IResultOfT<T[], E>> => {
             const values: T[] = [];

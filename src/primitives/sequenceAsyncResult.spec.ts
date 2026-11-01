@@ -110,4 +110,16 @@ describe('sequenceAsyncResult', () => {
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('last');
     });
+
+    it('keeps the carrier as the receiver of run()', async () => {
+        const carrier = {
+            value: 42,
+            run() {
+                return Promise.resolve(ok(this.value));
+            },
+        };
+        const r = await sequenceAsyncResult([carrier]).run();
+        expect(r.isSuccess).toBe(true);
+        if (r.isSuccess) expect(r.value).toEqual([42]);
+    });
 });

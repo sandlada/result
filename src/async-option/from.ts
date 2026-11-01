@@ -3,8 +3,13 @@ import type { IOption } from '../types/Option.js';
 import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
- * Creates an AsyncOption from a thunk that returns a Promise<IOption>.
- * The thunk is lazy — it won't execute until `.run()` is called.
+ * Creates an AsyncOption from a thunk that returns an Option or a
+ * Promise<Option>. The thunk is lazy - it won't execute until `.run()` is
+ * called.
+ *
+ * The carrier's `run()` always returns a Promise: a thunk that returns a plain
+ * Option is awaited, and a thunk that throws synchronously surfaces as a
+ * rejected promise instead of escaping as a raw exception.
  *
  * @example
  * ```ts
@@ -16,7 +21,9 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  * ```
  */
 export function from<T>(
-    thunk: () => Promise<IOption<T>>,
+    thunk: () => IOption<T> | Promise<IOption<T>>,
 ): AsyncOption<T> {
-    return markAsyncCarrier({ run: thunk });
+    return markAsyncCarrier({
+        run: async (): Promise<IOption<T>> => await thunk(),
+    });
 }

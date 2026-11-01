@@ -64,4 +64,18 @@ describe('AsyncResult from', () => {
         const ar = from(() => Promise.reject(new Error('rejected')));
         await expect(ar.run()).rejects.toThrow('rejected');
     });
+
+    it('always returns a Promise from run()', async () => {
+        const ar = from(() => ok(1));
+        const promise = ar.run();
+        expect(promise).toBeInstanceOf(Promise);
+        const result = await promise;
+        expect(result.isSuccess).toBe(true);
+        if (result.isSuccess) expect(result.value).toBe(1);
+    });
+
+    it('turns a synchronous throw into a rejected promise', async () => {
+        const ar = from(() => { throw new Error('sync-throw'); });
+        await expect(ar.run()).rejects.toThrow('sync-throw');
+    });
 });
