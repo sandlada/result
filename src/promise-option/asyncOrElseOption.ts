@@ -2,10 +2,10 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
 export function asyncOrElseOption<T>(
-    f: () => Promise<IOption<T>>,
+    f: () => Promise<IOption<T>> | IOption<T>,
 ): (o: IOption<T>) => Promise<IOption<T>>;
 export function asyncOrElseOption<T>(
-    f: () => Promise<IOption<T>>,
+    f: () => Promise<IOption<T>> | IOption<T>,
     o: IOption<T>,
 ): Promise<IOption<T>>;
 /**
@@ -24,7 +24,7 @@ export function asyncOrElseOption<T>(
  * ```
  */
 export function asyncOrElseOption<T>(
-    f: () => Promise<IOption<T>>,
+    f: () => Promise<IOption<T>> | IOption<T>,
     o?: IOption<T>,
 ): Promise<IOption<T>> | ((o: IOption<T>) => Promise<IOption<T>>) {
     if (o === undefined) return (o: IOption<T>) => asyncOrElseOption(f, o);

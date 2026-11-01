@@ -29,12 +29,16 @@ export function tapErrAsyncOption<T>(
     fnNone?: () => void | Promise<void>,
 ): Promise<IOption<T>>;
 /**
- * Side-effect on the error track of `Promise<IOption<T>>`.
+ * Side-effect on both tracks of `Promise<IOption<T>>`.
  *
- * Two callbacks: `fn` runs on the Some branch (with the inner value), `fnNone`
- * runs on the None branch. Splitting the callbacks eliminates the
- * `(value: T | undefined)` lie — on None there is genuinely no value, so the
- * callback can't pretend to receive one.
+ * Two callbacks: `fn` runs on the Some track (with the inner value), `fnNone`
+ * runs on the None track - which is the failure track of an Option. Splitting
+ * the callbacks eliminates the `(value: T | undefined)` lie - on None there is
+ * genuinely no value, so the callback can't pretend to receive one.
+ *
+ * The `Err` in the name refers to the failure track of the Option, which is
+ * `None`: `fnNone` is the observer for it. `fn` observes the Some track, the
+ * same track `tapAsyncOption` observes.
  *
  * **Throw policy**: a synchronous throw from either callback converts to
  * `None`; a rejected Promise propagates as an outer rejection

@@ -82,3 +82,13 @@ describe('asyncBindOption', () => {
         if (r.isSome) expect(r.value).toBe(2);
     });
 });
+
+describe('misused callback contract', () => {
+    it('returns a Promise even when the callback returns a plain Option', async () => {
+        const promise = asyncBindOption(((x: number) => ofSome(x * 2)) as never, ofSome(21));
+        expect(promise).toBeInstanceOf(Promise);
+        const r = await promise;
+        expect(r.isSome).toBe(true);
+        if (r.isSome) expect(r.value).toBe(42);
+    });
+});

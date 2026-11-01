@@ -28,12 +28,16 @@ export function asyncMapOption<A, B>(
     // Bind `f(o.value)` into a local so a *synchronous* throw becomes `None`
     // via try/catch, while a *rejected* Promise is left to propagate through
     // the success-only `.then` (matching the documented "no catch in the lift
-    // family" contract for async rejection — see asyncMapOption.spec.ts).
+    // family" contract for async rejection - see asyncMapOption.spec.ts).
+    // The `.then` call itself stays inside the guard: a callback that returns
+    // something other than a Promise violates the declared contract, and the
+    // resulting `TypeError` must not escape as a synchronous exception from a
+    // function that promises a `Promise`.
     let inner: Promise<B>;
     try {
         inner = f(o.value);
+        return inner.then(v => ofSome(v));
     } catch {
         return Promise.resolve(ofNone<B>());
     }
-    return inner.then(v => ofSome(v));
 }

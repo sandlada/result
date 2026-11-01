@@ -2,10 +2,10 @@ import type { IOption } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
 
 export function asyncBindOption<T, U>(
-    fn: (value: T) => Promise<IOption<U>>,
+    fn: (value: T) => Promise<IOption<U>> | IOption<U>,
 ): (opt: IOption<T>) => Promise<IOption<U>>;
 export function asyncBindOption<T, U>(
-    fn: (value: T) => Promise<IOption<U>>,
+    fn: (value: T) => Promise<IOption<U>> | IOption<U>,
     opt: IOption<T>,
 ): Promise<IOption<U>>;
 /**
@@ -26,17 +26,19 @@ export function asyncBindOption<T, U>(
  * ```
  */
 export function asyncBindOption<T, U>(
-    fn: (value: T) => Promise<IOption<U>>,
+    fn: (value: T) => Promise<IOption<U>> | IOption<U>,
     opt?: IOption<T>,
 ): Promise<IOption<U>> | ((opt: IOption<T>) => Promise<IOption<U>>) {
     if (opt === undefined) return (opt: IOption<T>) => asyncBindOption(fn, opt);
     if (!opt.isSome) return Promise.resolve(ofNone<U>());
-    let inner: Promise<IOption<U>>;
+    let inner: Promise<IOption<U>> | IOption<U>;
     try {
         inner = fn(opt.value);
     } catch {
         // Sync throw → None; async rejection propagates (promotion-family rule).
         return Promise.resolve(ofNone<U>());
     }
-    return inner;
+    // `Promise.resolve` adapts a callback that returned a plain Option, so
+    // the declared `Promise<IOption<U>>` return type always holds.
+    return Promise.resolve(inner);
 }

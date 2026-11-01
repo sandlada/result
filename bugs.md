@@ -487,6 +487,8 @@ await tapErrAsyncOption(v => calls.push(['fn', v]), Promise.resolve(ofNone()), (
 // observed:  [['fnNone']] — 'fn' (the "error" callback) never ran
 ```
 
+**Partially fixed (documentation):** the misleading "error track" wording is gone - the JSDoc and the module README now state that `fn` observes the Some track and `fnNone` the None track (the failure track of an Option). The branch assignment itself was deliberately left unchanged: it keeps the `(value: T | undefined)` lie out of the API and is pinned by `tapErrAsyncOption.spec.ts` and `tapErrAsyncOption.type-spec.ts`, so swapping the branches would silently break every existing caller.
+
 ---
 
 ## BUG-013 — `async-option/exists` rejects on a throwing predicate while its eager sibling returns `false`
@@ -693,6 +695,8 @@ outside the type contract. The defect is that the failure mode is a raw
 synchronous `TypeError` rather than a rejected promise or a `None` — the
 declared return type is a lie in that path.
 
+**Fixed:** the `.then` call of `asyncMapOption` / `asyncTapOption` moved inside the existing guard, so a callback that violates the declared `Promise`-returning contract converts to `None` instead of throwing a raw synchronous `TypeError` from a function that promises a `Promise`.
+
 ---
 
 ## BUG-019 — `promise-option/asyncBindOption` and `asyncOrElseOption` return the callback's value un-wrapped
@@ -726,6 +730,8 @@ await asyncBindOption(async (x) => ofSome(x * 2), ofSome(21));
 // with a sync callback returning a plain IOption:
 //   TypeError: opt.then is not a function
 ```
+
+**Fixed:** `asyncBindOption` adapts the callback's return value with `Promise.resolve`, so the declared `Promise<IOption<U>>` return type always holds - a callback that returns a plain Option no longer hands the caller a non-Promise. The callback types of `asyncBindOption` and `asyncOrElseOption` now accept a plain Option as well.
 
 ---
 

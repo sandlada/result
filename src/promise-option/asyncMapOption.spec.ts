@@ -73,3 +73,10 @@ describe('promise-result asyncMapOption', () => {
         expect(o.isNone).toBe(true);
     });
 });
+
+describe('misused callback contract', () => {
+    it('converts a synchronous mapper into None instead of throwing synchronously', async () => {
+        const o = await asyncMapOption(((x: number) => x * 2) as never, ofSome(21));
+        expect(o.isNone).toBe(true);
+    });
+});

@@ -52,3 +52,12 @@ describe('promise-result asyncOrElseOption', () => {
         expect(r).toBeInstanceOf(Promise);
     });
 });
+
+describe('misused callback contract', () => {
+    it('adapts a callback that returns a plain Option', async () => {
+        const promise = asyncOrElseOption((() => ofSome(0)) as never, ofNone());
+        expect(promise).toBeInstanceOf(Promise);
+        const r = await promise;
+        expect(r.isSome).toBe(true);
+    });
+});

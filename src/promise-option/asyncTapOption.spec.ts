@@ -95,3 +95,10 @@ describe('asyncTapOption', () => {
         )).rejects.toBe(thrown);
     });
 });
+
+describe('misused callback contract', () => {
+    it('converts a synchronous callback into None instead of throwing synchronously', async () => {
+        const r = await asyncTapOption((() => undefined) as never, ofSome(21));
+        expect(r.isNone).toBe(true);
+    });
+});

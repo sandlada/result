@@ -31,9 +31,13 @@ export function asyncTapOption<T>(
     let inner: Promise<unknown>;
     try {
         inner = fn(opt.value);
+        // The `.then` call stays inside the guard: a callback that returns
+        // something other than a Promise violates the declared contract, and
+        // the resulting `TypeError` must not escape as a synchronous exception
+        // from a function that promises a `Promise`.
+        return inner.then(() => opt);
     } catch {
         // Sync throw → None; async rejection propagates (promotion-family rule).
         return Promise.resolve(ofNone<T>());
     }
-    return inner.then(() => opt);
 }

@@ -26,7 +26,7 @@
 | `orElseAsyncOption` | Async fallback on `None`. | [orElseAsyncOption.ts](./orElseAsyncOption.ts) |
 | `matchAsyncOption` | Async terminal pattern match. | [matchAsyncOption.ts](./matchAsyncOption.ts) |
 | `mapOrAsyncOption` / `mapOrElseAsyncOption` | Map the `Some` value or fall back asynchronously. | [mapOrAsyncOption.ts](./mapOrAsyncOption.ts), [mapOrElseAsyncOption.ts](./mapOrElseAsyncOption.ts) |
-| `tapAsyncOption` / `tapErrAsyncOption` | Async side effects. | [tapAsyncOption.ts](./tapAsyncOption.ts), [tapErrAsyncOption.ts](./tapErrAsyncOption.ts) |
+| `tapAsyncOption` / `tapErrAsyncOption` | Async side effects; `tapErrAsyncOption` observes the Some track with `fn` and the None track (the Option's failure track) with `fnNone`. | [tapAsyncOption.ts](./tapAsyncOption.ts), [tapErrAsyncOption.ts](./tapErrAsyncOption.ts) |
 | `unwrapOrAsyncOption` / `unwrapOrElseAsyncOption` | Extract the value or an async default. | [unwrapOrAsyncOption.ts](./unwrapOrAsyncOption.ts), [unwrapOrElseAsyncOption.ts](./unwrapOrElseAsyncOption.ts) |
 | `containsAsyncOption` / `existsAsyncOption` / `filterAsyncOption` | Async predicate queries. | [containsAsyncOption.ts](./containsAsyncOption.ts), [existsAsyncOption.ts](./existsAsyncOption.ts), [filterAsyncOption.ts](./filterAsyncOption.ts) |
 | `flattenAsyncOption` | Flattens `Promise<IOption<IOption<T>>>`. | [flattenAsyncOption.ts](./flattenAsyncOption.ts) |
