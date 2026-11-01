@@ -99,4 +99,17 @@ describe('promise-result asyncMatchOption', () => {
         }, ofSome(5));
         expect(r).toBeInstanceOf(Promise);
     });
+
+    it('hands the some handler the original payload when the payload is a thenable', async () => {
+        // The payload must reach the handler unchanged. Lifting it with
+        // `Promise.resolve(value)` would adopt the thenable and hand the
+        // handler the thenable's resolved value instead.
+        const thenable = { then: (resolve: (v: number) => void) => { resolve(99); } };
+        const seen: unknown[] = [];
+        await asyncMatchOption({
+            some: (x: unknown) => { seen.push(x); return 'some'; },
+            none: () => 'none',
+        }, ofSome(thenable as never));
+        expect(seen[0]).toBe(thenable);
+    });
 });

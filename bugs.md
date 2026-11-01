@@ -1025,3 +1025,84 @@ delegation marks the Result object it yields, and the runner consumes that
 mark when it receives the value - so a delegation is recognised no matter how
 many runs are in flight, and no module-level mutable state is involved. The
 sync sibling uses the same mechanism, which removes its flag as well.
+---
+
+## BUG-027 - `promise-option/asyncMatchOption` adopts a thenable payload
+
+**Severity:** low - the handler receives a different value than the one the
+Option carries.
+
+**Where**
+
+- `src/promise-option/asyncMatchOption.ts:33`
+
+**Problem**
+
+```ts
+return o.isSome
+    ? Promise.resolve(o.value).then(handlers.some)
+```
+
+`Promise.resolve` adopts a thenable, so a payload that carries a `then`
+method is unwrapped and the handler receives the thenable's *resolved* value
+instead of the payload. This is the same defect shape as the Result-side
+entry, where `asyncOrElse` / `asyncBind` / `asyncMatch` were corrected. The
+Option sibling was missed by that pass.
+
+The comment above the code also claimed the opposite shape
+(`Promise.resolve().then(() => ...)`), so the comment did not describe the
+implementation either.
+
+**Reproduction**
+
+```ts
+const thenable = { then: (res) => res(99) };
+await asyncMatchOption({ some: (x) => { seen = x; return 'some'; }, none: () => 'none' }, ofSome(thenable));
+// observed:  seen === 99
+// expected:  seen === thenable
+```
+
+**Fixed:** the payload is read inside the callback, exactly like the
+Result-side `promise-result/asyncMatch`.
+
+---
+
+## BUG-028 - `async-option/okOrElse` types its error channel as `E` but stores any thrown value
+
+**Severity:** low - a type lie; `instanceof Error` is `false` on the value.
+
+**Where**
+
+- `src/async-option/okOrElse.ts` (`err(e as E)`)
+
+**Problem**
+
+The `catch` block stores the caught value verbatim while the declared type is
+`AsyncResult<T, E>`. A thrown value can be any `unknown`, so the declared
+error type does not hold for every value the caller can receive. The sync
+sibling `option/okOrElse` had exactly this defect and was corrected to
+`E | Error` with the caught value wrapped in an `Error`; the async sibling was
+missed by that pass.
+
+**Fixed:** the return type is widened to `AsyncResult<T, E | Error>` and a
+caught value that is not an `Error` instance is wrapped in one (the original
+value stays available through `cause`).
+
+---
+
+## BUG-029 - `option/okOrElse` points at a non-existent `okOrElseAsync`
+
+**Severity:** low - documentation defect.
+
+**Where**
+
+- `src/option/okOrElse.ts:39`
+
+**Problem**
+
+The JSDoc told the reader that an async error function needs
+"`okOrElseAsync` from `@sandlada/result/promise-result`" - no such export
+exists in that module.
+
+**Fixed:** the reference is replaced by the plain constraint (the thunk is
+synchronous; bridge the async work yourself).

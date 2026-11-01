@@ -36,8 +36,8 @@ export function okOrElse<E, T>(errorFn: () => E, opt: IOption<T>): IResultOfT<T,
  *
  * The function signature accepts a synchronous `() => E`; passing an async
  * function is **not supported** - any returned Promise will be coerced via
- * `err(Promise)` (you almost certainly want `okOrElseAsync` from
- * `@sandlada/result/promise-result` instead).
+ * `err(Promise)`. Bridge the async work yourself and return its settled
+ * value from a synchronous thunk.
  *
  * Data-last and curried: `okOrElse(errorFn)(option)`. The direct form
  * `okOrElse(errorFn, option)` is supported as well.

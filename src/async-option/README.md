@@ -61,7 +61,7 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `okOr` / `okOrElse` | `Some` becomes `Ok`; `None` becomes `Err(error)` / `Err(errorFn())`. | [okOr.ts](./okOr.ts), [okOrElse.ts](./okOrElse.ts) |
+| `okOr` / `okOrElse` | `Some` becomes `Ok`; `None` becomes `Err(error)` / `Err(errorFn())`. `okOrElse` widens its error type to `E \| Error`, because a throwing or rejecting `onNone` can surface any value. | [okOr.ts](./okOr.ts), [okOrElse.ts](./okOrElse.ts) |
 
 ### Terminals
 

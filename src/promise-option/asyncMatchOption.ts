@@ -25,11 +25,11 @@ export function asyncMatchOption<T, U>(
     o?: IOption<T>,
 ): Promise<U> | ((o: IOption<T>) => Promise<U>) {
     if (o === undefined) return (o: IOption<T>) => asyncMatchOption(handlers, o);
-    // `Promise.resolve(value).then(handler)` lets the handler's return value be
-    // awaited by the outer `.then` chain. Using `Promise.resolve().then(() => ...)`
-    // would produce `Promise<Promise<U>>` when the handler returns a Promise,
-    // forcing the caller to await twice. Mirror `asyncBind`'s shape.
+    // The payload is read inside the callback, after the promise machinery has
+    // settled. Lifting it with `Promise.resolve(o.value)` would adopt a
+    // thenable payload and hand the handler the thenable's resolved value
+    // instead of the original payload.
     return o.isSome
-        ? Promise.resolve(o.value).then(handlers.some)
-        : Promise.resolve(undefined).then(handlers.none);
+        ? Promise.resolve().then(() => handlers.some(o.value))
+        : Promise.resolve().then(() => handlers.none());
 }

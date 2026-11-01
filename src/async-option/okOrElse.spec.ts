@@ -51,4 +51,16 @@ describe('AsyncOption okOrElse', () => {
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) expect(r.error).toBe('lazy');
     });
+
+    it('wraps a non-Error throw from onNone in an Error', async () => {
+        // The error channel is typed `E | Error`, so every value the caller
+        // can receive has to be an `Error` instance. The original thrown value
+        // stays available through `cause`.
+        const r = await okOrElse<string>(() => { throw 'string-throw'; }, ofNone<number>()).run();
+        expect(r.isSuccess).toBe(false);
+        if (!r.isSuccess) {
+            expect(r.error).toBeInstanceOf(Error);
+            expect((r.error as Error).cause).toBe('string-throw');
+        }
+    });
 });
