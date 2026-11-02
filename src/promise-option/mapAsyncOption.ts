@@ -1,5 +1,6 @@
 import type { IOption } from '../types/Option.js';
-import { ofSome, ofNone } from '../option/index.js';
+import { ofSome } from '../option/ofSome.js';
+import { ofNone } from '../option/ofNone.js';
 
 export function mapAsyncOption<T, U>(
     f: (a: T) => U | Promise<U>,

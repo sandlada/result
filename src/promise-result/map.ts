@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok, err } from '../factories/index.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 
 export function map<A, B>(

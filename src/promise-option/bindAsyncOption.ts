@@ -1,5 +1,5 @@
 import type { IOption } from '../types/Option.js';
-import { ofNone } from '../option/index.js';
+import { ofNone } from '../option/ofNone.js';
 
 export function bindAsyncOption<T, U>(
     f: (a: T) => IOption<U> | Promise<IOption<U>>,
