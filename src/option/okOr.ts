@@ -20,10 +20,15 @@ export function okOr<E, T>(error: E, opt: IOption<T>): IResultOfT<T, E>;
  * @example
  * ```ts
  * import { okOr, ofSome, ofNone } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { match } from '@sandlada/result/operators';
  *
- * pipe(ofSome(42), okOr('missing')); // Ok(42)
- * pipe(ofNone(), okOr('missing')); // Err('missing')
+ * const success = okOr('missing', ofSome(42));
+ * const label = match((n) => `ok:${n}`, (e) => `err:${e}`, success);
+ * // label === 'ok:42'
+ *
+ * const failure = okOr('missing', ofNone<number>());
+ * const code = match((n) => `ok:${n}`, (e) => `err:${e}`, failure);
+ * // code === 'err:missing'
  * ```
  */
 export function okOr<E>(error: E, opt?: IOption<unknown>): IResultOfT<unknown, E> | (<T>(opt: IOption<T>) => IResultOfT<T, E>) {

@@ -27,13 +27,15 @@ export function traverseArray<A, B>(
  *
  * @example
  * ```ts
- * import { traverseArray, traverse, ofSome, ofNone } from '@sandlada/result/option';
- * traverseArray(x => x > 0 ? ofSome(x * 2) : ofNone(), [1, 2, 3]); // Some([2, 4, 6])
- * traverseArray(x => x > 0 ? ofSome(x * 2) : ofNone(), [1, -1, 3]); // None
+ * import { traverseArray, ofSome, ofNone, unwrapOr } from '@sandlada/result/option';
  *
- * // Iterable overload - use `traverse` for generators and other iterables.
- * function* gen(): IterableIterator<number> { yield 1; yield 2; yield 3; }
- * traverse(x => ofSome(x * 2), gen()); // Some([2, 4, 6])
+ * const doubled = traverseArray((x) => (x > 0 ? ofSome(x * 2) : ofNone()), [1, 2, 3]);
+ * const values = unwrapOr([], doubled);
+ * // values === [2, 4, 6]
+ *
+ * const broken = traverseArray((x) => (x > 0 ? ofSome(x * 2) : ofNone()), [1, -1, 3]);
+ * const lost = unwrapOr([], broken);
+ * // broken is None; lost === []
  * ```
  */
 export function traverseArray<A, B>(
@@ -71,10 +73,12 @@ export function traverse<A, B>(
  *
  * @example
  * ```ts
- * import { traverse, ofSome } from '@sandlada/result/option';
+ * import { traverse, ofSome, unwrapOr } from '@sandlada/result/option';
  *
  * function* gen(): IterableIterator<number> { yield 1; yield 2; yield 3; }
- * traverse(x => ofSome(x * 2), gen()); // Some([2, 4, 6])
+ * const doubled = traverse((x) => ofSome(x * 2), gen());
+ * const values = unwrapOr([], doubled);
+ * // values === [2, 4, 6]
  * ```
  */
 export function traverse<A, B>(

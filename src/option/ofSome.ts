@@ -6,8 +6,11 @@ import { someShape } from '../internal/shape.js';
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * ofSome(42); // { isSome: true, isNone: false, value: 42 }
+ * import { ofSome, map } from '@sandlada/result/option';
+ *
+ * const input = ofSome(42);
+ * const doubled = map((n) => n * 2, input);
+ * // doubled is Some(84)
  * ```
  */
 export function ofSome<T>(value: T): IOption<T> {

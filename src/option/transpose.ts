@@ -15,11 +15,20 @@ import { ofNone } from './ofNone.js';
  * ```ts
  * import { transpose, ofSome, ofNone } from '@sandlada/result/option';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  * import type { IResultOfT } from '@sandlada/result';
  *
- * transpose(ofSome(ok(42))); // Ok(Some(42))
- * transpose(ofSome(err('boom'))); // Err('boom')
- * transpose(ofNone<IResultOfT<number, string>>()); // Ok(None)
+ * const wrapped = transpose(ofSome(ok(42)));
+ * const success = match((opt) => opt.isSome, (e) => false, wrapped);
+ * // wrapped is Ok(Some(42)); success === true
+ *
+ * const errSide = transpose(ofSome(err('boom')));
+ * const failed = match((opt) => 'ok', (e) => String(e), errSide);
+ * // failed === 'boom'
+ *
+ * const bare = transpose(ofNone<IResultOfT<number, string>>());
+ * const stillOk = match((opt) => !opt.isSome, (e) => false, bare);
+ * // bare is Ok(None); stillOk === true
  * ```
  */
 export function transpose<T, E>(

@@ -26,10 +26,16 @@ export function tap<T>(fn: (value: T) => void, opt: IOption<T>): IOption<T>;
  *
  * @example
  * ```ts
- * import { tap, ofSome } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { tap, ofSome, ofNone, unwrapOr } from '@sandlada/result/option';
  *
- * pipe(ofSome('hello'), tap(v => console.log('got:', v)));
+ * const input = ofSome('hello');
+ * const logged = tap((v) => { void v; }, input);
+ * const text = unwrapOr('', logged);
+ * // text === 'hello'; tap passes the original Some through
+ *
+ * const missing = ofNone<string>();
+ * const unchanged = tap((v) => { void v; }, missing);
+ * // unchanged is None; tap does not run the side effect on None
  * ```
  */
 export function tap<T>(fn: (value: T) => void, opt?: IOption<T>): IOption<T> | ((opt: IOption<T>) => IOption<T>) {

@@ -20,10 +20,16 @@ export function bind<T, U>(fn: (value: T) => IOption<U>, opt: IOption<T>): IOpti
  *
  * @example
  * ```ts
- * import { bind } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- * pipe(ofSome(21), bind(n => n > 0 ? ofSome(n * 2) : ofNone<number>()));
+ * import { bind, match, ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = ofSome(21);
+ * const chained = bind((n) => (n > 0 ? ofSome(n * 2) : ofNone<number>()), input);
+ * const value = match((v) => v, () => 0, chained);
+ * // value === 42
+ *
+ * const missing = ofNone<number>();
+ * const short = bind((n) => ofSome(n * 2), missing);
+ * // short is None; bind short-circuits on None
  * ```
  */
 export function bind<T, U>(fn: (value: T) => IOption<U>, opt?: IOption<T>): IOption<U> | ((opt: IOption<T>) => IOption<U>) {

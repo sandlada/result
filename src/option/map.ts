@@ -21,10 +21,16 @@ export function map<T, U>(fn: (value: T) => U, opt: IOption<T>): IOption<U>;
  *
  * @example
  * ```ts
- * import { map, ofSome } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { map, match, ofSome, ofNone } from '@sandlada/result/option';
  *
- * pipe(ofSome(5), map(x => x * 2)); // Some(10)
+ * const input = ofSome(5);
+ * const mapped = map((x: number) => x * 2, input);
+ * const label = match((v) => `value:${v}`, () => 'nothing', mapped);
+ * // label === 'value:10'
+ *
+ * const empty = ofNone<number>();
+ * const skipped = map((x: number) => x * 2, empty);
+ * // skipped is None; map passes None through unchanged
  * ```
  */
 export function map<T, U>(fn: (value: T) => U, opt?: IOption<T>): IOption<U> | ((opt: IOption<T>) => IOption<U>) {

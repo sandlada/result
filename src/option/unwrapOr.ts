@@ -28,17 +28,14 @@ export function unwrapOr<T, D>(defaultValue: D, opt: IOption<T>): T | D;
  * @example
  * ```ts
  * import { unwrapOr, ofSome, ofNone } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
  *
- * pipe(ofSome(42), unwrapOr(0)); // 42
- * pipe(ofNone(),   unwrapOr(0)); // 0
+ * const input = ofSome(42);
+ * const value = unwrapOr(0, input);
+ * // value === 42
  *
- * // Cross-shape default — `T = number`, `D = null`, result is `number | null`
- * pipe(ofSome(1), unwrapOr(null));
- *
- * // Direct form: `T = 'high' | 'low'`, `D = 'low'`, result narrows naturally
- * unwrapOr('low', ofSome('high')); // 'high'
- * unwrapOr('low', ofNone());       // 'low'
+ * const missing = ofNone<number>();
+ * const fallback = unwrapOr(0, missing);
+ * // fallback === 0
  * ```
  */
 export function unwrapOr(defaultValue: unknown, opt?: unknown): unknown {

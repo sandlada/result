@@ -56,22 +56,14 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
  *
  * @example
  * ```ts
- * import { zipWith, ofSome, ofNone } from '@sandlada/result/option';
- * import type { IOption } from '@sandlada/result';
+ * import { zipWith, ofSome, ofNone, unwrapOr } from '@sandlada/result/option';
  *
- * // Arity 2
- * zipWith((a: number, b: string) => `${a}-${b}`)(ofSome(1), ofSome('a'));
- * // Some('1-a')
+ * const zipped = zipWith((a: number, b: string) => `${a}-${b}`, ofSome(1), ofSome('a'));
+ * const text = unwrapOr('', zipped);
+ * // text === '1-a'
  *
- * // Arity 5
- * zipWith(
- *     (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
- * )(ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5));
- * // Some(15)
- *
- * // Any None short-circuits to None.
- * zipWith((a: number, b: number) => a + b)(ofSome(1), ofNone() as IOption<number>);
- * // None
+ * const short = zipWith((a: number, b: number) => a + b, ofSome(1), ofNone<number>());
+ * // short is None when any input is None
  * ```
  */
 export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(

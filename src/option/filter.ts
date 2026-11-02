@@ -21,11 +21,16 @@ export function filter<T>(predicate: (value: T) => boolean, opt: IOption<T>): IO
  *
  * @example
  * ```ts
- * import { filter, ofSome } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { filter, ofSome, unwrapOr } from '@sandlada/result/option';
  *
- * pipe(ofSome(42), filter(n => n > 100)); // None
- * pipe(ofSome(42), filter(n => n > 0)); // Some(42)
+ * const input = ofSome(42);
+ * const kept = filter((n) => n > 0, input);
+ * const value = unwrapOr(0, kept);
+ * // value === 42
+ *
+ * const rejected = filter((n) => n > 100, ofSome(42));
+ * const fallback = unwrapOr(0, rejected);
+ * // fallback === 0 because filter returned None
  * ```
  */
 export function filter<T>(predicate: (value: T) => boolean, opt?: IOption<T>): IOption<T> | ((opt: IOption<T>) => IOption<T>) {

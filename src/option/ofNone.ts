@@ -22,19 +22,16 @@ import { noneShape } from '../internal/shape.js';
  *
  * @example
  * ```ts
- * import { ofNone } from '@sandlada/result/option';
+ * import { ofNone, unwrapOr } from '@sandlada/result/option';
  * import type { IOption } from '@sandlada/result';
  *
- * // Contextual typing widens `unknown` to `number` here.
- * const a: IOption<number> = ofNone();
+ * const typed: IOption<number> = ofNone();
+ * const fromContext = unwrapOr(0, typed);
+ * // fromContext === 0; contextual typing slots ofNone() into IOption<number>
  *
- * // Explicit generic still works when no contextual type is available.
- * const b = ofNone<string>();
- *
- * // Every call returns the same frozen object.
- * const x = ofNone<number>();
- * const y = ofNone<string>();
- * x === y; // true
+ * const explicit = ofNone<string>();
+ * const fallback = unwrapOr('default', explicit);
+ * // fallback === 'default'
  * ```
  */
 export function ofNone<T = unknown>(): IOption<T> {

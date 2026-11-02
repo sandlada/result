@@ -45,14 +45,15 @@ export function okOrElse<E, T>(errorFn: () => E, opt: IOption<T>): IResultOfT<T,
  * @example
  * ```ts
  * import { okOrElse, ofSome, ofNone } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { match } from '@sandlada/result/operators';
  *
- * pipe(ofSome(42), okOrElse(() => 'missing')); // Ok(42)
- * pipe(ofNone(),  okOrElse(() => 'missing')); // Err('missing')
+ * const success = okOrElse(() => 'missing', ofSome(42));
+ * const label = match((n) => String(n), (e) => String(e), success);
+ * // label === '42'
  *
- * // The return type is widened to IResultOfT<T, E | Error> to reflect the
- * // catch-block's runtime payload when `errorFn` throws.
- * pipe(ofNone(), okOrElse(() => { throw new Error('boom'); }));
+ * const lazy = okOrElse(() => 'missing', ofNone<number>());
+ * const code = match((n) => String(n), (e) => String(e), lazy);
+ * // code === 'missing'
  * ```
  */
 export function okOrElse<E>(errorFn: () => E, opt?: IOption<unknown>): IResultOfT<unknown, E | Error> | (<T>(opt: IOption<T>) => IResultOfT<T, E | Error>) {

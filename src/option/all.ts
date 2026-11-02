@@ -36,20 +36,15 @@ export function all<T>(options: readonly IOption<T>[]): IOption<T[]>;
  *
  * @example
  * ```ts
- * import { all, ofSome, ofNone } from '@sandlada/result/option';
- * import type { IOption } from '@sandlada/result';
+ * import { all, ofSome, ofNone, match } from '@sandlada/result/option';
  *
- * // Tuple — heterogeneous types preserved.
- * all([ofSome(1), ofSome('hi'), ofSome(true)]);
- * // Some([1, 'hi', true])
+ * const combined = all([ofSome(1), ofSome(2), ofSome(3)]);
+ * const size = match((arr) => arr.length, () => 0, combined);
+ * // size === 3
  *
- * // Array — runtime-sized homogeneous list.
- * const opts: IOption<number>[] = [ofSome(1), ofSome(2), ofSome(3)];
- * all(opts);
- * // Some([1, 2, 3])
- *
- * all([ofSome(1), ofNone(), ofSome(true)]);
- * // None
+ * const broken = all([ofSome(1), ofNone<number>(), ofSome(3)]);
+ * const lost = match((arr) => arr.length, () => 0, broken);
+ * // lost === 0 because broken is None
  * ```
  */
 export function all(options: readonly IOption<unknown>[]): IOption<unknown> {

@@ -27,17 +27,15 @@ export function orElse<T, U>(fn: () => IOption<U>, opt: IOption<T>): IOption<T |
  *
  * @example
  * ```ts
- * import { orElse, ofSome, ofNone } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { orElse, ofSome, ofNone, unwrapOr } from '@sandlada/result/option';
  *
- * pipe(ofNone(),  orElse(() => ofSome(42))); // Some(42)
- * pipe(ofSome(5), orElse(() => ofSome(42))); // Some(5) (pass-through)
+ * const recovered = orElse(() => ofSome(42), ofNone<number>());
+ * const value = unwrapOr(0, recovered);
+ * // value === 42
  *
- * // Cross-type recovery — `T = number`, `U = string`, result is `IOption<number | string>`
- * pipe(ofSome(1), orElse(() => ofSome('anonymous')));
- *
- * // Direct form
- * orElse(() => ofSome('fallback'), ofNone()); // Some('fallback')
+ * const passthrough = orElse(() => ofSome(99), ofSome(5));
+ * const kept = unwrapOr(0, passthrough);
+ * // kept === 5; orElse leaves Some unchanged
  * ```
  */
 export function orElse(fn: () => IOption<unknown>, opt?: IOption<unknown>): unknown {

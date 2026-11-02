@@ -12,11 +12,16 @@ export function contains<T>(target: T, opt: IOption<T>): boolean;
  *
  * @example
  * ```ts
- * import { contains, ofSome } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { contains, ofSome, ofNone } from '@sandlada/result/option';
  *
- * pipe(ofSome(42), contains(42)); // true
- * pipe(ofSome(42), contains(0)); // false
+ * const input = ofSome(42);
+ * const hit = contains(42, input);
+ * const miss = contains(0, input);
+ * // hit === true, miss === false
+ *
+ * const empty = ofNone<number>();
+ * const absent = contains(42, empty);
+ * // absent === false
  * ```
  */
 export function contains<T>(target: T, opt?: IOption<T>): boolean | ((opt: IOption<T>) => boolean) {

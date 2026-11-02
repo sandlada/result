@@ -29,15 +29,14 @@ export function match<T, U>(
  *
  * @example
  * ```ts
- * import { match, ofSome } from '@sandlada/result/option';
- * import { pipe } from '@sandlada/result/composition';
+ * import { match, ofSome, ofNone } from '@sandlada/result/option';
  *
- * // Positional form (back-compatible):
- * pipe(ofSome(42), match(v => `value: ${v}`, () => 'nothing')); // "value: 42"
+ * const input = ofSome(42);
+ * const positional = match((v) => `value: ${v}`, () => 'nothing', input);
+ * // positional === 'value: 42'
  *
- * // Object form (preferred):
- * match({ some: v => `value: ${v}`, none: () => 'nothing' }, ofSome(42));
- * // "value: 42"
+ * const objectForm = match({ some: (v) => `value: ${v}`, none: () => 'nothing' }, ofNone());
+ * // objectForm === 'nothing'
  * ```
  */
 export function match<T, U>(
