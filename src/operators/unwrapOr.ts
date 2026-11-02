@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function unwrapOr<A>(defaultValue: A): <E>(r: IResultOfT<A, E>) => A;
 export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<A, E>): A;
@@ -22,6 +23,9 @@ export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<A, E>): A;
  * ```
  */
 export function unwrapOr<A, E>(defaultValue: A, r?: IResultOfT<A, E>): A | (<E>(r: IResultOfT<A, E>) => A) {
-    if (r === undefined) return <E>(r: IResultOfT<A, E>): A => unwrapOr<A, E>(defaultValue, r);
+    return dualByArity(1, unwrapOrDirect as (...args: unknown[]) => unknown)(defaultValue, r) as A | (<E>(r: IResultOfT<A, E>) => A);
+}
+
+function unwrapOrDirect<A, E>(defaultValue: A, r: IResultOfT<A, E>): A {
     return r.isSuccess ? (r.value as unknown as A) : (defaultValue as unknown as A);
 }
