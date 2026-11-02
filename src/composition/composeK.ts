@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bind } from '../operators/bind.js';
+import { err } from '../factories/err.js';
 
 // 1 function
 export function composeK<A, B, E>(
@@ -107,7 +108,7 @@ export function composeK(
             // widening is explicit, matching the `as unknown as IResultOfT<...>`
             // convention used elsewhere in the library. Consumers should wrap
             // throwing steps in `tryCatch(..., errorFn)` if they need a typed `E`.
-            return { isSuccess: false as const, isFailure: true as const, error: e } as unknown as IResultOfT<unknown, unknown>;
+            return err<unknown, unknown>(e as unknown);
         }
     };
 }

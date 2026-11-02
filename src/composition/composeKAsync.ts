@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { bindAsync } from '../promise-result/bindAsync.js';
+import { err } from '../factories/err.js';
 
 // 1 function
 export function composeKAsync<A, B, E>(
@@ -109,7 +110,7 @@ export function composeKAsync(
             // step function. The cast goes through `unknown` so the cross-variant
             // widening is explicit. Consumers should wrap throwing steps in
             // `tryCatchAsync(..., errorFn)` if they need a typed `E`.
-            return { isSuccess: false as const, isFailure: true as const, error: e } as unknown as IResultOfT<unknown, unknown>;
+            return err<unknown, unknown>(e as unknown);
         }
     };
 }
