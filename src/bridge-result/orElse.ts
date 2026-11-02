@@ -11,7 +11,7 @@ export function orElse<T, E, F>(
  * Async `orElse` for sync `IResultOfT`. Lifts a sync Result into
  * the async world and recovers from failure via an async callback.
  *
- * Companion to {@link asyncBind} — asyncBind chains forward on Ok; orElse
+ * Companion to {@link bind} — `bind` chains forward on Ok; `orElse`
  * recovers on Err.
  *
  * @example

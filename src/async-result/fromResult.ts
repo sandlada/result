@@ -4,7 +4,8 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Wraps a sync `IResultOfT` into an AsyncResult (lifts a sync Result into the async world).
- * Equivalent to "asyncMap" — bridges sync Result to async transformation.
+ * For transforming the success value with an async callback on a sync Result, see
+ * `bridge-result` `map` instead.
  *
  * @example
  * ```ts

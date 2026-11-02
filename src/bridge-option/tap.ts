@@ -13,7 +13,7 @@ export function tap<T>(
  *
  * Side-effect only. A synchronous throw from the callback converts to `None`
  * (side-effect dropped); a rejected Promise propagates as an outer rejection
- * (promotion-family rule, matches `asyncBindOption`).
+ * (promotion-family rule, matches {@link bind}).
  *
  * @example
  * ```ts

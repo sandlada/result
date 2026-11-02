@@ -13,8 +13,8 @@ export function bindThrough<A, B, E, F>(
  * that **can** propagate errors. If `fn` returns a failure, that failure propagates.
  * If `fn` returns a success, the **original** success value passes through unchanged.
  *
- * The key difference from `asyncBind` is that `bindThrough` preserves the
- * **original** success value on success, while `asyncBind` replaces it.
+ * The key difference from `bind` is that `bindThrough` preserves the
+ * **original** success value on success, while `bind` replaces it.
  *
  * Bridges from the sync result world to the async world — unlike `bindAsync`
  * which works on `Promise<IResultOfT>`.

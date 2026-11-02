@@ -13,7 +13,7 @@ export function bindThroughAsync<A, B, E, F>(
  *
  * **Throw policy**: through-family catch policy — a synchronous throw and a
  * rejected Promise from `fn` both converge to `Err(thrown)`, matching
- * `asyncBindThrough` and the sync `andThrough`.
+ * `bridge-result` `bindThrough` and the sync `andThrough`.
  *
  * @example
  * ```ts
@@ -39,7 +39,7 @@ export function bindThroughAsync<A, B, E, F>(
                 : (next as unknown as IResultOfT<A, E | F>);
         } catch (thrown: unknown) {
             // Through-family catch policy: `fn` failures converge to Err,
-            // matching `asyncBindThrough` and the sync `andThrough`.
+            // matching `bridge-result` `bindThrough` and the sync `andThrough`.
             return err(thrown as unknown as E | F) as unknown as IResultOfT<A, E | F>;
         }
     });

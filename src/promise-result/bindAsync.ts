@@ -15,8 +15,8 @@ export function bindAsync<A, B, E, F>(
  * Promise from `f` propagates as a rejection. This matches the canonical
  * AsyncResult throw policy ("sync throws and async rejections propagate").
  *
- * **Compared to `asyncBind`**: `bindAsync` works on a `Promise<IResultOfT>` (the
- * source is async). `asyncBind` is the inverse — it works on a sync `IResultOfT`
+ * **Compared to `bridge-result` `bind`**: `bindAsync` works on a `Promise<IResultOfT>` (the
+ * source is async). `bridge-result` `bind` is the inverse — it works on a sync `IResultOfT`
  * and lifts it into a `Promise<IResultOfT>` (the callback is async).
  *
  * @example

@@ -11,7 +11,7 @@ export function map<A, B>(
 ): Promise<IOption<B>>;
 /**
  * Lifts a sync `IOption<T>` into `Promise<IOption<U>>` via an
- * async mapper. Companion to {@link asyncMap} for the Option world.
+ * async mapper. Companion to {@link ../bridge-result/map.ts | bridge-result map} for the Result world.
  *
  * @example
  * ```ts
