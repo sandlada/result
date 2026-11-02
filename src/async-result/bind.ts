@@ -2,6 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
 import { err } from '../factories/err.js';
+import { carrierOrFnDirect, dualCarrierOrFn } from '../internal/dual.js';
 
 export function bind<T, U, E, F>(
     fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
@@ -48,30 +49,16 @@ export function bind<T, U, E, F>(
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E | F,
 ): AsyncResult<U, E | F> | ((ar: AsyncResult<T, E>) => AsyncResult<U, E | F>) {
-    if (arOrErrorFn === undefined || typeof arOrErrorFn === 'function') {
-        const eFn = typeof arOrErrorFn === 'function' ? arOrErrorFn : undefined;
-        return (ar: AsyncResult<T, E>): AsyncResult<U, E | F> => ({
-            run: async (): Promise<IResultOfT<U, E | F>> => {
-                const r = await ar.run();
-                if (!r.isSuccess) return r as unknown as IResultOfT<U, E | F>;
-                try {
-                    const next = await fn(r.value);
-                    if (isAsyncCarrier(next)) {
-                        return (await (next as AsyncResult<U, F>).run()) as unknown as IResultOfT<U, E | F>;
-                    }
-                    return next as unknown as IResultOfT<U, E | F>;
-                } catch (thrown: unknown) {
-                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
-                    // the catch block and reject the outer Promise.
-                    const innerError = eFn
-                        ? (() => { try { return eFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
-                        : (thrown as unknown as (E | F));
-                    return err<U, E | F>(innerError);
-                }
-            },
-        });
-    }
-    const ar = arOrErrorFn;
+    return dualCarrierOrFn(1, bindDirect as (...args: unknown[]) => unknown)(fn, arOrErrorFn, errorFn) as
+        | AsyncResult<U, E | F>
+        | ((ar: AsyncResult<T, E>) => AsyncResult<U, E | F>);
+}
+
+function bindAsyncResult<T, U, E, F>(
+    ar: AsyncResult<T, E>,
+    fn: (value: T) => AsyncResult<U, F> | Promise<IResultOfT<U, F>>,
+    errorFn?: (thrown: unknown) => unknown,
+): AsyncResult<U, E | F> {
     return {
         run: async (): Promise<IResultOfT<U, E | F>> => {
             const r = await ar.run();
@@ -84,10 +71,30 @@ export function bind<T, U, E, F>(
                 return next as unknown as IResultOfT<U, E | F>;
             } catch (thrown: unknown) {
                 const innerError = errorFn
-                    ? (() => { try { return errorFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
+                    ? (() => {
+                          try {
+                              return errorFn(thrown) as unknown as (E | F);
+                          } catch (thrown2: unknown) {
+                              return thrown2 as unknown as (E | F);
+                          }
+                      })()
                     : (thrown as unknown as (E | F));
                 return err<U, E | F>(innerError);
             }
         },
     };
+}
+
+function bindDirect(
+    fn: (value: unknown) => AsyncResult<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>,
+    second?: AsyncResult<unknown, unknown> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => unknown,
+): unknown {
+    return carrierOrFnDirect(1, ({ config, carrier, errorFn }) =>
+        bindAsyncResult(
+            carrier as AsyncResult<unknown, unknown>,
+            config[0] as (value: unknown) => AsyncResult<unknown, unknown> | Promise<IResultOfT<unknown, unknown>>,
+            errorFn as ((thrown: unknown) => unknown) | undefined,
+        ),
+    fn, second, third);
 }

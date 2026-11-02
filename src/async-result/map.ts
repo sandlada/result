@@ -2,6 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
+import { carrierOrFnDirect, dualCarrierOrFn } from '../internal/dual.js';
 
 export function map<T, U, E>(
     fn: (value: T) => U,
@@ -33,59 +34,57 @@ export function map<T, U, E>(
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<U, E> | ((ar: AsyncResult<T, E>) => AsyncResult<U, E>) {
-    if (arOrErrorFn === undefined || typeof arOrErrorFn === 'function') {
-        const eFn = typeof arOrErrorFn === 'function' ? arOrErrorFn : undefined;
-        return (ar: AsyncResult<T, E>): AsyncResult<U, E> => ({
-            run: async (): Promise<IResultOfT<U, E>> => {
-                const r = await ar.run();
-                if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
-                try {
-                    const mapped = fn(r.value);
-                    // Reject thenable returns so the caller is forced onto
-                    // `mapAsync` for sync-or-async mappers. Without this
-                    // guard, a thenable silently becomes the success value —
-                    // a type lie that surfaces only at the consumer site.
-                    if (mapped !== null && typeof mapped === 'object' && typeof (mapped as { then?: unknown }).then === 'function') {
-                        throw new Error(
-                            'map: mapper returned a thenable, but map requires a synchronous mapper. ' +
-                            'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
-                        );
-                    }
-                    return ok<U, E>(mapped);
-                } catch (thrown: unknown) {
-                    // Wrap `eFn(thrown)` so a buggy mapper does not escape
-                    // the catch block and reject the outer Promise.
-                    // `const` with conditional init lets TS infer the union
-                    // type from the cast at the call site without re-asserting
-                    // the result type.
-                    const innerError = eFn
-                        ? (() => { try { return eFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
-                        : (thrown as unknown as E);
-                    return err<U, E>(innerError);
-                }
-            },
-        });
-    }
-    const ar = arOrErrorFn;
+    return dualCarrierOrFn(1, mapDirect as (...args: unknown[]) => unknown)(fn, arOrErrorFn, errorFn) as
+        | AsyncResult<U, E>
+        | ((ar: AsyncResult<T, E>) => AsyncResult<U, E>);
+}
+
+function mapAsyncResult<T, U, E>(
+    ar: AsyncResult<T, E>,
+    fn: (value: T) => U,
+    errorFn?: (thrown: unknown) => unknown,
+): AsyncResult<U, E> {
     return {
         run: async (): Promise<IResultOfT<U, E>> => {
             const r = await ar.run();
             if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             try {
                 const mapped = fn(r.value);
+                // Reject thenable returns so the caller is forced onto
+                // `mapAsync` for sync-or-async mappers. Without this
+                // guard, a thenable silently becomes the success value —
+                // a type lie that surfaces only at the consumer site.
                 if (mapped !== null && typeof mapped === 'object' && typeof (mapped as { then?: unknown }).then === 'function') {
                     throw new Error(
                         'map: mapper returned a thenable, but map requires a synchronous mapper. ' +
-                        'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
+                            'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
                     );
                 }
                 return ok<U, E>(mapped);
             } catch (thrown: unknown) {
+                // Wrap `errorFn(thrown)` so a buggy mapper does not escape
+                // the catch block and reject the outer Promise.
                 const innerError = errorFn
-                    ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
+                    ? (() => {
+                          try {
+                              return errorFn(thrown) as unknown as E;
+                          } catch (thrown2: unknown) {
+                              return thrown2 as unknown as E;
+                          }
+                      })()
                     : (thrown as unknown as E);
                 return err<U, E>(innerError);
             }
         },
     };
+}
+
+function mapDirect(
+    fn: (value: unknown) => unknown,
+    second?: AsyncResult<unknown, unknown> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => unknown,
+): unknown {
+    return carrierOrFnDirect(1, ({ config, carrier, errorFn }) =>
+        mapAsyncResult(carrier as AsyncResult<unknown, unknown>, config[0] as (value: unknown) => unknown, errorFn as ((thrown: unknown) => unknown) | undefined),
+    fn, second, third);
 }

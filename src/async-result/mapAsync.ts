@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { carrierOrFnDirect, dualCarrierOrFn } from '../internal/dual.js';
 
 export function mapAsync<T, U, E>(
     fn: (value: T) => U | Promise<U>,
@@ -41,30 +42,16 @@ export function mapAsync<T, U, E>(
     arOrErrorFn?: AsyncResult<T, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E,
 ): AsyncResult<U, E> | ((ar: AsyncResult<T, E>) => AsyncResult<U, E>) {
-    if (arOrErrorFn === undefined || typeof arOrErrorFn === 'function') {
-        const eFn = typeof arOrErrorFn === 'function' ? arOrErrorFn : undefined;
-        return (ar: AsyncResult<T, E>): AsyncResult<U, E> => ({
-            run: async (): Promise<IResultOfT<U, E>> => {
-                const r = await ar.run();
-                if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
-                try {
-                    const mapped = await fn(r.value);
-                    return ok<U, E>(mapped);
-                } catch (thrown: unknown) {
-                    if (eFn) {
-                        // errorFn path: convert to a result, preserving the success branch.
-                        // We surface the result through the existing run channel — but since
-                        // errorFn is provided we *can* convert; here we re-throw so the
-                        // outer Promise rejection carries the mapped value, matching the
-                        // documented "propagates" semantics.
-                        throw eFn(thrown);
-                    }
-                    throw thrown;
-                }
-            },
-        });
-    }
-    const ar = arOrErrorFn;
+    return dualCarrierOrFn(1, mapAsyncDirect as (...args: unknown[]) => unknown)(fn, arOrErrorFn, errorFn) as
+        | AsyncResult<U, E>
+        | ((ar: AsyncResult<T, E>) => AsyncResult<U, E>);
+}
+
+function mapAsyncResult<T, U, E>(
+    ar: AsyncResult<T, E>,
+    fn: (value: T) => U | Promise<U>,
+    errorFn?: (thrown: unknown) => unknown,
+): AsyncResult<U, E> {
     return {
         run: async (): Promise<IResultOfT<U, E>> => {
             const r = await ar.run();
@@ -73,9 +60,25 @@ export function mapAsync<T, U, E>(
                 const mapped = await fn(r.value);
                 return ok<U, E>(mapped);
             } catch (thrown: unknown) {
-                if (errorFn) throw errorFn(thrown);
+                if (errorFn) {
+                    throw errorFn(thrown);
+                }
                 throw thrown;
             }
         },
     };
+}
+
+function mapAsyncDirect(
+    fn: (value: unknown) => unknown | Promise<unknown>,
+    second?: AsyncResult<unknown, unknown> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => unknown,
+): unknown {
+    return carrierOrFnDirect(1, ({ config, carrier, errorFn }) =>
+        mapAsyncResult(
+            carrier as AsyncResult<unknown, unknown>,
+            config[0] as (value: unknown) => unknown | Promise<unknown>,
+            errorFn as ((thrown: unknown) => unknown) | undefined,
+        ),
+    fn, second, third);
 }
