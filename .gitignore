@@ -61,3 +61,17 @@ coverage/
 !docs/*.md
 .teamwork
 !*/skills/*
+
+# Root working notes. Tracked files stay tracked until git rm --cached.
+/*.md
+!/README.md
+!/AGENTS.md
+!/LICENSE.md
+!/CONTRIBUTING.md
+!/CONTRIBUTORS.md
+!/SECURITY.md
+!/CODE_OF_CONDUCT.md
+
+# docs/ stays in git even if a later rule ignores markdown more broadly.
+!/docs/
+!/docs/**
