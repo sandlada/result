@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Extracts the value from an `AsyncOption`, or throws if `None`.
@@ -13,7 +14,7 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * ```
  */
 export function unwrap<T>(ao: AsyncOption<T>): Promise<T> {
-    return ao.run().then(opt => {
+    return runCarrier(ao).then(opt => {
         if (opt.isSome) return opt.value;
         throw new Error('Called `unwrap` on a None value');
     });

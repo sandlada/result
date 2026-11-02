@@ -78,6 +78,7 @@
 - `mapAsync` propagates directly — the only capture-policy counterexample in this module; everything else in the `map` / `tap` / `bind` / `catchErr` families collapses throws and rejections into `Err`. See [behavior-modes.md §4.7](../../docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option).
 - `combine`, `combineWithAllErrors`, the sibling `async-option/all` and `ap` start every carrier through `Promise.all` once `run()` is called; short-circuiting affects only result selection, not execution.
 - Terminal panics (`unwrap` / `expect`) throw a `TypeError` and keep the original error in `cause`.
+- The terminals never throw **synchronously**: a carrier whose `run()` returns a plain Result instead of a Promise is adopted, and a carrier whose `run()` throws synchronously becomes a rejected Promise. The failure channel stays the Promise channel.
 - Naming: the `async` prefix denotes the `AsyncResult` type, not the `async`/`await` keyword; `mapAsync` / `tapAsync` are the async-callback variants.
 
 ## Design notes

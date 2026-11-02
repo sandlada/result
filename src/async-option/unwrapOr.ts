@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrapOr<T>(
     defaultValue: T | Promise<T>,
@@ -24,5 +25,5 @@ export function unwrapOr<T>(
     ao?: AsyncOption<T>,
 ): Promise<T> | ((ao: AsyncOption<T>) => Promise<T>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => unwrapOr(defaultValue, ao);
-    return ao.run().then(opt => opt.isSome ? opt.value : defaultValue);
+    return runCarrier(ao).then(opt => opt.isSome ? opt.value : defaultValue);
 }

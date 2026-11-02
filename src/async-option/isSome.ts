@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Returns `true` if the `AsyncOption` resolves to `Some`. Mirrors the
@@ -13,5 +14,5 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * ```
  */
 export function isSome<T>(ao: AsyncOption<T>): Promise<boolean> {
-    return ao.run().then(opt => opt.isSome);
+    return runCarrier(ao).then(opt => opt.isSome);
 }

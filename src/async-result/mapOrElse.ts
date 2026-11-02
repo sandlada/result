@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function mapOrElse<T, U, E>(
     onErr: (error: E) => U | Promise<U>,
@@ -29,5 +30,5 @@ export function mapOrElse<T, U, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<U> | ((ar: AsyncResult<T, E>) => Promise<U>) {
     if (ar === undefined) return (ar: AsyncResult<T, E>) => mapOrElse(onErr, fn, ar);
-    return ar.run().then(async r => r.isSuccess ? await fn(r.value) : await onErr(r.error));
+    return runCarrier(ar).then(async r => r.isSuccess ? await fn(r.value) : await onErr(r.error));
 }

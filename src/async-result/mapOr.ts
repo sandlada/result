@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function mapOr<T, U, E>(
     defaultValue: U,
@@ -29,7 +30,7 @@ export function mapOr<T, U, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<U> | ((ar: AsyncResult<T, E>) => Promise<U>) {
     if (ar === undefined) return (ar: AsyncResult<T, E>) => mapOr(defaultValue, fn, ar);
-    return ar.run().then(async r => {
+    return runCarrier(ar).then(async r => {
         if (!r.isSuccess) return defaultValue;
         try {
             return await fn(r.value);

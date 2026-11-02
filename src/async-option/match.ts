@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function match<T, U>(
     handlers: { some: (value: T) => U | Promise<U>; none: () => U | Promise<U> },
@@ -26,7 +27,7 @@ export function match<T, U>(
     ao?: AsyncOption<T>,
 ): Promise<U> | ((ao: AsyncOption<T>) => Promise<U>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => match(handlers, ao);
-    return ao.run().then(opt => {
+    return runCarrier(ao).then(opt => {
         return opt.isSome ? handlers.some(opt.value) : handlers.none();
     });
 }

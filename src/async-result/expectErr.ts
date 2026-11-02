@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Like {@link unwrapErr} but throws an `Error` carrying the supplied message.
@@ -23,7 +24,7 @@ export function expectErr<T, E>(
     ar: AsyncResult<T, E>,
     throwingFn?: (info: { message: string; value: T }) => Error,
 ): Promise<E> {
-    return ar.run().then(r => {
+    return runCarrier(ar).then(r => {
         if (r.isFailure) return r.error;
         if (throwingFn) {
             throw throwingFn({ message, value: r.value });

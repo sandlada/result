@@ -8,7 +8,9 @@ import { timeout, type TimeoutError } from './timeout.js';
  * lazy `AsyncResult` thunk.
  *
  * Accepts a `() => Promise<IResultOfT<T, E>>` and races it against the configured
- * timeout window. Reuses the same default `TimeoutError` shape as `timeout`.
+ * timeout window. Reuses the same default `TimeoutError` shape as `timeout`, and
+ * the same duration bounds: a non-finite or out-of-range `ms` is clamped before
+ * it reaches the timer, so an `Infinity` deadline no longer expires after 1 ms.
  *
  * **Sync-throw safety**: a synchronous throw from `fn` is converted to a
  * rejecting Promise via `Promise.resolve().then(fn)`, which `timeout`'s

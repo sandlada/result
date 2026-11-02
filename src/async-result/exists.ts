@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,
@@ -23,5 +24,5 @@ export function exists<T, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<boolean> | ((ar: AsyncResult<T, E>) => Promise<boolean>) {
     if (ar === undefined) return (ar: AsyncResult<T, E>) => exists(predicate, ar);
-    return ar.run().then(async r => r.isSuccess && (await predicate(r.value)));
+    return runCarrier(ar).then(async r => r.isSuccess && (await predicate(r.value)));
 }

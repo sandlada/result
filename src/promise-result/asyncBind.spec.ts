@@ -60,16 +60,16 @@ describe('asyncBind', () => {
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        // The implementation uses `Promise.resolve(r.value).then(f)`. The
-        // inner Promise is constructed synchronously, even though the
+        // The implementation uses `Promise.resolve().then(() => f(r.value))`.
+        // The inner Promise is constructed synchronously, even though the
         // callback is async.
         const result = asyncBind(async (x: number) => ok(x), ok(21));
         expect(result).toBeInstanceOf(Promise);
     });
 
     it('attaches the async callback to the inner Promise on construction (eager)', () => {
-        // The implementation is `Promise.resolve(r.value).then(f)` - `f` is
-        // invoked asynchronously (next microtask), but the Promise chain
+        // The implementation is `Promise.resolve().then(() => f(r.value))` - `f`
+        // is invoked asynchronously (next microtask), but the Promise chain
         // is set up synchronously. This is the eager-Promise property: the
         // helper attaches handlers without waiting for an explicit `.then`.
         const r = asyncBind(async (x: number) => ok(x * 2), ok(21));

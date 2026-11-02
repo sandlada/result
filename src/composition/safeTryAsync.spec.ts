@@ -108,8 +108,8 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             next: async () => {
                 calls++;
                 return calls === 1
-                    ? { value: 'first', done: false }
-                    : { value: 'second', done: false };
+                    ? { value: err('first'), done: false }
+                    : { value: err('second'), done: false };
             },
         };
         await expect(fromSafeTryAsync(() => fakeIterator as never).run()).rejects.toThrow(
@@ -501,6 +501,34 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             expect(b.isFailure).toBe(true);
             expect(aEffect).toBe('NOT-RUN');
             expect(bEffect).toBe('NOT-RUN');
+        });
+
+        it('rejects a yield that is not a Result before the generator body resumes', async () => {
+            // The runner hands the yielded value back as the failure, so a
+            // non-Result would be returned as a value that is not a Result at
+            // all. The check runs before the probe, so the body never resumes.
+            let resumed = 'NOT-RUN';
+            await expect(fromSafeTryAsync(async function* () {
+                yield 42 as never;
+                resumed = 'RAN';
+            }).run()).rejects.toThrow(
+                'safeTryAsync: the generator yielded a value that is not a valid IResultOfT',
+            );
+            expect(resumed).toBe('NOT-RUN');
+        });
+
+        it('runs the body between two raw yields before reporting the double yield', async () => {
+            // The double-yield probe resumes the generator, so the statements
+            // between the two yields execute before the error is raised. A
+            // delegation does not have this property - its failure ends the
+            // generator instead of running the body after it.
+            let ran = 'NOT-RUN';
+            await expect(fromSafeTryAsync(async function* () {
+                yield err('first');
+                ran = 'RAN';
+                yield err('second');
+            }).run()).rejects.toThrow('safeTryAsync: generator yielded more than once');
+            expect(ran).toBe('RAN');
         });
     });
 

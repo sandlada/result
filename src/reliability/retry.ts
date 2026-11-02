@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { isResultLike } from '../types/resultShape.js';
+import { clampTimerDelay } from './timerDelay.js';
 
 /**
  * Options for {@link retry} and {@link retryLazy}.
@@ -111,32 +112,17 @@ const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
     });
 
 /**
- * Largest delay a timer can express. Node clamps anything above it to 1 ms and
- * emits a `TimeoutOverflowWarning`, so the value is capped here instead.
+ * Resolve the requested delay for one attempt and clamp it into the range a
+ * timer can actually honour. The clamp itself lives in `timerDelay.ts`, which
+ * `timeout` shares - a delay and a deadline face the same timer limit.
  */
-const MAX_DELAY_MS = 2_147_483_647;
-
-/**
- * Clamp a requested delay into the range a timer can actually honour.
- *
- * Negative delays collapse to zero. `Infinity` means "as long as possible"
- * and is capped at the maximum timer interval. `NaN` carries no usable
- * duration and collapses to zero as well.
- */
-const clampDelay = (raw: number): number => {
-    if (!Number.isFinite(raw)) {
-        return raw === Number.POSITIVE_INFINITY ? MAX_DELAY_MS : 0;
-    }
-    return Math.min(Math.max(0, raw), MAX_DELAY_MS);
-};
-
 const computeDelay = <E, TE>(
     delayMs: RetryOptions<E, TE>['delayMs'],
     attempt: number,
     error: E | TE,
 ): number => {
     const raw = typeof delayMs === 'function' ? delayMs(attempt, error) : (delayMs ?? 0);
-    return clampDelay(raw);
+    return clampTimerDelay(raw);
 };
 
 /**

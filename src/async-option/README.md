@@ -78,6 +78,7 @@
 - `all` starts every carrier through `Promise.all` once `run()` is called; any `None` selects `None`, but every side effect still happens.
 - `zipWith` resolves to `None` when any argument is `None`.
 - The module has only `unwrap` as a panic API; there is no `expect` or `orThrow`. Bridge to AsyncResult with `okOr` / `okOrElse` when a typed throw is required.
+- The terminals never throw **synchronously**: a carrier whose `run()` returns a plain Option instead of a Promise is adopted, and a carrier whose `run()` throws synchronously becomes a rejected Promise. The failure channel stays the Promise channel.
 - Naming: the `async` prefix denotes the `AsyncOption` type, not the `async`/`await` keyword.
 
 ## Design notes

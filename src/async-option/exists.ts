@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function exists<T>(
     predicate: (value: T) => boolean | Promise<boolean>,
@@ -20,7 +21,7 @@ export function exists<T>(
     ao?: AsyncOption<T>,
 ): Promise<boolean> | ((ao: AsyncOption<T>) => Promise<boolean>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => exists(predicate, ao);
-    return ao.run().then(async opt => {
+    return runCarrier(ao).then(async opt => {
         if (!opt.isSome) return false;
         try {
             return await predicate(opt.value);

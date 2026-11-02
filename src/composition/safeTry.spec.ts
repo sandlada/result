@@ -117,14 +117,15 @@ describe('safeTry / fromSafeTry', () => {
     it('throws when an iterator yields more than once', () => {
         // Fake iterator with no `return` method that yields twice — exercises
         // both the `typeof iterator.return === 'function'` false branch and
-        // the `if (!check.done)` true branch.
+        // the `if (!check.done)` true branch. The yielded values are Results:
+        // a yield that is not a Result is rejected before the probe.
         let calls = 0;
         const fakeIterator: unknown = {
             next: () => {
                 calls++;
                 return calls === 1
-                    ? { value: 'first', done: false }
-                    : { value: 'second', done: false };
+                    ? { value: err('first'), done: false }
+                    : { value: err('second'), done: false };
             },
             // No `return` method on purpose.
         };
@@ -216,8 +217,8 @@ describe('safeTry / fromSafeTry', () => {
             next: () => {
                 calls++;
                 return calls === 1
-                    ? { value: 'first', done: false }
-                    : { value: 'second', done: false };
+                    ? { value: err('first'), done: false }
+                    : { value: err('second'), done: false };
             },
         };
         expect(() => fromSafeTry(() => fakeIterator as never)).toThrow(
@@ -338,6 +339,32 @@ describe('safeTry / fromSafeTry', () => {
             });
             expect(result.isFailure).toBe(true);
             expect(sideEffect).toBe('NOT-RUN');
+        });
+
+        it('rejects a yield that is not a Result before the generator body resumes', () => {
+            // The runner hands the yielded value back as the failure, so a
+            // non-Result would be returned as a value that is not a Result at
+            // all. The check runs before the probe, so the body never resumes.
+            let resumed = 'NOT-RUN';
+            expect(() => fromSafeTry(function* () {
+                yield 42 as never;
+                resumed = 'RAN';
+            })).toThrow('safeTry: the generator yielded a value that is not a valid IResultOfT');
+            expect(resumed).toBe('NOT-RUN');
+        });
+
+        it('runs the body between two raw yields before reporting the double yield', () => {
+            // The double-yield probe resumes the generator, so the statements
+            // between the two yields execute before the error is raised. A
+            // delegation does not have this property - its failure ends the
+            // generator instead of running the body after it.
+            let ran = 'NOT-RUN';
+            expect(() => fromSafeTry(function* () {
+                yield err('first');
+                ran = 'RAN';
+                yield err('second');
+            })).toThrow('safeTry: generator yielded more than once');
+            expect(ran).toBe('RAN');
         });
     });
 });

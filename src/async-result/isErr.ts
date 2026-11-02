@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Returns `true` if the `AsyncResult` resolves to `Err`. Mirrors the
@@ -14,5 +15,5 @@ import type { AsyncResult } from '../types/AsyncResult.js';
  * ```
  */
 export function isErr<T, E>(ar: AsyncResult<T, E>): Promise<boolean> {
-    return ar.run().then(r => r.isFailure);
+    return runCarrier(ar).then(r => r.isFailure);
 }

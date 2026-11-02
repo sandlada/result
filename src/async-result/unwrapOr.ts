@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrapOr<T, E>(
     defaultValue: T | Promise<T>,
@@ -25,5 +26,5 @@ export function unwrapOr<T, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<T> | ((ar: AsyncResult<T, E>) => Promise<T>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): Promise<T> => unwrapOr(defaultValue, ar);
-    return ar.run().then(r => r.isSuccess ? r.value : defaultValue);
+    return runCarrier(ar).then(r => r.isSuccess ? r.value : defaultValue);
 }

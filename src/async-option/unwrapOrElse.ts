@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrapOrElse<T>(
     onNone: () => T | Promise<T>,
@@ -24,5 +25,5 @@ export function unwrapOrElse<T>(
     ao?: AsyncOption<T>,
 ): Promise<T> | ((ao: AsyncOption<T>) => Promise<T>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => unwrapOrElse(onNone, ao);
-    return ao.run().then(async opt => opt.isSome ? opt.value : await onNone());
+    return runCarrier(ao).then(async opt => opt.isSome ? opt.value : await onNone());
 }

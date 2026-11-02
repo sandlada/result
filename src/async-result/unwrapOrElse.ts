@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrapOrElse<T = unknown, E = unknown, U = unknown>(
     onErr: (error: E) => U | Promise<U>,
@@ -27,5 +28,5 @@ export function unwrapOrElse<T, E, U>(
     ar?: AsyncResult<T, E>,
 ): Promise<T | U> | (<T2 extends T>(ar: AsyncResult<T2, E>) => Promise<T2 | U>) {
     if (ar === undefined) return <T2 extends T>(ar: AsyncResult<T2, E>): Promise<T2 | U> => unwrapOrElse<T2, E, U>(onErr, ar);
-    return ar.run().then(async r => r.isSuccess ? r.value : await onErr(r.error));
+    return runCarrier(ar).then(async r => r.isSuccess ? r.value : await onErr(r.error));
 }

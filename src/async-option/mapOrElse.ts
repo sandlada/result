@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function mapOrElse<T, U>(
     onNone: () => U | Promise<U>,
@@ -27,5 +28,5 @@ export function mapOrElse<T, U>(
     ao?: AsyncOption<T>,
 ): Promise<U> | ((ao: AsyncOption<T>) => Promise<U>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => mapOrElse(onNone, fn, ao);
-    return ao.run().then(async opt => opt.isSome ? await fn(opt.value) : await onNone());
+    return runCarrier(ao).then(async opt => opt.isSome ? await fn(opt.value) : await onNone());
 }

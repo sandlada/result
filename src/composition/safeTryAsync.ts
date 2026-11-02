@@ -109,7 +109,9 @@ export function fromSafeTryAsync<T, E>(
  *   documented `return asyncOk(undefined)` workaround yields `Ok(undefined)`
  *   instead of a doubly wrapped Result.
  * - If the generator **yields** a value: that yield is treated as a propagated
- *   failure and returned as-is.
+ *   failure and returned as-is. The yielded value must be a Result - a yield
+ *   that is not one throws a `TypeError`, because the runner would otherwise
+ *   hand back a value that is not a Result at all.
  *
  * Throws when the generator returns `undefined` without yielding, or yields
  * more than once.
@@ -149,6 +151,20 @@ export function fromSafeTryAsync<T, E>(
                 // `safeTryAsync` delegation throws when it is resumed, which
                 // ends the generator instead of running the body after the
                 // failed `yield*`.
+                //
+                // The yielded value must be a Result: the runner hands it back
+                // as the failure, so a non-Result would silently produce a
+                // value that is not a Result at all. The check runs *before*
+                // the probe so that a malformed yield never resumes the
+                // generator body.
+                if (!isResultLike<T, E>(first.value)) {
+                    await closeGenerator(iterator);
+                    throw new TypeError(
+                        'safeTryAsync: the generator yielded a value that is not a valid IResultOfT (missing isSuccess: boolean). ' +
+                        `Got: ${Object.prototype.toString.call(first.value)}. ` +
+                        'A yield must carry a Result - use `yield* safeTryAsync(...)` to propagate a failure.',
+                    );
+                }
                 let check: IteratorResult<IResultOfT<never, E>, unknown>;
                 try {
                     check = await iterator.next();

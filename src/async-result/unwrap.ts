@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrap<T, E>(ar: AsyncResult<T, E>): Promise<T>;
 export function unwrap<T, E>(
@@ -34,7 +35,7 @@ export function unwrap<T, E>(
     formatErr?: (error: E) => string,
     throwingFn?: (info: { message: string; value: E }) => Error,
 ): Promise<T> {
-    return ar.run().then(r => {
+    return runCarrier(ar).then(r => {
         if (r.isSuccess) return r.value;
         const formatted = formatErr ? formatErr(r.error) : String(r.error);
         const thrown = throwingFn

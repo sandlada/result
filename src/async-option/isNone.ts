@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 /**
  * Returns `true` if the `AsyncOption` resolves to `None`. Mirrors the
@@ -13,5 +14,5 @@ import type { AsyncOption } from '../types/AsyncOption.js';
  * ```
  */
 export function isNone<T>(ao: AsyncOption<T>): Promise<boolean> {
-    return ao.run().then(opt => opt.isNone);
+    return runCarrier(ao).then(opt => opt.isNone);
 }

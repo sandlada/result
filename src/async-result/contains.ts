@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function contains<T>(
     value: T,
@@ -23,5 +24,5 @@ export function contains<T, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<boolean> | ((ar: AsyncResult<T, E>) => Promise<boolean>) {
     if (ar === undefined) return (ar: AsyncResult<T, E>) => contains(value, ar);
-    return ar.run().then(r => r.isSuccess && r.value === value);
+    return runCarrier(ar).then(r => r.isSuccess && r.value === value);
 }

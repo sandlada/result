@@ -69,3 +69,32 @@ export const isAsyncCarrier = (value: unknown): value is { run: () => unknown } 
     // Sentinel-safe duck-type fallback.
     return 'run' in value && typeof (value as { run?: unknown }).run === 'function';
 };
+
+/**
+ * Invoke a carrier's `run()` and always get a Promise back.
+ *
+ * The `AsyncResult` / `AsyncOption` contracts declare `run: () => Promise<...>`,
+ * but nothing enforces that at runtime: a hand-rolled carrier can return a
+ * plain Result / Option instead of a Promise. Calling `.then` on such a return
+ * value throws a `TypeError` **synchronously**, so the failure escapes a
+ * function that promised a Promise - `await` and `.catch` around the call
+ * never see it.
+ *
+ * This helper normalises both deviations:
+ * - a plain (non-Promise) return value is adopted by `Promise.resolve`;
+ * - a synchronous throw becomes a rejected Promise.
+ *
+ * The carrier's `run()` is still invoked **synchronously**, so the laziness
+ * contract of the terminals is unchanged - only the failure channel moves.
+ *
+ * @internal
+ */
+export const runCarrier = <T>(
+    carrier: { readonly run: () => Promise<T> },
+): Promise<T> => {
+    try {
+        return Promise.resolve(carrier.run());
+    } catch (thrown: unknown) {
+        return Promise.reject(thrown);
+    }
+};

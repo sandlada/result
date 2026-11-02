@@ -80,7 +80,9 @@ export function fromSafeTry<T, E>(
  *   documented `return ok(undefined)` workaround yields `Ok(undefined)`
  *   instead of a doubly wrapped Result.
  * - If the generator **yields** a value: that yield is treated as a propagated
- *   failure and returned as-is.
+ *   failure and returned as-is. The yielded value must be a Result - a yield
+ *   that is not one throws a `TypeError`, because the runner would otherwise
+ *   hand back a value that is not a Result at all.
  *
  * A generator that yields twice throws - the runner probes a raw yield for a
  * second one before reporting the failure.
@@ -131,6 +133,20 @@ export function fromSafeTry<T, E>(
         // second yield. Resuming is safe for a delegation too: a `safeTry`
         // delegation throws when it is resumed, which ends the generator
         // instead of running the body after the failed `yield*`.
+        //
+        // The yielded value must be a Result: the runner hands it back as the
+        // failure, so a non-Result would silently produce a value that is not
+        // a Result at all - every later `isSuccess` check would read
+        // `undefined` and take the wrong branch. The check runs *before* the
+        // probe so that a malformed yield never resumes the generator body.
+        if (!isResultLike<T, E>(first.value)) {
+            closeGenerator(iterator);
+            throw new TypeError(
+                'safeTry: the generator yielded a value that is not a valid IResultOfT (missing isSuccess: boolean). ' +
+                `Got: ${Object.prototype.toString.call(first.value)}. ` +
+                'A yield must carry a Result - use `yield* safeTry(...)` to propagate a failure.',
+            );
+        }
         let check: IteratorResult<IResultOfT<never, E>, unknown>;
         try {
             check = iterator.next();

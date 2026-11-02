@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function mapOr<T, U>(
     defaultValue: U,
@@ -28,7 +29,7 @@ export function mapOr<T, U>(
     ao?: AsyncOption<T>,
 ): Promise<U> | ((ao: AsyncOption<T>) => Promise<U>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => mapOr(defaultValue, fn, ao);
-    return ao.run().then(async opt => {
+    return runCarrier(ao).then(async opt => {
         if (!opt.isSome) return defaultValue;
         try {
             return await fn(opt.value);

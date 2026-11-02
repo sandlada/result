@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function unwrapErr<T, E>(ar: AsyncResult<T, E>): Promise<E>;
 export function unwrapErr<T, E>(
@@ -27,7 +28,7 @@ export function unwrapErr<T, E>(
     ar: AsyncResult<T, E>,
     throwingFn?: (info: { message: string; value: T }) => Error,
 ): Promise<E> {
-    return ar.run().then(r => {
+    return runCarrier(ar).then(r => {
         if (r.isFailure) return r.error;
         if (throwingFn) {
             throw throwingFn({ message: 'Called `unwrapErr` on an Ok value', value: r.value });

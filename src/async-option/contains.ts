@@ -1,4 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function contains<T>(
     value: T,
@@ -15,5 +16,5 @@ export function contains<T>(
     ao?: AsyncOption<T>,
 ): Promise<boolean> | ((ao: AsyncOption<T>) => Promise<boolean>) {
     if (ao === undefined) return (ao: AsyncOption<T>) => contains(value, ao);
-    return ao.run().then(opt => opt.isSome && opt.value === value);
+    return runCarrier(ao).then(opt => opt.isSome && opt.value === value);
 }

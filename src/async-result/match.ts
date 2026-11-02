@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function match<T, E, U>(
     handlers: { ok: (value: T) => U | Promise<U>; err: (error: E) => U | Promise<U> },
@@ -27,7 +28,7 @@ export function match<T, E, U>(
     ar?: AsyncResult<T, E>,
 ): Promise<U> | ((ar: AsyncResult<T, E>) => Promise<U>) {
     if(ar === undefined) return (ar: AsyncResult<T, E>): Promise<U> => match(handlers, ar);
-    return ar.run().then(async r => {
+    return runCarrier(ar).then(async r => {
         return r.isSuccess ? await handlers.ok(r.value) : await handlers.err(r.error);
     });
 }

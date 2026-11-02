@@ -1,4 +1,5 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
+import { runCarrier } from '../types/asyncCarrier.js';
 
 export function containsErr<T, E>(
     error: E,
@@ -25,5 +26,5 @@ export function containsErr<T, E>(
     ar?: AsyncResult<T, E>,
 ): Promise<boolean> | ((ar: AsyncResult<T, E>) => Promise<boolean>) {
     if (ar === undefined) return (ar: AsyncResult<T, E>) => containsErr(error, ar);
-    return ar.run().then(r => r.isFailure && r.error === error);
+    return runCarrier(ar).then(r => r.isFailure && r.error === error);
 }

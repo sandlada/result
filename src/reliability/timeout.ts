@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isResultLike } from '../types/resultShape.js';
+import { clampTimerDelay } from './timerDelay.js';
 
 /**
  * Default shape of the error produced by {@link timeout} when no factory is given.
@@ -20,6 +21,15 @@ const defaultOnTimeout = (ms: number): TimeoutError => ({ kind: 'Timeout', ms })
  * `{ kind: 'Timeout', ms }`.
  *
  * `timeout` is **lazy** — it never triggers `ar.run()` until `.run()` is invoked.
+ *
+ * **Duration bounds**: a timer can only express a bounded delay. Node clamps
+ * anything it cannot represent to **1 ms** and emits a `TimeoutOverflowWarning`
+ * / `TimeoutNaNWarning`, so an un-clamped `Infinity` would expire immediately -
+ * the opposite of what the caller asked for. The duration is therefore clamped
+ * into the range a timer can honour (`Infinity` becomes the maximum timer
+ * interval, `NaN` and negative values become zero), and the **effective**
+ * duration is the one reported to `onTimeout` and carried by the default
+ * `{ kind: 'Timeout', ms }` error.
  *
  * **Cancellation caveat**: JavaScript Promises cannot be forcibly cancelled.
  * When the timer fires first, `timeout` returns `Err(onTimeout(ms))` but the
@@ -48,6 +58,9 @@ export function timeout<T, E, TOE = TimeoutError>(
     // Keep the carrier so `run` is invoked with the carrier as `this` — a
     // method-shorthand AsyncResult would otherwise lose its receiver.
     const arRun = (): Promise<IResultOfT<T, E>> => ar.run();
+    // Clamp once, at construction time: the timer and the error payload must
+    // agree on the duration that was actually requested.
+    const effectiveMs = clampTimerDelay(ms);
     return {
         run: (): Promise<IResultOfT<T, E | TOE>> => new Promise<IResultOfT<T, E | TOE>>((resolve) => {
             let settled = false;
@@ -55,7 +68,7 @@ export function timeout<T, E, TOE = TimeoutError>(
                 if (settled) return;
                 settled = true;
                 try {
-                    resolve({ isSuccess: false as const, isFailure: true as const, error: onTimeout(ms) });
+                    resolve({ isSuccess: false as const, isFailure: true as const, error: onTimeout(effectiveMs) });
                 } catch (thrown: unknown) {
                     // If `onTimeout(ms)` throws synchronously, we still
                     // must resolve the outer Promise — otherwise the
@@ -63,7 +76,7 @@ export function timeout<T, E, TOE = TimeoutError>(
                     // unhandled global exception.
                     resolve({ isSuccess: false as const, isFailure: true as const, error: thrown as unknown as TOE });
                 }
-            }, ms);
+            }, effectiveMs);
             let innerRun: Promise<IResultOfT<T, E>>;
             try {
                 innerRun = arRun();

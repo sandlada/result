@@ -1283,3 +1283,191 @@ thenable fix. A reader following the comment would reintroduce the defect.
 **Fixed:** all seven comments now state the contract directly. The `asyncBind`
 JSDoc describes the current type contract and the single-await unwrapping
 without naming a removed implementation or recommending the buggy pattern.
+
+---
+
+## BUG-035 - `timeout` / `timeoutEager` do not clamp a non-finite `ms`
+
+**Severity:** high - a requested deadline of "never" expires after 1 ms, which
+is the opposite of what the caller asked for.
+
+**Where**
+
+- `src/reliability/timeout.ts` (the `setTimeout` call and the `onTimeout(ms)` argument)
+- `src/reliability/timeoutEager.ts` (inherited - it delegates to `timeout`)
+
+**Problem**
+
+`retry` clamps its backoff delay before it reaches the timer, but its sibling
+`timeout` never clamped the deadline. Node cannot express a delay outside the
+32-bit range: it clamps the value to **1 ms** and emits a `TimeoutOverflowWarning`
+(or a `TimeoutNaNWarning` for `NaN`).
+
+The same defect class was recorded for `retry` in the backoff entry above; the
+sibling that produces a *deadline* was missed.
+
+**Reproduction**
+
+```ts
+const t = Date.now();
+await timeout(Infinity, { run: () => new Promise(() => {}) }).run();
+// observed:  resolves after ~1 ms with Err({ kind: 'Timeout', ms: Infinity })
+//            plus a process-level "TimeoutOverflowWarning"
+// expected:  a deadline of Infinity behaves like "as long as possible"
+```
+
+**Fixed:** the deadline is clamped through the same helper `retry` uses
+(`src/reliability/timerDelay.ts`): `Infinity` becomes the maximum timer
+interval, `NaN` and negative values become zero, and an out-of-range value is
+capped. The **effective** duration is the one handed to `onTimeout` and carried
+by the default `{ kind: 'Timeout', ms }` error, so the payload describes the
+deadline that was actually armed.
+
+---
+
+## BUG-036 - `fromSafeTry` / `fromSafeTryAsync` return a raw yield that is not a Result
+
+**Severity:** medium - the runner hands back a value that is not a Result, so
+every later `isSuccess` check silently takes the wrong branch.
+
+**Where**
+
+- `src/composition/safeTry.ts` (the failure path of `fromSafeTry`)
+- `src/composition/safeTryAsync.ts` (the failure path of `fromSafeTryAsync`)
+
+**Problem**
+
+The runner treats a yielded value as a propagated failure and returns it
+verbatim:
+
+```ts
+return first.value as unknown as IResultOfT<T, E>;
+```
+
+Nothing checks the shape of that value. A generator that yields a non-Result
+therefore produces a value that is not a Result at all - `isSuccess` is
+`undefined`, so every consumer reads it as a failure with an `undefined` error.
+
+The async sibling already validates its own payload (`safeTryAsync` throws a
+`TypeError` for a resolved value that is not an `IResultOfT`), and the library
+owns a runtime guard for exactly this shape (`src/types/resultShape.ts`). The
+runner was the one place that skipped both.
+
+**Reproduction**
+
+```ts
+const out = fromSafeTry(function* () { yield 42 as never; });
+out.isSuccess;   // observed:  undefined - the value is a number, not a Result
+```
+
+**Fixed:** the runner validates the yielded value with `isResultLike` before it
+probes the generator, and throws a `TypeError` when the value is not a Result.
+The check runs *before* the probe, so a malformed yield never resumes the
+generator body.
+
+---
+
+## BUG-037 - 24 lazy terminals throw synchronously when the carrier's `run()` returns a plain Result / Option
+
+**Severity:** medium - the failure escapes a function that promised a Promise,
+so `await` and `.catch` around the call never observe it.
+
+**Where**
+
+- `src/async-result/`: `contains`, `containsErr`, `exists`, `expect`, `expectErr`,
+  `isErr`, `isOk`, `mapOr`, `mapOrElse`, `match`, `unwrap`, `unwrapErr`,
+  `unwrapOr`, `unwrapOrElse`
+- `src/async-option/`: `contains`, `exists`, `isNone`, `isSome`, `mapOr`,
+  `mapOrElse`, `match`, `unwrap`, `unwrapOr`, `unwrapOrElse`
+
+**Problem**
+
+Every one of these terminals called `.then` directly on the carrier's return
+value:
+
+```ts
+return ar.run().then(r => { /* ... */ });
+```
+
+The `AsyncResult` / `AsyncOption` contracts declare `run: () => Promise<...>`,
+but nothing enforces that at runtime. A hand-rolled carrier can return a plain
+Result / Option, and then `.then` is not a function - the `TypeError` is thrown
+**synchronously**, from a function whose declared return type is `Promise<T>`.
+
+The `reliability` module already normalises its carriers
+(`Promise.resolve(carrier).then(...)` plus a guard around the call), and the
+eager `promise-option` sibling was corrected for the same shape. The lazy
+terminals were missed.
+
+**Reproduction**
+
+```ts
+await unwrap({ run: () => ok(1) } as never);
+// observed:  TypeError "ar.run(...).then is not a function" thrown synchronously
+// expected:  a rejected Promise
+```
+
+**Fixed:** the terminals normalise the carrier through one internal helper
+(`runCarrier` in `src/types/asyncCarrier.ts`): a plain return value is adopted
+by `Promise.resolve`, and a synchronous throw becomes a rejected Promise. The
+carrier's `run()` is still invoked synchronously, so the laziness contract is
+unchanged - only the failure channel moves.
+
+---
+
+## BUG-038 - the double-yield probe runs the generator body between the two yields
+
+**Severity:** low - a documented caveat of the detection strategy.
+
+**Where**
+
+- `src/composition/safeTry.ts` (the second `iterator.next()` in the failure path)
+- `src/composition/safeTryAsync.ts` (the same probe)
+
+**Problem**
+
+Detecting a double yield requires resuming the generator, so the statements
+**between** the two yields execute before the error is raised:
+
+```ts
+fromSafeTry(function* () {
+    yield err('first');
+    doSomething();       // runs
+    yield err('second');
+});
+// throws "safeTry: generator yielded more than once." - after `doSomething()`
+```
+
+A delegation does not have this property: its failure ends the generator
+instead of running the body after the failed `yield*`. The asymmetry is
+inherent - a real generator cannot be asked "is there another yield?" without
+being resumed.
+
+**Noted:** the behaviour is documented instead of changed. The probe is the only
+way to detect a second yield, and the delegation path - the one the short-circuit
+contract depends on - already avoids running the body.
+
+---
+
+## BUG-039 - three spec comments describe an implementation that no longer exists
+
+**Severity:** low - documentation defects; one of them describes the pattern
+that adopts a thenable payload.
+
+**Where**
+
+- `src/promise-result/asyncBind.spec.ts` (two comments)
+- `src/promise-option/asyncOrElseOption.spec.ts` (one comment)
+
+**Problem**
+
+The `asyncBind` comments still read *"The implementation uses
+`Promise.resolve(r.value).then(f)`"* - the shape that adopts a thenable payload
+and was removed by the thenable fix. The implementation is
+`Promise.resolve().then(() => f(r.value))`. A reader following the comment would
+reintroduce the defect.
+
+The `asyncOrElseOption` comment refers to `Promise.resolve(undefined).then(f)`;
+the implementation adapts the recovery value with `Promise.resolve(inner)`.
+
+**Fixed:** all three comments now describe the current implementation.

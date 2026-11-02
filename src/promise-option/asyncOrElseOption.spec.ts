@@ -32,10 +32,10 @@ describe('promise-result asyncOrElseOption', () => {
     });
 
     it('propagates async recovery rejection verbatim (no catch in the lift family)', async () => {
-        // asyncOrElseOption uses `Promise.resolve(undefined).then(f)`. A
-        // rejection from f propagates via the outer Promise — it is NOT
-        // converted to None. (Distinct from the Result-flavored orElseAsync
-        // / orElseAsyncOption, which catch.)
+        // asyncOrElseOption adapts the recovery value with
+        // `Promise.resolve(inner)`. A rejection from f propagates via the
+        // outer Promise — it is NOT converted to None. (Distinct from the
+        // Result-flavored orElseAsync / orElseAsyncOption, which catch.)
         await expect(
             asyncOrElseOption(async () => { throw new Error('recovery-boom'); }, ofNone()),
         ).rejects.toThrow('recovery-boom');
