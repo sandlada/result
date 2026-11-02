@@ -16,10 +16,18 @@ export function tap<A, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
  * import { tap } from '@sandlada/result/bridge-result';
- * const log = tap(async (x: number) => { console.log(x); });
- * await log(ok(42)); // Ok(42) — side-effect only
+ * import { match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const touched = await tap(async (x: number) => { void x; }, input);
+ * const label = match((n) => `still:${n}`, (e) => `err:${String(e)}`, touched);
+ * // label === 'still:42'; tap returns the original Ok unchanged
+ *
+ * const failure = err('skip');
+ * const passthrough = await tap(async (x: number) => { void x; }, failure);
+ * // passthrough stays Err('skip'); tap short-circuits on failure
  * ```
  */
 export function tap<A, E>(

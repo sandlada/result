@@ -19,15 +19,17 @@ export function map<A, B, E>(
  * @example
  * ```ts
  * import { map } from '@sandlada/result/bridge-result';
+ * import { match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * import { pipe } from '@sandlada/result/composition';
  *
- * const r = await map(async (x: number) => x * 2, ok(21));
- * // Ok(42)
+ * const input = ok(5);
+ * const lifted = await map(async (x: number) => x * 2, input);
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, lifted);
+ * // label === 'ok:10'
  *
- * // Curried form:
- * const doubled = map(async (x: number) => x * 2);
- * const r2 = await doubled(ok(21));
+ * const failure = err('skip');
+ * const passthrough = await map(async (x: number) => x * 2, failure);
+ * // passthrough stays Err('skip'); map short-circuits on failure
  * ```
  */
 export function map<A, B, E>(

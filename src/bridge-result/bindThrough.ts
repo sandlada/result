@@ -22,14 +22,23 @@ export function bindThrough<A, B, E, F>(
  * @example
  * ```ts
  * import { bindThrough } from '@sandlada/result/bridge-result';
+ * import { match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * // Validate and preserve original value on success:
- * const r = await bindThrough(
- *     async (v: string) => v.length > 0 ? ok(v) : err('empty'),
- *     ok('data'),
+ * const input = ok('data');
+ * const validated = await bindThrough(
+ *     async (v: string) => (v.length > 0 ? ok(v) : err('empty')),
+ *     input,
  * );
- * // Ok('data') if valid, Err('empty') if invalid
+ * const label = match((s) => `kept:${s}`, (e) => `failed:${String(e)}`, validated);
+ * // label === 'kept:data'
+ *
+ * const empty = ok('');
+ * const rejected = await bindThrough(
+ *     async (v: string) => (v.length > 0 ? ok(v) : err('empty')),
+ *     empty,
+ * );
+ * // rejected is Err('empty'); bindThrough propagates the inner failure
  * ```
  */
 export function bindThrough<A, B, E, F>(

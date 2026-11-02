@@ -16,10 +16,18 @@ export function tapErr<A, E>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
  * import { tapErr } from '@sandlada/result/bridge-result';
- * const log = tapErr(async (e: string) => { console.error(e); });
- * await log(err('oops')); // Err('oops') — side-effect only
+ * import { match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const failed = err('oops');
+ * const touched = await tapErr(async (e: string) => { void e; }, failed);
+ * const label = match((n) => `ok:${n}`, (e) => `still:${String(e)}`, touched);
+ * // label === 'still:oops'; tapErr returns the original Err unchanged
+ *
+ * const success = ok(1);
+ * const passthrough = await tapErr(async (e: string) => { void e; }, success);
+ * // passthrough stays Ok(1); tapErr short-circuits on success
  * ```
  */
 export function tapErr<A, E>(

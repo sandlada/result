@@ -13,9 +13,23 @@ export function match<T, E, U>(
  *
  * @example
  * ```ts
- * import { match } from '@sandlada/result/bridge-result';
- * import { ok } from '@sandlada/result/factories';
- * await match({ ok: async (x: number) => `got ${x}`, err: async (e: string) => `error: ${e}` }, ok(42)); // 'got 42'
+ * import { match as bridgeMatch, map } from '@sandlada/result/bridge-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(21);
+ * const scaled = await map(async (x: number) => x * 2, input);
+ * const label = await bridgeMatch(
+ *     { ok: async (x: number) => `value:${x}`, err: async (e: string) => `failed:${e}` },
+ *     scaled,
+ * );
+ * // label === 'value:42'
+ *
+ * const failed = err('boom');
+ * const message = await bridgeMatch(
+ *     { ok: async (x: number) => `value:${x}`, err: async (e: string) => `failed:${e}` },
+ *     failed,
+ * );
+ * // message === 'failed:boom'
  * ```
  */
 export function match<T, E, U>(

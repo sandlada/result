@@ -17,9 +17,19 @@ export function orElse<T, E, F>(
  * @example
  * ```ts
  * import { orElse } from '@sandlada/result/bridge-result';
+ * import { match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * await orElse(async (e: string) => ok(0), err('boom')); // Ok(0)
- * await orElse(async (e: string) => ok(0), ok(42));       // Ok(42)
+ *
+ * const failed = err('boom');
+ * const recovered = await orElse(async (e: string) => ok(`recovered:${e}`), failed);
+ * const label = match((s) => s, (e) => `still:${String(e)}`, recovered);
+ * // label === 'recovered:boom'
+ *
+ * const success = ok(42);
+ * const untouched = await orElse(async (_e: string) => ok(0), success);
+ * // untouched stays Ok(42); orElse short-circuits on success
+ * const same = match((n) => n, (_e) => 0, untouched);
+ * // same === 42
  * ```
  */
 export function orElse<T, E, F>(

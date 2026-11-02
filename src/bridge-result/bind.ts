@@ -32,14 +32,17 @@ export function bind<A, B, E, F>(
  * @example
  * ```ts
  * import { bind } from '@sandlada/result/bridge-result';
+ * import { match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * const r = await bind(async (x: number) => ok(x * 2), ok(21));
- * // Ok(42)
+ * const input = ok(21);
+ * const chained = await bind(async (x: number) => ok(x * 2), input);
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, chained);
+ * // label === 'ok:42'
  *
- * // Curried form:
- * const process = bind(async (x: number) => x > 0 ? ok(x) : err('negative'));
- * const r2 = await process(ok(5));
+ * const blocked = err('upstream');
+ * const skipped = await bind(async (x: number) => ok(x * 2), blocked);
+ * // skipped stays Err('upstream'); bind does not invoke the callback
  * ```
  */
 export function bind<A, B, E, F>(
