@@ -16,9 +16,16 @@ export function map<A, B>(
  * @example
  * ```ts
  * import { map } from '@sandlada/result/bridge-option';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- * await map(async (x: number) => x * 2, ofSome(21)); // Some(42)
- * await map(async (x: number) => x * 2, ofNone());    // None
+ * import { match, ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = ofSome(5);
+ * const lifted = await map(async (x: number) => x * 2, input);
+ * const label = match((v) => `value:${v}`, () => 'nothing', lifted);
+ * // label === 'value:10'
+ *
+ * const empty = ofNone<number>();
+ * const skipped = await map(async (x: number) => x * 2, empty);
+ * // skipped is None; map passes None through without calling the mapper
  * ```
  */
 export function map<A, B>(

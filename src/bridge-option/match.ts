@@ -13,12 +13,23 @@ export function match<T, U>(
  *
  * @example
  * ```ts
- * import { match } from '@sandlada/result/bridge-option';
- * import { ofSome } from '@sandlada/result/option';
- * await match(
- *   { some: async (v: number) => `got ${v}`, none: async () => 'absent' },
- *   ofSome(42),
- * ); // 'got 42'
+ * import { match as bridgeMatch, map } from '@sandlada/result/bridge-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = ofSome(21);
+ * const scaled = await map(async (x: number) => x * 2, input);
+ * const label = await bridgeMatch(
+ *     { some: async (v: number) => `value:${v}`, none: async () => 'nothing' },
+ *     scaled,
+ * );
+ * // label === 'value:42'
+ *
+ * const empty = ofNone<number>();
+ * const message = await bridgeMatch(
+ *     { some: async (v: number) => `value:${v}`, none: async () => 'nothing' },
+ *     empty,
+ * );
+ * // message === 'nothing'
  * ```
  */
 export function match<T, U>(

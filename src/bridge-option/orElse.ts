@@ -19,9 +19,18 @@ export function orElse<T>(
  * @example
  * ```ts
  * import { orElse } from '@sandlada/result/bridge-option';
- * import { ofSome, ofNone } from '@sandlada/result/option';
- * await orElse(async () => ofSome(0), ofNone());   // Some(0)
- * await orElse(async () => ofSome(0), ofSome(42)); // Some(42)
+ * import { match, ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const empty = ofNone<number>();
+ * const recovered = await orElse(async () => ofSome(0), empty);
+ * const label = match((v) => `value:${v}`, () => 'nothing', recovered);
+ * // label === 'value:0'
+ *
+ * const present = ofSome(42);
+ * const untouched = await orElse(async () => ofSome(0), present);
+ * // untouched stays Some(42); orElse short-circuits on Some
+ * const same = match((v) => v, () => 0, untouched);
+ * // same === 42
  * ```
  */
 export function orElse<T>(

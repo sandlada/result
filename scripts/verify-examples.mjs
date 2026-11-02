@@ -22,7 +22,7 @@ const files = collect(sourceRoot);
 const generated = [];
 const problems = [];
 // Grows as each module's examples are rewritten. Empty means every src/ example.
-const enforcedRoots = ['src/factories/', 'src/operators/', 'src/option/', 'src/composition/', 'src/adapters/', 'src/combine/', 'src/bridge-result/'];
+const enforcedRoots = ['src/factories/', 'src/operators/', 'src/option/', 'src/composition/', 'src/adapters/', 'src/combine/', 'src/bridge-result/', 'src/bridge-option/'];
 
 for (const file of files) {
     const text = readFileSync(file, 'utf8');

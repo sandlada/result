@@ -18,9 +18,16 @@ export function tap<T>(
  * @example
  * ```ts
  * import { tap } from '@sandlada/result/bridge-option';
- * import { ofSome } from '@sandlada/result/option';
- * const log = tap(async (x: number) => { console.log(x); });
- * await log(ofSome(42)); // Some(42) — side-effect only
+ * import { match, ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = ofSome(42);
+ * const touched = await tap(async (x: number) => { void x; }, input);
+ * const label = match((v) => `still:${v}`, () => 'nothing', touched);
+ * // label === 'still:42'; tap returns the original Some unchanged
+ *
+ * const absent = ofNone<number>();
+ * const passthrough = await tap(async (x: number) => { void x; }, absent);
+ * // passthrough is None; tap short-circuits without running the callback
  * ```
  */
 export function tap<T>(

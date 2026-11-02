@@ -21,9 +21,16 @@ export function bind<T, U>(
  * @example
  * ```ts
  * import { bind } from '@sandlada/result/bridge-option';
- * import { ofSome } from '@sandlada/result/option';
- * const r = await bind(async (x: number) => ofSome(x * 2), ofSome(21));
- * // Some(42)
+ * import { match, ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = ofSome(21);
+ * const chained = await bind(async (x: number) => ofSome(x * 2), input);
+ * const label = match((v) => `value:${v}`, () => 'nothing', chained);
+ * // label === 'value:42'
+ *
+ * const absent = ofNone<number>();
+ * const skipped = await bind(async (x: number) => ofSome(x * 2), absent);
+ * // skipped is None; bind short-circuits without invoking the callback
  * ```
  */
 export function bind<T, U>(
