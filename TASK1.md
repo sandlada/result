@@ -352,9 +352,9 @@ export function err<E>(error: E): IResultOfTFailure<E> {
   - `unwrapOr((n: number) => n, ok(1))` 被判成柯里化
   - `exactOptionalPropertyTypes` 下可选 `errorFn` 的调用从合法变非法
 - [x] **3.3** 停止条件未触发时，按模块提交其余操作符。一个模块一个提交。不在这个阶段清 barrel 导入。
-- [ ] **3.4** `async-result` 的 `map` / `mapAsync` / `bind`：两段 `run` 合成一个内部函数。行为以现有 spec 和 JSDoc 为准，`mapAsync` 继续传播。
-- [ ] **3.5** 生产代码里 `from '../<module>/index.js'` 改为具体文件。一个模块一个提交。测试文件不动。
-- [ ] **3.6** `applyErrorFn` 从 `src/operators/errorMapper.ts` 移到 `src/internal/errorFn.ts`。该函数带 `@internal`，不在 `operators` barrel。移完后删除旧文件。这不是公开 API 变更。
+- [x] **3.4** `async-result` 的 `map` / `mapAsync` / `bind`：两段 `run` 合成一个内部函数。行为以现有 spec 和 JSDoc 为准，`mapAsync` 继续传播。
+- [x] **3.5** 生产代码里 `from '../<module>/index.js'` 改为具体文件。一个模块一个提交。测试文件不动。
+- [x] **3.6** `applyErrorFn` 从 `src/operators/errorMapper.ts` 移到 `src/internal/errorFn.ts`。该函数带 `@internal`，不在 `operators` barrel。移完后删除旧文件。这不是公开 API 变更。
 
 **验收**：标本 type-spec 与迁移前一致。`npm test`、`npm run test:type`、`npm run build` 通过。台账写明分发器是推广了还是按 3.2 停了。
 
@@ -485,7 +485,7 @@ npm test
 | 3.0 分发清单 | `[x]` | | 见下方「Phase 3 分发清单」 |
 | 3.1 三个标本 | `[x]` | | `map` / `bimap` / `unwrapOr` + `internal/dual.ts` |
 | 3.2 停止或继续 | `[x]` | | 停止条件未触发，继续推广 |
-| 3.3–3.6 | `[ ]` | 41c22cb | operators done (`refactor/task1-p3-operators`); 3.4–3.6 pending |
+| 3.3–3.6 | `[x]` | 6b7ff7b | tag `refactor/task1-p3` |
 | 4 矩阵影子对照与冲突清单 | `[ ]` | | |
 | 5 改名与删再导出 | `[ ]` | | |
 | 6 内核，或明确跳过 | `[ ]` | | |
