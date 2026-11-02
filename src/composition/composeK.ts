@@ -73,11 +73,20 @@ export function composeK<A, B, C, D, F, G, H, E>(
  * ```ts
  * import { composeK } from '@sandlada/result/composition';
  * import { ok, err } from '@sandlada/result/factories';
- * const p = composeK(
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const run = composeK(
  *   (x: number) => ok(x * 2),
- *   (x: number) => x > 50 ? ok(x) : err('too small'),
+ *   (x: number) => (x > 50 ? ok(x) : err('too small')),
  * );
- * p(30); // Ok(60)
+ * const input = 30;
+ * const result = run(input);
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, result);
+ * // label === 'ok:60'
+ *
+ * const short = run(10);
+ * const blocked = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, short);
+ * // blocked === 'err:too small'; composeK stops at the first Err
  * ```
  *
  * @throws {TypeError} If called with zero functions.

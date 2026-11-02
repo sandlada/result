@@ -40,12 +40,23 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K>(
  * import { pipe } from '@sandlada/result/composition';
  * import { map, bind, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * pipe(
- *   ok(42),
- *   map(x => x * 2),
- *   bind(x => x > 50 ? ok(x) : err('too small')),
- *   match(v => `OK: ${v}`, e => `Error: ${e}`),
- * ); // "OK: 84"
+ *
+ * const input = ok(42);
+ * const outcome = pipe(
+ *   input,
+ *   map((x: number) => x * 2),
+ *   bind((x: number) => (x > 50 ? ok(x) : err('too small'))),
+ *   match((v) => `OK: ${v}`, (e) => `Error: ${e}`),
+ * );
+ * // outcome === 'OK: 84'
+ *
+ * const blocked = pipe(
+ *   ok(10),
+ *   map((x: number) => x * 2),
+ *   bind((x: number) => (x > 50 ? ok(x) : err('too small'))),
+ *   match((v) => `OK: ${v}`, (e) => `Error: ${e}`),
+ * );
+ * // blocked === 'Error: too small'; bind short-circuits before match sees a success
  * ```
  */
 export function pipe(value: unknown, ...fns: Array<(arg: unknown) => unknown>): unknown {

@@ -38,12 +38,23 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * import { pipeAsync } from '@sandlada/result/composition';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * import { mapAsync, bindAsync, matchAsync } from '@sandlada/result/promise-result';
- * await pipeAsync(
- *   asyncOk(42),
+ *
+ * const input = asyncOk(42);
+ * const outcome = await pipeAsync(
+ *   input,
  *   mapAsync((x: number) => x * 2),
- *   bindAsync((x: number) => x > 50 ? asyncOk(x) : asyncErr('too small')),
- *   matchAsync(v => `OK: ${v}`, e => `Error: ${e}`),
+ *   bindAsync((x: number) => (x > 50 ? asyncOk(x) : asyncErr('too small'))),
+ *   matchAsync((v) => `OK: ${v}`, (e) => `Error: ${e}`),
  * );
+ * // outcome === 'OK: 84'
+ *
+ * const blocked = await pipeAsync(
+ *   asyncOk(10),
+ *   mapAsync((x: number) => x * 2),
+ *   bindAsync((x: number) => (x > 50 ? asyncOk(x) : asyncErr('too small'))),
+ *   matchAsync((v) => `OK: ${v}`, (e) => `Error: ${e}`),
+ * );
+ * // blocked === 'Error: too small'; bindAsync short-circuits before matchAsync runs on success
  * ```
  */
 export async function pipeAsync(value: unknown, ...fns: Array<(arg: unknown) => unknown>): Promise<unknown> {

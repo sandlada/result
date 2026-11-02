@@ -63,11 +63,26 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
  * ```ts
  * import { composeKAsync } from '@sandlada/result/composition';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * const p = composeKAsync(
+ * import { matchAsync } from '@sandlada/result/promise-result';
+ *
+ * const run = composeKAsync(
  *   (x: number) => asyncOk(x * 2),
- *   (x: number) => x > 50 ? asyncOk(x) : asyncErr('too small'),
+ *   (x: number) => (x > 50 ? asyncOk(x) : asyncErr('too small')),
  * );
- * await p(30); // Ok(60)
+ * const input = 30;
+ * const label = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${String(e)}`,
+ *   run(input),
+ * );
+ * // label === 'ok:60'
+ *
+ * const blocked = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${String(e)}`,
+ *   run(10),
+ * );
+ * // blocked === 'err:too small'; composeKAsync stops at the first Err
  * ```
  *
  * @throws {TypeError} If called with zero functions.

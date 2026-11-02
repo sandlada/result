@@ -29,19 +29,32 @@ import { SafeTryShortCircuit } from './delegationSignal.js';
  * ```ts
  * import { safeTryAsync, fromSafeTryAsync } from '@sandlada/result/composition';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ * import { matchAsync } from '@sandlada/result/promise-result';
  *
- * const ok = await fromSafeTryAsync(async function* () {
- *     const a = yield* safeTryAsync(asyncOk(40));
- *     const b = yield* safeTryAsync(asyncOk(2));
- *     return Number(a) + Number(b);
- * }).run();
- * // Ok(42)
+ * const first = asyncOk(40);
+ * const second = asyncOk(2);
+ * const pipeline = fromSafeTryAsync(async function* () {
+ *   const a = yield* safeTryAsync(first);
+ *   const b = yield* safeTryAsync(second);
+ *   return Number(a) + Number(b);
+ * });
+ * const label = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${String(e)}`,
+ *   pipeline.run(),
+ * );
+ * // label === 'ok:42'
  *
- * const failure = await fromSafeTryAsync(async function* () {
- *     yield* safeTryAsync(asyncErr('boom'));
- *     return 0;
- * }).run();
- * // Err('boom')
+ * const failure = fromSafeTryAsync(async function* () {
+ *   yield* safeTryAsync(asyncErr('boom'));
+ *   return 0;
+ * });
+ * const blocked = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${String(e)}`,
+ *   failure.run(),
+ * );
+ * // blocked === 'err:boom'; safeTryAsync short-circuits before return 0 runs
  * ```
  */
 export async function* safeTryAsync<T, E>(

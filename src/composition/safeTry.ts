@@ -29,13 +29,25 @@ import { SafeTryShortCircuit } from './delegationSignal.js';
  *
  * @example
  * ```ts
- * import { safeTry } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
+ * import { safeTry, fromSafeTry } from '@sandlada/result/composition';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { match, map } from '@sandlada/result/operators';
  *
- * function* pipeline() {
- *   const value = yield* safeTry(ok(42));
+ * const step = ok(42);
+ * const success = fromSafeTry(function* () {
+ *   const value = yield* safeTry(step);
  *   return value;
- * }
+ * });
+ * const doubled = map((n: number) => n * 2, success);
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, doubled);
+ * // label === 'ok:84'
+ *
+ * const failure = fromSafeTry(function* () {
+ *   yield* safeTry(err('skip'));
+ *   return 0;
+ * });
+ * const blocked = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, failure);
+ * // blocked === 'err:skip'; safeTry yields Err so code after yield* never runs
  * ```
  */
 export function* safeTry<T, E>(
@@ -90,13 +102,23 @@ export function fromSafeTry<T, E>(
  * @example
  * ```ts
  * import { fromSafeTry, safeTry } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
+ * const step = ok(42);
  * const result = fromSafeTry(function* () {
- *   const value = yield* safeTry(ok(42));
+ *   const value = yield* safeTry(step);
  *   return value;
  * });
- * // Ok(42)
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, result);
+ * // label === 'ok:42'
+ *
+ * const aborted = fromSafeTry(function* () {
+ *   yield* safeTry(err('boom'));
+ *   return 0;
+ * });
+ * const blocked = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, aborted);
+ * // blocked === 'err:boom'; fromSafeTry returns the propagated failure
  * ```
  */
 export function fromSafeTry<T, E>(
