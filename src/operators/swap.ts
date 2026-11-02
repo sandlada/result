@@ -20,7 +20,7 @@ export function swap<A, E>(r: IResultOfT<A, E>): IResultOfT<E, A> {
     // track (Ok|Err) a structural subset of the destination track after
     // swap.
     if (r.isSuccess) {
-        return { isSuccess: false as const, isFailure: true as const, error: r.value };
+        return err<E, A>(r.value);
     }
-    return { isSuccess: true as const, isFailure: false as const, value: r.error };
+    return ok<E, A>(r.error);
 }

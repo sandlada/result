@@ -22,8 +22,8 @@ export function unzip<A, B, E>(
         // The phantom `never` track on the value side is intentional — both
         // slots come from one Ok(...) source, but the type system needs
         // explicit construction to widen them to A and B.
-        const slotA: IResultOfT<A, E> = { isSuccess: true as const, isFailure: false as const, value: r.value[0] };
-        const slotB: IResultOfT<B, E> = { isSuccess: true as const, isFailure: false as const, value: r.value[1] };
+        const slotA = ok<A, E>(r.value[0]);
+        const slotB = ok<B, E>(r.value[1]);
         return [slotA, slotB];
     }
     // On failure both slots carry the same error — project the original
