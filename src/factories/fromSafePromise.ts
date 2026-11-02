@@ -14,9 +14,12 @@ import { err } from './err.js';
  * @example
  * ```ts
  * import { fromSafePromise } from '@sandlada/result/factories';
+ * import { unwrapOr } from '@sandlada/result/promise-result';
  *
- * const data = await fromSafePromise(Promise.resolve(42));
- * // Ok(42)
+ * const ready = Promise.resolve(42);
+ * const value = unwrapOr(0, fromSafePromise(ready));
+ * const missing = fromSafePromise(Promise.reject('gone'));
+ * // value resolves to 42. missing resolves to Err(Error('gone')).
  * ```
  */
 export async function fromSafePromise<T, E = Error>(

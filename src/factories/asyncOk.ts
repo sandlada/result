@@ -7,7 +7,11 @@ import { ok } from './ok.js';
  * @example
  * ```ts
  * import { asyncOk } from '@sandlada/result/factories';
- * const r = asyncOk(42); // Promise<IResultOfT<number, never>>
+ * import { map } from '@sandlada/result/promise-result';
+ *
+ * const pending = asyncOk(21);
+ * const doubled = map((n: number) => n * 2, pending);
+ * // doubled resolves to Ok(42)
  * ```
  */
 export function asyncOk<T>(value: T): Promise<IResultOfT<T, never>> {

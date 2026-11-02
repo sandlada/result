@@ -19,15 +19,12 @@ export function fromPredicate<T, E>(
  * @example
  * ```ts
  * import { fromPredicate } from '@sandlada/result/factories';
+ * import { map } from '@sandlada/result/operators';
  *
- * // Direct form
- * const r1 = fromPredicate((n: number) => n > 0, 'must be positive', 5);
- * // r1 = Ok(5)
- *
- * // Curried form
- * const isPositive = fromPredicate((n: number) => n > 0, 'must be positive');
- * const r2 = isPositive(5);
- * // r2 = Ok(5)
+ * const positive = fromPredicate((n: number) => n > 0, 'must be positive');
+ * const doubled = map((n) => n * 2, positive(5));
+ * const rejected = positive(0);
+ * // doubled is Ok(10). rejected is Err('must be positive').
  * ```
  */
 export function fromPredicate<T, E>(

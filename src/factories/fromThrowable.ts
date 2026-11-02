@@ -10,9 +10,15 @@ import { ok } from './ok.js';
  * @example
  * ```ts
  * import { fromThrowable } from '@sandlada/result/factories';
- * const safeParse = fromThrowable(JSON.parse);
- * const r = safeParse('{"a":1}');
- * // r = Ok({ a: 1 })
+ * import { map } from '@sandlada/result/operators';
+ *
+ * const parse = fromThrowable(
+ *     (raw: string) => JSON.parse(raw) as { a: number },
+ *     (error) => `invalid json: ${String(error)}`,
+ * );
+ * const field = map((body) => body.a, parse('{"a":1}'));
+ * const broken = parse('nope');
+ * // field is Ok(1). broken is Err('invalid json: ...').
  * ```
  */
 export function fromThrowable<A extends unknown[], T, E = unknown>(

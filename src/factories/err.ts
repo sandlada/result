@@ -14,12 +14,22 @@ export function err<T, E>(error: E): IResultOfT<T, E>;
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { map, match } from '@sandlada/result/operators';
  * import type { IResultOfT } from '@sandlada/result';
- * const r = err('something went wrong'); // IResultOfT<never, string>
  *
- * // Inside a wider context the T parameter widens automatically:
+ * const rejected = err('nan');
+ * const untouched = map((text: string) => Number(text) * 2, rejected);
+ * const label = match(
+ *     (n) => `count=${n}`,
+ *     (error) => `failed:${error}`,
+ *     untouched,
+ * );
+ * // label === 'failed:nan'
+ *
  * const widen = <T>(): IResultOfT<T, string> => err('boom');
+ * void ok(1);
+ * void widen;
  * ```
  */
 export function err<E>(error: E): IResultOfTFailure<E> {

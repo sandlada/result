@@ -8,8 +8,15 @@ import { ok } from './ok.js';
  * @example
  * ```ts
  * import { tryCatch } from '@sandlada/result/factories';
- * const r = tryCatch(() => JSON.parse('{"a":1}'));
- * // r = Ok({ a: 1 })
+ * import { unwrapOr } from '@sandlada/result/operators';
+ *
+ * const parsed = tryCatch(() => JSON.parse('{"a":1}') as { a: number });
+ * const field = unwrapOr({ a: 0 }, parsed);
+ * const broken = tryCatch(
+ *     () => JSON.parse('nope'),
+ *     (error) => `invalid json: ${String(error)}`,
+ * );
+ * // field.a === 1. broken is Err('invalid json: ...').
  * ```
  */
 export function tryCatch<T, E = unknown>(

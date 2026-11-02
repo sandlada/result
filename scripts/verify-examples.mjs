@@ -20,10 +20,21 @@ mkdirSync(examplesRoot, { recursive: true });
 
 const files = collect(sourceRoot);
 const generated = [];
+const problems = [];
+// Grows as each module's examples are rewritten. Empty means every src/ example.
+const enforcedRoots = ['src/factories/'];
 
 for (const file of files) {
     const text = readFileSync(file, 'utf8');
     const examples = extractExamples(text);
+
+    const relativeFile = relative(repositoryRoot, file).replaceAll('\\', '/');
+    if (enforced(relativeFile)) {
+        examples.forEach((example, index) => {
+            const problem = exampleShapeProblem(example);
+            if (problem) problems.push(`${relativeFile} example ${index + 1}: ${problem}`);
+        });
+    }
 
     examples.forEach((example, index) => {
         const name = `${relative(repositoryRoot, file).replace(/^src[\\/]/, '').replace(/[\\/]/g, '-').replace(/\.ts$/, '')}-${index + 1}.ts`;
@@ -31,6 +42,12 @@ for (const file of files) {
         writeFileSync(join(examplesRoot, name), `${header}${example.trimEnd()}\n\nexport {};\n`);
         generated.push({ name, source: relative(repositoryRoot, file).replaceAll('\\', '/') });
     });
+}
+
+if (problems.length > 0) {
+    console.error('Example snippets do not show an input and a following step:\n');
+    for (const problem of problems) console.error(`  ${problem}`);
+    process.exit(1);
 }
 
 if (generated.length === 0) {
@@ -60,6 +77,25 @@ try {
 }
 
 console.log(`Verified ${generated.length} JSDoc examples from ${files.length} source files.`);
+
+function enforced(relativeFile) {
+    return enforcedRoots.some((root) => relativeFile.startsWith(root));
+}
+
+function exampleShapeProblem(example) {
+    if (!/^\s*import\s/m.test(example)) return 'missing import';
+    const statements = example
+        .split('\n')
+        .filter((line) => {
+            const trimmed = line.trim();
+            return trimmed !== '' && !trimmed.startsWith('//') && !trimmed.startsWith('import ');
+        });
+    if (statements.length < 2) return 'only a single call remains after imports';
+    if (!/\b(?:ok|err|ofSome|ofNone|asyncOk|asyncErr|fromPromise|fromSafePromise|tryCatch|tryCatchAsync|fromThrowable|fromPredicate|Promise\.|const )\b/.test(example)) {
+        return 'missing an input value';
+    }
+    return null;
+}
 
 function collect(directory) {
     const files = [];

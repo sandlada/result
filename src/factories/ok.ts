@@ -18,12 +18,24 @@ export function ok<T, E>(value: T): IResultOfT<T, E>;
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { map, match } from '@sandlada/result/operators';
  * import type { IResultOfT } from '@sandlada/result';
- * const r = ok(42); // IResultOfT<number, never>
  *
- * // Inside a wider context the E parameter widens automatically:
+ * const parsed = ok('42');
+ * const doubled = map((text: string) => Number(text) * 2, parsed);
+ * const label = match(
+ *     (n) => `count=${n}`,
+ *     (error) => `failed:${String(error)}`,
+ *     doubled,
+ * );
+ * // label === 'count=84'
+ *
+ * const failed = map((text: string) => Number(text) * 2, err('nan'));
+ * // failed stays Err('nan'); map does not read the success value
+ *
  * const widen = <E>(): IResultOfT<number, E> => ok(42);
+ * void widen;
  * ```
  */
 export function ok<T, E = never>(...args: [] | [T]): IResultSuccess | IResultOfT<T, E> {

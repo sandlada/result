@@ -8,7 +8,12 @@ import { ok } from './ok.js';
  * @example
  * ```ts
  * import { fromPromise } from '@sandlada/result/factories';
- * const r = await fromPromise(fetch('/api/data'));
+ * import { map } from '@sandlada/result/promise-result';
+ *
+ * const pending = Promise.resolve(21);
+ * const doubled = map((n: number) => n * 2, fromPromise(pending));
+ * const rejected = fromPromise(Promise.reject('offline'), (error) => `load failed: ${String(error)}`);
+ * // doubled resolves to Ok(42). rejected resolves to Err('load failed: offline').
  * ```
  */
 export async function fromPromise<T, E = unknown>(

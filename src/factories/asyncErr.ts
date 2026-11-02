@@ -7,7 +7,11 @@ import { err } from './err.js';
  * @example
  * ```ts
  * import { asyncErr } from '@sandlada/result/factories';
- * const r = asyncErr('bad'); // Promise<IResultOfT<never, string>>
+ * import { map } from '@sandlada/result/promise-result';
+ *
+ * const pending = asyncErr('nan');
+ * const doubled = map((n: number) => n * 2, pending);
+ * // doubled stays Err('nan'); the mapper never runs
  * ```
  */
 export function asyncErr<E>(error: E): Promise<IResultOfT<never, E>> {

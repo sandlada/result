@@ -8,11 +8,14 @@ import { ok } from './ok.js';
  * @example
  * ```ts
  * import { tryCatchAsync } from '@sandlada/result/factories';
- * const r = await tryCatchAsync(
- *   () => fetch('/api/data'),
- *   e => new Error(String(e)),
+ * import { map } from '@sandlada/result/promise-result';
+ *
+ * const loaded = tryCatchAsync(
+ *     () => Promise.resolve('42'),
+ *     (error) => `load failed: ${String(error)}`,
  * );
- * // r = Ok(Response) or Err(Error)
+ * const doubled = map((text: string) => Number(text) * 2, loaded);
+ * // doubled resolves to Ok(84). A rejection becomes Err('load failed: ...').
  * ```
  */
 export async function tryCatchAsync<T, E = unknown>(
