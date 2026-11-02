@@ -71,7 +71,7 @@ To run a single named test:
 npx vitest run -t "matches the success variant"
 ```
 
-Vitest is configured in `vitest.config.ts`. Coverage thresholds are enforced per-glob and the **observability** module has a strict 100% gate; the **reliability** module's `branches` threshold is 84 because of a documented genuinely-unreachable timer-race guard (`src/reliability/timeout.ts:51`).
+Vitest is configured in `vitest.config.ts`. Coverage thresholds are enforced per-glob: `src/composition/**`, `src/observability/**`, `src/primitives/**`, `src/reliability/**`, and the `src/**` fallback each require **90%** for statements, branches, functions, and lines (see `vitest.config.ts` `coverage.thresholds`).
 
 ## Architecture
 
