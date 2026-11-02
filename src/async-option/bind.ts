@@ -1,6 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
-import { ofNone } from '../option/index.js';
+import { ofNone } from '../option/ofNone.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
 
 export function bind<T, U>(

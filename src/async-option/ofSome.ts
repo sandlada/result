@@ -1,5 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
-import { ofSome as syncOfSome } from '../option/index.js';
+import { ofSome as syncOfSome } from '../option/ofSome.js';
 import { markAsyncCarrier } from '../types/asyncCarrier.js';
 
 /**

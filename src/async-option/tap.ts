@@ -1,5 +1,5 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
-import { ofNone } from '../option/index.js';
+import { ofNone } from '../option/ofNone.js';
 
 export function tap<T>(
     fn: (value: T) => void,

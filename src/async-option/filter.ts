@@ -1,6 +1,6 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption } from '../types/Option.js';
-import { ofNone } from '../option/index.js';
+import { ofNone } from '../option/ofNone.js';
 
 export function filter<T>(
     predicate: (value: T) => boolean | Promise<boolean>,

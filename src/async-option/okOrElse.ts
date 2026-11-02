@@ -1,7 +1,8 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
-import { ok, err } from '../factories/index.js';
+import { ok } from '../factories/ok.js';
+import { err } from '../factories/err.js';
 
 export function okOrElse<T, E>(
     onNone: () => E | Promise<E>,
