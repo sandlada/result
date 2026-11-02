@@ -2,6 +2,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 import { applyErrorFn } from './errorMapper.js';
+import { dualCarrierOrFn } from '../internal/dual.js';
 
 export function map<A, B>(
     f: (a: A) => B,
@@ -38,19 +39,16 @@ export function map<A, B, E>(
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E,
 ): IResultOfT<B, E> | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<B, E2>) {
-    if (rOrErrorFn === undefined || typeof rOrErrorFn === 'function') {
-        const eFn = typeof rOrErrorFn === 'function' ? rOrErrorFn : undefined;
-        return <E2>(r: IResultOfT<A, E2>): IResultOfT<B, E2> => {
-            if (!r.isSuccess) return r as unknown as IResultOfT<B, E2>;
-            try {
-                return ok(f(r.value));
-            } catch (thrown: unknown) {
-                const innerError = applyErrorFn(eFn, thrown) as unknown as E2;
-                return err(innerError) as unknown as IResultOfT<B, E2>;
-            }
-        };
-    }
-    const r = rOrErrorFn;
+    return dualCarrierOrFn(1, mapDirect as (...args: unknown[]) => unknown)(f, rOrErrorFn, errorFn) as
+        | IResultOfT<B, E>
+        | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<B, E2>);
+}
+
+function mapApply<A, B, E>(
+    f: (a: A) => B,
+    r: IResultOfT<A, E>,
+    errorFn?: (thrown: unknown) => unknown,
+): IResultOfT<B, E> {
     if (!r.isSuccess) return r as unknown as IResultOfT<B, E>;
     try {
         return ok(f(r.value));
@@ -58,4 +56,19 @@ export function map<A, B, E>(
         const innerError = applyErrorFn(errorFn, thrown) as unknown as E;
         return err(innerError);
     }
+}
+
+function mapDirect<A, B, E>(
+    f: (a: A) => B,
+    second?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => E,
+): IResultOfT<B, E> | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<B, E2>) {
+    const hasCarrier = third !== undefined || (second !== undefined && typeof second !== 'function');
+    if (hasCarrier) {
+        const r = (typeof second === 'function' ? third : second) as IResultOfT<A, E>;
+        const eFn = typeof second === 'function' ? second : third;
+        return mapApply(f, r, eFn);
+    }
+    const eFn = typeof second === 'function' ? second : undefined;
+    return <E2>(r: IResultOfT<A, E2>): IResultOfT<B, E2> => mapApply(f, r, eFn);
 }
