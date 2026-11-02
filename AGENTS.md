@@ -49,14 +49,14 @@ npm run test:type     # vitest typecheck — runs *.type-spec.ts against tsconfi
 npm run bench         # vitest bench (src/**/*.bench.ts)
 npm run bench:json    # bench -> bench/results.json
 
-# Documentation site (separate package in site/)
-npm --prefix site run dev             # Astro dev server
-npm --prefix site run build           # build to site/dist/ (content sync + TypeDoc + link validation + verify:seo)
-npm --prefix site run check           # astro check for the site
-npm --prefix site run check:snippets  # type-check documented examples against src/
-npm --prefix site run verify          # check:snippets + check + build
-npm --prefix site run verify:seo      # re-check SEO invariants of an existing site/dist/
-npm --prefix site run version:new -- <slug>  # archive a documentation version
+# Documentation site (pnpm workspace package in site/)
+pnpm site:dev                          # Astro dev server
+pnpm site:build                        # build to site/dist/ (content sync + TypeDoc + link validation + verify:seo)
+pnpm site:check                        # astro check for the site
+pnpm site:check:snippets               # type-check documented examples against src/
+pnpm site:verify                       # check:snippets + check + build
+pnpm site:verify:seo                   # re-check SEO invariants of an existing site/dist/
+pnpm --filter @sandlada/result-docs version:new -- <slug>  # archive a documentation version
 ```
 
 To run a single test file:
@@ -242,7 +242,7 @@ site/                   — Astro Starlight documentation site (separate package
 
 Tests live alongside source: each `src/<dir>/` contains both `*.ts` source and `*.spec.ts` test files. Every module directory also carries a `README.md` — its spec and API index (see the module map above).
 
-`site/` is a separate npm project, like `demo/`: it has its own `package.json` and lockfile, and the root `tsconfig.json`, `rolldown.config.ts` and `vitest.config.ts` all scope themselves to `src/`, so nothing under `site/` reaches the published package. Cloudflare builds and deploys the site through Workers Builds, using the static-assets Worker defined in `site/wrangler.jsonc`; `.github/workflows/docs.yml` only verifies the build and does not deploy.
+`site/` is a pnpm workspace package (`@sandlada/result-docs`) alongside the library root. It has its own `package.json`; the root lockfile is `pnpm-lock.yaml`. Root `tsconfig.json`, `rolldown.config.ts` and `vitest.config.ts` all scope themselves to `src/`, so nothing under `site/` reaches the published package. Cloudflare builds and deploys the site through Workers Builds, using the static-assets Worker defined in `site/wrangler.jsonc`; `.github/workflows/docs.yml` only verifies the build and does not deploy.
 
 ## Testing
 

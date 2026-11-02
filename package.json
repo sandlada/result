@@ -97,7 +97,14 @@
         "test:type": "vitest typecheck run --typecheck.only src/",
         "bench": "vitest bench --dir=src",
         "bench:json": "vitest bench --dir=src --outputJson=results.json",
-        "bench:ui": "vitest bench --dir=src --ui"
+        "bench:ui": "vitest bench --dir=src --ui",
+        "site:dev": "pnpm --filter @sandlada/result-docs dev",
+        "site:build": "pnpm --filter @sandlada/result-docs build",
+        "site:preview": "pnpm --filter @sandlada/result-docs preview",
+        "site:check": "pnpm --filter @sandlada/result-docs check",
+        "site:check:snippets": "pnpm --filter @sandlada/result-docs check:snippets",
+        "site:verify": "pnpm --filter @sandlada/result-docs verify",
+        "site:verify:seo": "pnpm --filter @sandlada/result-docs verify:seo"
     },
     "repository": {
         "type": "git",
@@ -128,6 +135,7 @@
     },
     "author": "Kai-Orion & Sandlada",
     "license": "MIT",
+    "packageManager": "pnpm@12.14.0",
     "devDependencies": {
         "@vitest/coverage-v8": "^4.1.10",
         "@vitest/ui": "^4.1.10",

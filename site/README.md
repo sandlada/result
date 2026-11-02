@@ -7,24 +7,31 @@ themselves to `../src`, so nothing here can leak into the published package.
 
 ## Commands
 
+From the **repository root** (pnpm workspace):
+
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Start the dev server. The narrative pages sync through the Astro lifecycle. |
-| `npm run build` | Build to `dist/`. Runs the narrative sync, TypeDoc generation, link validation and `verify:seo`. |
-| `npm run check` | `astro check` — type-checks `.astro` files and page frontmatter. |
-| `npm run check:snippets` | Type-checks the examples in `src/snippets/` against `../src`. Requires no library build. |
-| `npm run verify` | Full local verification: `check:snippets`, then `check`, then `build`. |
-| `npm run verify:seo` | Checks the built pages for the search-metadata invariants (titles, descriptions, canonicals, JSON-LD, indexability, sitemap). Also runs as part of `npm run build`; can re-check an existing `dist/` on its own. |
-| `npm run sync` | Copies the narrative pages into the content tree. Rarely needed directly — every Astro entry point (`dev`/`build`/`check`/`sync`) runs it automatically. Accepts `--force` to adopt hand-written files. |
-| `npm run generate:icons` | Renders `public/og.png` and `public/apple-touch-icon.png` from their SVG sources. Only needed after editing those sources. |
-| `npm run version:new -- <slug> [label]` | Archives the current documentation as a new version. |
+| `pnpm site:dev` | Start the dev server. The narrative pages sync through the Astro lifecycle. |
+| `pnpm site:build` | Build to `site/dist/`. Runs the narrative sync, TypeDoc generation, link validation and `verify:seo`. |
+| `pnpm site:check` | `astro check` — type-checks `.astro` files and page frontmatter. |
+| `pnpm site:check:snippets` | Type-checks the examples in `src/snippets/` against `../src`. Requires no library build. |
+| `pnpm site:verify` | Full local verification: `check:snippets`, then `check`, then `build`. |
+| `pnpm site:verify:seo` | Checks the built pages for the search-metadata invariants. Also runs as part of `site:build`. |
+
+Inside **`site/`** you can run the same scripts with `pnpm run dev`, `pnpm run build`, and so on.
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm run sync` | Copies the narrative pages into the content tree. Rarely needed directly — every Astro entry point (`dev`/`build`/`check`/`sync`) runs it automatically. Accepts `--force` to adopt hand-written files. |
+| `pnpm run generate:icons` | Renders `public/og.png` and `public/apple-touch-icon.png` from their SVG sources. Only needed after editing those sources. |
+| `pnpm run version:new -- <slug> [label]` | Archives the current documentation as a new version. |
 
 ### Call order
 
 Scripts form a chain — run them in this order, or let the aggregate commands do it:
 
 ```text
-npm run verify
+pnpm site:verify
  └─ 1. check:snippets   (fastest: type-checks src/snippets/ against ../src)
  └─ 2. check            (astro check: .astro files and page frontmatter)
  └─ 3. build
@@ -44,7 +51,7 @@ Notes:
   server is already running.
 - `generate:icons` is independent of the chain — run it only after editing
   `assets/og.svg` or `public/favicon.svg`.
-- `version:new` runs a full `build` internally, so run `npm run verify` first and
+- `version:new` runs a full `build` internally, so run `pnpm site:verify` first and
   keep the working tree clean before archiving.
 
 ## How the content is produced
@@ -184,7 +191,7 @@ the dashboard offers when a repository is connected; there is no deployment job 
 | --- | --- |
 | Project name | `result` (must match `name` in `wrangler.jsonc`) |
 | Production branch | `main` |
-| Build command | `cd site && npm ci && npm run build` |
+| Build command | `pnpm install --frozen-lockfile && pnpm site:build` |
 | Deploy command | `cd site && npx wrangler deploy` |
 | Environment variable | `NODE_VERSION=26` (Astro requires Node >= 22.12) |
 | Custom domain | `result.sandlada.com` |
@@ -204,7 +211,7 @@ even though the build runs inside `site/`.
 Workers Builds rebuilds on every change in the repository; unlike Pages it has no build watch
 paths, so unrelated commits also trigger a build.
 
-Do not add a version to `versions.json` without running `npm run version:new`, because the next
+Do not add a version to `versions.json` without running `pnpm run version:new` from `site/` (or `pnpm --filter @sandlada/result-docs version:new` from the repo root), because the next
 build would then create the archive itself and the deployed site would describe a version that is
 not in the repository. The `Verify the build left the working tree clean` step in `docs.yml` fails
 in that situation.
