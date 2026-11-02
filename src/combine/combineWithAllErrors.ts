@@ -11,8 +11,25 @@ import { err } from '../factories/err.js';
  * ```ts
  * import { combineWithAllErrors } from '@sandlada/result/combine';
  * import { ok, err } from '@sandlada/result/factories';
- * combineWithAllErrors([ok(1), err('a'), err('b')]);
- * // Err(['a', 'b'])
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const mixed = [ok(1), err('a'), err('b')];
+ * const aggregated = combineWithAllErrors(mixed);
+ * const errorList = match(
+ *     (values) => values.join(','),
+ *     (errors) => errors.join('|'),
+ *     aggregated,
+ * );
+ * // errorList === 'a|b' — all Err values are collected; success values are omitted
+ *
+ * const allOk = [ok(1), ok(2)];
+ * const combined = combineWithAllErrors(allOk);
+ * const total = match(
+ *     (values) => values.reduce((a, b) => a + b, 0),
+ *     (errors) => errors.length,
+ *     combined,
+ * );
+ * // total === 3
  * ```
  */
 export function combineWithAllErrors<A, E>(

@@ -39,16 +39,35 @@ export function combine<A, E>(
  * ```ts
  * import { combine } from '@sandlada/result/combine';
  * import { ok, err } from '@sandlada/result/factories';
- * import type { IResultOfT } from '@sandlada/result';
+ * import { map, match } from '@sandlada/result/operators';
+ * import type { IResultOfT } from '@sandlada/result/types';
  *
- * // Heterogeneous tuple — each position keeps its own type.
- * combine([ok(1), ok('a')]); // Ok([1, 'a'])
+ * const hetero = [ok(1), ok('a')];
+ * const heteroResult = combine(hetero);
+ * const heteroLabel = match(
+ *     (values) => values.map(String).join('-'),
+ *     (error) => `fail:${String(error)}`,
+ *     heteroResult,
+ * );
+ * // heteroLabel === '1-a'
  *
- * // Homogeneous array.
- * const arr: IResultOfT<number, string>[] = [ok(1), ok(2), ok(3)];
- * combine(arr); // Ok([1, 2, 3])
+ * const homogeneous: IResultOfT<number, string>[] = [ok(1), ok(2)];
+ * const homoResult = combine(homogeneous);
+ * const summed = map((nums: number[]) => nums.reduce((a, b) => a + b, 0), homoResult);
+ * const sumLabel = match(
+ *     (n) => `sum=${n}`,
+ *     (error) => `fail:${String(error)}`,
+ *     summed,
+ * );
+ * // sumLabel === 'sum=3'
  *
- * combine([ok(1), err('fail'), ok(3)]); // Err('fail')
+ * const shortCircuit = combine([ok(1), err('fail'), ok(3)]);
+ * const failFast = match(
+ *     (values) => `ok:${values.length}`,
+ *     (error) => `err:${String(error)}`,
+ *     shortCircuit,
+ * );
+ * // failFast === 'err:fail' — combine returns Err on the first failure
  * ```
  */
 export function combine(results: readonly IResultOfT<unknown, unknown>[]): IResultOfT<unknown, unknown> {

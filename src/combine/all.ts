@@ -36,9 +36,26 @@ export type AllResult<T extends readonly IResultOfT<unknown, unknown>[]> =
  * @example
  * ```ts
  * import { all } from '@sandlada/result/combine';
- * import { ok } from '@sandlada/result/factories';
- * all([ok(1), ok('hi'), ok(true)]);
- * // Ok([1, 'hi', true])
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const inputs = [ok(1), ok(2), ok(3)];
+ * const combined = all(inputs);
+ * const count = match(
+ *     (values) => values.length,
+ *     (error) => 0,
+ *     combined,
+ * );
+ * // count === 3
+ *
+ * const withFailure = [ok(1), err('bad'), ok(3)];
+ * const stopped = all(withFailure);
+ * const code = match(
+ *     (values) => `ok:${values.length}`,
+ *     (error) => `err:${String(error)}`,
+ *     stopped,
+ * );
+ * // code === 'err:bad' — all short-circuits on the first Err (no success tuple)
  * ```
  */
 // Tuple overload — preserves per-position heterogeneous types. `readonly [...T]`
