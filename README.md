@@ -49,6 +49,14 @@ type AppError =
   | { kind: 'NotFound'; id: string }
   | { kind: 'Validation'; fields: Record<string, string> };
 
+type User = { id: string; name: string };
+
+const db = {
+  find(id: string): User | undefined {
+    return id === '42' ? { id: '42', name: 'Alice' } : undefined;
+  },
+};
+
 function getUser(id: string): IResultOfT<User, AppError> {
   if (!id) {
     return err<AppError>({ kind: 'Validation', fields: { id: 'Required' } }) as IResultOfT<User, AppError>;
@@ -78,7 +86,7 @@ Each subpath has its own spec — a module `README.md` with the full export tabl
 | --- | --- | --- |
 | `@sandlada/result` | **Type-focused barrel** — `IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`, plus the runtime empty default marker. Functional runtime values must use a subpath. | [src/types/README.md](./src/types/README.md) |
 | `@sandlada/result/factories` | Core constructors (`ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, …). | [src/factories/README.md](./src/factories/README.md) |
-| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, `pipe`, …). | [src/operators/README.md](./src/operators/README.md) |
+| `@sandlada/result/operators` | Sync operators on `IResultOfT` (`map`, `bind`, `match`, …). | [src/operators/README.md](./src/operators/README.md) |
 | `@sandlada/result/option` | Sync `IOption<T>` operators (`ofSome`, `ofNone`, `map`, `bind`, `okOr`, `transpose`, …). | [src/option/README.md](./src/option/README.md) |
 | `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. | [src/async-result/README.md](./src/async-result/README.md) |
 | `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. | [src/async-option/README.md](./src/async-option/README.md) |
@@ -99,10 +107,12 @@ Each subpath has its own spec — a module `README.md` with the full export tabl
 Bind your error type once and eliminate generic boilerplate:
 
 ```ts
-// app-result.ts
 import { ok, err } from '@sandlada/result/factories';
 import type { IResultOfT } from '@sandlada/result';
-import type { AppError } from './errors.js';
+
+type AppError =
+  | { kind: 'NotFound'; id: string }
+  | { kind: 'Validation'; fields: Record<string, string> };
 
 export type AppResult<T = void> = IResultOfT<T, AppError>;
 
@@ -113,7 +123,20 @@ export const AppResult = {
 ```
 
 ```ts
-// usage — no TError generic anywhere
+import { ok, err } from '@sandlada/result/factories';
+import type { IResultOfT } from '@sandlada/result';
+
+type AppError =
+  | { kind: 'NotFound'; id: string }
+  | { kind: 'Validation'; fields: Record<string, string> };
+type User = { id: string; name: string };
+type AppResult<T = void> = IResultOfT<T, AppError>;
+
+const AppResult = {
+  Success<T>(value?: T): AppResult<T> { return (value === undefined ? ok() : ok(value)) as unknown as AppResult<T>; },
+  Failure(error: AppError): AppResult<never> { return err(error) as unknown as AppResult<never>; },
+} as const;
+
 function getUser(id: string): AppResult<User> {
   if (!id) return AppResult.Failure({ kind: 'Validation', fields: { id: 'Required' } });
   return AppResult.Success({ id, name: 'Alice' });

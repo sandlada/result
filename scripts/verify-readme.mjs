@@ -13,7 +13,8 @@
 //      subpath;
 //   3. the AGENTS.md module map and package.json `exports` agree with the
 //      module directories;
-//   4. every repository-relative link in a module README resolves.
+//   4. every repository-relative link in a module README resolves;
+//   5. root README.md `` ```ts `` snippets are compile-checked by verify-examples.mjs.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

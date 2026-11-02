@@ -1,5 +1,5 @@
-// Compiles every JSDoc `@example` block in `src/` so documented snippets
-// cannot drift from the API they describe.
+// Compiles every JSDoc `@example` block in `src/` and every fenced `` ```ts `` block
+// in the repository root `README.md` so published snippets cannot drift from the API.
 //
 // Each example is written to `.examples/` (gitignored, wiped on every run) and
 // checked with `tsc --noEmit -p tsconfig.examples.json`, which maps
@@ -44,8 +44,23 @@ for (const file of files) {
     });
 }
 
+const rootReadmePath = join(repositoryRoot, 'README.md');
+const rootReadmeText = readFileSync(rootReadmePath, 'utf8');
+const readmeExamples = extractMarkdownTsFences(rootReadmeText);
+
+if (readmeExamples.length === 0) {
+    problems.push('README.md: no ```ts fenced blocks found — add compile-checked snippets or fix the extractor.');
+}
+
+readmeExamples.forEach((example, index) => {
+    const name = `readme-${index + 1}.ts`;
+    const header = `// Generated from README.md block ${index + 1} — do not edit.\n\n`;
+    writeFileSync(join(examplesRoot, name), `${header}${example.trimEnd()}\n\nexport {};\n`);
+    generated.push({ name, source: 'README.md' });
+});
+
 if (problems.length > 0) {
-    console.error('Example snippets do not show an input and a following step:\n');
+    console.error('Example verification failed:\n');
     for (const problem of problems) console.error(`  ${problem}`);
     process.exit(1);
 }
@@ -76,7 +91,10 @@ try {
     process.exit(1);
 }
 
-console.log(`Verified ${generated.length} JSDoc examples from ${files.length} source files.`);
+const jsdocCount = generated.length - readmeExamples.length;
+console.log(
+    `Verified ${jsdocCount} JSDoc examples from ${files.length} source files and ${readmeExamples.length} README.md snippet(s).`,
+);
 
 function enforced(relativeFile) {
     if (enforcedRoots.length === 0) return relativeFile.startsWith('src/');
@@ -142,6 +160,18 @@ function extractExamples(text) {
             }
             i = cursor;
         }
+    }
+
+    return examples;
+}
+
+/** Extracts every `` ```ts `` fenced block from Markdown (repository root README). */
+function extractMarkdownTsFences(text) {
+    const examples = [];
+
+    for (const match of text.matchAll(/```ts\s*\n([\s\S]*?)```/g)) {
+        const body = match[1].trimEnd();
+        if (body.trim() !== '') examples.push(body);
     }
 
     return examples;
