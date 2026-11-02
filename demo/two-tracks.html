@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Two-track bind example" />
+    <title>Two tracks | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">@sandlada/result</a>
+        <nav class="top-nav" aria-label="Modules">
+            <a href="/error.html">Error</a>
+            <a href="/one-track.html">One track</a>
+            <a class="active" href="/two-tracks.html">Two tracks</a>
+            <a href="/many-tracks.html">Many tracks</a>
+        </nav>
+    </header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro">
+            <p class="eyebrow">Application use case</p>
+            <h1>Place one item</h1>
+            <p><code>PlaceOneItem.execute</code> chains domain factories with <code>bind</code>. Each step can fail; later steps never run after an <code>err</code>.</p>
+            <div class="api-chips"><code>bind</code><code>map</code><code>pipe</code><code>match</code></div>
+        </section>
+        <section class="examples" aria-label="Two-track examples">
+            <article class="example" id="known-item">
+                <div class="example-copy"><h2>Notebook in catalog</h2><p>SKU → product lookup → quantity → line total.</p><button type="button" data-run>Run success path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the placed line.</pre></div>
+            </article>
+            <article class="example" id="unknown-item">
+                <div class="example-copy"><h2>Unknown SKU</h2><p>Lookup fails with <code>UnknownProduct</code>; quantity and formatting are skipped.</p><button type="button" data-run>Run failure path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see where the pipeline stops.</pre></div>
+            </article>
+        </section>
+    </main>
+    <script type="module" src="/src/pages/two-tracks-demo.ts"></script>
+</body>
+</html>

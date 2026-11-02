@@ -5,10 +5,10 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 home: 'index.html',
-                core: 'core.html',
-                async: 'async.html',
-                option: 'option.html',
-                reliability: 'reliability.html',
+                error: 'error.html',
+                'one-track': 'one-track.html',
+                'two-tracks': 'two-tracks.html',
+                'many-tracks': 'many-tracks.html',
             },
         },
     },

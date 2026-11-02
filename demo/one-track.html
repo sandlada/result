@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="One-track map example" />
+    <title>One track | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">@sandlada/result</a>
+        <nav class="top-nav" aria-label="Modules">
+            <a href="/error.html">Error</a>
+            <a class="active" href="/one-track.html">One track</a>
+            <a href="/two-tracks.html">Two tracks</a>
+            <a href="/many-tracks.html">Many tracks</a>
+        </nav>
+    </header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro">
+            <p class="eyebrow">Application use case</p>
+            <h1>Format a receipt line</h1>
+            <p>The order line is already valid. <code>FormatReceipt.execute</code> is plain formatting, and the demo wraps it with <code>map</code> on an <code>ok</code> value — the success-only track.</p>
+            <div class="api-chips"><code>ok</code><code>map</code><code>pipe</code></div>
+        </section>
+        <section class="examples" aria-label="One-track examples">
+            <article class="example" id="print-receipt">
+                <div class="example-copy"><h2>Print notebook × 2</h2><p>No validation left — only transform the success value into readable text.</p><button type="button" data-run>Run example</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the receipt line.</pre></div>
+            </article>
+        </section>
+    </main>
+    <script type="module" src="/src/pages/one-track-demo.ts"></script>
+</body>
+</html>

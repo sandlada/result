@@ -3,52 +3,56 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Interactive module examples for @sandlada/result" />
+    <meta name="description" content="Interactive @sandlada/result examples for StackBlitz" />
     <title>@sandlada/result examples</title>
     <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
     <header class="site-header">
         <a class="brand" href="/">@sandlada/result</a>
-        <span class="header-note">Type-safe error flows for TypeScript</span>
+        <span class="header-note">Small bookstore checkout</span>
     </header>
     <main class="home">
         <section class="intro">
             <p class="eyebrow">Interactive examples</p>
-            <h1>Explore Result workflows by module</h1>
-            <p>Each page explains a practical checkout scenario. Run an example to inspect the same structured result on the page and in the browser console.</p>
+            <h1>Learn Result tracks in one story</h1>
+            <p>Domain factories validate data. Application use cases compose those factories with operators. Each page adds one railway idea on top of the last.</p>
         </section>
         <nav class="module-grid" aria-label="Demo modules">
-            <a class="module-card" href="/core.html">
+            <a class="module-card" href="/error.html">
                 <span class="module-index">01</span>
-                <h2>Core Result</h2>
-                <p>Validate input, transform successful values, short-circuit failures, and finish with pattern matching.</p>
-                <span class="api-list">ok · err · pipe · map · bind · match</span>
+                <h2>Error values</h2>
+                <p>See a typed failure returned from a domain factory instead of throwing.</p>
+                <span class="api-list">ok · err · match</span>
                 <span class="module-link">Open module <span aria-hidden="true">→</span></span>
             </a>
-            <a class="module-card" href="/async.html">
+            <a class="module-card" href="/one-track.html">
                 <span class="module-index">02</span>
-                <h2>Async &amp; Combine</h2>
-                <p>Compose sequential service calls and aggregate independent requests without throw/catch branching.</p>
-                <span class="api-list">tryCatchAsync · bindAsync · all</span>
+                <h2>One track</h2>
+                <p>Transform a value that is already valid — no failure branch on this step.</p>
+                <span class="api-list">map · pipe</span>
                 <span class="module-link">Open module <span aria-hidden="true">→</span></span>
             </a>
-            <a class="module-card" href="/option.html">
+            <a class="module-card" href="/two-tracks.html">
                 <span class="module-index">03</span>
-                <h2>Option &amp; Adapters</h2>
-                <p>Represent missing profile data explicitly and move between Option and Result when error context matters.</p>
-                <span class="api-list">ofSome · ofNone · fromOption · toOption</span>
+                <h2>Two tracks</h2>
+                <p>Chain steps that can fail; the first error skips the rest of the pipeline.</p>
+                <span class="api-list">bind · pipe</span>
                 <span class="module-link">Open module <span aria-hidden="true">→</span></span>
             </a>
-            <a class="module-card" href="/reliability.html">
+            <a class="module-card" href="/many-tracks.html">
                 <span class="module-index">04</span>
-                <h2>Reliability</h2>
-                <p>Recover from transient inventory failures, use cached values, and bound slow operations.</p>
-                <span class="api-list">retry · orElse · timeout</span>
+                <h2>Many tracks</h2>
+                <p>Run several two-track pipelines, merge them, then finish with one more bind and map.</p>
+                <span class="api-list">all · bind · map</span>
                 <span class="module-link">Open module <span aria-hidden="true">→</span></span>
             </a>
         </nav>
-        <p class="console-note">Tip: keep DevTools open while running examples to follow each operation in the console.</p>
+        <section class="layout-note">
+            <h2>Project layout</h2>
+            <p><code>src/domain.ts</code> — models and factories. <code>src/application.ts</code> — use cases with <code>execute</code>. <code>src/catalog.ts</code> — in-memory product lookup.</p>
+        </section>
+        <p class="console-note">Tip: open DevTools and run an example to follow the same object on the page and in the console.</p>
     </main>
     <script type="module" src="/src/main.ts"></script>
 </body>

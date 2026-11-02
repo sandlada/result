@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Many-track combine example" />
+    <title>Many tracks | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">@sandlada/result</a>
+        <nav class="top-nav" aria-label="Modules">
+            <a href="/error.html">Error</a>
+            <a href="/one-track.html">One track</a>
+            <a href="/two-tracks.html">Two tracks</a>
+            <a class="active" href="/many-tracks.html">Many tracks</a>
+        </nav>
+    </header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro">
+            <p class="eyebrow">Application use case</p>
+            <h1>Place a full order</h1>
+            <p>Each cart line runs the two-track <code>PlaceOneItem</code> pipeline. <code>all</code> merges every line; <code>bind</code> builds an <code>Order</code>; <code>map</code> prints the receipt.</p>
+            <div class="api-chips"><code>all</code><code>bind</code><code>map</code><code>pipe</code></div>
+        </section>
+        <section class="examples" aria-label="Many-track examples">
+            <article class="example" id="full-cart">
+                <div class="example-copy"><h2>Two valid lines</h2><p>Notebook and three pens — every track succeeds, then the order total is computed.</p><button type="button" data-run>Run success path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the full receipt.</pre></div>
+            </article>
+            <article class="example" id="bad-line-stops-cart">
+                <div class="example-copy"><h2>One bad SKU</h2><p>The second line fails; <code>all</code> short-circuits the whole cart.</p><button type="button" data-run>Run failure path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the cart-level error.</pre></div>
+            </article>
+        </section>
+    </main>
+    <script type="module" src="/src/pages/many-tracks-demo.ts"></script>
+</body>
+</html>

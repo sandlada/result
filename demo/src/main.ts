@@ -1,1 +1,1 @@
-console.info('@sandlada/result demo: choose a module, then run its examples.');
+console.info('@sandlada/result demo: open a module and run an example.');

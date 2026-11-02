@@ -26,7 +26,7 @@ export async function runExample<T>({ button, output, label, task }: RunOptions<
     button.disabled = true;
     button.textContent = 'Running...';
     output.dataset.state = 'running';
-    output.textContent = 'Waiting for the simulated service...';
+    output.textContent = 'Running example...';
     console.group(`@sandlada/result | ${label}`);
 
     try {

@@ -96,6 +96,18 @@ h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.08; }
 
 .console-note { margin: 28px 0 0; color: #65736f; font-size: 0.85rem; }
 
+.layout-note {
+    margin-top: 40px;
+    padding: 24px 28px;
+    border: 1px solid #c7d3cf;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.layout-note h2 { margin: 0 0 10px; font-size: 1.1rem; }
+
+.layout-note p { margin: 0; color: #566560; line-height: 1.7; }
+
 .module-page { padding: 32px 0 64px; }
 
 .back-link { display: inline-block; color: #52615c; font-size: 0.85rem; text-decoration: none; }

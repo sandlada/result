@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Typed errors with @sandlada/result" />
+    <title>Error values | @sandlada/result</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">@sandlada/result</a>
+        <nav class="top-nav" aria-label="Modules">
+            <a class="active" href="/error.html">Error</a>
+            <a href="/one-track.html">One track</a>
+            <a href="/two-tracks.html">Two tracks</a>
+            <a href="/many-tracks.html">Many tracks</a>
+        </nav>
+    </header>
+    <main class="module-page">
+        <a class="back-link" href="/">← All modules</a>
+        <section class="module-intro">
+            <p class="eyebrow">Domain factory</p>
+            <h1>Return a failure value</h1>
+            <p><code>Quantity.create</code> lives in the domain layer. It never throws — it returns <code>ok</code> or <code>err</code>. The page uses <code>match</code> to turn that into a view model.</p>
+            <div class="api-chips"><code>err</code><code>ok</code><code>match</code><code>pipe</code></div>
+        </section>
+        <section class="examples" aria-label="Error examples">
+            <article class="example" id="valid-quantity">
+                <div class="example-copy"><h2>Accept quantity 2</h2><p>Integer between 1 and 99 stays on the success track.</p><button type="button" data-run>Run success path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the success value.</pre></div>
+            </article>
+            <article class="example" id="invalid-quantity">
+                <div class="example-copy"><h2>Reject quantity 0</h2><p>The factory returns <code>{ kind: 'InvalidQuantity', quantity: 0 }</code> — still data, not an exception.</p><button type="button" data-run>Run failure path</button></div>
+                <div class="result-panel"><span>Result</span><pre data-output data-state="idle">Run the example to see the typed error.</pre></div>
+            </article>
+        </section>
+    </main>
+    <script type="module" src="/src/pages/error-demo.ts"></script>
+</body>
+</html>
