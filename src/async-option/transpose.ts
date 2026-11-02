@@ -1,9 +1,11 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
-import type { IOption } from '../types/Option.js';
-import { ofSome as syncOfSome, ofNone as syncOfNone } from '../option/index.js';
 import { markAsyncCarrier } from '../types/asyncCarrier.js';
+import { err } from '../factories/err.js';
+import { ok } from '../factories/ok.js';
+import { ofNone as syncOfNone } from '../option/ofNone.js';
+import { ofSome as syncOfSome } from '../option/ofSome.js';
 
 /**
  * Transposes an `AsyncOption<AsyncResult<T, E>>` into an
@@ -34,14 +36,14 @@ export function transpose<T, E>(
                 // `syncOfNone<T>()` already returns the correctly-parameterized
                 // IOption<T> — no cast needed when the type argument is supplied.
                 const noneAo: AsyncOption<T> = markAsyncCarrier({ run: () => Promise.resolve(syncOfNone<T>()) });
-                return { isSuccess: true as const, isFailure: false as const, value: noneAo };
+                return ok<AsyncOption<T>, E>(noneAo);
             }
             const inner = await opt.value.run();
             if (inner.isSuccess) {
                 const someAo: AsyncOption<T> = markAsyncCarrier({ run: () => Promise.resolve(syncOfSome(inner.value)) });
-                return { isSuccess: true as const, isFailure: false as const, value: someAo };
+                return ok<AsyncOption<T>, E>(someAo);
             }
-            return { isSuccess: false as const, isFailure: true as const, error: inner.error };
+            return err<AsyncOption<T>, E>(inner.error);
         },
     };
 }

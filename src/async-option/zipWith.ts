@@ -1,6 +1,7 @@
 import type { AsyncOption } from '../types/AsyncOption.js';
 import type { IOption, IOptionSome } from '../types/Option.js';
 import { ofNone } from '../option/ofNone.js';
+import { ofSome } from '../option/ofSome.js';
 
 // Variadic
 
@@ -92,11 +93,7 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
             } catch {
                 return ofNone() as IOption<R>;
             }
-            return {
-                isSome: true as const,
-                isNone: false as const,
-                value: (await result) as R,
-            };
+            return ofSome((await result) as R);
         },
     };
 }
