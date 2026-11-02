@@ -21,8 +21,8 @@ mkdirSync(examplesRoot, { recursive: true });
 const files = collect(sourceRoot);
 const generated = [];
 const problems = [];
-// Grows as each module's examples are rewritten. Empty means every src/ example.
-const enforcedRoots = ['src/factories/', 'src/operators/', 'src/option/', 'src/composition/', 'src/adapters/', 'src/combine/', 'src/bridge-result/', 'src/bridge-option/', 'src/promise-result/', 'src/promise-option/', 'src/async-result/', 'src/async-option/', 'src/reliability/', 'src/observability/'];
+// Every public example under src/ must show an input and a following step.
+const enforcedRoots = [];
 
 for (const file of files) {
     const text = readFileSync(file, 'utf8');
@@ -79,6 +79,7 @@ try {
 console.log(`Verified ${generated.length} JSDoc examples from ${files.length} source files.`);
 
 function enforced(relativeFile) {
+    if (enforcedRoots.length === 0) return relativeFile.startsWith('src/');
     return enforcedRoots.some((root) => relativeFile.startsWith(root));
 }
 

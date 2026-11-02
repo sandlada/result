@@ -12,11 +12,15 @@ import type { IOption } from '../types/Option.js';
  *
  * @example
  * ```ts
- * import { partitionOption } from '@sandlada/result/primitives';
+ * import { partitionOption, cond } from '@sandlada/result/primitives';
  * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { match } from '@sandlada/result/operators';
  *
- * partitionOption([ofSome(1), ofNone(), ofSome(3), ofNone()]);
- * // { some: [1, 3], noneIndices: [1, 3] }
+ * const opts = [ofSome(1), ofNone(), ofSome(3), ofNone()];
+ * const parts = partitionOption(opts);
+ * const validated = cond((n: number) => n === 2, 'expected two Some values', parts.some.length);
+ * const count = match((n) => String(n), (e) => e, validated);
+ * // parts.some is [1, 3]; parts.noneIndices is [1, 3]; count === 2 on success
  * ```
  */
 export interface Partitioned<T> {

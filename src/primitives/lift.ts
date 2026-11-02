@@ -29,13 +29,14 @@ export function lift<A extends unknown[], T, E>(
  * @example
  * ```ts
  * import { lift } from '@sandlada/result/primitives';
+ * import { match } from '@sandlada/result/operators';
  *
  * const safeParseInt = lift((s: string) => Number.parseInt(s, 10), (e) => new Error(String(e)));
- * safeParseInt('21');   // Ok(21)
- * safeParseInt('xx');   // Err(Error('...'))
- *
- * const double = lift((n: number) => n * 2); // E = never; cannot produce Err.
- * double(21); // Ok(42) - but if the function throws, the throw escapes.
+ * const input = '21';
+ * const parsed = safeParseInt(input);
+ * const total = lift((n: number) => n * 2)(42);
+ * const label = match((n) => String(n), (e) => String(e), parsed);
+ * // label === 21; total is Ok(84); invalid strings map to Err via the errorFn argument
  * ```
  */
 export function lift<A extends unknown[], T, E>(

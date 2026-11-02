@@ -15,9 +15,13 @@ import { ok } from '../factories/ok.js';
  * import { sequenceAsyncResult } from '@sandlada/result/primitives';
  * import { fromResult } from '@sandlada/result/async-result';
  * import { ok } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const ar = sequenceAsyncResult([fromResult(ok(1)), fromResult(ok(2))]);
- * const r = await ar.run(); // Ok([1, 2])
+ * const thunks = [fromResult(ok(1)), fromResult(ok(2))];
+ * const combined = sequenceAsyncResult(thunks);
+ * const r = await combined.run();
+ * const label = match((arr) => String(arr.length), (e) => e, r);
+ * // label === 2; the first Err from any inner run() short-circuits the batch
  * ```
  */
 export function sequenceAsyncResult<T, E>(

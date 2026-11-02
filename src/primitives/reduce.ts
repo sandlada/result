@@ -14,13 +14,17 @@ import { ok } from '../factories/ok.js';
  * ```ts
  * import { reduce } from '@sandlada/result/primitives';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * // Sum a list of validated numbers, accumulating their domain errors otherwise.
- * const r = reduce<number, string, number>(
- *   (sum, n) => n === 0 ? err('zero not allowed') : ok(sum + n),
+ * const items = [ok(1), ok(2), ok(3)];
+ * const sum = reduce(
+ *   (acc, n) => (n === 0 ? err('zero not allowed') : ok(acc + n)),
  *   0,
- *   [ok(1), ok(2), ok(3)],
- * ); // Ok(6)
+ *   items,
+ * );
+ * const broken = reduce((acc, n) => ok(acc + n), 0, [ok(1), err('bad'), ok(3)]);
+ * const total = match((n) => String(n), (e) => e, sum);
+ * // total === 6; broken short-circuits to Err('bad') on the second item in the list
  * ```
  */
 export function reduce<T, E, Acc>(

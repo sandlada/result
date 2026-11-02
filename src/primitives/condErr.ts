@@ -12,9 +12,15 @@ import { err } from '../factories/err.js';
  * @example
  * ```ts
  * import { condErr } from '@sandlada/result/primitives';
+ * import { match } from '@sandlada/result/operators';
  *
- * const r1 = condErr(s => s.includes('@'), 'alice@x', 'invalid email'); // Err('invalid email')
- * const r2 = condErr(s => s.includes('@'), 'no-at',    'invalid email'); // Ok('no-at')
+ * const invalid = 'alice@x';
+ * const valid = 'no-at';
+ * const rule = 'invalid email';
+ * const rejected = condErr((s: string) => s.includes('@'), invalid, rule);
+ * const accepted = condErr((s: string) => s.includes('@'), valid, rule);
+ * const label = match((s) => s, (e) => e, accepted);
+ * // rejected is Err(rule); label === 'no-at' when the second argument passes the predicate
  * ```
  */
 export function condErr<T, E>(

@@ -15,9 +15,13 @@ import { combine } from '../combine/combine.js';
  * ```ts
  * import { sequence } from '@sandlada/result/primitives';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * sequence([ok(1), ok(2), ok(3)]); // Ok([1, 2, 3])
- * sequence([ok(1), err('a')]);    // Err('a')
+ * const inputs = [ok(1), ok(2), ok(3)];
+ * const allOk = sequence(inputs);
+ * const short = sequence([ok(1), err('a'), ok(3)]);
+ * const values = match((arr) => arr.join(','), (e) => e, allOk);
+ * // values === '1,2,3'; short stays Err('a') without collecting the third result
  * ```
  */
 export function sequence<T, E>(

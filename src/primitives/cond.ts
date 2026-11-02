@@ -16,9 +16,14 @@ import { err } from '../factories/err.js';
  * @example
  * ```ts
  * import { cond } from '@sandlada/result/primitives';
+ * import { match } from '@sandlada/result/operators';
  *
- * const r1 = cond(n => n > 0, 'must be positive', 5); // Ok(5)
- * const r2 = cond(n => n > 0, 'must be positive', -1); // Err('must be positive')
+ * const value = 5;
+ * const bad = -1;
+ * const passed = cond((n: number) => n > 0, 'must be positive', value);
+ * const failed = cond((n: number) => n > 0, 'must be positive', bad);
+ * const label = match((n) => String(n), (e) => e, passed);
+ * // label === '5'; failed is Err('must be positive') when the third argument fails the predicate
  * ```
  */
 export function cond<T, E>(
