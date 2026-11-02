@@ -53,6 +53,9 @@ for (const [subpath, entry] of Object.entries(manifest.exports)) {
     const conditions = typeof entry === 'string' ? { default: entry } : entry;
 
     for (const [condition, file] of Object.entries(conditions)) {
+        if (typeof file === 'string' && file.includes('/internal/')) {
+            problems.push(`${subpath} (${condition}): export must not target internal path ${file}`);
+        }
         collectArtifacts(subpath, condition, file);
     }
 }

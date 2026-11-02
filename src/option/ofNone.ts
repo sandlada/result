@@ -1,12 +1,5 @@
-import type { IOption, IOptionNone } from '../types/Option.js';
-
-// Module-level singleton, deep-frozen at load time. The `IOptionNone` shape
-// has no nested objects, so a single `Object.freeze` is sufficient to make
-// the whole graph immutable.
-const NONE: IOptionNone = Object.freeze({
-    isSome: false,
-    isNone: true,
-}) as IOptionNone;
+import type { IOption } from '../types/Option.js';
+import { noneShape } from '../internal/shape.js';
 
 /**
  * Creates a `None` variant of {@link IOption} — represents absence of a value.
@@ -45,5 +38,5 @@ const NONE: IOptionNone = Object.freeze({
  * ```
  */
 export function ofNone<T = unknown>(): IOption<T> {
-    return NONE as IOption<T>;
+    return noneShape as IOption<T>;
 }

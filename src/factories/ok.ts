@@ -1,5 +1,6 @@
-import type { IResult } from '../types/IResult.js';
+import type { IResult, IResultSuccess } from '../types/IResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { okShape, successShape } from '../internal/shape.js';
 
 export function ok(): IResult<never>;
 export function ok<T>(value: T): IResultOfT<T, never>;
@@ -11,8 +12,7 @@ export function ok<T, E>(value: T): IResultOfT<T, E>;
  * returned type without an explicit cast when the surrounding context already
  * declares a wider error channel (e.g. inside an operator that returns
  * `IResultOfT<B, E2>`). Without the overload, every consumer call site would
- * need `as unknown as IResultOfT<T, E>` to bridge `IResultOfT<T, never>` into
- * the wider channel.
+ * need a cast to bridge `IResultOfTSuccess<T>` into the wider channel.
  *
  * F# equivalent: `Ok value`
  *
@@ -26,10 +26,10 @@ export function ok<T, E>(value: T): IResultOfT<T, E>;
  * const widen = <E>(): IResultOfT<number, E> => ok(42);
  * ```
  */
-export function ok<T, E = never>(...args: [] | [T]): IResult<never> | IResultOfT<T, E> {
+export function ok<T, E = never>(...args: [] | [T]): IResultSuccess | IResultOfT<T, E> {
     if (args.length === 0) {
-        return { isSuccess: true as const, isFailure: false as const };
+        return successShape();
     }
     const [value] = args;
-    return { isSuccess: true as const, isFailure: false as const, value: value as T } as unknown as IResultOfT<T, E>;
+    return okShape(value as T);
 }

@@ -1,4 +1,5 @@
 import type { IOption } from '../types/Option.js';
+import { someShape } from '../internal/shape.js';
 
 /**
  * Creates a `Some` variant of `IOption` containing a value.
@@ -10,5 +11,5 @@ import type { IOption } from '../types/Option.js';
  * ```
  */
 export function ofSome<T>(value: T): IOption<T> {
-    return { isSome: true as const, isNone: false as const, value };
+    return someShape(value);
 }

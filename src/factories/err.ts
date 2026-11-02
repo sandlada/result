@@ -1,7 +1,8 @@
-import type { IResultOfT } from '../types/IResultOfT.js';
+import type { IResultOfT, IResultOfTFailure } from '../types/IResultOfT.js';
+import { errShape } from '../internal/shape.js';
 
 export function err<E>(error: E): IResultOfT<never, E>;
-export function err<T = never, E = unknown>(error: E): IResultOfT<T, E>;
+export function err<T, E>(error: E): IResultOfT<T, E>;
 /**
  * Creates a failure result carrying an error. The value type is `never` as a failure result has no meaningful value.
  *
@@ -21,6 +22,6 @@ export function err<T = never, E = unknown>(error: E): IResultOfT<T, E>;
  * const widen = <T>(): IResultOfT<T, string> => err('boom');
  * ```
  */
-export function err<E, T = never>(error: E): IResultOfT<T, E> {
-    return { isSuccess: false as const, isFailure: true as const, error } as unknown as IResultOfT<T, E>;
+export function err<E>(error: E): IResultOfTFailure<E> {
+    return errShape(error);
 }
