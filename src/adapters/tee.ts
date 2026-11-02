@@ -10,9 +10,24 @@
  *
  * @example
  * ```ts
- * import { tee } from '@sandlada/result/adapters';
- * const logged = tee((x: number) => console.log('got:', x));
- * logged(42); // logs "got: 42", returns 42
+ * import { switchFn, tee } from '@sandlada/result/adapters';
+ * import { pipe } from '@sandlada/result/composition';
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const trace: number[] = [];
+ * const input = 21;
+ * const label = pipe(
+ *   input,
+ *   tee((n) => { trace.push(n); }),
+ *   switchFn((x: number) => x * 2),
+ *   match((n) => `ok:${n}`, (e) => `err:${String(e)}`),
+ * );
+ * // label === 'ok:42' and trace === [21]; `a` passes through tee before switchFn lifts
+ *
+ * const afterTee = pipe(input, tee((_n: number) => { void _n; }));
+ * const failed = switchFn((_x: number) => { throw new Error('bad'); })(afterTee);
+ * const captured = match((n) => `ok:${n}`, (e) => `err:${(e as Error).message}`, failed);
+ * // captured === 'err:bad'; tee still forwards `a` — the throw is captured downstream
  * ```
  */
 

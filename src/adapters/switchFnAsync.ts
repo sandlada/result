@@ -11,8 +11,24 @@ import { err } from '../factories/err.js';
  * @example
  * ```ts
  * import { switchFnAsync } from '@sandlada/result/adapters';
- * const safeFetch = switchFnAsync(async (url: string) => fetch(url).then(r => r.json()));
- * await safeFetch('https://api.example.com/data');
+ * import { pipeAsync } from '@sandlada/result/composition';
+ * import { matchAsync } from '@sandlada/result/promise-result';
+ *
+ * const safeDouble = switchFnAsync(async (x: number) => x * 2);
+ * const input = 21;
+ * const label = await pipeAsync(
+ *   safeDouble(input),
+ *   matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`),
+ * );
+ * // label === 'ok:42'; argument `a` receives 21 and the async lift returns Ok(42)
+ *
+ * const failing = switchFnAsync(async (_x: number) => Promise.reject(new Error('bad')));
+ * const badInput = 0;
+ * const captured = await pipeAsync(
+ *   failing(badInput),
+ *   matchAsync((n) => `ok:${n}`, (e) => `err:${(e as Error).message}`),
+ * );
+ * // captured === 'err:bad'; a rejected promise from `f` is captured into Err
  * ```
  */
 export function switchFnAsync<A, B, E = unknown>(

@@ -12,8 +12,15 @@ export function fromOption<A, E>(errorOnNone: E, opt: IOption<A>): IResultOfT<A,
  * ```ts
  * import { fromOption } from '@sandlada/result/adapters';
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * fromOption('missing', ofSome(42)); // Ok(42)
- * fromOption('missing', ofNone()); // Err('missing')
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const present = ofSome(42);
+ * const okPath = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, fromOption('missing', present));
+ * // okPath === 'ok:42'; `opt` is Some(42) so `errorOnNone` is unused
+ *
+ * const absent = ofNone<number>();
+ * const errPath = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, fromOption('missing', absent));
+ * // errPath === 'err:missing'; None on `opt` becomes Err(errorOnNone)
  * ```
  */
 export function fromOption<A, E>(errorOnNone: E, opt?: IOption<A>): IResultOfT<A, E> | ((opt: IOption<A>) => IResultOfT<A, E>) {

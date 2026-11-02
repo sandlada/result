@@ -13,8 +13,18 @@ import { err } from '../factories/err.js';
  * @example
  * ```ts
  * import { switchFn } from '@sandlada/result/adapters';
- * const safe = switchFn((x: number) => x * 2);
- * safe(21); // Ok(42)
+ * import { pipe } from '@sandlada/result/composition';
+ * import { match } from '@sandlada/result/operators';
+ *
+ * const safeDouble = switchFn((x: number) => x * 2);
+ * const input = 21;
+ * const label = pipe(safeDouble(input), match((n) => `ok:${n}`, (e) => `err:${String(e)}`));
+ * // label === 'ok:42'; argument `a` receives 21 and the lifted fn returns Ok(42)
+ *
+ * const unsafe = switchFn((_x: number) => { throw new Error('bad'); });
+ * const badInput = 0;
+ * const captured = pipe(unsafe(badInput), match((n) => `ok:${n}`, (e) => `err:${(e as Error).message}`));
+ * // captured === 'err:bad'; a throw inside `f` is captured into Err
  * ```
  */
 export function switchFn<A, B, E = unknown>(

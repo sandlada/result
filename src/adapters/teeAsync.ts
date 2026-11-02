@@ -6,9 +6,28 @@
  *
  * @example
  * ```ts
- * import { teeAsync } from '@sandlada/result/adapters';
- * const logged = teeAsync(async (x: number) => { console.log('got:', x); });
- * await logged(42); // returns 42 after the side effect
+ * import { switchFnAsync, teeAsync } from '@sandlada/result/adapters';
+ * import { matchAsync } from '@sandlada/result/promise-result';
+ *
+ * const trace: number[] = [];
+ * const input: number = 21;
+ * const afterSideEffect = teeAsync(async (n: number) => { trace.push(n); });
+ * const lifted = switchFnAsync(async (x: number) => x * 2);
+ * const label = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${String(e)}`,
+ *   lifted(await afterSideEffect(input)),
+ * );
+ * // label === 'ok:42' and trace === [21]; `a` is unchanged after the async side effect
+ *
+ * const afterTee = await teeAsync(async (_n: number) => { void _n; })(input);
+ * const failing = switchFnAsync(async (_x: number) => Promise.reject(new Error('bad')));
+ * const captured = await matchAsync(
+ *   (n) => `ok:${n}`,
+ *   (e) => `err:${(e as Error).message}`,
+ *   failing(afterTee),
+ * );
+ * // captured === 'err:bad'; teeAsync forwards `a` — rejection is captured by switchFnAsync
  * ```
  */
 
