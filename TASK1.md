@@ -481,7 +481,7 @@ npm test
 | --- | --- | --- | --- |
 | 门槛：工作区干净，基线重算，AGENTS 覆盖率句子 | `[x]` | 2a81b00 | tag `refactor/task1-baseline` |
 | 1 shape + ok/err | `[x]` | 654f43c | tag `refactor/task1-p1` |
-| 2 字面量，按目录 | `[ ]` | | |
+| 2 字面量，按目录 | `[~]` | | `async-result` done in 654f43c+1 |
 | 3.0 分发清单 | `[ ]` | | |
 | 3.1 三个标本 | `[ ]` | | |
 | 3.2 停止或继续 | `[ ]` | | |
