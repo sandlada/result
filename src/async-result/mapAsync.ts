@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
 
 export function mapAsync<T, U, E>(
     fn: (value: T) => U | Promise<U>,
@@ -48,7 +49,7 @@ export function mapAsync<T, U, E>(
                 if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
                 try {
                     const mapped = await fn(r.value);
-                    return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
+                    return ok<U, E>(mapped);
                 } catch (thrown: unknown) {
                     if (eFn) {
                         // errorFn path: convert to a result, preserving the success branch.
@@ -70,7 +71,7 @@ export function mapAsync<T, U, E>(
             if (!r.isSuccess) return r as unknown as IResultOfT<U, E>;
             try {
                 const mapped = await fn(r.value);
-                return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
+                return ok<U, E>(mapped);
             } catch (thrown: unknown) {
                 if (errorFn) throw errorFn(thrown);
                 throw thrown;

@@ -1,5 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+import { ok } from '../factories/ok.js';
 
 /**
  * Combines AsyncResults accumulating **all** errors (validation aggregation).
@@ -32,9 +34,9 @@ export function combineWithAllErrors<T, E>(
                 else errors.push(r.error);
             }
             if(errors.length > 0) {
-                return { isSuccess: false as const, isFailure: true as const, error: errors } as unknown as IResultOfT<T[], E[]>;
+                return err<T[], E[]>(errors);
             }
-            return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<T[], E[]>;
+            return ok<T[], E[]>(values);
         },
     };
 }

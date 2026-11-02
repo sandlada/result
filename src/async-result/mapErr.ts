@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function mapErr<T, E, F>(
     fn: (error: E) => F,
@@ -38,14 +39,14 @@ export function mapErr<T, E, F>(
                 const r = await ar.run();
                 if (r.isSuccess) return r as unknown as IResultOfT<T, F>;
                 try {
-                    return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as unknown as IResultOfT<T, F>;
+                    return err<T, F>(fn(r.error));
                 } catch (thrown: unknown) {
                     // Wrap `eFn(thrown)` so a buggy mapper does not escape
                     // the catch block and reject the outer Promise.
                     const innerError = eFn
                         ? (() => { try { return eFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                         : (thrown as unknown as F);
-                    return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, F>;
+                    return err<T, F>(innerError);
                 }
             },
         });
@@ -56,12 +57,12 @@ export function mapErr<T, E, F>(
             const r = await ar.run();
             if (r.isSuccess) return r as unknown as IResultOfT<T, F>;
             try {
-                return { isSuccess: false as const, isFailure: true as const, error: fn(r.error) } as unknown as IResultOfT<T, F>;
+                return err<T, F>(fn(r.error));
             } catch (thrown: unknown) {
                 const innerError = errorFn
                     ? (() => { try { return errorFn(thrown) as unknown as F; } catch (thrown2: unknown) { return thrown2 as unknown as F; } })()
                     : (thrown as unknown as F);
-                return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, F>;
+                return err<T, F>(innerError);
             }
         },
     };

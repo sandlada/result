@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
 
 export function catchErr<A, E>(
@@ -44,7 +45,7 @@ export function catchErr<A, E>(
                 // catch policy). The declared error type stays `never`; a thrown
                 // value can surface at runtime, so the declared type is a
                 // structural claim only.
-                return { isSuccess: false as const, isFailure: true as const, error: thrown } as unknown as IResultOfT<A, never>;
+                return err<A, never>(thrown as never);
             }
         },
     };

@@ -1,6 +1,8 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { markAsyncCarrier } from '../types/asyncCarrier.js';
+import { err } from '../factories/err.js';
+import { ok } from '../factories/ok.js';
 
 /**
  * Wraps a `Promise<T>` into an AsyncResult, catching rejections.
@@ -22,7 +24,7 @@ export function fromPromise<T, E = unknown>(
         run: async (): Promise<IResultOfT<T, E>> => {
             try {
                 const value = await thunk();
-                return { isSuccess: true as const, isFailure: false as const, value } as unknown as IResultOfT<T, E>;
+                return ok<T, E>(value);
             } catch(e: unknown) {
                 // Wrap `errorFn(e)` so a buggy mapper does not escape the
                 // catch block and reject the outer Promise.
@@ -33,7 +35,7 @@ export function fromPromise<T, E = unknown>(
                 } else {
                     innerError = e as unknown as E;
                 }
-                return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
+                return err<T, E>(innerError);
             }
         },
     });

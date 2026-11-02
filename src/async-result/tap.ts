@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function tap<T, E>(
     fn: (value: T) => void | Promise<void>,
@@ -53,7 +54,7 @@ export function tap<T, E>(
                         const innerError = eFn
                             ? (() => { try { return eFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                             : (thrown as unknown as E);
-                        return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
+                        return err<T, E>(innerError);
                     }
                 }
                 return r;
@@ -71,7 +72,7 @@ export function tap<T, E>(
                     const innerError = errorFn
                         ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                         : (thrown as unknown as E);
-                    return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E>;
+                    return err<T, E>(innerError);
                 }
             }
             return r;

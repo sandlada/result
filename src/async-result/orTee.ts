@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function orTee<T, E>(
     fn: (error: E) => void | unknown | Promise<void | unknown>,
@@ -38,7 +39,7 @@ export function orTee<T, E>(
                     await fn(r.error);
                 } catch (e: unknown) {
                     // Project policy: tap/tee side-effects that throw convert to err.
-                    return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<T, E>;
+                    return err<T, E>(e as unknown as E);
                 }
             }
             return r;

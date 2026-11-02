@@ -1,5 +1,6 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
 
 /**
  * Combines an array of AsyncResults into a single AsyncResult of an array.
@@ -26,7 +27,7 @@ export function combine<T, E>(
                 if(!r.isSuccess) return r as unknown as IResultOfT<T[], E>;
                 values.push(r.value);
             }
-            return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<T[], E>;
+            return ok<T[], E>(values);
         },
     };
 }

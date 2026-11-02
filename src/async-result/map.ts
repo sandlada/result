@@ -1,5 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+import { ok } from '../factories/ok.js';
 
 export function map<T, U, E>(
     fn: (value: T) => U,
@@ -49,7 +51,7 @@ export function map<T, U, E>(
                             'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
                         );
                     }
-                    return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
+                    return ok<U, E>(mapped);
                 } catch (thrown: unknown) {
                     // Wrap `eFn(thrown)` so a buggy mapper does not escape
                     // the catch block and reject the outer Promise.
@@ -59,7 +61,7 @@ export function map<T, U, E>(
                     const innerError = eFn
                         ? (() => { try { return eFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                         : (thrown as unknown as E);
-                    return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E>;
+                    return err<U, E>(innerError);
                 }
             },
         });
@@ -77,12 +79,12 @@ export function map<T, U, E>(
                         'Use mapAsync for sync-or-async mappers, or unwrap the Promise before returning.',
                     );
                 }
-                return { isSuccess: true as const, isFailure: false as const, value: mapped } as unknown as IResultOfT<U, E>;
+                return ok<U, E>(mapped);
             } catch (thrown: unknown) {
                 const innerError = errorFn
                     ? (() => { try { return errorFn(thrown) as unknown as E; } catch (thrown2: unknown) { return thrown2 as unknown as E; } })()
                     : (thrown as unknown as E);
-                return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<U, E>;
+                return err<U, E>(innerError);
             }
         },
     };

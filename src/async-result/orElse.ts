@@ -1,6 +1,7 @@
 import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isAsyncCarrier } from '../types/asyncCarrier.js';
+import { err } from '../factories/err.js';
 
 export function orElse<T, E, F>(
     fn: (error: E) => AsyncResult<T, F> | Promise<IResultOfT<T, F>>,
@@ -51,7 +52,7 @@ export function orElse<T, E, F>(
                     const innerError = eFn
                         ? (() => { try { return eFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
                         : (thrown as unknown as (E | F));
-                    return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E | F>;
+                    return err<T, E | F>(innerError);
                 }
             },
         });
@@ -71,7 +72,7 @@ export function orElse<T, E, F>(
                 const innerError = errorFn
                     ? (() => { try { return errorFn(thrown) as unknown as (E | F); } catch (thrown2: unknown) { return thrown2 as unknown as (E | F); } })()
                     : (thrown as unknown as (E | F));
-                return { isSuccess: false as const, isFailure: true as const, error: innerError } as unknown as IResultOfT<T, E | F>;
+                return err<T, E | F>(innerError);
             }
         },
     };
