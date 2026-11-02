@@ -203,7 +203,7 @@ src/
   async-result/         — AsyncResult lazy thunk operators
   async-option/         — AsyncOption lazy thunk operators
   composition/          — pipe, composeK, safeTry
-  adapters/             — switchFn, liftMap, tee, toOption, fromOption
+  adapters/             — switchFn, tee, toOption, fromOption
   combine/              — combine, all, combineWithAllErrors
   option/               — ofSome, ofNone, map, bind, match, etc.
   reliability/          — retry, retryLazy, timeout, timeoutEager, race, any, allSettled

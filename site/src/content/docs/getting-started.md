@@ -73,7 +73,7 @@ The main barrel is **type-focused**. Its only runtime export is an empty default
 | `@sandlada/result/promise-result` | Eager operators on `Promise<IResultOfT>`. |
 | `@sandlada/result/promise-option` | Eager operators on `Promise<IOption>`. |
 | `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. |
-| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … |
+| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `tee`, … |
 | `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. |
 | `@sandlada/result/reliability` | `retry`, `retryLazy`, `timeout`, `race`, `any`, `allSettled`. |
 | `@sandlada/result/observability` | `ctx`, `withPath`, `format`, `inspect`, `installObserver`, … |

@@ -16,7 +16,6 @@
 | --- | --- | --- |
 | `switchFn` | Wraps a plain function into a function returning `IResultOfT`; a throw is captured as `Err`. | [switchFn.ts](./switchFn.ts) |
 | `switchFnAsync` | Wraps a Promise-returning plain function into a function returning `Promise<IResultOfT>`. | [switchFnAsync.ts](./switchFnAsync.ts) |
-| `liftMap` | Semantic alias of `operators/map` for lifting a plain function onto the success track. | [liftMap.ts](./liftMap.ts) |
 | `tee` | Single-track side effect: runs the callback and returns the input value unchanged. | [tee.ts](./tee.ts) |
 | `teeAsync` | Async single-track side effect: awaits the callback and returns the input value unchanged. | [teeAsync.ts](./teeAsync.ts) |
 
@@ -29,7 +28,7 @@
 
 ## Contract notes
 
-- `switchFn` / `switchFnAsync` capture to values, including a second collapse when `errorFn` itself throws; `liftMap` delegates to `operators/map`, so it captures as well.
+- `switchFn` / `switchFnAsync` capture to values, including a second collapse when `errorFn` itself throws.
 - `tee` / `teeAsync` propagate directly — there is no failure state to convert.
 - `toOption` / `fromOption` never throw; `fromOption` needs an error value (or factory) for the `None` branch.
 - Throw policy: [behavior-modes.md §4.4](../../docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives).

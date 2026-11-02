@@ -85,7 +85,7 @@ Each subpath has its own spec — a module `README.md` with the full export tabl
 | `@sandlada/result/promise-result` | Eager async operators on `Promise<IResultOfT>`. | [src/promise-result/README.md](./src/promise-result/README.md) |
 | `@sandlada/result/promise-option` | Eager async operators on `Promise<IOption>`. | [src/promise-option/README.md](./src/promise-option/README.md) |
 | `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. | [src/composition/README.md](./src/composition/README.md) |
-| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … | [src/adapters/README.md](./src/adapters/README.md) |
+| `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `tee`, … | [src/adapters/README.md](./src/adapters/README.md) |
 | `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. | [src/combine/README.md](./src/combine/README.md) |
 | `@sandlada/result/bridge-result` | Lift sync `IResultOfT` into `Promise<IResultOfT>` (`map`, `bind`, `match`, …). | [src/bridge-result/README.md](./src/bridge-result/README.md) |
 | `@sandlada/result/bridge-option` | Lift sync `IOption` into `Promise<IOption>` (`map`, `bind`, `match`, …). | [src/bridge-option/README.md](./src/bridge-option/README.md) |

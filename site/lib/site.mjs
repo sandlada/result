@@ -75,10 +75,10 @@ const moduleRegistry = [
     {
         name: 'adapters',
         specDescription:
-            'Bridges between plain functions and the railway: switchFn, liftMap, tee, toOption and fromOption.',
-        apiTitle: 'Adapters: switchFn, liftMap, tee',
+            'Bridges between plain functions and the railway: switchFn, tee, toOption and fromOption.',
+        apiTitle: 'Adapters: switchFn, tee',
         apiDescription:
-            'Bridge existing code into Result pipelines with switchFn, liftMap, tee, toOption and fromOption — adapters without rewriting call sites.',
+            'Bridge existing code into Result pipelines with switchFn, tee, toOption and fromOption — adapters without rewriting call sites.',
     },
     {
         name: 'combine',

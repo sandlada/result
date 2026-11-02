@@ -56,11 +56,6 @@ describe('adapters split by policy', () => {
     it('tee propagates a throwing callback', () => {
         expect(() => adapters.tee(() => { throw new Error('boom'); })(1)).toThrow('boom');
     });
-
-    it('liftMap captures a throwing callback', () => {
-        const r = adapters.liftMap(() => { throw new Error('boom'); }, factories.ok(1));
-        expect(r.isFailure).toBe(true);
-    });
 });
 
 describe('primitives split by policy', () => {

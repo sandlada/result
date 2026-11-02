@@ -13,7 +13,6 @@
  * policy.
  */
 
-import { liftMap } from '../../adapters/index.js';
 import {
     bind as aoBind, exists as aoExists, fromOption, map as aoMap, mapAsync as aoMapAsync, orElse as aoOrElse,
     zipWith as aoZipWith,
@@ -73,9 +72,6 @@ const rejectingCarrier = { run: (): Promise<never> => Promise.reject(new Error('
 const syncThrowingCarrier = { run: (): Promise<never> => { throw new Error('probe-inner-sync'); } };
 
 export const CHANNEL_PROBES: readonly ChannelProbe[] = [
-    // ── adapters ────────────────────────────────────────────────────────
-    { module: 'adapters', api: 'liftMap', scenario: 'callback throw', policy: 'capture', run: () => syncChannel(() => liftMap(() => { throw new Error('probe'); }, ok(1))) },
-
     // ── option ──────────────────────────────────────────────────────────
     { module: 'option', api: 'map', scenario: 'callback throw', policy: 'capture', run: () => syncChannel(() => optMap(() => { throw new Error('probe'); })(ofSome(1))) },
     { module: 'option', api: 'traverseArray', scenario: 'callback throw', policy: 'capture', run: () => syncChannel(() => optTraverseArray(() => { throw new Error('probe'); }, [1])) },
