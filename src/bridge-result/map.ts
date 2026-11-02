@@ -18,7 +18,7 @@ export function map<A, B, E>(
  *
  * @example
  * ```ts
- * import { map } from '@sandlada/result/promise-result';
+ * import { map } from '@sandlada/result/bridge-result';
  * import { ok, err } from '@sandlada/result/factories';
  * import { pipe } from '@sandlada/result/composition';
  *

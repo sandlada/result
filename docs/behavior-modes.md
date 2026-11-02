@@ -134,6 +134,17 @@ Shared rule: eager execution that starts the chain on the call; **a rejection of
 
 This layer deliberately has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family, whose async rejections travel on the outer rejection channel.
 
+### 4.6.1 Bridge (`src/bridge-result/`, `src/bridge-option/`)
+
+Lifts a **sync** carrier into `Promise<carrier>` with async callbacks. Outer Promise rejections are never converted into `Err` / `None`.
+
+| Exports | Callback behavior | Source |
+| --- | --- | --- |
+| `bridge-result`'s `map` / `bindThrough` / `tap` / `tapErr` | Capture to values | [map.ts](../src/bridge-result/map.ts), [bindThrough.ts](../src/bridge-result/bindThrough.ts) |
+| `bridge-result`'s `bind` / `match` / `orElse` | Propagate handler throws via Promise rejection | [bind.ts](../src/bridge-result/bind.ts), [match.ts](../src/bridge-result/match.ts) |
+| `bridge-option`'s `map` / `bind` / `tap` / `orElse` | Sync throw → `None`; async rejection propagates | [map.ts](../src/bridge-option/map.ts), [bind.ts](../src/bridge-option/bind.ts) |
+| `bridge-option`'s `match` | Propagate (sync throw → rejection) | [match.ts](../src/bridge-option/match.ts) |
+
 ### 4.7 Lazy async (`src/async-result/`, `src/async-option/`)
 
 Shared rule: middleware returns a new thunk and does not execute; terminals such as `match` / `unwrap` / `unwrapOr` return a `Promise` and call `run()` immediately.

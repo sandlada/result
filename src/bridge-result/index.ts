@@ -1,3 +1,9 @@
+/**
+ * Sync Result → Promise<Result> lift operators.
+ *
+ * @packageDocumentation
+ */
+
 export { map } from './map.js';
 export { bind } from './bind.js';
 export { bindThrough } from './bindThrough.js';

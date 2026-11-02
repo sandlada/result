@@ -15,7 +15,8 @@ export function map<A, B>(
  *
  * @example
  * ```ts
- * import { map, ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { map } from '@sandlada/result/bridge-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * await map(async (x: number) => x * 2, ofSome(21)); // Some(42)
  * await map(async (x: number) => x * 2, ofNone());    // None
  * ```

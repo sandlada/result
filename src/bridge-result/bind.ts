@@ -31,7 +31,7 @@ export function bind<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bind } from '@sandlada/result/promise-result';
+ * import { bind } from '@sandlada/result/bridge-result';
  * import { ok, err } from '@sandlada/result/factories';
  *
  * const r = await bind(async (x: number) => ok(x * 2), ok(21));

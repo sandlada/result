@@ -13,7 +13,8 @@ export function match<T, U>(
  *
  * @example
  * ```ts
- * import { match, ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { match } from '@sandlada/result/bridge-option';
+ * import { ofSome } from '@sandlada/result/option';
  * await match(
  *   { some: async (v: number) => `got ${v}`, none: async () => 'absent' },
  *   ofSome(42),

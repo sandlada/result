@@ -44,10 +44,8 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `asyncMap` / `asyncBind` / `asyncBindThrough` | Bridge a sync Result into the async rail. | [asyncMap.ts](./asyncMap.ts), [asyncBind.ts](./asyncBind.ts), [asyncBindThrough.ts](./asyncBindThrough.ts) |
-| `asyncMatch` | Async terminal pattern match on a sync Result. | [asyncMatch.ts](./asyncMatch.ts) |
-| `asyncOrElse` | Async recovery on a sync Result. | [asyncOrElse.ts](./asyncOrElse.ts) |
-| `asyncTap` / `asyncTapErr` | Async side effect on a sync Result. | [asyncTap.ts](./asyncTap.ts), [asyncTapErr.ts](./asyncTapErr.ts) |
+| `asyncMap` / `asyncBind` / `asyncBindThrough` | **Deprecated re-exports** — use `@sandlada/result/bridge-result`. | [../bridge-result/README.md](../bridge-result/README.md) |
+| `asyncMatch` / `asyncOrElse` / `asyncTap` / `asyncTapErr` | Same bridge; re-exported here until Phase 5 removal. | [../bridge-result/README.md](../bridge-result/README.md) |
 
 ### Applicative and combination
 

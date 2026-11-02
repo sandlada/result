@@ -99,6 +99,8 @@ The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files 
 | composition | `@sandlada/result/composition` | [src/composition/README.md](src/composition/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
 | adapters | `@sandlada/result/adapters` | [src/adapters/README.md](src/adapters/README.md) | [§4.4](docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives) |
 | combine | `@sandlada/result/combine` | [src/combine/README.md](src/combine/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
+| bridge-result | `@sandlada/result/bridge-result` | [src/bridge-result/README.md](src/bridge-result/README.md) | [§4.6.1](docs/behavior-modes.md#461-bridge-result-srcbridge-result) |
+| bridge-option | `@sandlada/result/bridge-option` | [src/bridge-option/README.md](src/bridge-option/README.md) | [§4.6.1](docs/behavior-modes.md#461-bridge-result-srcbridge-result) |
 | promise-result | `@sandlada/result/promise-result` | [src/promise-result/README.md](src/promise-result/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
 | promise-option | `@sandlada/result/promise-option` | [src/promise-option/README.md](src/promise-option/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
 | async-result | `@sandlada/result/async-result` | [src/async-result/README.md](src/async-result/README.md) | [§4.7](docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option) |

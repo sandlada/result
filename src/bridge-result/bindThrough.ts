@@ -21,7 +21,7 @@ export function bindThrough<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bindThrough } from '@sandlada/result/promise-result';
+ * import { bindThrough } from '@sandlada/result/bridge-result';
  * import { ok, err } from '@sandlada/result/factories';
  *
  * // Validate and preserve original value on success:

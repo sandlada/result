@@ -13,7 +13,7 @@ export function match<T, E, U>(
  *
  * @example
  * ```ts
- * import { match } from '@sandlada/result/promise-result';
+ * import { match } from '@sandlada/result/bridge-result';
  * import { ok } from '@sandlada/result/factories';
  * await match({ ok: async (x: number) => `got ${x}`, err: async (e: string) => `error: ${e}` }, ok(42)); // 'got 42'
  * ```

@@ -17,7 +17,7 @@ export function tapErr<A, E>(
  * @example
  * ```ts
  * import { err } from '@sandlada/result/factories';
- * import { tapErr } from '@sandlada/result/promise-result';
+ * import { tapErr } from '@sandlada/result/bridge-result';
  * const log = tapErr(async (e: string) => { console.error(e); });
  * await log(err('oops')); // Err('oops') — side-effect only
  * ```

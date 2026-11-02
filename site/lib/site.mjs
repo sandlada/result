@@ -89,6 +89,22 @@ const moduleRegistry = [
             'Combine several Results into one: combine and all fail fast on the first Err, combineWithAllErrors accumulates every error in input order.',
     },
     {
+        name: 'bridge-result',
+        specDescription:
+            'Lift sync IResultOfT into Promise<IResultOfT> with async callbacks (map, bind, match, …).',
+        apiTitle: 'Bridge Result: sync → Promise<Result>',
+        apiDescription:
+            'Bridge operators on plain IResultOfT: map, bind, bindThrough, match, orElse, tap and tapErr — same names as operators/, different input type.',
+    },
+    {
+        name: 'bridge-option',
+        specDescription:
+            'Lift sync IOption into Promise<IOption> with async callbacks (map, bind, match, …).',
+        apiTitle: 'Bridge Option: sync → Promise<Option>',
+        apiDescription:
+            'Bridge operators on plain IOption: map, bind, match, orElse and tap — promotion family with sync throw → None.',
+    },
+    {
         name: 'promise-result',
         specDescription:
             'Eager operators on Promise<IResultOfT>, including the async-callback and lift families.',

@@ -18,7 +18,8 @@ export function orElse<T>(
  *
  * @example
  * ```ts
- * import { orElse, ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { orElse } from '@sandlada/result/bridge-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * await orElse(async () => ofSome(0), ofNone());   // Some(0)
  * await orElse(async () => ofSome(0), ofSome(42)); // Some(42)
  * ```

@@ -17,7 +17,8 @@ export function tap<T>(
  *
  * @example
  * ```ts
- * import { ofSome, tap } from '@sandlada/result/promise-option';
+ * import { tap } from '@sandlada/result/bridge-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const log = tap(async (x: number) => { console.log(x); });
  * await log(ofSome(42)); // Some(42) — side-effect only
  * ```

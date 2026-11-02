@@ -16,7 +16,7 @@ export function orElse<T, E, F>(
  *
  * @example
  * ```ts
- * import { orElse } from '@sandlada/result/promise-result';
+ * import { orElse } from '@sandlada/result/bridge-result';
  * import { ok, err } from '@sandlada/result/factories';
  * await orElse(async (e: string) => ok(0), err('boom')); // Ok(0)
  * await orElse(async (e: string) => ok(0), ok(42));       // Ok(42)

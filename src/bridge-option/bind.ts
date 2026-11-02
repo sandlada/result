@@ -20,7 +20,8 @@ export function bind<T, U>(
  *
  * @example
  * ```ts
- * import { bind, ofSome } from '@sandlada/result/promise-option';
+ * import { bind } from '@sandlada/result/bridge-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const r = await bind(async (x: number) => ofSome(x * 2), ofSome(21));
  * // Some(42)
  * ```

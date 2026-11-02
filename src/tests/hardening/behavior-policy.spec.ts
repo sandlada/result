@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import * as adapters from '../../adapters/index.js';
 import * as asyncOption from '../../async-option/index.js';
 import * as asyncResult from '../../async-result/index.js';
+import * as bridgeOption from '../../bridge-option/index.js';
+import * as bridgeResult from '../../bridge-result/index.js';
 import * as combine from '../../combine/index.js';
 import * as composition from '../../composition/index.js';
 import * as factories from '../../factories/index.js';
@@ -18,6 +20,8 @@ const BARRELS: Readonly<Record<string, Record<string, unknown>>> = {
     adapters,
     'async-option': asyncOption,
     'async-result': asyncResult,
+    'bridge-option': bridgeOption,
+    'bridge-result': bridgeResult,
     combine,
     composition,
     factories,

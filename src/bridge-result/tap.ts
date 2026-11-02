@@ -17,7 +17,7 @@ export function tap<A, E>(
  * @example
  * ```ts
  * import { ok } from '@sandlada/result/factories';
- * import { tap } from '@sandlada/result/promise-result';
+ * import { tap } from '@sandlada/result/bridge-result';
  * const log = tap(async (x: number) => { console.log(x); });
  * await log(ok(42)); // Ok(42) — side-effect only
  * ```

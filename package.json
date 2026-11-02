@@ -42,6 +42,14 @@
             "types": "./build/combine/index.d.ts",
             "default": "./build/combine/index.js"
         },
+        "./bridge-result": {
+            "types": "./build/bridge-result/index.d.ts",
+            "default": "./build/bridge-result/index.js"
+        },
+        "./bridge-option": {
+            "types": "./build/bridge-option/index.d.ts",
+            "default": "./build/bridge-option/index.js"
+        },
         "./async-result": {
             "types": "./build/async-result/index.d.ts",
             "default": "./build/async-result/index.js"
