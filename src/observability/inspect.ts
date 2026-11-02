@@ -8,11 +8,16 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { inspect } from '@sandlada/result/observability';
+ * import { inspect, format } from '@sandlada/result/observability';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const summary = inspect(err('boom'));
- * // { kind: 'err', error: 'boom' }
+ * const failure = err('boom');
+ * const success = ok(42);
+ * const failureView = inspect(failure);
+ * const successView = inspect(success);
+ * const errLine = format(failure);
+ * // failureView.kind === 'err'; successView.kind === 'ok'; errLine === 'Err("boom")'
  * ```
  */
 export type Inspected<T, E> =

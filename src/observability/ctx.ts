@@ -63,11 +63,16 @@ const loadNodeCreateRequire = async (): Promise<NodeCreateRequire | null> => {
  * ```ts
  * import { ctx, getPath, withPath, tapErrContext } from '@sandlada/result/observability';
  * import { err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * await ctx.run(async () => {
- *   withPath('fetchUser');
- *   tapErrContext((e, { path }) => { console.log(path, e); }, err('boom'));
+ * const input = err('boom');
+ * const pathAfterTap = await ctx.run(async () => {
+ *   withPath('fetchUser', input);
+ *   await tapErrContext(() => undefined, input);
+ *   return getPath();
  * });
+ * const label = match(() => 'ok', (e) => String(e), input);
+ * // label === 'boom'; pathAfterTap is ['fetchUser'] on the failure branch
  * ```
  */
 export type PathSegment = string | number;

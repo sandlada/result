@@ -10,11 +10,16 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { format } from '@sandlada/result/observability';
+ * import { format, inspect } from '@sandlada/result/observability';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * console.log(format(ok(42)));           // "Ok(42)"
- * console.log(format(err('boom')));       // "Err(\"boom\")"
+ * const success = ok(42);
+ * const failure = err('boom');
+ * const okLine = format(success);
+ * const errLine = format(failure);
+ * const view = inspect(failure);
+ * // okLine === 'Ok(42)'; errLine === 'Err("boom")'; view.kind === 'err' on failure input
  * ```
  */
 export interface FormatOptions {

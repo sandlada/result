@@ -15,14 +15,14 @@ import { getPath } from './ctx.js';
  * import { observe, installObserver } from '@sandlada/result/observability';
  * import { pipe } from '@sandlada/result/composition';
  * import { match } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
+ * import { ok, err } from '@sandlada/result/factories';
  *
- * const cancel = installObserver((event) => { console.log(event.kind, event.path); });
- *
- * const r = pipe(ok(42), observe, match(v => `ok: ${v}`, e => `err: ${e}`));
- *
- * // When done observing:
+ * const cancel = installObserver(() => undefined);
+ * const input = ok(42);
+ * const observed = pipe(input, observe, match((v) => `ok:${v}`, (e) => `err:${String(e)}`));
+ * const skipped = pipe(err('x'), observe, match((v) => `ok:${v}`, (e) => `err:${String(e)}`));
  * cancel();
+ * // observed === 'ok:42'; skipped === 'err:x' — observe is a pass-through side effect
  * ```
  */
 export interface ObserveEvent<T, E> {

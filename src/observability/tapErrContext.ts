@@ -15,14 +15,16 @@ import { getPath, type PathStack } from './ctx.js';
  * ```ts
  * import { ctx, tapErrContext, withPath } from '@sandlada/result/observability';
  * import { err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * ctx.run(() => {
- *   withPath('fetchUser');
- *   withPath('id:42');
- *   tapErrContext((error, { path }) => {
- *     console.log({ event: 'user.fetch.failed', path, error });
- *   }, err('boom'));
+ * const input = err('boom');
+ * const afterTap = await ctx.run(async () => {
+ *   withPath('fetchUser', input);
+ *   withPath('id:42', input);
+ *   return tapErrContext((_error, { path }) => path.length, input);
  * });
+ * const label = match(() => 'ok', (e) => String(e), afterTap);
+ * // label === 'boom'; callback saw path ['fetchUser', 'id:42'] before returning input
  * ```
  */
 export interface ErrContext {

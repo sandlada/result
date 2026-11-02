@@ -34,12 +34,15 @@ export function withPath<T, E>(segment: PathSegment, r: IResultOfT<T, E>): IResu
  * import { ctx, withPath } from '@sandlada/result/observability';
  * import { pipe } from '@sandlada/result/composition';
  * import { ok } from '@sandlada/result/factories';
+ * import { map, match } from '@sandlada/result/operators';
  *
- * // Direct form — push a segment and return the result unchanged.
- * const direct = withPath('fetchUser', ok(42));
- *
- * // Curried form — slots directly into `pipe`.
- * const piped = ctx.run(() => pipe(ok(42), withPath('fetchUser'), withPath('id:42')));
+ * const input = ok(21);
+ * const tagged = withPath('fetchUser', input);
+ * const piped = ctx.run(() =>
+ *   pipe(tagged, withPath('parse'), map((n: number) => n * 2)),
+ * );
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, piped);
+ * // tagged === input; label === 'ok:42' inside an active ctx.run scope
  * ```
  */
 export function withPath(segment: PathSegment, r?: IResultOfT<unknown, unknown>): unknown {
