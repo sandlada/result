@@ -2,6 +2,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { applyErrorFn } from './errorMapper.js';
 import { ok } from '../factories/ok.js';
+import { dualCarrierOrFn } from '../internal/dual.js';
 
 // Curried — `<A2, E2>` are deferred to the application site so a wider
 // input type still typechecks. Mirrors the design of `map` / `mapErr`.
@@ -46,28 +47,38 @@ export function bimap<A, E, C, F>(
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => F,
 ): IResultOfT<C, F> | ((r: IResultOfT<A, E>) => IResultOfT<C, F>) {
-    if (rOrErrorFn === undefined || typeof rOrErrorFn === 'function') {
-        const eFn = typeof rOrErrorFn === 'function' ? rOrErrorFn : undefined;
-        return <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>): IResultOfT<C, F> => {
-            try {
-                if (r.isSuccess) return ok(onOk(r.value));
-                return err(onErr(r.error));
-            } catch (thrown: unknown) {
-                // Wrap `eFn(thrown)` so a buggy mapper does not escape the
-                // try/catch and bypass the Result wrapper.
-                const innerError = applyErrorFn(eFn, thrown) as unknown as F;
-                return err(innerError) as unknown as IResultOfT<C, F>;
-            }
-        };
-    }
-    const r = rOrErrorFn;
+    return dualCarrierOrFn(2, bimapDirect as (...args: unknown[]) => unknown)(onOk, onErr, rOrErrorFn, errorFn) as
+        | IResultOfT<C, F>
+        | ((r: IResultOfT<A, E>) => IResultOfT<C, F>);
+}
+
+function bimapApply<A, E, C, F>(
+    onOk: (a: A) => C,
+    onErr: (e: E) => F,
+    r: IResultOfT<A, E>,
+    errorFn?: (thrown: unknown) => unknown,
+): IResultOfT<C, F> {
     try {
         if (r.isSuccess) return ok(onOk(r.value));
         return err(onErr(r.error));
     } catch (thrown: unknown) {
-        // Wrap `errorFn(thrown)` so a buggy mapper does not escape the
-        // try/catch and bypass the Result wrapper.
         const innerError = applyErrorFn(errorFn, thrown) as unknown as F;
         return err(innerError);
     }
+}
+
+function bimapDirect<A, E, C, F>(
+    onOk: (a: A) => C,
+    onErr: (e: E) => F,
+    third?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
+    fourth?: (thrown: unknown) => F,
+): IResultOfT<C, F> | ((r: IResultOfT<A, E>) => IResultOfT<C, F>) {
+    const hasCarrier = fourth !== undefined || (third !== undefined && typeof third !== 'function');
+    if (hasCarrier) {
+        const r = (typeof third === 'function' ? fourth : third) as IResultOfT<A, E>;
+        const eFn = typeof third === 'function' ? third : fourth;
+        return bimapApply(onOk, onErr, r, eFn);
+    }
+    const eFn = typeof third === 'function' ? third : undefined;
+    return <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>): IResultOfT<C, F> => bimapApply(onOk, onErr, r, eFn);
 }
