@@ -428,7 +428,7 @@ Defined in: [promise-option/bindAsyncOption.ts:22](https://github.com/sandlada/r
 
 ##### Fileoverview
 
-Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
+Chains an async option-returning function. `fn` can return `IOption` or `Promise of IOption`.
 
 **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
 the result is `None`. The thrown reason is discarded.
@@ -482,7 +482,7 @@ Defined in: [promise-option/bindAsyncOption.ts:25](https://github.com/sandlada/r
 
 ##### Fileoverview
 
-Chains an async option-returning function. `fn` can return `IOption` or `Promise<IOption>`.
+Chains an async option-returning function. `fn` can return `IOption` or `Promise of IOption`.
 
 **Throw policy**: if `fn` throws synchronously or its returned Promise rejects,
 the result is `None`. The thrown reason is discarded.
@@ -532,7 +532,7 @@ Defined in: [promise-option/containsAsyncOption.ts:14](https://github.com/sandla
 
 ##### Fileoverview
 
-Returns true if the `Promise<IOption>` is Some and contains the given value.
+Returns true if the `Promise of IOption` is Some and contains the given value.
 
 ##### Example
 
@@ -575,7 +575,7 @@ Defined in: [promise-option/containsAsyncOption.ts:17](https://github.com/sandla
 
 ##### Fileoverview
 
-Returns true if the `Promise<IOption>` is Some and contains the given value.
+Returns true if the `Promise of IOption` is Some and contains the given value.
 
 ##### Example
 
@@ -618,7 +618,7 @@ Defined in: [promise-option/existsAsyncOption.ts:20](https://github.com/sandlada
 
 ##### Fileoverview
 
-Returns true if the `Promise<IOption>` is Some and the predicate holds.
+Returns true if the `Promise of IOption` is Some and the predicate holds.
 Returns false on None or when the predicate does not hold.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -667,7 +667,7 @@ Defined in: [promise-option/existsAsyncOption.ts:23](https://github.com/sandlada
 
 ##### Fileoverview
 
-Returns true if the `Promise<IOption>` is Some and the predicate holds.
+Returns true if the `Promise of IOption` is Some and the predicate holds.
 Returns false on None or when the predicate does not hold.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -716,7 +716,7 @@ Defined in: [promise-option/filterAsyncOption.ts:21](https://github.com/sandlada
 
 ##### Fileoverview
 
-Filters the value of a `Promise<IOption<T>>` with a predicate.
+Filters the value of a `Promise of IOption>` with a predicate.
 Keeps the Some if the predicate holds; converts to None otherwise. None passes through.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -765,7 +765,7 @@ Defined in: [promise-option/filterAsyncOption.ts:24](https://github.com/sandlada
 
 ##### Fileoverview
 
-Filters the value of a `Promise<IOption<T>>` with a predicate.
+Filters the value of a `Promise of IOption>` with a predicate.
 Keeps the Some if the predicate holds; converts to None otherwise. None passes through.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -812,7 +812,7 @@ Defined in: [promise-option/flattenAsyncOption.ts:18](https://github.com/sandlad
 
 #### Fileoverview
 
-Flattens a nested `Promise<IOption<IOption<T>>>`.
+Flattens a nested `Promise of IOption>>`.
 
 **Single-step only**: unwraps exactly one layer. Call `flattenAsyncOption`
 repeatedly to flatten deeper nests.
@@ -863,7 +863,7 @@ Defined in: [promise-option/mapAsyncOption.ts:19](https://github.com/sandlada/re
 
 ##### Fileoverview
 
-Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
+Transforms the value of a `Promise of IOption>`. The callback may be sync or async.
 
 **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
 the result is `None`. The thrown reason is discarded.
@@ -914,7 +914,7 @@ Defined in: [promise-option/mapAsyncOption.ts:22](https://github.com/sandlada/re
 
 ##### Fileoverview
 
-Transforms the value of a `Promise<IOption<T>>`. The callback may be sync or async.
+Transforms the value of a `Promise of IOption>`. The callback may be sync or async.
 
 **Throw policy**: if `f` throws synchronously or its returned Promise rejects,
 the result is `None`. The thrown reason is discarded.
@@ -1471,7 +1471,7 @@ Extracts the value on success from an async option, or returns a default on fail
 
 The default value type `D` is independent of the success type `T`, so a wider
 or sentinel value can be supplied as a fallback — e.g.
-`unwrapOrAsyncOption<number, null>(null)` for a `Promise<IOption<User>>` resolves
+`unwrapOrAsyncOption of (null)` for a `Promise of IOption>` resolves
 to `Promise<User | null>`.
 
 ##### Example
@@ -1523,7 +1523,7 @@ Extracts the value on success from an async option, or returns a default on fail
 
 The default value type `D` is independent of the success type `T`, so a wider
 or sentinel value can be supplied as a fallback — e.g.
-`unwrapOrAsyncOption<number, null>(null)` for a `Promise<IOption<User>>` resolves
+`unwrapOrAsyncOption of (null)` for a `Promise of IOption>` resolves
 to `Promise<User | null>`.
 
 ##### Example
@@ -1571,7 +1571,7 @@ Defined in: [promise-option/unwrapOrElseAsyncOption.ts:20](https://github.com/sa
 
 ##### Fileoverview
 
-Lazily extracts the value of `Promise<IOption<T>>`, computing a
+Lazily extracts the value of `Promise of IOption>`, computing a
 default from a thunk on None. Returns `Promise<T | D>`. Mirrors
 `unwrapOrElseAsync` for the Option-flavored pipeline.
 
@@ -1621,7 +1621,7 @@ Defined in: [promise-option/unwrapOrElseAsyncOption.ts:23](https://github.com/sa
 
 ##### Fileoverview
 
-Lazily extracts the value of `Promise<IOption<T>>`, computing a
+Lazily extracts the value of `Promise of IOption>`, computing a
 default from a thunk on None. Returns `Promise<T | D>`. Mirrors
 `unwrapOrElseAsync` for the Option-flavored pipeline.
 

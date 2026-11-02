@@ -17,16 +17,16 @@ slug: 0.20260811/api/async-option
 Defined in: [async-option/all.ts:37](https://github.com/sandlada/result/blob/main/src/async-option/all.ts#L37)
 
 Combines a tuple/array of `AsyncOption`s, preserving heterogeneous types.
-Returns `AsyncOption<None>` if any element is `None`; otherwise
-`AsyncOption<Some<[v0, v1, ...]>>`. Like `Promise.all` but with `None`
+Returns `AsyncOption of ` if any element is `None`; otherwise
+`AsyncOption of >`. Like `Promise.all` but with `None`
 short-circuiting.
 
 Two overloads:
 
 * Tuple overload: preserves per-position heterogeneous types — yields
-  `AsyncOption<Some<[number, string]>>`.
+  `AsyncOption of >`.
 * Array overload: runtime-sized homogeneous arrays — yields
-  `AsyncOption<Some<T[]>>`.
+  `AsyncOption of >`.
 
 ##### Type Parameters
 
@@ -54,7 +54,7 @@ import { all } from '@sandlada/result/async-option';
 const a = await all([ofSome(1), ofSome('hi')]).run(); // Some([1, 'hi'])
 
 // Homogeneous array — runtime-sized.
-const arr: AsyncOption<number>[] = [ofSome(1), ofSome(2)];
+const arr: AsyncOption of [] = [ofSome(1), ofSome(2)];
 const b = await all(arr).run(); // Some([1, 2])
 
 const c = await all([ofSome(1), ofNone<number>()]).run(); // None
@@ -71,16 +71,16 @@ Ready for Product
 Defined in: [async-option/all.ts:44](https://github.com/sandlada/result/blob/main/src/async-option/all.ts#L44)
 
 Combines a tuple/array of `AsyncOption`s, preserving heterogeneous types.
-Returns `AsyncOption<None>` if any element is `None`; otherwise
-`AsyncOption<Some<[v0, v1, ...]>>`. Like `Promise.all` but with `None`
+Returns `AsyncOption of ` if any element is `None`; otherwise
+`AsyncOption of >`. Like `Promise.all` but with `None`
 short-circuiting.
 
 Two overloads:
 
 * Tuple overload: preserves per-position heterogeneous types — yields
-  `AsyncOption<Some<[number, string]>>`.
+  `AsyncOption of >`.
 * Array overload: runtime-sized homogeneous arrays — yields
-  `AsyncOption<Some<T[]>>`.
+  `AsyncOption of >`.
 
 ##### Type Parameters
 
@@ -108,7 +108,7 @@ import { all } from '@sandlada/result/async-option';
 const a = await all([ofSome(1), ofSome('hi')]).run(); // Some([1, 'hi'])
 
 // Homogeneous array — runtime-sized.
-const arr: AsyncOption<number>[] = [ofSome(1), ofSome(2)];
+const arr: AsyncOption of [] = [ofSome(1), ofSome(2)];
 const b = await all(arr).run(); // Some([1, 2])
 
 const c = await all([ofSome(1), ofNone<number>()]).run(); // None
@@ -151,7 +151,7 @@ Defined in: [async-option/bind.ts:22](https://github.com/sandlada/result/blob/ma
 ##### Fileoverview
 
 Chains an AsyncOption-returning function on success (monadic bind / flatMap).
-Supports interoperability by also accepting a function that returns `Promise<IOption<U>>`.
+Supports interoperability by also accepting a function that returns `Promise of IOption>`.
 Lazy — returns a new AsyncOption without executing the inner computation.
 
 ##### Example
@@ -203,7 +203,7 @@ Defined in: [async-option/bind.ts:25](https://github.com/sandlada/result/blob/ma
 ##### Fileoverview
 
 Chains an AsyncOption-returning function on success (monadic bind / flatMap).
-Supports interoperability by also accepting a function that returns `Promise<IOption<U>>`.
+Supports interoperability by also accepting a function that returns `Promise of IOption>`.
 Lazy — returns a new AsyncOption without executing the inner computation.
 
 ##### Example
@@ -1221,7 +1221,7 @@ Creates an `AsyncOption` that always resolves to `None`.
 Equivalent to `fromOption(ofNone())` but skips the sync intermediate.
 
 Default `T = unknown` mirrors option/ofNone so contextual typing flows
-the same way (`const x: AsyncOption<number> = ofNone()` widens without
+the same way (`const x: AsyncOption of  = ofNone()` widens without
 needing an explicit generic argument).
 
 #### Type Parameters
@@ -1255,7 +1255,7 @@ Ready for Product
 
 Defined in: [async-option/ofSome.ts:19](https://github.com/sandlada/result/blob/main/src/async-option/ofSome.ts#L19)
 
-Lifts a raw value into an `AsyncOption<T>` that resolves to `Some(value)`.
+Lifts a raw value into an `AsyncOption of ` that resolves to `Some(value)`.
 Equivalent to `fromOption(ofSome(value))` but skips the sync intermediate.
 
 #### Type Parameters
@@ -1297,7 +1297,7 @@ Ready for Product
 
 Defined in: [async-option/okOr.ts:21](https://github.com/sandlada/result/blob/main/src/async-option/okOr.ts#L21)
 
-Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, supplying an error
+Converts an `AsyncOption of ` into an `AsyncResult of `, supplying an error
 value for the `None` case.
 
 ##### Type Parameters
@@ -1340,7 +1340,7 @@ Ready for Product
 
 Defined in: [async-option/okOr.ts:24](https://github.com/sandlada/result/blob/main/src/async-option/okOr.ts#L24)
 
-Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, supplying an error
+Converts an `AsyncOption of ` into an `AsyncResult of `, supplying an error
 value for the `None` case.
 
 ##### Type Parameters
@@ -1391,7 +1391,7 @@ Ready for Product
 
 Defined in: [async-option/okOrElse.ts:21](https://github.com/sandlada/result/blob/main/src/async-option/okOrElse.ts#L21)
 
-Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, computing the error
+Converts an `AsyncOption of ` into an `AsyncResult of `, computing the error
 from a thunk on `None` (lazy — error is only built when needed).
 
 ##### Type Parameters
@@ -1434,7 +1434,7 @@ Ready for Product
 
 Defined in: [async-option/okOrElse.ts:24](https://github.com/sandlada/result/blob/main/src/async-option/okOrElse.ts#L24)
 
-Converts an `AsyncOption<T>` into an `AsyncResult<T, E>`, computing the error
+Converts an `AsyncOption of ` into an `AsyncResult of `, computing the error
 from a thunk on `None` (lazy — error is only built when needed).
 
 ##### Type Parameters
@@ -1748,8 +1748,8 @@ Ready for Product
 
 Defined in: [async-option/transpose.ts:29](https://github.com/sandlada/result/blob/main/src/async-option/transpose.ts#L29)
 
-Transposes an `AsyncOption<AsyncResult<T, E>>` into an
-`AsyncResult<AsyncOption<T>, E>`.
+Transposes an `AsyncOption of ` into an
+`AsyncResult of , E>`.
 
 * `Some(Ok(v))`  → `Ok(Some(v))`
 * `Some(Err(e))` → `Err(e)`

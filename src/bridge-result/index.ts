@@ -1,5 +1,5 @@
 /**
- * Sync Result → Promise<Result> lift operators.
+ * Sync Result to Promise-of-Result lift operators.
  *
  * @packageDocumentation
  */

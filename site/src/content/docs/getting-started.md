@@ -66,12 +66,14 @@ The main barrel is **type-focused**. Its only runtime export is an empty default
 | `@sandlada/result` | Type contracts (`IResult`, `IResultOfT`, `IOption`, `AsyncResult`, `AsyncOption`) and the empty default marker. |
 | `@sandlada/result/types` | The same type contracts, kept for backward compatibility. |
 | `@sandlada/result/factories` | `ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, and friends. |
-| `@sandlada/result/operators` | Synchronous operators on `IResultOfT`: `map`, `bind`, `match`, `unwrapOr`, … |
-| `@sandlada/result/option` | Synchronous `IOption<T>` operators: `ofSome`, `ofNone`, `map`, `bind`, `okOr`, … |
-| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. |
-| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. |
-| `@sandlada/result/promise-result` | Eager operators on `Promise<IResultOfT>`. |
-| `@sandlada/result/promise-option` | Eager operators on `Promise<IOption>`. |
+| `@sandlada/result/operators` | Synchronous Result operators: `map`, `bind`, `match`, `unwrapOr`, … |
+| `@sandlada/result/option` | Synchronous Option operators: `ofSome`, `ofNone`, `map`, `bind`, `okOr`, … |
+| `@sandlada/result/async-result` | Lazy AsyncResult thunk operators. |
+| `@sandlada/result/async-option` | Lazy AsyncOption thunk operators. |
+| `@sandlada/result/bridge-result` | Lift sync Result into Promise of Result (`map`, `bind`, …). |
+| `@sandlada/result/bridge-option` | Lift sync Option into Promise of Option (`map`, `bind`, …). |
+| `@sandlada/result/promise-result` | Eager operators on Promise of Result. |
+| `@sandlada/result/promise-option` | Eager operators on Promise of Option. |
 | `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. |
 | `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `tee`, … |
 | `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. |

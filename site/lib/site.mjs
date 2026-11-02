@@ -91,7 +91,7 @@ const moduleRegistry = [
     {
         name: 'bridge-result',
         specDescription:
-            'Lift sync IResultOfT into Promise<IResultOfT> with async callbacks (map, bind, match, …).',
+            'Lift sync IResultOfT into a Promise of Result with async callbacks (map, bind, match, …).',
         apiTitle: 'Bridge Result: sync → Promise<Result>',
         apiDescription:
             'Bridge operators on plain IResultOfT: map, bind, bindThrough, match, orElse, tap and tapErr — same names as operators/, different input type.',
@@ -99,7 +99,7 @@ const moduleRegistry = [
     {
         name: 'bridge-option',
         specDescription:
-            'Lift sync IOption into Promise<IOption> with async callbacks (map, bind, match, …).',
+            'Lift sync IOption into a Promise of Option with async callbacks (map, bind, match, …).',
         apiTitle: 'Bridge Option: sync → Promise<Option>',
         apiDescription:
             'Bridge operators on plain IOption: map, bind, match, orElse and tap — promotion family with sync throw → None.',
@@ -107,18 +107,18 @@ const moduleRegistry = [
     {
         name: 'promise-result',
         specDescription:
-            'Eager operators on Promise<IResultOfT>, including the async-callback and lift families.',
+            'Eager operators on Promise of Result, including the async-callback and lift families.',
         apiTitle: 'Promise Result operators',
         apiDescription:
-            'Eager operators on Promise<IResultOfT>: map, bind, mapAsync, match, combine, filterOrElse and the rejection-aware wrappers built for async pipelines.',
+            'Eager operators on Promise of Result: map, bind, mapAsync, match, combine, filterOrElse and the rejection-aware wrappers built for async pipelines.',
     },
     {
         name: 'promise-option',
         specDescription:
-            'Eager operators on Promise<IOption>, mirroring promise-result on the Option track.',
+            'Eager operators on Promise of Option, mirroring promise-result on the Option track.',
         apiTitle: 'Promise Option operators',
         apiDescription:
-            'Eager operators on Promise<IOption<T>>: map, bind, filter, orElse, okOr, match plus async map, bind and tap variants.',
+            'Eager operators on Promise of Option: map, bind, filter, orElse, okOr, match plus async map, bind and tap variants.',
     },
     {
         name: 'async-result',

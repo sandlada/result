@@ -81,12 +81,22 @@ Each module owns its spec at `src/<module>/README.md`; the module map below link
 
 - **Results are plain objects, not classes.** The contract is a discriminated union (`isSuccess` / `isFailure`) over `IResultSuccess` and `IResultFailure<TError>`. Value-bearing Results use `IResultOfT<TValue, TError>`. Same shape for Options (`isSome` / `isNone`).
 - **Operators are standalone, data-last, curried.** No methods on result objects. This is what makes `pipe(...)` work.
-- **The package layout mirrors the type space.** Because `map` means different things on `IResultOfT` vs `IOption`, every concern lives at its own subpath: `/factories`, `/operators`, `/option`, `/composition`, `/adapters`, `/combine`, `/promise-result`, `/promise-option`, `/async-result`, `/async-option`, `/reliability`, `/observability`, `/primitives`.
+- **The package layout mirrors the type space.** Because `map` means different things on `IResultOfT` vs `IOption`, every concern lives at its own subpath: `/factories`, `/operators`, `/option`, `/composition`, `/adapters`, `/combine`, `/bridge-result`, `/bridge-option`, `/promise-result`, `/promise-option`, `/async-result`, `/async-option`, `/reliability`, `/observability`, `/primitives`.
 - **The main barrel is type-only** (`src/index.ts`). It re-exports the contract types and a runtime empty default object whose sole purpose is to keep Rolldown materializing the entry's sourcemap. Functional runtime values are reached exclusively via subpaths — the rationale is recorded in [`src/types/README.md`](src/types/README.md).
 - **Two async flavors.** `promise-result/` / `promise-option/` operate on eager `Promise<IResultOfT>`; `async-result/` / `async-option/` operate on lazy `AsyncResult<T,E>` thunks (`() => Promise<IResultOfT>`). Don't conflate them — see the module map below.
 - **Three layered concerns sit on top of the core ROP operators:** `reliability/` (retry/timeout/race), `observability/` (breadcrumb `ctx`/`withPath`, formatters, observer hooks), `primitives/` (high-frequency helpers like `cond`/`reduce`/`lift`). Each reuses `IResultOfT`/`AsyncResult` and has its own subpath.
 
 The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files are re-export barrels (the root and `types` entries add an empty `export default {}` marker) — there are no cyclic re-exports between modules (convention).
+
+### Layout and behavior rules (R1–R5)
+
+Short form of the refactor conventions; full rationale lives in the task plan.
+
+- **R1 — Carrier by module, callback arity by suffix.** Each subpath owns one carrier type (`operators` → sync `IResultOfT`, `promise-result` → `Promise<IResultOfT>`, `bridge-result` → sync Result lifted to `Promise`, and so on). The `Async` suffix on an operator name means the callback may return a `Promise`; it does not define throw policy. Do not add new `asyncFoo` prefixes for sync-carrier lifts — use `bridge-*` instead. Directory names `async-result` / `async-option` still mean lazy thunks; `factories` `asyncOk` / `asyncErr` still mean values already wrapped in `Promise`.
+- **R2 — One barrel per runtime export.** Each function is implemented once and exported from exactly one public `index.ts`. Re-exporting another module's factory from a convenience barrel is forbidden (`asyncOk` from `promise-result`, `ofSome` from `promise-option`, etc.).
+- **R3 — Throw channels are per export.** Record `throw`, `reject`, `carrier`, and `errorFn` channels in `docs/behavior-modes.md` and `behavior-matrix.ts`; do not unify carriers with a family table. Known fork: `async-result/mapAsync` propagates callback throws/rejections; `promise-result/mapAsync` captures to `Err`.
+- **R4 — Shapes only in `src/internal/shape.ts`.** Production code outside factories uses `okShape` / `errShape` / `someShape` / `noneShape`; no ad hoc result/option literals. `src/internal/` has no barrel, export entry, or module README.
+- **R5 — Shared runtime currying, not shared overloads.** Optional `src/internal/dual.ts` helpers replace duplicated `if (arg === undefined)` branches only; each operator keeps its own overload signatures. Stop rolling out `dual` if inference regresses (see task plan Phase 3.2).
 
 ### Module Map
 
@@ -99,8 +109,8 @@ The `IResult` type lives at `src/types/IResult.ts`; per-module `index.ts` files 
 | composition | `@sandlada/result/composition` | [src/composition/README.md](src/composition/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
 | adapters | `@sandlada/result/adapters` | [src/adapters/README.md](src/adapters/README.md) | [§4.4](docs/behavior-modes.md#44-adapters-and-high-frequency-primitives-srcadapters-srcprimitives) |
 | combine | `@sandlada/result/combine` | [src/combine/README.md](src/combine/README.md) | [§4.3](docs/behavior-modes.md#43-composition-srccombine-srccomposition) |
-| bridge-result | `@sandlada/result/bridge-result` | [src/bridge-result/README.md](src/bridge-result/README.md) | [§4.6.1](docs/behavior-modes.md#461-bridge-result-srcbridge-result) |
-| bridge-option | `@sandlada/result/bridge-option` | [src/bridge-option/README.md](src/bridge-option/README.md) | [§4.6.1](docs/behavior-modes.md#461-bridge-result-srcbridge-result) |
+| bridge-result | `@sandlada/result/bridge-result` | [src/bridge-result/README.md](src/bridge-result/README.md) | [§4.6.1](docs/behavior-modes.md) |
+| bridge-option | `@sandlada/result/bridge-option` | [src/bridge-option/README.md](src/bridge-option/README.md) | [§4.6.1](docs/behavior-modes.md) |
 | promise-result | `@sandlada/result/promise-result` | [src/promise-result/README.md](src/promise-result/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
 | promise-option | `@sandlada/result/promise-option` | [src/promise-option/README.md](src/promise-option/README.md) | [§4.6](docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option) |
 | async-result | `@sandlada/result/async-result` | [src/async-result/README.md](src/async-result/README.md) | [§4.7](docs/behavior-modes.md#47-lazy-async-srcasync-result-srcasync-option) |

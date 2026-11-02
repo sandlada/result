@@ -12,7 +12,7 @@ slug: 0.20260811/api/types
 
 Defined in: [types/AsyncOption.ts:19](https://github.com/sandlada/result/blob/main/src/types/AsyncOption.ts#L19)
 
-AsyncOption — a lazy thunk wrapping `() => Promise<IOption<T>>`.
+AsyncOption — a lazy thunk wrapping `() => Promise of IOption>`.
 
 Call `run()` to execute the computation.
 
@@ -40,7 +40,7 @@ Defined in: [types/AsyncOption.ts:20](https://github.com/sandlada/result/blob/ma
 
 Defined in: [types/AsyncResult.ts:20](https://github.com/sandlada/result/blob/main/src/types/AsyncResult.ts#L20)
 
-AsyncResult — a lazy thunk wrapping `() => Promise<IResultOfT<T, E>>`.
+AsyncResult — a lazy thunk wrapping `() => Promise of IResultOfT>`.
 
 Call `run()` to execute the computation.
 

@@ -1,10 +1,10 @@
 /**
  * Async operators — barrel export.
  *
- * Re-exports all asynchronous operators for working with `Promise<IResultOfT<T, E>>` values.
+ * Re-exports eager operators for Promise of Result values.
  *
- * For `Promise<IOption<T>>` operators, see `../promise-option/index.js` (subpath `./promise-option`).
- * For lifting sync `IResultOfT` into `Promise<IResultOfT>`, see `../bridge-result/index.js`.
+ * For Promise of Option operators, see `../promise-option/index.js` (subpath `./promise-option`).
+ * For lifting sync Result into Promise of Result, see `../bridge-result/index.js`.
  *
  * @packageDocumentation
  */

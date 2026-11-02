@@ -598,7 +598,7 @@ Defined in: [promise-result/bimapAsync.ts:20](https://github.com/sandlada/result
 
 ##### Fileoverview
 
-Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+Maps both success and failure values of a `Promise of IResultOfT>` simultaneously.
 
 ##### Example
 
@@ -661,7 +661,7 @@ Defined in: [promise-result/bimapAsync.ts:24](https://github.com/sandlada/result
 
 ##### Fileoverview
 
-Maps both success and failure values of a `Promise<IResultOfT<A, E>>` simultaneously.
+Maps both success and failure values of a `Promise of IResultOfT>` simultaneously.
 
 ##### Example
 
@@ -788,7 +788,7 @@ Defined in: [promise-result/bindThroughAsync.ts:22](https://github.com/sandlada/
 
 ##### Fileoverview
 
-Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+Side-effect on success for a `Promise of IResultOfT` that can propagate errors.
 
 **Throw policy**: through-family catch policy — a synchronous throw and a
 rejected Promise from `fn` both converge to `Err(thrown)`, matching
@@ -850,7 +850,7 @@ Defined in: [promise-result/bindThroughAsync.ts:25](https://github.com/sandlada/
 
 ##### Fileoverview
 
-Side-effect on success for a `Promise<IResultOfT>` that can propagate errors.
+Side-effect on success for a `Promise of IResultOfT` that can propagate errors.
 
 **Throw policy**: through-family catch policy — a synchronous throw and a
 rejected Promise from `fn` both converge to `Err(thrown)`, matching
@@ -1016,7 +1016,7 @@ Defined in: [promise-result/containsAsync.ts:14](https://github.com/sandlada/res
 
 ##### Fileoverview
 
-Returns true if the `Promise<IResultOfT>` is success and contains the given value.
+Returns true if the `Promise of IResultOfT` is success and contains the given value.
 
 ##### Example
 
@@ -1063,7 +1063,7 @@ Defined in: [promise-result/containsAsync.ts:17](https://github.com/sandlada/res
 
 ##### Fileoverview
 
-Returns true if the `Promise<IResultOfT>` is success and contains the given value.
+Returns true if the `Promise of IResultOfT` is success and contains the given value.
 
 ##### Example
 
@@ -1106,7 +1106,7 @@ Defined in: [promise-result/existsAsync.ts:21](https://github.com/sandlada/resul
 
 ##### Fileoverview
 
-Returns true if the `Promise<IResultOfT>` is success and the predicate holds.
+Returns true if the `Promise of IResultOfT` is success and the predicate holds.
 Returns false on failure or when the predicate does not hold.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -1160,7 +1160,7 @@ Defined in: [promise-result/existsAsync.ts:24](https://github.com/sandlada/resul
 
 ##### Fileoverview
 
-Returns true if the `Promise<IResultOfT>` is success and the predicate holds.
+Returns true if the `Promise of IResultOfT` is success and the predicate holds.
 Returns false on failure or when the predicate does not hold.
 
 **Throw policy**: If the predicate throws synchronously or returns a rejected
@@ -1218,7 +1218,7 @@ Defined in: [promise-result/filterOrElseAsync.ts:28](https://github.com/sandlada
 
 ##### Fileoverview
 
-Filters the success value of a `Promise<IResultOfT<A, E>>` with a predicate.
+Filters the success value of a `Promise of IResultOfT>` with a predicate.
 If the predicate holds, the original success passes through. If it fails,
 returns `err(errorFn(value))`. Failures pass through unchanged.
 
@@ -1282,7 +1282,7 @@ Defined in: [promise-result/filterOrElseAsync.ts:32](https://github.com/sandlada
 
 ##### Fileoverview
 
-Filters the success value of a `Promise<IResultOfT<A, E>>` with a predicate.
+Filters the success value of a `Promise of IResultOfT>` with a predicate.
 If the predicate holds, the original success passes through. If it fails,
 returns `err(errorFn(value))`. Failures pass through unchanged.
 
@@ -1368,7 +1368,7 @@ Defined in: [promise-result/flattenAsync.ts:18](https://github.com/sandlada/resu
 
 #### Fileoverview
 
-Flattens a nested `Promise<IResultOfT<IResultOfT<A, E>, E>>`.
+Flattens a nested `Promise of IResultOfT, E>>`.
 
 **Single-step only**: unwraps exactly one layer. Call `flattenAsync`
 repeatedly to flatten deeper nests.
@@ -1419,7 +1419,7 @@ Defined in: [promise-result/map.ts:21](https://github.com/sandlada/result/blob/m
 
 ##### Fileoverview
 
-Strictly synchronous `map` over a `Promise<IResultOfT>`.
+Strictly synchronous `map` over a `Promise of IResultOfT`.
 The mapper is required to be sync. Sync throws are caught and converted
 to `err(caughtError)`. Async results from `fn` are not awaited.
 
@@ -1473,7 +1473,7 @@ Defined in: [promise-result/map.ts:24](https://github.com/sandlada/result/blob/m
 
 ##### Fileoverview
 
-Strictly synchronous `map` over a `Promise<IResultOfT>`.
+Strictly synchronous `map` over a `Promise of IResultOfT`.
 The mapper is required to be sync. Sync throws are caught and converted
 to `err(caughtError)`. Async results from `fn` are not awaited.
 
@@ -1591,7 +1591,7 @@ Defined in: [promise-result/mapErr.ts:21](https://github.com/sandlada/result/blo
 
 ##### Fileoverview
 
-Strictly synchronous `mapErr` over a `Promise<IResultOfT>`.
+Strictly synchronous `mapErr` over a `Promise of IResultOfT`.
 The mapper is required to be sync. Sync throws are caught and converted
 to `err(caughtError)`.
 
@@ -1645,7 +1645,7 @@ Defined in: [promise-result/mapErr.ts:24](https://github.com/sandlada/result/blo
 
 ##### Fileoverview
 
-Strictly synchronous `mapErr` over a `Promise<IResultOfT>`.
+Strictly synchronous `mapErr` over a `Promise of IResultOfT`.
 The mapper is required to be sync. Sync throws are caught and converted
 to `err(caughtError)`.
 
@@ -2137,7 +2137,7 @@ Defined in: [promise-result/swapAsync.ts:16](https://github.com/sandlada/result/
 
 #### Fileoverview
 
-Swaps the success and failure variants of a `Promise<IResultOfT<A, E>>`.
+Swaps the success and failure variants of a `Promise of IResultOfT>`.
 
 #### Example
 

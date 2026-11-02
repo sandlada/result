@@ -252,7 +252,7 @@ readonly [`IResultOfT`](/0.20260811/api/types/#iresultoft)\<`T`, `E`>\[]
 
 Defined in: [primitives/sequence.ts:27](https://github.com/sandlada/result/blob/main/src/primitives/sequence.ts#L27)
 
-Alias of `combine`: convert `[IResultOfT<T, E>]` into `IResultOfT<readonly T[], E>`,
+Alias of `combine`: convert `[IResultOfT of ]` into `IResultOfT of `,
 short-circuiting on the first failure. The `readonly` modifier matches
 `combine`'s tuple-overload output for runtime-sized `readonly` arrays.
 

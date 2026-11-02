@@ -53,6 +53,6 @@ These names now match `promise-result` / `async-result` spelling. **Throw policy
 
 ## Related docs
 
-- [Bridge-result module spec](/specs/bridge-result/) — sync `IResultOfT` → `Promise<IResultOfT>`.
-- [Bridge-option module spec](/specs/bridge-option/) — sync `IOption` → `Promise<IOption>`.
+- [Bridge-result module spec](/specs/bridge-result/) — sync Result lifted to a Promise of Result.
+- [Bridge-option module spec](/specs/bridge-option/) — sync Option lifted to a Promise of Option.
 - [Behavior modes](/behavior-modes/) — throw and short-circuit policy by subpath.

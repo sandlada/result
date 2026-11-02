@@ -1,5 +1,5 @@
 /**
- * Sync Option → Promise<Option> lift operators.
+ * Sync Option to Promise-of-Option lift operators.
  *
  * @packageDocumentation
  */

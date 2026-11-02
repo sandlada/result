@@ -33,15 +33,15 @@ type AppError =
   | { kind: 'NotFound'; id: string }
   | { kind: 'Validation'; fields: Record<string, string> };
 
-function getUser(id: string): IResultOfT<User, AppError> {
+function getUser(id: string): IResultOfT of  {
   if (!id) {
-    return err<AppError>({ kind: 'Validation', fields: { id: 'Required' } }) as IResultOfT<User, AppError>;
+    return err<AppError>({ kind: 'Validation', fields: { id: 'Required' } }) as IResultOfT of ;
   }
 
   const user = users.get(id);
 
   if (!user) {
-    return err<AppError>({ kind: 'NotFound', id }) as IResultOfT<User, AppError>;
+    return err<AppError>({ kind: 'NotFound', id }) as IResultOfT of ;
   }
 
   return ok(user);
@@ -68,11 +68,11 @@ The main barrel is **type-focused**. Its only runtime export is `moduleMarker`, 
 | `@sandlada/result/types` | The same type contracts, kept for backward compatibility. |
 | `@sandlada/result/factories` | `ok`, `err`, `asyncOk`, `asyncErr`, `tryCatch`, `fromPromise`, and friends. |
 | `@sandlada/result/operators` | Synchronous operators on `IResultOfT`: `map`, `bind`, `match`, `unwrapOr`, … |
-| `@sandlada/result/option` | Synchronous `IOption<T>` operators: `ofSome`, `ofNone`, `map`, `bind`, `okOr`, … |
-| `@sandlada/result/async-result` | Lazy `AsyncResult<T, E>` thunk operators. |
-| `@sandlada/result/async-option` | Lazy `AsyncOption<T>` thunk operators. |
-| `@sandlada/result/promise-result` | Eager operators on `Promise<IResultOfT>`. |
-| `@sandlada/result/promise-option` | Eager operators on `Promise<IOption>`. |
+| `@sandlada/result/option` | Synchronous `IOption of ` operators: `ofSome`, `ofNone`, `map`, `bind`, `okOr`, … |
+| `@sandlada/result/async-result` | Lazy `AsyncResult of ` thunk operators. |
+| `@sandlada/result/async-option` | Lazy `AsyncOption of ` thunk operators. |
+| `@sandlada/result/promise-result` | Eager operators on `Promise of IResultOfT`. |
+| `@sandlada/result/promise-option` | Eager operators on `Promise of IOption`. |
 | `@sandlada/result/composition` | `pipe`, `composeK`, `safeTry`, `pipeAsync`, `composeKAsync`. |
 | `@sandlada/result/adapters` | `toOption`, `fromOption`, `switchFn`, `liftMap`, `tee`, … |
 | `@sandlada/result/combine` | `combine`, `combineWithAllErrors`, `all`. |

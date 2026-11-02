@@ -6,7 +6,7 @@
 
 - Operates on: synchronous `IOption<T>`; callbacks return `Promise<…>`.
 - Execution model: eager — calling the operator starts the returned Promise immediately.
-- Not here: `Promise<IOption>` pipelines (`promise-option`), lazy thunks (`async-option`), or sync operators (`option`).
+- Not here: eager pipelines over a resolved Option promise (`promise-option`), lazy thunks (`async-option`), or sync operators (`option`).
 
 ## API
 
@@ -20,10 +20,10 @@
 
 ## Contract notes
 
-- Promotion family: a synchronous throw becomes `None`; an async rejection propagates. See [behavior-modes.md §4.6.1](../../docs/behavior-modes.md#461-bridge-result-srcbridge-result).
+- Promotion family: a synchronous throw becomes `None`; an async rejection propagates. See [behavior-modes.md §4.6.1](../../docs/behavior-modes.md).
 - `match` propagates handler throws like `promise-option/matchAsyncOption`.
 
 ## Related
 
-- [`promise-option`](../promise-option/README.md) — eager operators on `Promise<IOption>`.
-- [`option`](../option/README.md) — sync operators on `IOption`.
+- [`promise-option`](../promise-option/README.md) — eager operators on a Promise of Option.
+- [`option`](../option/README.md) — sync operators on plain Option values.

@@ -1,8 +1,8 @@
 /**
- * Async operators on `Promise<IOption<T>>` — barrel export.
+ * Eager operators on Promise of Option — barrel export.
  *
  * Mirrors the structure of `promise-result/` but for the Option type.
- * For lifting sync `IOption` into `Promise<IOption>`, see `../bridge-option/index.js`.
+ * For lifting sync Option into Promise of Option, see `../bridge-option/index.js`.
  *
  * @packageDocumentation
  */

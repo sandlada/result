@@ -6,7 +6,7 @@
 
 - Operates on: synchronous `IResultOfT<T, E>`; callbacks return `Promise<…>`.
 - Execution model: eager — calling the operator starts the returned Promise immediately.
-- Not here: `Promise<IResultOfT>` pipelines (`promise-result`), lazy thunks (`async-result`), or sync operators (`operators`).
+- Not here: eager pipelines over a resolved Result promise (`promise-result`), lazy thunks (`async-result`), or sync operators (`operators`).
 
 ## API
 
@@ -22,10 +22,10 @@
 
 ## Contract notes
 
-- Throw policy matches the former `promise-result` lift family; see [behavior-modes.md §4.6.1](../../docs/behavior-modes.md#461-bridge-result-srcbridge-result).
+- Throw policy matches the former `promise-result` lift family; see [behavior-modes.md §4.6.1](../../docs/behavior-modes.md).
 - `bind` / `match` / `orElse` propagate synchronous handler throws via Promise rejection; `map` / `bindThrough` / `tap` / `tapErr` capture to `Err`.
 
 ## Related
 
-- [`promise-result`](../promise-result/README.md) — eager operators on `Promise<IResultOfT>`.
-- [`operators`](../operators/README.md) — sync operators on `IResultOfT`.
+- [`promise-result`](../promise-result/README.md) — eager operators on a Promise of Result.
+- [`operators`](../operators/README.md) — sync operators on plain Result values.

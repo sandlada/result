@@ -332,7 +332,7 @@ marker; the runtime payload carries no value.
 `T` = `unknown`
 
 — The "would-be" value type. Defaults to `unknown` so that
-contextual typing (e.g. `const x: IOption<number> = ofNone()`) can flow
+contextual typing (e.g. `const x: IOption of  = ofNone()`) can flow
 without an explicit generic argument.
 
 #### Returns
@@ -426,8 +426,8 @@ Defined in: [option/okOrElse.ts:40](https://github.com/sandlada/result/blob/main
 Defined in: [option/orElse.ts:43](https://github.com/sandlada/result/blob/main/src/option/orElse.ts#L43)
 
 Curried form. The inner `<T>` is **deferred** so the option's value type is
-re-inferred at every application site — `orElse(fn)(IOption<User>)` and
-`orElse(fn)(IOption<number>)` both typecheck.
+re-inferred at every application site — `orElse(fn)(IOption of )` and
+`orElse(fn)(IOption of )` both typecheck.
 
 ##### Type Parameters
 
@@ -660,8 +660,8 @@ readonly `A`\[]
 Defined in: [option/unwrapOr.ts:44](https://github.com/sandlada/result/blob/main/src/option/unwrapOr.ts#L44)
 
 Curried form. The inner `<T>` is **deferred** so the option's value type is
-re-inferred at every application site — `unwrapOr(default)(IOption<User>)` and
-`unwrapOr(default)(IOption<string>)` both typecheck, and both produce
+re-inferred at every application site — `unwrapOr(default)(IOption of )` and
+`unwrapOr(default)(IOption of )` both typecheck, and both produce
 `T | D` for their respective `T`.
 
 ##### Type Parameters

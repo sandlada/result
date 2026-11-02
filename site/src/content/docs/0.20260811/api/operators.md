@@ -507,7 +507,7 @@ Defined in: [operators/bind.ts:25](https://github.com/sandlada/result/blob/main/
 Defined in: [operators/catchErr.ts:56](https://github.com/sandlada/result/blob/main/src/operators/catchErr.ts#L56)
 
 Curried form. The inner `<A>` is **deferred** so the input's value type is
-re-inferred at every application site — `catchErr(handler)(IResultOfT<A, E>)` widens
+re-inferred at every application site — `catchErr(handler)(IResultOfT of )` widens
 `A | B` per call instead of locking `A` at the currying boundary.
 
 ##### Type Parameters

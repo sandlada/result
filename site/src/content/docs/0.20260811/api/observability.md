@@ -389,7 +389,7 @@ secondary channel.
 Defined in: [observability/tapErrContext.ts:41](https://github.com/sandlada/result/blob/main/src/observability/tapErrContext.ts#L41)
 
 Fires `fn(error, ctx)` for failures, returning the original result wrapped
-in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
+in a `Promise of IResultOfT>`. The callback may be sync or async — its
 return value (if a Promise) is awaited before the outer Promise resolves.
 
 ##### Type Parameters
@@ -419,7 +419,7 @@ return value (if a Promise) is awaited before the outer Promise resolves.
 Defined in: [observability/tapErrContext.ts:44](https://github.com/sandlada/result/blob/main/src/observability/tapErrContext.ts#L44)
 
 Fires `fn(error, ctx)` for failures, returning the original result wrapped
-in a `Promise<IResultOfT<T, E>>`. The callback may be sync or async — its
+in a `Promise of IResultOfT>`. The callback may be sync or async — its
 return value (if a Promise) is awaited before the outer Promise resolves.
 
 ##### Type Parameters

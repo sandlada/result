@@ -591,7 +591,7 @@ background — its eventual settlement is ignored.
 
 Defined in: [reliability/timeoutEager.ts:32](https://github.com/sandlada/result/blob/main/src/reliability/timeoutEager.ts#L32)
 
-Eager `timeout` — accepts a `() => Promise<IResultOfT<T, E>>` and races it
+Eager `timeout` — accepts a `() => Promise of IResultOfT>` and races it
 against the configured timeout window.
 
 Reuses the same default `TimeoutError` shape as `timeout`.
