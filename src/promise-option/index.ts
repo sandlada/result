@@ -7,18 +7,17 @@
  * @packageDocumentation
  */
 
-// Result-flavored: operate on `Promise<IOption<T>>` with sync-or-async fn
-export { bindAsyncOption } from './bindAsyncOption.js';
-export { containsAsyncOption } from './containsAsyncOption.js';
-export { existsAsyncOption } from './existsAsyncOption.js';
-export { filterAsyncOption } from './filterAsyncOption.js';
-export { flattenAsyncOption } from './flattenAsyncOption.js';
-export { mapAsyncOption } from './mapAsyncOption.js';
-export { mapOrAsyncOption } from './mapOrAsyncOption.js';
-export { mapOrElseAsyncOption } from './mapOrElseAsyncOption.js';
-export { matchAsyncOption } from './matchAsyncOption.js';
-export { orElseAsyncOption } from './orElseAsyncOption.js';
-export { tapAsyncOption } from './tapAsyncOption.js';
-export { tapErrAsyncOption } from './tapErrAsyncOption.js';
-export { unwrapOrAsyncOption } from './unwrapOrAsyncOption.js';
-export { unwrapOrElseAsyncOption } from './unwrapOrElseAsyncOption.js';
+export { bindAsync } from './bindAsync.js';
+export { containsAsync } from './containsAsync.js';
+export { existsAsync } from './existsAsync.js';
+export { filterAsync } from './filterAsync.js';
+export { flattenAsync } from './flattenAsync.js';
+export { mapAsync } from './mapAsync.js';
+export { mapOrAsync } from './mapOrAsync.js';
+export { mapOrElseAsync } from './mapOrElseAsync.js';
+export { matchAsync } from './matchAsync.js';
+export { orElseAsync } from './orElseAsync.js';
+export { tapAsync } from './tapAsync.js';
+export { tapErrAsync } from './tapErrAsync.js';
+export { unwrapOrAsync } from './unwrapOrAsync.js';
+export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';

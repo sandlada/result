@@ -40,10 +40,10 @@ import {
 } from '../../bridge-option/index.js';
 import { bindThrough as brBindThrough, match as brMatch } from '../../bridge-result/index.js';
 import {
-    bindAsyncOption, mapAsyncOption, orElseAsyncOption, tapErrAsyncOption,
+    bindAsync as poBindAsync, mapAsync as poMapAsync, orElseAsync as poOrElseAsync, tapErrAsync as poTapErrAsync,
 } from '../../promise-option/index.js';
 import {
-    ap as prAp, bindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
+    ap as prAp, bindAsync as prBindAsync, bindThroughAsync, bimapAsync, catchErrAsync, map as prMap,
 } from '../../promise-result/index.js';
 import { allSettled, any, race, timeout } from '../../reliability/index.js';
 
@@ -133,7 +133,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
 
     // ── promise-result ──────────────────────────────────────────────────
     { module: 'promise-result', api: 'map', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(prMap(() => { throw new Error('probe'); }, Promise.resolve(ok(1)))) },
-    { module: 'promise-result', api: 'bindAsync', scenario: 'callback throw', policy: 'propagate', run: () => asyncChannel(bindAsync(() => { throw new Error('probe'); }, Promise.resolve(ok(1)))) },
+    { module: 'promise-result', api: 'bindAsync', scenario: 'callback throw', policy: 'propagate', run: () => asyncChannel(prBindAsync(() => { throw new Error('probe'); }, Promise.resolve(ok(1)))) },
     { module: 'bridge-result', api: 'bindThrough', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(brBindThrough(() => { throw new Error('probe'); }, ok(1))) },
     { module: 'promise-result', api: 'bindThroughAsync', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(bindThroughAsync(() => { throw new Error('probe'); }, Promise.resolve(ok(1)))) },
     { module: 'promise-result', api: 'catchErrAsync', scenario: 'recovery callback throw', policy: 'propagate', note: 'declared escape hatch (recovery failures surface)', run: () => asyncChannel(catchErrAsync(() => { throw new Error('probe'); }, Promise.resolve(err('e')))) },
@@ -142,10 +142,10 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     { module: 'promise-result', api: 'ap', scenario: 'applied function throw', policy: 'capture', run: () => asyncChannel(prAp(Promise.resolve(ok(() => { throw new Error('probe'); })), Promise.resolve(ok(1)))) },
 
     // ── promise-option (promotion family: sync → None, async → propagate) ──
-    { module: 'promise-option', api: 'mapAsyncOption', scenario: 'mapper sync throw', policy: 'capture', run: () => asyncChannel(mapAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
-    { module: 'promise-option', api: 'mapAsyncOption', scenario: 'mapper async rejection', policy: 'capture', run: () => asyncChannel(mapAsyncOption(async () => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
-    { module: 'promise-option', api: 'bindAsyncOption', scenario: 'callback sync throw', policy: 'capture', run: () => asyncChannel(bindAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
-    { module: 'promise-option', api: 'orElseAsyncOption', scenario: 'fallback sync throw', policy: 'capture', run: () => asyncChannel(orElseAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofNone()))) },
+    { module: 'promise-option', api: 'mapAsync', scenario: 'mapper sync throw', policy: 'capture', run: () => asyncChannel(poMapAsync(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
+    { module: 'promise-option', api: 'mapAsync', scenario: 'mapper async rejection', policy: 'capture', run: () => asyncChannel(poMapAsync(async () => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
+    { module: 'promise-option', api: 'bindAsync', scenario: 'callback sync throw', policy: 'capture', run: () => asyncChannel(poBindAsync(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
+    { module: 'promise-option', api: 'orElseAsync', scenario: 'fallback sync throw', policy: 'capture', run: () => asyncChannel(poOrElseAsync(() => { throw new Error('probe'); }, Promise.resolve(ofNone()))) },
     { module: 'bridge-option', api: 'map', scenario: 'mapper sync throw', policy: 'capture', run: () => asyncChannel(boMap(() => { throw new Error('probe'); }, ofSome(1))) },
     { module: 'bridge-option', api: 'map', scenario: 'mapper async rejection', policy: 'propagate', run: () => asyncChannel(boMap(async () => { throw new Error('probe'); }, ofSome(1))) },
     { module: 'bridge-option', api: 'bind', scenario: 'callback sync throw', policy: 'capture', run: () => asyncChannel(boBind(() => { throw new Error('probe'); }, ofSome(1))) },
@@ -154,8 +154,8 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     { module: 'bridge-option', api: 'tap', scenario: 'callback async rejection', policy: 'propagate', run: () => asyncChannel(boTap(async () => { throw new Error('probe'); }, ofSome(1))) },
     { module: 'bridge-option', api: 'orElse', scenario: 'fallback sync throw', policy: 'capture', run: () => asyncChannel(boOrElse(() => { throw new Error('probe'); }, ofNone())) },
     { module: 'bridge-option', api: 'orElse', scenario: 'fallback async rejection', policy: 'propagate', run: () => asyncChannel(boOrElse(async () => { throw new Error('probe'); }, ofNone())) },
-    { module: 'promise-option', api: 'tapErrAsyncOption', scenario: 'observer sync throw', policy: 'capture', run: () => asyncChannel(tapErrAsyncOption(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
-    { module: 'promise-option', api: 'tapErrAsyncOption', scenario: 'observer async rejection', policy: 'propagate', run: () => asyncChannel(tapErrAsyncOption(async () => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
+    { module: 'promise-option', api: 'tapErrAsync', scenario: 'observer sync throw', policy: 'capture', run: () => asyncChannel(poTapErrAsync(() => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
+    { module: 'promise-option', api: 'tapErrAsync', scenario: 'observer async rejection', policy: 'propagate', run: () => asyncChannel(poTapErrAsync(async () => { throw new Error('probe'); }, Promise.resolve(ofSome(1)))) },
 
     // ── reliability (never rejects) ─────────────────────────────────────
     { module: 'reliability', api: 'timeout', scenario: 'carrier sync throw', policy: 'capture', run: () => asyncChannel(timeout(20, syncThrowingCarrier).run()) },
@@ -190,7 +190,7 @@ export const UNPROBED_EXPORTS: Readonly<Record<string, readonly string[]>> = {
     operators: ['and', 'andTee', 'andThrough', 'ap', 'bimap', 'bind', 'contains', 'exists', 'filterOrElse', 'flatten', 'mapErr', 'mapOr', 'mapOrElse', 'match', 'or', 'orElse', 'orTee', 'separate', 'swap', 'tap', 'tapErr', 'expect', 'expectErr', 'orThrow', 'orThrowWith', 'unsafeUnwrap', 'unsafeUnwrapErr', 'unwrap', 'unwrapErr', 'unwrapOr', 'unwrapOrElse', 'unzip', 'catchErr'],
     option: ['all', 'bind', 'contains', 'filter', 'flatten', 'match', 'ofNone', 'ofSome', 'okOr', 'okOrElse', 'orElse', 'tap', 'transpose', 'unwrapOr'],
     primitives: ['cond', 'condErr', 'sequence', 'reduce', 'partitionOption', 'lift'],
-    'promise-option': ['containsAsyncOption', 'existsAsyncOption', 'filterAsyncOption', 'flattenAsyncOption', 'mapOrAsyncOption', 'mapOrElseAsyncOption', 'matchAsyncOption', 'tapAsyncOption', 'unwrapOrAsyncOption', 'unwrapOrElseAsyncOption'],
+    'promise-option': ['containsAsync', 'existsAsync', 'filterAsync', 'flattenAsync', 'mapOrAsync', 'mapOrElseAsync', 'matchAsync', 'tapAsync', 'unwrapOrAsync', 'unwrapOrElseAsync'],
     'promise-result': ['flatten', 'mapErr', 'unwrapOr', 'unwrapOrElse', 'containsAsync', 'existsAsync', 'filterOrElseAsync', 'flattenAsync', 'mapAsync', 'mapErrAsync', 'mapOrAsync', 'mapOrElseAsync', 'matchAsync', 'orElseAsync', 'swapAsync', 'tapAsync', 'tapErrAsync', 'unwrapOrAsync', 'unwrapOrElseAsync', 'combine', 'combineWithAllErrors'],
     reliability: ['retry', 'retryLazy', 'timeoutEager'],
 };
@@ -245,7 +245,7 @@ export const defaultProbePolicy = (
     if (scenario === 'errorFn throw') return 'capture';
     if (module === 'async-option' && api === 'exists') return 'capture';
     if (api === 'exists' || api === 'contains') return 'propagate';
-    if (module === 'promise-option' && api === 'mapAsyncOption') return 'capture';
+    if (module === 'promise-option' && api === 'mapAsync') return 'capture';
     if (module === 'promise-option' && scenario.includes('async rejection')) return 'propagate';
     if (scenario === 'recovery callback throw' && api === 'catchErrAsync') return 'propagate';
     if (scenario === 'recovery callback throw') return 'capture';

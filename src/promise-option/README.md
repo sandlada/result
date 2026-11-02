@@ -14,23 +14,23 @@
 
 | Export | Description | Source |
 | --- | --- | --- |
-| `mapAsyncOption` | Transforms the `Some` value with an async callback. | [mapAsyncOption.ts](./mapAsyncOption.ts) |
-| `bindAsyncOption` | Async chain returning the next Option. | [bindAsyncOption.ts](./bindAsyncOption.ts) |
-| `orElseAsyncOption` | Async fallback on `None`. | [orElseAsyncOption.ts](./orElseAsyncOption.ts) |
-| `matchAsyncOption` | Async terminal pattern match. | [matchAsyncOption.ts](./matchAsyncOption.ts) |
-| `mapOrAsyncOption` / `mapOrElseAsyncOption` | Map the `Some` value or fall back asynchronously. | [mapOrAsyncOption.ts](./mapOrAsyncOption.ts), [mapOrElseAsyncOption.ts](./mapOrElseAsyncOption.ts) |
-| `tapAsyncOption` / `tapErrAsyncOption` | Async side effects; `tapErrAsyncOption` observes the Some track with `fn` and the None track (the Option's failure track) with `fnNone`. | [tapAsyncOption.ts](./tapAsyncOption.ts), [tapErrAsyncOption.ts](./tapErrAsyncOption.ts) |
-| `unwrapOrAsyncOption` / `unwrapOrElseAsyncOption` | Extract the value or an async default. | [unwrapOrAsyncOption.ts](./unwrapOrAsyncOption.ts), [unwrapOrElseAsyncOption.ts](./unwrapOrElseAsyncOption.ts) |
-| `containsAsyncOption` / `existsAsyncOption` / `filterAsyncOption` | Async predicate queries. | [containsAsyncOption.ts](./containsAsyncOption.ts), [existsAsyncOption.ts](./existsAsyncOption.ts), [filterAsyncOption.ts](./filterAsyncOption.ts) |
-| `flattenAsyncOption` | Flattens `Promise<IOption<IOption<T>>>`. | [flattenAsyncOption.ts](./flattenAsyncOption.ts) |
+| `mapAsync` | Transforms the `Some` value with an async callback. | [mapAsync.ts](./mapAsync.ts) |
+| `bindAsync` | Async chain returning the next Option. | [bindAsync.ts](./bindAsync.ts) |
+| `orElseAsync` | Async fallback on `None`. | [orElseAsync.ts](./orElseAsync.ts) |
+| `matchAsync` | Async terminal pattern match. | [matchAsync.ts](./matchAsync.ts) |
+| `mapOrAsync` / `mapOrElseAsync` | Map the `Some` value or fall back asynchronously. | [mapOrAsync.ts](./mapOrAsync.ts), [mapOrElseAsync.ts](./mapOrElseAsync.ts) |
+| `tapAsync` / `tapErrAsync` | Async side effects; `tapErrAsync` observes the Some track with `fn` and the None track with `fnNone`. | [tapAsync.ts](./tapAsync.ts), [tapErrAsync.ts](./tapErrAsync.ts) |
+| `unwrapOrAsync` / `unwrapOrElseAsync` | Extract the value or an async default. | [unwrapOrAsync.ts](./unwrapOrAsync.ts), [unwrapOrElseAsync.ts](./unwrapOrElseAsync.ts) |
+| `containsAsync` / `existsAsync` / `filterAsync` | Async predicate queries. | [containsAsync.ts](./containsAsync.ts), [existsAsync.ts](./existsAsync.ts), [filterAsync.ts](./filterAsync.ts) |
+| `flattenAsync` | Flattens `Promise<IOption<IOption<T>>>`. | [flattenAsync.ts](./flattenAsync.ts) |
 
 ## Contract notes
 
 - A rejection of the outer `Promise` itself always stays a rejection; it is never converted into `None`.
-- Callback policy: operators on `Promise<IOption>` collapse a throwing callback or an async rejection into `None` / `false` / the default value; `matchAsyncOption`, `mapOrElseAsyncOption` and `unwrapOrElseAsyncOption` propagate instead. Sync `IOption` lifts are documented under [`bridge-option`](../bridge-option/README.md). See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
+- Callback policy: operators on `Promise<IOption>` collapse a throwing callback or an async rejection into `None` / `false` / the default value; `matchAsync`, `mapOrElseAsync` and `unwrapOrElseAsync` propagate instead. Sync `IOption` lifts are documented under [`bridge-option`](../bridge-option/README.md). See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
 - This layer has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family.
 - There are no combination APIs here; combine Options with the sync [`option/all`](../option/all.ts) before lifting when needed.
-- Naming: the `*AsyncOption` suffix marks operators on `Promise<IOption>`. Sync lifts use [`bridge-option`](../bridge-option/README.md).
+- Naming mirrors `promise-result`: `*Async` on `Promise<IOption>`. Sync lifts use [`bridge-option`](../bridge-option/README.md).
 
 ## Design notes
 
@@ -38,6 +38,6 @@
 
 ## Related
 
-- [`option`](../option/README.md) — the synchronous operator set.
-- [`async-option`](../async-option/README.md) — the lazy thunk counterpart.
-- [`promise-result`](../promise-result/README.md) — the same shape on the Result track.
+- [`bridge-option`](../bridge-option/README.md) — lift sync `IOption` into `Promise<IOption>`.
+- [`option`](../option/README.md) — synchronous Option operators.
+- [`promise-result`](../promise-result/README.md) — the Result-track mirror.

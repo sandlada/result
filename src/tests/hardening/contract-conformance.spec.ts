@@ -277,7 +277,7 @@ describe('exists across the layers', () => {
     });
 
     it('collapses a throwing predicate to false in the eager Option layer', async () => {
-        const r = await promiseOption.existsAsyncOption(
+        const r = await promiseOption.existsAsync(
             (() => { throw new Error('boom'); }) as (x: number) => boolean,
             Promise.resolve(option.ofSome(1)),
         );
@@ -355,15 +355,15 @@ describe('bridge-option / lift family', () => {
     });
 });
 
-describe('promise-option / tapErrAsyncOption', () => {
+describe('promise-option / tapErrAsync', () => {
     it('observes the Some track with fn and the None track with fnNone', async () => {
         const calls: unknown[] = [];
-        await promiseOption.tapErrAsyncOption(
+        await promiseOption.tapErrAsync(
             (v) => { calls.push(['fn', v]); },
             Promise.resolve(option.ofSome(42)),
             () => { calls.push(['fnNone']); },
         );
-        await promiseOption.tapErrAsyncOption(
+        await promiseOption.tapErrAsync(
             (v) => { calls.push(['fn', v]); },
             Promise.resolve(option.ofNone()),
             () => { calls.push(['fnNone']); },
