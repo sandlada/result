@@ -133,7 +133,7 @@ export default defineConfig({
             ],
             sidebar: [
                 { label: 'Start Here', items: ['getting-started'] },
-                { label: 'Reference', items: ['behavior-modes'] },
+                { label: 'Reference', items: ['behavior-modes', 'migration'] },
                 { label: 'Module specs', items: modules.map((module) => `specs/${module}`) },
                 apiSidebarGroup,
             ],

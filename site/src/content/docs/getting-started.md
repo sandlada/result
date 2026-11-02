@@ -107,4 +107,5 @@ console.log(unwrapOr(0)(result));
 ## Next steps
 
 - [Behavior modes](/behavior-modes/) — which APIs throw, which capture, and which short-circuit.
+- [API migration](/migration/) — renames and removed exports when upgrading from `0.20260811`.
 - [API Reference](/api/) — every export, generated from the source JSDoc.
