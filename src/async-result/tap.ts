@@ -25,14 +25,17 @@ export function tap<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, tap } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, tap, match } from '@sandlada/result/async-result';
  *
- * // Sync callback
- * const ar = tap((v: number) => console.log('got:', v), fromResult(ok(42)));
+ * const input = fromResult(ok(42));
+ * const tapped = tap((_v: number) => undefined, input);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` }, tapped);
+ * // label === 'ok:42'
  *
- * // Async callback — also awaited
- * const ar2 = tap(async (v: number) => { console.log(v); }, fromResult(ok(42)));
+ * const skipped = tap((_v: number) => undefined, fromResult(err('skip')));
+ * const errLabel = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, skipped);
+ * // errLabel === 'err:skip'; tap short-circuits on Err without running the side effect
  * ```
  */
 export function tap<T, E>(

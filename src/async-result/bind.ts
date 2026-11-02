@@ -30,18 +30,18 @@ export function bind<T, U, E, F>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, bind } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { bind, fromResult, match } from '@sandlada/result/async-result';
  *
- * type AppError = { readonly kind: 'App' };
- * type DbError = { readonly kind: 'Db' };
+ * const input = fromResult(ok(1));
+ * const chained = bind((id: number) => fromResult(ok(id + 1)), input);
+ * const value = await match({ ok: (n) => n, err: () => -1 }, chained);
+ * // value === 2
  *
- * // Heterogeneous errors - outer AppError, inner DbError, result widens.
- * const ar = bind<number, number, AppError, DbError>(
- *     (id) => fromResult<number, DbError>(ok(id + 1)),
- *     fromResult<number, AppError>(ok(1)),
- * );
- * // AsyncResult<number, AppError | DbError>
+ * const outerErr = fromResult(err('app'));
+ * const short = bind((id: number) => fromResult(ok(id + 1)), outerErr);
+ * const missed = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, short);
+ * // missed === 'err:app'; bind short-circuits when the carrier is Err
  * ```
  */
 export function bind<T, U, E, F>(

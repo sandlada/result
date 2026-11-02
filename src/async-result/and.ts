@@ -8,10 +8,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, and } from '@sandlada/result/async-result';
+ * import { and, fromResult, match } from '@sandlada/result/async-result';
  *
- * const r1 = await and(fromResult(ok(1)), fromResult(ok(2))).run(); // Ok(2)
- * const r2 = await and(fromResult(err<string>('a')), fromResult(ok(2))).run(); // Err('a')
+ * const first = fromResult(ok(1));
+ * const second = fromResult(ok(2));
+ * const combined = and(first, second);
+ * const value = await match({ ok: (n) => n, err: (e) => -1 }, combined);
+ * // value === 2
+ *
+ * const short = and(fromResult(err('a')), second);
+ * const errValue = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, short);
+ * // errValue === 'err:a'; and short-circuits without running second
  * ```
  */
 export function and<T, U, E>(

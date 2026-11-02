@@ -11,14 +11,23 @@ import { ok } from '../factories/ok.js';
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, combineWithAllErrors } from '@sandlada/result/async-result';
+ * import { combineWithAllErrors, fromResult, match } from '@sandlada/result/async-result';
  *
- * const ar = combineWithAllErrors([
+ * const parts = [
  *     fromResult(ok(1)),
  *     fromResult(err('a')),
  *     fromResult(err('b')),
- * ]);
- * const result = await ar.run(); // Err(['a', 'b'])
+ * ];
+ * const aggregated = combineWithAllErrors(parts);
+ * const label = await match(
+ *     { ok: (xs) => xs.join(','), err: (es) => es.join('|') },
+ *     aggregated,
+ * );
+ * // label === 'a|b'
+ *
+ * const allOk = combineWithAllErrors([fromResult(ok(1)), fromResult(ok(2))]);
+ * const okLabel = await match({ ok: (xs) => xs.length, err: () => 0 }, allOk);
+ * // okLabel === 2
  * ```
  */
 export function combineWithAllErrors<T, E>(

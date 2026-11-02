@@ -19,11 +19,17 @@ export function andTee<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, andTee } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { andTee, fromResult, match } from '@sandlada/result/async-result';
  *
- * const ar = andTee((v: number) => { console.log(v); }, fromResult(ok(42)));
- * const result = await ar.run(); // Ok(42)
+ * const input = fromResult(ok(42));
+ * const teed = andTee((_v: number) => undefined, input);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` }, teed);
+ * // label === 'ok:42'
+ *
+ * const skipped = andTee((_v: number) => undefined, fromResult(err('skip')));
+ * const errLabel = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, skipped);
+ * // errLabel === 'err:skip'; andTee short-circuits on Err
  * ```
  */
 export function andTee<T, E>(

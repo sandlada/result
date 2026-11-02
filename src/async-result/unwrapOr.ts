@@ -15,10 +15,14 @@ export function unwrapOr<T, E>(
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, unwrapOr } from '@sandlada/result/async-result';
+ * import { fromResult, map, unwrapOr } from '@sandlada/result/async-result';
  *
- * const result = await unwrapOr(0, fromResult(ok(42))); // 42
- * const fallback = await unwrapOr(0, fromResult(err('fail'))); // 0
+ * const input = map((x: number) => x, fromResult(ok(42)));
+ * const value = await unwrapOr(0, input);
+ * // value === 42
+ *
+ * const fallback = await unwrapOr(0, fromResult(err('fail')));
+ * // fallback === 0; unwrapOr returns the default on Err
  * ```
  */
 export function unwrapOr<T, E>(

@@ -23,10 +23,21 @@ export function filterOrElse<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, filterOrElse } from '@sandlada/result/async-result';
- * const ar = filterOrElse((x: number) => x > 0, (x: number) => `neg: ${x}`, fromResult(ok(42)));
- * const result = await ar.run(); // Ok(42)
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { filterOrElse, fromResult, match } from '@sandlada/result/async-result';
+ *
+ * const input = fromResult(ok(42));
+ * const kept = filterOrElse((x: number) => x > 0, (x: number) => `neg:${x}`, input);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => e }, kept);
+ * // label === 'ok:42'
+ *
+ * const rejected = filterOrElse(
+ *     (x: number) => x > 0,
+ *     (x: number) => `neg:${x}`,
+ *     fromResult(ok(-1)),
+ * );
+ * const errLabel = await match({ ok: (n) => `ok:${n}`, err: (e) => e }, rejected);
+ * // errLabel === 'neg:-1'
  * ```
  */
 export function filterOrElse<T, E>(

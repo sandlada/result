@@ -25,14 +25,17 @@ export function tapErr<T, E>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
- * import { fromResult, tapErr } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { fromResult, tapErr, match } from '@sandlada/result/async-result';
  *
- * // Sync callback
- * const ar = tapErr((e: string) => console.log('err:', e), fromResult(err('oops')));
+ * const input = fromResult(err('oops'));
+ * const tapped = tapErr((_e: string) => undefined, input);
+ * const errLabel = await match({ ok: () => 'ok', err: (e) => e }, tapped);
+ * // errLabel === 'oops'
  *
- * // Async callback — also supported
- * const ar2 = tapErr(async (e: string) => { console.log(e); }, fromResult(err('oops')));
+ * const healthy = tapErr((_e: string) => undefined, fromResult(ok(21)));
+ * const label = await match({ ok: (n) => n, err: () => -1 }, healthy);
+ * // label === 21; tapErr skips the callback on Ok
  * ```
  */
 export function tapErr<T, E>(

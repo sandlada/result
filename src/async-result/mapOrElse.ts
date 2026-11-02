@@ -18,10 +18,14 @@ export function mapOrElse<T, U, E>(
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, mapOrElse } from '@sandlada/result/async-result';
+ * import { fromResult, mapOrElse, map } from '@sandlada/result/async-result';
  *
- * const v1 = await mapOrElse((e: string) => -1, (x: number) => x * 2, fromResult(ok(21))); // 42
- * const v2 = await mapOrElse((e: string) => -1, (x: number) => x * 2, fromResult(err('x'))); // -1
+ * const input = map((x: number) => x, fromResult(ok(21)));
+ * const mapped = await mapOrElse((e: string) => -1, (x: number) => x * 2, input);
+ * // mapped === 42
+ *
+ * const fromErr = await mapOrElse((e: string) => -1, (x: number) => x * 2, fromResult(err('x')));
+ * // fromErr === -1; mapOrElse uses onErr when the carrier is Err
  * ```
  */
 export function mapOrElse<T, U, E>(

@@ -9,12 +9,18 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, flatten } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { flatten, fromResult, map, unwrap } from '@sandlada/result/async-result';
  *
  * const nested = fromResult(ok(fromResult(ok(42))));
- * const ar = flatten(nested);
- * const result = await ar.run(); // Ok(42)
+ * const flat = flatten(nested);
+ * const doubled = map((x: number) => x * 2, flat);
+ * const value = await unwrap(doubled);
+ * // value === 84
+ *
+ * const broken = flatten(fromResult(err('outer')));
+ * const stopped = await broken.run();
+ * // stopped stays Err('outer'); flatten short-circuits on outer failure
  * ```
  */
 export function flatten<T, E>(

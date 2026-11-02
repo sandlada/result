@@ -13,10 +13,16 @@ export function exists<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, exists } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { exists, fromResult, map } from '@sandlada/result/async-result';
  *
- * const r = await exists((v: number) => v > 0, fromResult(ok(42))); // true
+ * const input = map((x: number) => x, fromResult(ok(42)));
+ * const yes = await exists((v: number) => v > 0, input);
+ * const no = await exists((v: number) => v < 0, input);
+ * // yes === true, no === false
+ *
+ * const onErr = await exists((v: number) => v > 0, fromResult(err('skip')));
+ * // onErr === false; exists is false when the carrier is Err
  * ```
  */
 export function exists<T, E>(

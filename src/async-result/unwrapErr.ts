@@ -16,12 +16,15 @@ export function unwrapErr<T, E>(
  *
  * @example
  * ```ts
- * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
- * import { unwrapErr } from '@sandlada/result/async-result';
+ * import { fromResult, mapErr, unwrapErr } from '@sandlada/result/async-result';
  *
- * await unwrapErr(fromResult(err('boom')));  // 'boom'
- * await unwrapErr(fromResult(ok(42)));       // throws Error with `cause: 42`
+ * const input = mapErr((e: string) => e, fromResult(err('boom')));
+ * const error = await unwrapErr(input);
+ * // error === 'boom'
+ *
+ * const doomed = unwrapErr(fromResult(ok(42)));
+ * // await doomed throws Error with cause 42
  * ```
  */
 export function unwrapErr<T, E>(

@@ -29,11 +29,19 @@ export function ap<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, ap } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { ap, fromResult, match } from '@sandlada/result/async-result';
  *
- * const applied = await ap(fromResult(ok((x: number) => x * 2)), fromResult(ok(21))).run();
- * // Ok(42)
+ * const fnCarrier = fromResult(ok((x: number) => x * 2));
+ * const valueCarrier = fromResult(ok(21));
+ * const applied = ap(fnCarrier, valueCarrier);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` }, applied);
+ * // label === 'ok:42'
+ *
+ * const brokenFn = fromResult(err('fn'));
+ * const stalled = ap(brokenFn, valueCarrier);
+ * const errLabel = await match({ ok: (n) => n, err: (e) => e }, stalled);
+ * // errLabel === 'fn'; ap propagates the function-side failure
  * ```
  */
 export function ap<A, B, E, F>(

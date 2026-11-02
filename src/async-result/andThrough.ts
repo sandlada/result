@@ -15,14 +15,23 @@ export function andThrough<T, E, F>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, andThrough } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { andThrough, fromResult, match } from '@sandlada/result/async-result';
  *
- * const validate = andThrough(
- *   (v: number) => v > 0 ? fromResult(ok(undefined)) : Promise.reject(new Error('non-positive')),
- *   fromResult(ok(42)),
+ * const input = fromResult(ok(42));
+ * const validated = andThrough(
+ *     (v: number) => (v > 0 ? fromResult(ok(undefined)) : fromResult(err('non-positive'))),
+ *     input,
  * );
- * const result = await validate.run(); // Ok(42)
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, validated);
+ * // label === 'ok:42'
+ *
+ * const bad = andThrough(
+ *     (v: number) => (v > 0 ? fromResult(ok(undefined)) : fromResult(err('non-positive'))),
+ *     fromResult(ok(-1)),
+ * );
+ * const errLabel = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, bad);
+ * // errLabel === 'err:non-positive'; andThrough replaces Ok with the side-effect failure
  * ```
  */
 export function andThrough<T, E, F>(

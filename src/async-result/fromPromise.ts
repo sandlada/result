@@ -11,9 +11,22 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { fromPromise } from '@sandlada/result/async-result';
- * const ar = fromPromise(() => fetch('/api/data').then(r => r.json()));
- * const result = await ar.run();
+ * import { fromPromise, map, match } from '@sandlada/result/async-result';
+ *
+ * const input = fromPromise(() => Promise.resolve(21));
+ * const doubled = map((x: number) => x * 2, input);
+ * const label = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     doubled,
+ * );
+ * // label === 'ok:42'
+ *
+ * const rejected = fromPromise(() => Promise.reject('net'));
+ * const fallback = await match(
+ *     { ok: (n) => n, err: (e) => -1 },
+ *     map((x: number) => x, rejected),
+ * );
+ * // fallback === -1; fromPromise turns rejection into Err before map runs
  * ```
  */
 export function fromPromise<T, E = unknown>(

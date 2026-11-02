@@ -10,11 +10,17 @@ import { err } from '../factories/err.js';
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, swapAsync } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, swapAsync, match } from '@sandlada/result/async-result';
  *
- * const ar = swapAsync(fromResult(ok(5)));
- * const result = await ar.run(); // Err(5)
+ * const input = fromResult(ok(5));
+ * const flipped = swapAsync(input);
+ * const errSide = await match({ ok: () => 'ok', err: (e) => `err:${e}` }, flipped);
+ * // errSide === 'err:5'
+ *
+ * const fromErr = swapAsync(fromResult(err('x')));
+ * const okSide = await match({ ok: (n) => n, err: () => 'fail' }, fromErr);
+ * // okSide === 'x'; swapAsync moves failure payload to Ok
  * ```
  */
 export function swapAsync<T, E>(

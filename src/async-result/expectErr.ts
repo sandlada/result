@@ -11,12 +11,15 @@ import { runCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { fromResult } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result/factories';
- * import { expectErr } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { expectErr, fromResult, mapErr } from '@sandlada/result/async-result';
  *
- * await expectErr('should have failed', fromResult(ok(42))); // throws Error
- * // The thrown Error carries `cause: 42` so the original success value is preserved.
+ * const input = mapErr((e: string) => e, fromResult(err('boom')));
+ * const error = await expectErr('must fail', input);
+ * // error === 'boom'
+ *
+ * const doomed = expectErr('should have failed', fromResult(ok(42)));
+ * // await doomed throws Error with cause 42
  * ```
  */
 export function expectErr<T, E>(

@@ -13,12 +13,20 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import type { AsyncResult } from '@sandlada/result';
- * import { from } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result/factories';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { from, map, match } from '@sandlada/result/async-result';
  *
- * const ar: AsyncResult<number, string> = from(() => Promise.resolve(ok(42)));
- * const result = await ar.run(); // IResultOfT<number, string>
+ * const input = from(() => Promise.resolve(ok(21)));
+ * const doubled = map((x: number) => x * 2, input);
+ * const label = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     doubled,
+ * );
+ * // label === 'ok:42'
+ *
+ * const lazyErr = from(() => err('skip'));
+ * const skipped = await map((x: number) => x * 2, lazyErr).run();
+ * // skipped stays Err('skip'); map does not run the success mapper
  * ```
  */
 export function from<T, E = unknown>(

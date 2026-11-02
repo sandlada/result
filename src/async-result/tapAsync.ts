@@ -15,10 +15,17 @@ export function tapAsync<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, tapAsync } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, tapAsync, match } from '@sandlada/result/async-result';
  *
- * const ar = tapAsync(async (v: number) => { console.log('saving', v); }, fromResult(ok(42)));
+ * const input = fromResult(ok(42));
+ * const tapped = tapAsync(async (_v: number) => undefined, input);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` }, tapped);
+ * // label === 'ok:42'
+ *
+ * const skipped = tapAsync(async (_v: number) => undefined, fromResult(err('skip')));
+ * const errLabel = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, skipped);
+ * // errLabel === 'err:skip'; tapAsync does not invoke the callback on Err
  * ```
  */
 export function tapAsync<T, E>(

@@ -8,10 +8,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, or } from '@sandlada/result/async-result';
+ * import { fromResult, match, or } from '@sandlada/result/async-result';
  *
- * const r1 = await or(fromResult(ok(1)), fromResult(ok(2))).run(); // Ok(1)
- * const r2 = await or(fromResult(err<string>('a')), fromResult(ok(2))).run(); // Ok(2)
+ * const primary = fromResult(ok(1));
+ * const backup = fromResult(ok(2));
+ * const picked = or(primary, backup);
+ * const value = await match({ ok: (n) => n, err: () => -1 }, picked);
+ * // value === 1
+ *
+ * const failed = or(fromResult(err('a')), backup);
+ * const recovered = await match({ ok: (n) => `ok:${n}`, err: (e) => `err:${e}` }, failed);
+ * // recovered === 'ok:2'; or runs backup when primary is Err
  * ```
  */
 export function or<T, E, F>(

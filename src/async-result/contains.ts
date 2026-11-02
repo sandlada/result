@@ -13,10 +13,17 @@ export function contains<T, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, contains } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { contains, fromResult, map } from '@sandlada/result/async-result';
  *
- * const r = await contains(42, fromResult(ok(42))); // true
+ * const input = map((x: number) => x, fromResult(ok(42)));
+ * const hit = await contains(42, input);
+ * const miss = await contains(0, input);
+ * // hit === true, miss === false
+ *
+ * const failed = contains(42, fromResult(err('skip')));
+ * const onErr = await failed;
+ * // onErr === false; contains is false when the carrier is Err
  * ```
  */
 export function contains<T, E>(

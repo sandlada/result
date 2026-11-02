@@ -23,15 +23,25 @@ export function bimap<T, E, U, F>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, bimap } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { bimap, fromResult, match } from '@sandlada/result/async-result';
  *
- * const ar = bimap(
- *   (v: number) => v.toString(),
- *   (e: number) => e * 2,
- *   fromResult(ok(5)),
+ * const input = fromResult(ok(5));
+ * const mapped = bimap(
+ *     (v: number) => v.toString(),
+ *     (e: string) => e.toUpperCase(),
+ *     input,
  * );
- * const result = await ar.run(); // Ok('5')
+ * const label = await match({ ok: (s) => s, err: (e) => e }, mapped);
+ * // label === '5'
+ *
+ * const failed = bimap(
+ *     (v: number) => v.toString(),
+ *     (e: string) => e.toUpperCase(),
+ *     fromResult(err('oops')),
+ * );
+ * const errLabel = await match({ ok: (s) => s, err: (e) => e }, failed);
+ * // errLabel === 'OOPS'
  * ```
  */
 export function bimap<T, E, U, F>(

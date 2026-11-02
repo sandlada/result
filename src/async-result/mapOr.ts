@@ -18,10 +18,14 @@ export function mapOr<T, U, E>(
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, mapOr } from '@sandlada/result/async-result';
+ * import { fromResult, mapOr, map } from '@sandlada/result/async-result';
  *
- * const v1 = await mapOr(-1, (x: number) => x * 2, fromResult(ok(21))); // 42
- * const v2 = await mapOr(-1, (x: number) => x * 2, fromResult(err('x'))); // -1
+ * const input = map((x: number) => x, fromResult(ok(21)));
+ * const mapped = await mapOr(-1, (x: number) => x * 2, input);
+ * // mapped === 42
+ *
+ * const fallback = await mapOr(-1, (x: number) => x * 2, fromResult(err('x')));
+ * // fallback === -1; mapOr skips the mapper on Err
  * ```
  */
 export function mapOr<T, U, E>(

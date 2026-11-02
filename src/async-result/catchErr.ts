@@ -22,10 +22,18 @@ export function catchErr<A, E>(
  *
  * @example
  * ```ts
- * import { catchErr, fromResult } from '@sandlada/result/async-result';
- * import { err } from '@sandlada/result/factories';
- * const r = await catchErr((e: string) => 0, fromResult(err('boom'))).run();
- * // Ok(0)
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { catchErr, fromResult, map, match } from '@sandlada/result/async-result';
+ *
+ * const input = fromResult(err('boom'));
+ * const recovered = catchErr(() => 0, input);
+ * const label = await match({ ok: (n) => `ok:${n}`, err: () => 'err' }, recovered);
+ * // label === 'ok:0'
+ *
+ * const healthy = catchErr(() => 0, fromResult(ok(21)));
+ * const doubled = map((x: number) => x * 2, healthy);
+ * const value = await match({ ok: (n) => n, err: () => -1 }, doubled);
+ * // value === 42; catchErr passes Ok through unchanged
  * ```
  */
 export function catchErr<A, E>(

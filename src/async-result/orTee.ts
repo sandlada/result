@@ -19,11 +19,17 @@ export function orTee<T, E>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
- * import { fromResult, orTee } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { fromResult, orTee, match } from '@sandlada/result/async-result';
  *
- * const ar = orTee((e: string) => { console.error(e); }, fromResult(err('oops')));
- * const result = await ar.run(); // Err('oops')
+ * const input = fromResult(err('oops'));
+ * const teed = orTee((_e: string) => undefined, input);
+ * const errLabel = await match({ ok: () => 'ok', err: (e) => e }, teed);
+ * // errLabel === 'oops'
+ *
+ * const healthy = orTee((_e: string) => undefined, fromResult(ok(21)));
+ * const label = await match({ ok: (n) => n, err: () => -1 }, healthy);
+ * // label === 21; orTee does not run the side effect on Ok
  * ```
  */
 export function orTee<T, E>(

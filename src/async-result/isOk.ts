@@ -8,10 +8,12 @@ import { runCarrier } from '../types/asyncCarrier.js';
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, isOk } from '@sandlada/result/async-result';
+ * import { fromResult, isOk, map } from '@sandlada/result/async-result';
  *
- * await isOk(fromResult(ok(42)));  // true
- * await isOk(fromResult(err('x'))); // false
+ * const input = map((x: number) => x + 1, fromResult(ok(41)));
+ * const yes = await isOk(input);
+ * const no = await isOk(fromResult(err('x')));
+ * // yes === true, no === false
  * ```
  */
 export function isOk<T, E>(ar: AsyncResult<T, E>): Promise<boolean> {

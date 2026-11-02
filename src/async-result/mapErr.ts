@@ -20,11 +20,17 @@ export function mapErr<T, E, F>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
- * import { fromResult, mapErr } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { fromResult, mapErr, match } from '@sandlada/result/async-result';
  *
- * const ar = mapErr((e: string) => e.toUpperCase(), fromResult(err('oops')));
- * const result = await ar.run(); // Err('OOPS')
+ * const input = fromResult(err('oops'));
+ * const mapped = mapErr((e: string) => e.toUpperCase(), input);
+ * const errLabel = await match({ ok: () => 'ok', err: (e) => e }, mapped);
+ * // errLabel === 'OOPS'
+ *
+ * const healthy = mapErr((e: string) => e.toUpperCase(), fromResult(ok(21)));
+ * const passthrough = await match({ ok: (n) => n, err: () => -1 }, healthy);
+ * // passthrough === 21; mapErr leaves Ok values unchanged
  * ```
  */
 export function mapErr<T, E, F>(

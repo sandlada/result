@@ -14,13 +14,23 @@ export function match<T, E, U>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, match } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, map, match } from '@sandlada/result/async-result';
  *
- * const result = await match({
- *     ok: (x: number) => `got ${x}`,
- *     err: (e: string) => `error: ${e}`,
- * }, fromResult(ok(42))); // 'got 42'
+ * const input = fromResult(ok(21));
+ * const pipeline = map((x: number) => x * 2, input);
+ * const label = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     pipeline,
+ * );
+ * // label === 'ok:42'
+ *
+ * const failed = map((x: number) => x * 2, fromResult(err('skip')));
+ * const errLabel = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     failed,
+ * );
+ * // errLabel === 'err:skip'
  * ```
  */
 export function match<T, E, U>(

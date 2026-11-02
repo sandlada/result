@@ -30,11 +30,20 @@ export function mapAsync<T, U, E>(
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult, mapAsync } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, mapAsync, match } from '@sandlada/result/async-result';
  *
- * const ar = mapAsync((x: number) => x * 2, fromResult(ok(21)));
- * const result = await ar.run(); // Ok(42)
+ * const input = fromResult(ok(21));
+ * const doubled = mapAsync(async (x: number) => x * 2, input);
+ * const label = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     doubled,
+ * );
+ * // label === 'ok:42'
+ *
+ * const skipped = fromResult(err('skip'));
+ * const passthrough = await mapAsync((x: number) => x * 2, skipped).run();
+ * // passthrough stays Err('skip'); mapAsync short-circuits on failure
  * ```
  */
 export function mapAsync<T, U, E>(

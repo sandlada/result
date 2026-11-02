@@ -23,10 +23,17 @@ export function orElse<T, E, F>(
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, orElse } from '@sandlada/result/async-result';
+ * import { fromResult, map, orElse, match } from '@sandlada/result/async-result';
  *
- * const ar = orElse((e: string) => fromResult(ok(0)), fromResult(err('fail')));
- * const result = await ar.run(); // Ok(0)
+ * const input = fromResult(err('fail'));
+ * const recovered = orElse(() => fromResult(ok(0)), input);
+ * const value = await match({ ok: (n) => n, err: () => -1 }, recovered);
+ * // value === 0
+ *
+ * const healthy = orElse(() => fromResult(ok(0)), fromResult(ok(21)));
+ * const doubled = map((x: number) => x * 2, healthy);
+ * const label = await match({ ok: (n) => n, err: () => -1 }, doubled);
+ * // label === 42; orElse leaves Ok carriers untouched
  * ```
  */
 export function orElse<T, E, F>(

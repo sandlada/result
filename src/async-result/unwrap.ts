@@ -22,12 +22,15 @@ export function unwrap<T, E>(
  *
  * @example
  * ```ts
- * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
- * import { unwrap } from '@sandlada/result/async-result';
+ * import { fromResult, map, unwrap } from '@sandlada/result/async-result';
  *
- * await unwrap(fromResult(ok(42)));    // 42
- * await unwrap(fromResult(err('boom'))); // throws Error with `cause: 'boom'`
+ * const input = map((x: number) => x * 2, fromResult(ok(21)));
+ * const value = await unwrap(input);
+ * // value === 42
+ *
+ * const doomed = unwrap(fromResult(err('boom')));
+ * // await doomed throws Error with cause 'boom'
  * ```
  */
 export function unwrap<T, E>(

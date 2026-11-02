@@ -10,10 +10,19 @@ import { ok } from '../factories/ok.js';
  * @example
  * ```ts
  * import { ok, err } from '@sandlada/result/factories';
- * import { fromResult, combine } from '@sandlada/result/async-result';
+ * import { combine, fromResult, match } from '@sandlada/result/async-result';
  *
- * const ar = combine([fromResult(ok(1)), fromResult(ok(2))]);
- * const result = await ar.run(); // Ok([1, 2])
+ * const parts = [fromResult(ok(1)), fromResult(ok(2))];
+ * const combined = combine(parts);
+ * const label = await match(
+ *     { ok: (xs) => xs.join(','), err: (e) => `err:${String(e)}` },
+ *     combined,
+ * );
+ * // label === '1,2'
+ *
+ * const broken = combine([fromResult(ok(1)), fromResult(err('stop'))]);
+ * const stopped = await broken.run();
+ * // stopped.isFailure; combine short-circuits on the first Err
  * ```
  */
 export function combine<T, E>(

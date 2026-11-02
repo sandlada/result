@@ -15,12 +15,15 @@ export function unwrapOrElse<T, E, U>(
  *
  * @example
  * ```ts
- * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
- * import { unwrapOrElse } from '@sandlada/result/async-result';
+ * import { fromResult, map, unwrapOrElse } from '@sandlada/result/async-result';
  *
- * const v1 = await unwrapOrElse(() => 0, fromResult(ok(42))); // 42
- * const v2 = await unwrapOrElse((e: string) => -1, fromResult(err('boom'))); // -1
+ * const input = map((x: number) => x, fromResult(ok(42)));
+ * const value = await unwrapOrElse(() => 0, input);
+ * // value === 42
+ *
+ * const computed = await unwrapOrElse((e: string) => -1, fromResult(err('boom')));
+ * // computed === -1; unwrapOrElse calls the handler only on Err
  * ```
  */
 export function unwrapOrElse<T, E, U>(

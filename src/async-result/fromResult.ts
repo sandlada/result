@@ -9,11 +9,21 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ok } from '@sandlada/result/factories';
- * import { fromResult } from '@sandlada/result/async-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ * import { fromResult, map, match } from '@sandlada/result/async-result';
  *
- * const ar = fromResult(ok(42));
- * const result = await ar.run(); // IResultOfT<number, never>
+ * const syncOk = ok(21);
+ * const input = fromResult(syncOk);
+ * const doubled = map((x: number) => x * 2, input);
+ * const label = await match(
+ *     { ok: (n) => `ok:${n}`, err: (e) => `err:${String(e)}` },
+ *     doubled,
+ * );
+ * // label === 'ok:42'
+ *
+ * const failed = fromResult(err('skip'));
+ * const passthrough = await map((x: number) => x * 2, failed).run();
+ * // passthrough stays Err('skip'); map short-circuits on failure
  * ```
  */
 export function fromResult<T, E = unknown>(

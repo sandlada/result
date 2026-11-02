@@ -15,10 +15,17 @@ export function tapErrAsync<T, E>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
- * import { fromResult, tapErrAsync } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { fromResult, tapErrAsync, match } from '@sandlada/result/async-result';
  *
- * const ar = tapErrAsync(async (e: string) => { console.log('err:', e); }, fromResult(err('oops')));
+ * const input = fromResult(err('oops'));
+ * const tapped = tapErrAsync(async (_e: string) => undefined, input);
+ * const errLabel = await match({ ok: () => 'ok', err: (e) => e }, tapped);
+ * // errLabel === 'oops'
+ *
+ * const healthy = tapErrAsync(async (_e: string) => undefined, fromResult(ok(9)));
+ * const label = await match({ ok: (n) => n, err: () => -1 }, healthy);
+ * // label === 9; tapErrAsync passes Ok through without calling the handler
  * ```
  */
 export function tapErrAsync<T, E>(

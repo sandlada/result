@@ -27,12 +27,15 @@ export function expect<T, E>(
  *
  * @example
  * ```ts
- * import { fromResult } from '@sandlada/result/async-result';
- * import { err } from '@sandlada/result/factories';
- * import { expect } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { expect, fromResult, map } from '@sandlada/result/async-result';
  *
- * await expect('config must be valid', fromResult(err('boom'))); // throws Error
- * // The thrown Error carries `cause: 'boom'` so the original payload is preserved.
+ * const input = map((x: number) => x, fromResult(ok(42)));
+ * const value = await expect('must succeed', input);
+ * // value === 42
+ *
+ * const doomed = expect('config must be valid', fromResult(err('boom')));
+ * // await doomed throws Error with cause 'boom'
  * ```
  */
 export function expect<T, E>(

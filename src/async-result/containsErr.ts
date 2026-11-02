@@ -14,11 +14,16 @@ export function containsErr<T, E>(
  *
  * @example
  * ```ts
- * import { err } from '@sandlada/result/factories';
- * import { fromResult, containsErr } from '@sandlada/result/async-result';
+ * import { err, ok } from '@sandlada/result/factories';
+ * import { containsErr, fromResult, mapErr } from '@sandlada/result/async-result';
  *
- * await containsErr('boom', fromResult(err('boom'))); // true
- * await containsErr('nope', fromResult(err('boom')));  // false
+ * const input = mapErr((e: string) => e, fromResult(err('boom')));
+ * const hit = await containsErr('boom', input);
+ * const miss = await containsErr('nope', input);
+ * // hit === true, miss === false
+ *
+ * const onOk = await containsErr('boom', fromResult(ok(1)));
+ * // onOk === false; containsErr is false on Ok carriers
  * ```
  */
 export function containsErr<T, E>(
