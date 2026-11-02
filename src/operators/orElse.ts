@@ -1,6 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
-import { applyErrorFn } from './errorMapper.js';
+import { applyErrorFn } from '../internal/errorFn.js';
 import { dualCarrierOrFn, carrierOrFnDirect } from '../internal/dual.js';
 
 export function orElse<E, B, F>(

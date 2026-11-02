@@ -1,6 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
-import { applyErrorFn } from './errorMapper.js';
+import { applyErrorFn } from '../internal/errorFn.js';
 import { ok } from '../factories/ok.js';
 import { dualCarrierOrFn, carrierOrFnDirect } from '../internal/dual.js';
 
