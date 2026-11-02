@@ -36,9 +36,17 @@ export function bimap<A, E, C, F>(
  *
  * @example
  * ```ts
- * import { bimap } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * bimap(x => x * 2, e => `!${e}`, ok(21)); // Ok(42)
+ * import { bimap, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(21);
+ * const both = bimap((x: number) => x * 2, (e: string) => `!${e}`, input);
+ * const value = match((n) => String(n), (e) => String(e), both);
+ * // value === '42'
+ *
+ * const failed = err('oops');
+ * const mappedErr = bimap((x: number) => x * 2, (e: string) => `!${e}`, failed);
+ * // mappedErr is Err('!oops')
  * ```
  */
 export function bimap<A, E, C, F>(

@@ -19,9 +19,17 @@ export function expectErr<A, E>(
  *
  * @example
  * ```ts
- * import { expectErr } from '@sandlada/result/operators';
- * import { err } from '@sandlada/result/factories';
- * expectErr('should fail', err('boom')); // 'boom'
+ * import { expectErr, mapErr } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = err('boom');
+ * const wrapped = mapErr((e: string) => `[${e}]`, input);
+ * const message = expectErr('should fail', wrapped);
+ * // message === '[boom]'
+ *
+ * const success = ok(1);
+ * void expectErr('should panic', success);
+ * // throws TypeError — expectErr panics on success
  * ```
  */
 export function expectErr<A, E>(

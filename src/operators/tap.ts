@@ -27,10 +27,18 @@ export function tap<A, E>(
  *
  * @example
  * ```ts
- * import { tap } from '@sandlada/result/operators';
+ * import { tap, match } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
- * pipe(ok('hello'), tap(v => console.log('got:', v)));
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok('hello');
+ * const touched = pipe(input, tap((_v: string) => undefined));
+ * const kept = match((s) => s, (e) => String(e), touched);
+ * // kept === 'hello'; tap returns the original result
+ *
+ * const failure = err('down');
+ * const passthrough = pipe(failure, tap((_v: string) => undefined));
+ * // passthrough stays Err('down'); tap skips the callback on failure
  * ```
  */
 export function tap<A, E>(

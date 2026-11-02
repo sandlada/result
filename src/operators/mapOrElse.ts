@@ -15,9 +15,17 @@ export function mapOrElse<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOrElse } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * mapOrElse((e: string) => 0, (x: number) => x * 2, ok(5)); // 10
+ * import { mapOrElse, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(5);
+ * const mapped = mapOrElse((e: string) => 0, (x: number) => x * 2, input);
+ * const label = match((n) => String(n), (e) => String(e), ok(mapped));
+ * // label === '10'
+ *
+ * const failed = err('boom');
+ * const fromErr = mapOrElse((e: string) => 0, (x: number) => x * 2, failed);
+ * // fromErr === 0
  * ```
  */
 export function mapOrElse<A, B, E>(

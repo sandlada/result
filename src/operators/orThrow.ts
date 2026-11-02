@@ -10,13 +10,21 @@ import { dualByArity } from '../internal/dual.js';
  *
  * @example
  * ```ts
- * import { orThrow, orThrowWith } from '@sandlada/result/operators';
+ * import { orThrow, orThrowWith, map } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * orThrow(ok(42)); // 42
- * orThrow(err(new Error('boom'))); // throws Error('boom')
+ * const input = ok(42);
+ * const mapped = map((n: number) => n + 1, input);
+ * const value = orThrow(mapped);
+ * // value === 43
  *
- * orThrowWith(e => new Error(`Custom: ${e}`), err('fail')); // throws Error('Custom: fail')
+ * const failed = err(new Error('boom'));
+ * void orThrow(failed);
+ * // throws Error('boom')
+ *
+ * const soft = err('fail');
+ * void orThrowWith((e: string) => new Error(`Custom: ${e}`), soft);
+ * // throws Error('Custom: fail')
  * ```
  */
 export function orThrow<T, E extends Error>(r: IResultOfT<T, E>): T {

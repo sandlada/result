@@ -46,20 +46,17 @@ export function catchErr<A, B, E>(
  *
  * @example
  * ```ts
- * import { catchErr } from '@sandlada/result/operators';
+ * import { catchErr, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * catchErr((e: string) => 0)(err('boom')); // Ok(0)
- * catchErr((e: string) => 0)(ok(42));     // Ok(42) — pass-through on success
+ * const failed = err('boom');
+ * const recovered = catchErr((e: string) => 0, failed);
+ * const value = match((n) => String(n), (e) => String(e), recovered);
+ * // value === '0'
  *
- * // Cross-shape default — `A = { kind: 'Config' }`, `B = { kind: 'Default' }`,
- * // result widens to `IResultOfT<{ kind: 'Config' } | { kind: 'Default' }, never>`
- * const configResult = err<{ kind: 'Config' }>({ kind: 'Config' });
- * catchErr((e: { kind: 'Config' }) => ({ kind: 'Default', reason: e.kind }))(configResult);
- *
- * // Direct form
- * catchErr((e: string) => ({ kind: 'Default' }), err('boom'));
- * // → Ok({ kind: 'Default' })
+ * const input = ok(42);
+ * const passthrough = catchErr((e: string) => 0, input);
+ * // passthrough stays Ok(42); catchErr passes success through unchanged
  * ```
  */
 export function catchErr<A, B, E>(

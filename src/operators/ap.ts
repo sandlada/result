@@ -22,16 +22,18 @@ export function ap<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { ap } from '@sandlada/result/operators';
+ * import { ap, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * ap(ok((x: number) => x * 2), ok(21)); // Ok(42)
- * ap(err<string>('fn failed'), ok(21)); // Err('fn failed')
+ * const fnResult = ok((x: number) => x * 2);
+ * const valueResult = ok(21);
+ * const applied = ap(fnResult, valueResult);
+ * const out = match((n) => String(n), (e) => String(e), applied);
+ * // out === '42'
  *
- * // Both sides may fail with different error types; the result unions them.
- * const fn = err<TypeError>(new TypeError('nope'));
- * const value = err<RangeError>(new RangeError('range'));
- * ap(fn, value); // Err(TypeError | RangeError)
+ * const fnFailed = err('fn failed');
+ * const short = ap(fnFailed, valueResult);
+ * // short stays Err('fn failed'); ap returns the first failure
  * ```
  */
 export function ap<A, B, E, F>(

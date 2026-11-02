@@ -8,10 +8,17 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { unzip } from '@sandlada/result/operators';
+ * import { unzip, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * unzip(ok([1, 'a'])); // [Ok(1), Ok('a')]
- * unzip(err('e')); // [Err('e'), Err('e')]
+ *
+ * const input = ok([1, 'a'] as const);
+ * const [left, right] = unzip(input);
+ * const sum = match((n) => n, (e) => 0, left);
+ * // sum === 1; left is Ok(1) and right is Ok('a')
+ *
+ * const failed = err('e');
+ * const [l, r] = unzip(failed);
+ * // l and r are both Err('e')
  * ```
  */
 export function unzip<A, B, E>(

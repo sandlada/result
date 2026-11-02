@@ -15,10 +15,17 @@ export function mapOr<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOr } from '@sandlada/result/operators';
+ * import { mapOr, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * mapOr(-1, (x: number) => x * 2, ok(5)); // 10
- * mapOr(-1, (x: number) => x * 2, err('boom')); // -1
+ *
+ * const input = ok(5);
+ * const mapped = mapOr(-1, (x: number) => x * 2, input);
+ * const label = match((n) => String(n), (e) => String(e), ok(mapped));
+ * // label === '10'
+ *
+ * const failed = err('boom');
+ * const fallback = mapOr(-1, (x: number) => x * 2, failed);
+ * // fallback === -1
  * ```
  */
 export function mapOr<A, B, E>(

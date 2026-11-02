@@ -26,18 +26,17 @@ export function orTee<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { orTee } from '@sandlada/result/operators';
+ * import { orTee, match } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
  * import { ok, err } from '@sandlada/result/factories';
- * pipe(
- *   err('boom'),
- *   orTee(e => { console.warn('error:', e); return ok('ignored'); }),
- * ); // Err('boom') — logs "error: boom"
  *
- * pipe(
- *   err('boom'),
- *   orTee(e => err('ignored-error')),
- * ); // Err('boom') — fn's error is ignored
+ * const input = err('boom');
+ * const teed = pipe(input, orTee((_e) => ok('ignored')));
+ * const label = match((n) => String(n), (e) => e, teed);
+ * // label === 'boom'; orTee preserves the original failure
+ *
+ * const ignoredErr = pipe(input, orTee((_e) => err('ignored-error')));
+ * // ignoredErr stays Err('boom'); callback results are ignored
  * ```
  */
 export function orTee<A, E, B, F>(

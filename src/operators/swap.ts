@@ -9,9 +9,17 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { swap } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * swap(ok(42)); // Err(42)
+ * import { swap, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const flipped = swap(input);
+ * const errSide = match((n) => String(n), (e) => String(e), flipped);
+ * // errSide === '42'; Ok value moves to the error track
+ *
+ * const failed = err('oops');
+ * const okSide = match((n) => String(n), (e) => e, swap(failed));
+ * // okSide === 'oops'; Err error moves to the success track
  * ```
  */
 export function swap<A, E>(r: IResultOfT<A, E>): IResultOfT<E, A> {

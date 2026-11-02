@@ -21,11 +21,17 @@ export function traverseArray<A, B, E>(
  *
  * @example
  * ```ts
- * import { traverseArray } from '@sandlada/result/operators';
+ * import { traverseArray, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * traverseArray(x => x > 0 ? ok(x * 2) : err('neg'), [1, 2, 3]); // Ok([2, 4, 6])
- * traverseArray(x => x > 0 ? ok(x * 2) : err('neg'), [1, -1, 3]); // Err('neg')
- * traverseArray((x, i) => ok(`${i}:${x}`), ['a', 'b']); // Ok(['0:a', '1:b'])
+ *
+ * const items = [1, 2, 3];
+ * const all = traverseArray((x: number) => (x > 0 ? ok(x * 2) : err('neg')), items);
+ * const length = match((arr) => arr.length, (e) => 0, all);
+ * // length === 3; all is Ok([2, 4, 6])
+ *
+ * const badItems = [1, -1, 3];
+ * const stopped = traverseArray((x: number) => (x > 0 ? ok(x * 2) : err('neg')), badItems);
+ * // stopped is Err('neg'); traverseArray short-circuits on first failure
  * ```
  */
 export function traverseArray<A, B, E>(

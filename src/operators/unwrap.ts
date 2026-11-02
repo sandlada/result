@@ -10,9 +10,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { unwrap } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * unwrap(ok(42)); // 42
+ * import { unwrap, map } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const mapped = map((n: number) => n + 1, input);
+ * const value = unwrap(mapped);
+ * // value === 43
+ *
+ * const failed = err('boom');
+ * void unwrap(failed);
+ * // throws TypeError — unwrap panics when the carrier fails
  * ```
  */
 export function unwrap<T, E>(r: IResultOfT<T, E>, throwingFn?: (info: { message: string; value: E }) => Error): T {

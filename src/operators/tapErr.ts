@@ -24,9 +24,17 @@ export function tapErr<A, E>(
  *
  * @example
  * ```ts
- * import { tapErr } from '@sandlada/result/operators';
- * import { err } from '@sandlada/result/factories';
- * tapErr(e => console.log('err:', e), err('boom'));
+ * import { tapErr, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = err('boom');
+ * const logged = tapErr((_e: string) => undefined, input);
+ * const label = match((n) => String(n), (e) => e, logged);
+ * // label === 'boom'; tapErr preserves the failure
+ *
+ * const success = ok(1);
+ * const unchanged = tapErr((_e: string) => undefined, success);
+ * // unchanged stays Ok(1); tapErr skips the callback on success
  * ```
  */
 export function tapErr<A, E>(

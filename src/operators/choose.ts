@@ -19,10 +19,16 @@ export function choose<A, B, E>(
  *
  * @example
  * ```ts
- * import { choose } from '@sandlada/result/operators';
+ * import { choose, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * const result = choose(x => x > 0 ? ok(x * 2) : err('neg'), [1, -2, 3]);
- * // [2, 6]
+ *
+ * const items = [1, -2, 3];
+ * const picked = choose((x: number) => (x > 0 ? ok(x * 2) : err('neg')), items);
+ * const summary = match((n) => n * 10, (e) => 0, ok(picked.length));
+ * // picked is [2, 6]; summary === 20
+ *
+ * const none = choose((x: number) => err('nope'), [1, 2]);
+ * // none is []; Err values are skipped, not collected
  * ```
  */
 export function choose<A, B, E>(

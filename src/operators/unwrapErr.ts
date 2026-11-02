@@ -11,9 +11,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { unwrapErr } from '@sandlada/result/operators';
- * import { err } from '@sandlada/result/factories';
- * unwrapErr(err('boom')); // 'boom'
+ * import { unwrapErr, mapErr } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = err('boom');
+ * const wrapped = mapErr((e: string) => e, input);
+ * const message = unwrapErr(wrapped);
+ * // message === 'boom'
+ *
+ * const success = ok(1);
+ * void unwrapErr(success);
+ * // throws TypeError — unwrapErr panics on success
  * ```
  */
 export function unwrapErr<A, E>(r: IResultOfT<A, E>, throwingFn?: (info: { message: string; value: A }) => Error): E {

@@ -34,15 +34,20 @@ export function match<A, E, C>(
  *
  * @example
  * ```ts
- * import { match } from '@sandlada/result/operators';
+ * import { match, map } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * // Positional form (back-compatible):
- * match(v => `success: ${v}`, e => `failure: ${e}`, ok(42)); // "success: 42"
+ * const success = ok(42);
+ * const mapped = map((n: number) => n + 1, success);
+ * const fromObject = match(
+ *     { ok: (v) => `success: ${v}`, err: (e) => `failure: ${String(e)}` },
+ *     mapped,
+ * );
+ * // fromObject === 'success: 43'
  *
- * // Object form (preferred):
- * match({ ok: v => `success: ${v}`, err: e => `failure: ${e}` }, ok(42));
- * // "success: 42"
+ * const failure = err('no');
+ * const fromPositional = match((v) => `ok:${v}`, (e) => `err:${String(e)}`, failure);
+ * // fromPositional === 'err:no'
  * ```
  */
 export function match<A, E, C>(

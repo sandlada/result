@@ -28,10 +28,17 @@ export function map<A, B, E>(
  *
  * @example
  * ```ts
- * import { map } from '@sandlada/result/operators';
- * import { pipe } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
- * pipe(ok(5), map(x => x * 2)); // Ok(10)
+ * import { map, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(5);
+ * const mapped = map((x: number) => x * 2, input);
+ * const label = match((n) => `ok:${n}`, (e) => `err:${String(e)}`, mapped);
+ * // label === 'ok:10'
+ *
+ * const failure = err('skip');
+ * const passthrough = map((x: number) => x * 2, failure);
+ * // passthrough stays Err('skip'); map short-circuits on failure
  * ```
  */
 export function map<A, B, E>(

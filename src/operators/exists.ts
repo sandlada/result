@@ -10,10 +10,17 @@ export function exists<A, E>(predicate: (a: A) => boolean, r: IResultOfT<A, E>):
  *
  * @example
  * ```ts
- * import { exists } from '@sandlada/result/operators';
+ * import { exists, unwrapOr } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
- * pipe(ok(42), exists(x => x > 0)); // true
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const positive = pipe(input, exists((x: number) => x > 0));
+ * const defaultFlag = unwrapOr(false, err('n/a'));
+ * // positive === true; defaultFlag === false
+ *
+ * const negative = pipe(ok(-1), exists((x: number) => x > 0));
+ * // negative === false
  * ```
  */
 export function exists<A, E>(predicate: (a: A) => boolean, r?: IResultOfT<A, E>): boolean | ((r: IResultOfT<A, E>) => boolean) {

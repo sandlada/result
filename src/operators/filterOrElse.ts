@@ -28,11 +28,29 @@ export function filterOrElse<A, E>(
  *
  * @example
  * ```ts
- * import { filterOrElse } from '@sandlada/result/operators';
+ * import { filterOrElse, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * filterOrElse((x: number) => x > 0, (x: number) => `${x} is not positive`, ok(5)); // Ok(5)
- * filterOrElse((x: number) => x > 0, (x: number) => `${x} is not positive`, ok(-1)); // Err("-1 is not positive")
- * filterOrElse((x: number) => x > 0, (x: number) => `${x} is not positive`, err('down')); // Err('down')
+ *
+ * const input = ok(5);
+ * const kept = filterOrElse(
+ *     (x: number) => x > 0,
+ *     (x: number) => `${x} is not positive`,
+ *     input,
+ * );
+ * const value = match((n) => String(n), (e) => String(e), kept);
+ * // value === '5'
+ *
+ * const bad = ok(-1);
+ * const rejected = filterOrElse(
+ *     (x: number) => x > 0,
+ *     (x: number) => `${x} is not positive`,
+ *     bad,
+ * );
+ * // rejected is Err('-1 is not positive')
+ *
+ * const upstream = err('down');
+ * const passthrough = filterOrElse((x: number) => x > 0, (x: number) => `${x}`, upstream);
+ * // passthrough stays Err('down'); filterOrElse short-circuits on failure
  * ```
  */
 export function filterOrElse<A, E>(

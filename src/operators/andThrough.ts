@@ -29,21 +29,21 @@ export function andThrough<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { andThrough } from '@sandlada/result/operators';
+ * import { andThrough, match } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * // Log and pass through on success:
- * pipe(
- *   ok('hello'),
- *   andThrough(v => { console.log(v); return ok('ignored'); }),
- * ); // Ok('hello') — logs "hello"
+ * const input = ok('data');
+ * const through = pipe(
+ *     input,
+ *     andThrough((v: string) => (v.length > 0 ? ok(v) : err('empty'))),
+ * );
+ * const value = match((s) => s, (e) => String(e), through);
+ * // value === 'data' when the side step succeeds
  *
- * // Propagate callback error:
- * pipe(
- *   ok('data'),
- *   andThrough(v => v.length > 0 ? ok(v) : err('empty')), // returns Err on invalid
- * ); // Err('empty') if invalid, Ok('data') if valid
+ * const bad = ok('');
+ * const failed = pipe(bad, andThrough((v: string) => (v.length > 0 ? ok(v) : err('empty'))));
+ * // failed is Err('empty'); andThrough propagates callback failure
  * ```
  */
 export function andThrough<A, E, B, F>(

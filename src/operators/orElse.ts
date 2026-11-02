@@ -22,9 +22,17 @@ export function orElse<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { orElse } from '@sandlada/result/operators';
+ * import { orElse, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * const fallback = orElse((e: string) => ok('default'), err('boom')); // Ok('default')
+ *
+ * const input = err('boom');
+ * const fallback = orElse((e: string) => ok('default'), input);
+ * const value = match((s) => s, (e) => String(e), fallback);
+ * // value === 'default'
+ *
+ * const success = ok('live');
+ * const kept = orElse((_e: string) => ok('default'), success);
+ * // kept stays Ok('live'); orElse passes success through unchanged
  * ```
  */
 export function orElse<A, E, B, F>(

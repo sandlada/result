@@ -20,9 +20,17 @@ export function expect<A, E>(
  *
  * @example
  * ```ts
- * import { expect } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * expect('should not fail', ok(42)); // 42
+ * import { expect, map } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const mapped = map((n: number) => n + 1, input);
+ * const value = expect('should succeed', mapped);
+ * // value === 43
+ *
+ * const failed = err('boom');
+ * void expect('should fail', failed);
+ * // throws TypeError — expect panics on failure
  * ```
  */
 export function expect<A, E>(

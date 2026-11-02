@@ -49,18 +49,17 @@ export function andTee<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { andTee } from '@sandlada/result/operators';
+ * import { andTee, match } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
  * import { ok, err } from '@sandlada/result/factories';
- * pipe(
- *   ok('hello'),
- *   andTee(v => { console.log('got:', v); return ok('ignored'); }),
- * ); // Ok('hello') — logs "got: hello"
  *
- * pipe(
- *   ok('hello'),
- *   andTee(v => err('ignored-error')),
- * ); // Ok('hello') — fn's error is ignored
+ * const input = ok('hello');
+ * const teed = pipe(input, andTee((_v) => ok('ignored')));
+ * const kept = match((s) => s, (e) => String(e), teed);
+ * // kept === 'hello'; andTee ignores the callback result
+ *
+ * const ignoredErr = pipe(input, andTee((_v) => err('ignored-error')));
+ * // ignoredErr stays Ok('hello'); callback failures are ignored
  * ```
  */
 export function andTee<A, E, B, F>(

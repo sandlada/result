@@ -11,10 +11,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { flatten } from '@sandlada/result/operators';
- * import { ok } from '@sandlada/result/factories';
- * flatten(ok(ok(42))); // Ok(42)
- * flatten(ok(ok(ok(7)))); // Ok(ok(7)) — call flatten again to reach Ok(7).
+ * import { flatten, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const nested = ok(ok(42));
+ * const flat = flatten(nested);
+ * const value = match((n) => String(n), (e) => String(e), flat);
+ * // value === '42'
+ *
+ * const failed = err('outer');
+ * const outerOnly = flatten(failed);
+ * // outerOnly stays Err('outer'); flatten short-circuits on failure
  * ```
  */
 export function flatten<A, E>(r: IResultOfT<IResultOfT<A, E>, E>): IResultOfT<A, E> {

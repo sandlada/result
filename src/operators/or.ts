@@ -20,16 +20,17 @@ export function or<A, E, F>(other: IResultOfT<A, F>, r: IResultOfT<A, E>): IResu
  *
  * @example
  * ```ts
- * import { or } from '@sandlada/result/operators';
+ * import { or, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * import type { IResultOfT } from '@sandlada/result';
- * or(ok(2), ok(1)); // Ok(1)
- * or(ok(2), err('fail')); // Ok(2)
  *
- * // Curried: error type is preserved per-application
- * const fn = or(ok(1) as IResultOfT<number, RangeError>);
- * const out = fn(err(new TypeError()) as IResultOfT<number, TypeError>);
- * // out: IResultOfT<number, RangeError | TypeError>
+ * const input = err('fail');
+ * const fallback = or(ok(2), input);
+ * const value = match((n) => String(n), (e) => String(e), fallback);
+ * // value === '2'
+ *
+ * const success = ok(1);
+ * const kept = or(ok(2), success);
+ * // kept stays Ok(1); or keeps the carrier when it succeeds
  * ```
  */
 export function or<A, F>(other: IResultOfT<A, F>, r?: IResultOfT<A, unknown>): IResultOfT<A, unknown> | ((r: IResultOfT<A, unknown>) => IResultOfT<A, unknown>) {

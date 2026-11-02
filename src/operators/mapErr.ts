@@ -16,9 +16,17 @@ export function mapErr<A, E, F>(f: (e: E) => F, r: IResultOfT<A, E>): IResultOfT
  *
  * @example
  * ```ts
- * import { mapErr } from '@sandlada/result/operators';
- * import { err } from '@sandlada/result/factories';
- * mapErr(e => `[wrapped] ${e}`, err('boom')); // Err('[wrapped] boom')
+ * import { mapErr, match } from '@sandlada/result/operators';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = err('boom');
+ * const wrapped = mapErr((e: string) => `[wrapped] ${e}`, input);
+ * const label = match((n) => String(n), (e) => e, wrapped);
+ * // label === '[wrapped] boom'
+ *
+ * const success = ok(1);
+ * const passthrough = mapErr((e: string) => e, success);
+ * // passthrough stays Ok(1); mapErr short-circuits on success
  * ```
  */
 export function mapErr<A, E, F>(f: (e: E) => F, r?: IResultOfT<A, E>): IResultOfT<A, F> | (<A>(r: IResultOfT<A, E>) => IResultOfT<A, F>) {

@@ -10,10 +10,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { unsafeUnwrap } from '@sandlada/result/operators';
+ * import { unsafeUnwrap, map } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * unsafeUnwrap(ok(42)); // 42
- * unsafeUnwrap(err('boom')); // throws 'boom'
+ *
+ * const input = ok(42);
+ * const mapped = map((n: number) => n + 1, input);
+ * const value = unsafeUnwrap(mapped);
+ * // value === 43
+ *
+ * const failed = err('boom');
+ * void unsafeUnwrap(failed);
+ * // throws 'boom'
  * ```
  */
 export function unsafeUnwrap<A, E>(r: IResultOfT<A, E>): A {

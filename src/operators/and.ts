@@ -10,10 +10,17 @@ export function and<A, E, B, F>(other: IResultOfT<B, F>, r: IResultOfT<A, E>): I
  *
  * @example
  * ```ts
- * import { and } from '@sandlada/result/operators';
+ * import { and, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * and(ok(2), ok(1)); // Ok(2)
- * and(err('fail'), ok(1)); // Err('fail')
+ *
+ * const input = ok(1);
+ * const merged = and(ok(2), input);
+ * const value = match((n) => String(n), (e) => String(e), merged);
+ * // value === '2'
+ *
+ * const failed = err('fail');
+ * const kept = and(ok(2), failed);
+ * // kept stays Err('fail'); and short-circuits when the carrier fails
  * ```
  */
 export function and<A, E, B, F>(other: IResultOfT<B, F>, r?: IResultOfT<A, E>): IResultOfT<B, E | F> | ((r: IResultOfT<A, E>) => IResultOfT<B, E | F>) {

@@ -10,10 +10,17 @@ export function contains<A, E>(target: A, r: IResultOfT<A, E>): boolean;
  *
  * @example
  * ```ts
- * import { contains } from '@sandlada/result/operators';
+ * import { contains, unwrapOr } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
- * import { ok } from '@sandlada/result/factories';
- * pipe(ok(42), contains(42)); // true
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = ok(42);
+ * const hit = pipe(input, contains(42));
+ * const fallback = unwrapOr(false, err('missing'));
+ * // hit === true; fallback === false
+ *
+ * const miss = pipe(ok(7), contains(42));
+ * // miss === false
  * ```
  */
 export function contains<A, E>(target: A, r?: IResultOfT<A, E>): boolean | ((r: IResultOfT<A, E>) => boolean) {

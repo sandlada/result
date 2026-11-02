@@ -20,10 +20,17 @@ export function bind<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bind } from '@sandlada/result/operators';
- * import { pipe } from '@sandlada/result/composition';
+ * import { bind, match } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * pipe(ok('Alice'), bind(name => name.length > 0 ? ok(name) : err('required')));
+ *
+ * const input = ok('Alice');
+ * const checked = bind((name: string) => (name.length > 0 ? ok(name) : err('required')), input);
+ * const label = match((n) => String(n), (e) => String(e), checked);
+ * // label === 'Alice'
+ *
+ * const upstream = err('fail');
+ * const skipped = bind((name: string) => ok(name), upstream);
+ * // skipped stays Err('fail'); bind short-circuits on failure
  * ```
  */
 export function bind<A, B, E, F>(

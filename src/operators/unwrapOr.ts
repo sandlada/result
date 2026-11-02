@@ -18,8 +18,14 @@ export function unwrapOr<A, E>(defaultValue: A, r: IResultOfT<A, E>): A;
  * import { unwrapOr } from '@sandlada/result/operators';
  * import { pipe } from '@sandlada/result/composition';
  * import { ok, err } from '@sandlada/result/factories';
- * pipe(ok(42), unwrapOr(0)); // 42
- * pipe(err('boom'), unwrapOr(0)); // 0
+ *
+ * const success = ok(42);
+ * const value = pipe(success, unwrapOr(0));
+ * // value === 42
+ *
+ * const failure = err('boom');
+ * const fallback = pipe(failure, unwrapOr(0));
+ * // fallback === 0
  * ```
  */
 export function unwrapOr<A, E>(defaultValue: A, r?: IResultOfT<A, E>): A | (<E>(r: IResultOfT<A, E>) => A) {

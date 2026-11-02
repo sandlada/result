@@ -14,10 +14,17 @@ export function unwrapOrElse<A, E>(onErr: (e: E) => A, r: IResultOfT<A, E>): A;
  *
  * @example
  * ```ts
- * import { unwrapOrElse } from '@sandlada/result/operators';
+ * import { unwrapOrElse, map } from '@sandlada/result/operators';
  * import { ok, err } from '@sandlada/result/factories';
- * unwrapOrElse((e: Error) => 0, ok(42)); // 42
- * unwrapOrElse((e: Error) => 0, err(new Error('boom'))); // 0
+ *
+ * const input = ok(42);
+ * const mapped = map((n: number) => n, input);
+ * const value = unwrapOrElse((e: Error) => 0, mapped);
+ * // value === 42
+ *
+ * const failed = err(new Error('boom'));
+ * const recovered = unwrapOrElse((e: Error) => 0, failed);
+ * // recovered === 0
  * ```
  */
 export function unwrapOrElse<A, E>(onErr: (e: E) => A, r?: IResultOfT<A, E>): A | ((r: IResultOfT<A, E>) => A) {
