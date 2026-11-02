@@ -32,9 +32,16 @@ export type AnyError<E> =
  * import { any } from '@sandlada/result/reliability';
  * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const ar = any([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
- * const r = await ar.run(); // Ok([1, 2]) — partial success collected.
+ * const thunks = [fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))];
+ * const ar = any(thunks);
+ * const outcome = await ar.run();
+ * const label = match((values) => `${values.length} ok`, (errors) => `failed:${errors.length}`, outcome);
+ * // outcome is Ok([1, 2]); label === '2 ok' — partial successes are collected
+ *
+ * const allErr = await any([fromResult(err('x')), fromResult(err('y'))]).run();
+ * // allErr is Err(['x', 'y']) when every thunk resolves with Err
  * ```
  */
 export function any<T, E>(

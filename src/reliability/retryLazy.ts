@@ -24,10 +24,17 @@ import { retry, type RetryOptions, type ThrownError, type AbortedError } from '.
  * ```ts
  * import { retryLazy } from '@sandlada/result/reliability';
  * import { fromPromise } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const pipeline = retryLazy(fromPromise(() => Promise.resolve(ok(42))), { times: 3 });
- * const r = await pipeline.run();
+ * let attempt = 0;
+ * const work = fromPromise(() => {
+ *     attempt += 1;
+ *     return attempt >= 2 ? Promise.resolve(99) : Promise.reject('flaky');
+ * });
+ * const pipeline = retryLazy(work, { times: 3, delayMs: 0 });
+ * const result = await pipeline.run();
+ * const value = match((n) => n, (e) => 0, result);
+ * // result is Ok(99) after retries; persistent failures stay Err — work is the AsyncResult first argument
  * ```
  */
 export function retryLazy<T, E, TE = ThrownError, AE = AbortedError>(

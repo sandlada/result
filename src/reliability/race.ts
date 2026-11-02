@@ -62,24 +62,24 @@ export function race<T, E, EE = EmptyInputsError>(
  * import { race } from '@sandlada/result/reliability';
  * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { unwrapOr } from '@sandlada/result/operators';
  *
- * const ar = race([fromResult(ok(1)), fromResult(err('a'))]);
- * const r = await ar.run(); // Ok(1) — first success wins.
+ * const candidates = [fromResult(err('slow')), fromResult(ok(1))];
+ * const ar = race(candidates);
+ * const winner = await ar.run();
+ * const value = unwrapOr(0, winner);
+ * // winner is Ok(1); value === 1 — first Ok wins even when an earlier slot returned Err
  * ```
  *
  * @example Discriminating the empty-input case
  * ```ts
  * import { race } from '@sandlada/result/reliability';
- * import { fromResult } from '@sandlada/result/async-result';
- * import { ok } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const single = await race([fromResult(ok(1))]).run(); // Ok(1)
- *
- * // …or map the empty-input case onto your own error union:
- * const custom = await race<number, Error, { readonly tag: 'NoCandidates' }>(
- *     [],
- *     () => ({ tag: 'NoCandidates' }),
- * ).run();
+ * const ar = race<number, never, { readonly tag: 'NoCandidates' }>([], () => ({ tag: 'NoCandidates' }));
+ * const empty = await ar.run();
+ * const tag = match(() => 'unexpected', (e) => e.tag, empty);
+ * // empty is Err({ tag: 'NoCandidates' }); tag === 'NoCandidates' — onEmpty fills the second argument
  * ```
  */
 export function race<T, E, EE = EmptyInputsError>(

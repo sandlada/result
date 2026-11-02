@@ -39,14 +39,13 @@ export type Settled<T, E> =
  * import { allSettled } from '@sandlada/result/reliability';
  * import { fromResult } from '@sandlada/result/async-result';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const ar = allSettled([fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))]);
- * const r = await ar.run();
- * // Ok([
- * //   { ok: true,  value: 1 },
- * //   { ok: false, error: 'a' },
- * //   { ok: true,  value: 2 },
- * // ])
+ * const thunks = [fromResult(ok(1)), fromResult(err('a')), fromResult(ok(2))];
+ * const ar = allSettled(thunks);
+ * const batch = await ar.run();
+ * const okCount = match((rows) => rows.filter((row) => row.ok).length, () => 0, batch);
+ * // batch is always Ok([...]) in input order; okCount === 2 — one Err row does not fail the batch
  * ```
  */
 export function allSettled<T, E>(

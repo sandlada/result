@@ -190,31 +190,40 @@ const safeInvoke = async <T, E, TE>(
  * ```ts
  * import { retry } from '@sandlada/result/reliability';
  * import { ok, err } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const r = await retry(
- *   () => Promise.resolve(ok(42)),
- *   { times: 3, delayMs: n => 50 * (n + 1) }, // linear backoff
- * );
- * // Ok(42); on failure r.error: E | ThrownError | AbortedError — each narrowable.
+ * let tries = 0;
+ * const fn = () => {
+ *     tries += 1;
+ *     return tries < 2 ? err('transient') : ok(42);
+ * };
+ * const result = await retry(fn, { times: 3, delayMs: 0 });
+ * const label = match((n) => `value:${n}`, (e) => String(e), result);
+ * // result is Ok(42) after one retry; exhausted attempts stay Err with the last error
  * ```
  *
  * @example Collapsing every channel onto one domain error
  * ```ts
  * import { retry } from '@sandlada/result/reliability';
  * import { ok } from '@sandlada/result/factories';
+ * import { unwrapOr } from '@sandlada/result/operators';
  *
  * type MyError =
- *   | { readonly kind: 'Unexpected'; readonly thrown: unknown }
- *   | { readonly kind: 'Cancelled'; readonly reason: unknown };
+ *     | { readonly kind: 'Unexpected'; readonly thrown: unknown }
+ *     | { readonly kind: 'Cancelled'; readonly reason: unknown };
  *
+ * const controller = new AbortController();
+ * controller.abort();
  * const r = await retry<number, MyError, MyError, MyError>(
- *   () => Promise.resolve(ok(42)),
- *   {
- *     onThrow:   (thrown) => ({ kind: 'Unexpected', thrown }),
- *     onAborted: (reason) => ({ kind: 'Cancelled', reason }),
- *   },
+ *     () => Promise.resolve(ok(42)),
+ *     {
+ *         signal: controller.signal,
+ *         onThrow: (thrown) => ({ kind: 'Unexpected', thrown }),
+ *         onAborted: (reason) => ({ kind: 'Cancelled', reason }),
+ *     },
  * );
- * // r.error: MyError
+ * const fallback = unwrapOr(0, r);
+ * // r is Err({ kind: 'Cancelled', ... }); fallback === 0 — pre-aborted signal never runs fn
  * ```
  */
 export async function retry<T, E, TE = ThrownError, AE = AbortedError>(

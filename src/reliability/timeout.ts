@@ -44,11 +44,20 @@ const defaultOnTimeout = (ms: number): TimeoutError => ({ kind: 'Timeout', ms })
  * @example
  * ```ts
  * import { timeout } from '@sandlada/result/reliability';
- * import { fromPromise } from '@sandlada/result/async-result';
+ * import { fromPromise, fromResult } from '@sandlada/result/async-result';
+ * import { ok } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const safe = timeout(2000, fromPromise(() => fetch('/slow').then(r => r.json())));
- * const r = await safe.run();
- * // r is Ok(...) if fetch completed within 2000ms, else Err({ kind: 'Timeout', ms: 2000 }).
+ * const fast = fromResult(ok('ready'));
+ * const ar = timeout(60_000, fast);
+ * const within = await ar.run();
+ * const label = match((v) => `got:${v}`, (e) => e.kind, within);
+ * // within is Ok('ready'); label === 'got:ready' — inner finished before the timer fired
+ *
+ * const slow = fromPromise(() => new Promise<string>(() => {}));
+ * const capped = timeout(0, slow);
+ * const timedOut = await capped.run();
+ * // timedOut is Err({ kind: 'Timeout', ms: 0 }) when the inner run outlasts the window
  * ```
  */
 export function timeout<T, E, TOE = TimeoutError>(

@@ -19,10 +19,19 @@ import { timeout, type TimeoutError } from './timeout.js';
  *
  * @example
  * ```ts
+ * import type { IResultOfT } from '@sandlada/result/types';
  * import { timeoutEager } from '@sandlada/result/reliability';
- * import { fromPromise } from '@sandlada/result/factories';
+ * import { asyncOk } from '@sandlada/result/factories';
+ * import { match } from '@sandlada/result/operators';
  *
- * const r = await timeoutEager(2000, () => fromPromise(fetch('/slow')));
+ * const input = asyncOk('payload');
+ * const within = await timeoutEager(60_000, () => input);
+ * const label = match((v) => `ok:${v}`, (e) => e.kind, within);
+ * // within is Ok('payload'); label === 'ok:payload' — fn supplies the eager Promise carrier
+ *
+ * const never: () => Promise<IResultOfT<string, never>> = () => new Promise(() => {});
+ * const capped = await timeoutEager(0, never);
+ * // capped is Err({ kind: 'Timeout', ms: 0 }) when fn's Promise does not settle in time
  * ```
  */
 export function timeoutEager<T, E, TOE = TimeoutError>(
