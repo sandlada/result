@@ -443,7 +443,7 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             let sideEffect = 'NOT-RUN';
             const runA = fromSafeTryAsync(async function* () {
                 await new Promise((resolve) => { setTimeout(resolve, 20); });
-                yield* safeTryAsync(err('A-failure'));
+                yield* safeTryAsync(Promise.resolve(err('A-failure')));
                 sideEffect = 'RAN';
                 return 1;
             }).run();
@@ -461,7 +461,7 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
         it('still detects a double raw yield while another run is in flight', async () => {
             const runA = fromSafeTryAsync(async function* () {
                 await new Promise((resolve) => { setTimeout(resolve, 20); });
-                yield* safeTryAsync(err('A-failure'));
+                yield* safeTryAsync(Promise.resolve(err('A-failure')));
                 return 1;
             }).run();
             const runB = fromSafeTryAsync(async function* () {
@@ -485,13 +485,13 @@ describe('safeTryAsync / fromSafeTryAsync', () => {
             let bEffect = 'NOT-RUN';
             const runA = fromSafeTryAsync(async function* () {
                 await new Promise((resolve) => { setTimeout(resolve, 20); });
-                yield* safeTryAsync(shared);
+                yield* safeTryAsync(Promise.resolve(shared));
                 aEffect = 'RAN';
                 return 1;
             }).run();
             const runB = fromSafeTryAsync(async function* () {
                 await new Promise((resolve) => { setTimeout(resolve, 21); });
-                yield* safeTryAsync(shared);
+                yield* safeTryAsync(Promise.resolve(shared));
                 bEffect = 'RAN';
                 return 2;
             }).run();

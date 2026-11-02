@@ -31,11 +31,11 @@ describe('and', () => {
     });
 
     it('error widens to E | F when both are distinct error types (Group B)', () => {
-        type E1 = 'one';
-        type E2 = 'two';
+        type E1 = 'one-error';
+        type E2 = 'two-error';
         const r = and(
-            err<E2>('two-error') as unknown as IResultOfT<string, E2>,
-            err<E1>('one-error') as unknown as IResultOfT<string, E1>,
+            err<E2>('two-error') as unknown as IResultOfT<number, E2>,
+            err<E1>('one-error') as unknown as IResultOfT<number, E1>,
         );
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect(r.error).toBe('one-error');

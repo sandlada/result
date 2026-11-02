@@ -59,6 +59,6 @@ describe('AsyncResult tapErr', () => {
         );
         const result = await ar.run();
         expect(result.isFailure).toBe(true);
-        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('errorFn-boom');
     });
 });

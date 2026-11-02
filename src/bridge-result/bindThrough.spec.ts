@@ -53,7 +53,7 @@ describe('bindThrough', () => {
         const fn = (() => { throw new Error('sync-boom'); }) as unknown as (x: number) => Promise<IResultOfT<number, string>>;
         const result = await bindThrough(fn, ok(5));
         expect(result.isSuccess).toBe(false);
-        if(!result.isSuccess) expect((result.error as Error).message).toBe('sync-boom');
+        if(!result.isSuccess) expect((result.error as unknown as Error).message).toBe('sync-boom');
     });
 
     it('propagates callback error with different error type (union widening)', async () => {

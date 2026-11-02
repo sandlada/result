@@ -24,7 +24,7 @@ describe('tapAsync', () => {
             asyncOk<number>(5) as Promise<IResultOfT<number, string>>,
         );
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('boom');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('boom');
     });
 
     it('catches async callback rejection and converts to Err', async () => {
@@ -33,7 +33,7 @@ describe('tapAsync', () => {
             asyncOk<number>(5) as Promise<IResultOfT<number, string>>,
         );
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('async-boom');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('async-boom');
     });
 
     it('curried: returns a function to apply later', async () => {

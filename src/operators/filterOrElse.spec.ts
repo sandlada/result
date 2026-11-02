@@ -77,7 +77,7 @@ describe('filterOrElse', () => {
     it('catches throwErrorFn throw and surfaces as Err(thrown), direct form', () => {
         const r = filterOrElse<number, Error>(
             () => { throw new Error('predicate-boom'); },
-            () => 'predicate-false',
+            () => new Error('predicate-false'),
             ok(7),
             () => { throw new Error('throwErrorFn-boom'); },
         );
@@ -88,7 +88,7 @@ describe('filterOrElse', () => {
     it('catches throwErrorFn throw and surfaces as Err(thrown), curried form', () => {
         const curried = filterOrElse<number, Error>(
             (() => { throw new Error('predicate-boom'); }) as (x: number) => boolean,
-            () => 'predicate-false',
+            () => new Error('predicate-false'),
             () => { throw new Error('tFn-boom'); },
         );
         const r = curried(ok(7));

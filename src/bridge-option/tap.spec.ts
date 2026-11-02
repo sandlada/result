@@ -73,7 +73,7 @@ describe('tap', () => {
     it('returns Option by reference on None (no wrapping)', async () => {
         // tap short-circuits on None via `Promise.resolve(opt)`,
         // returning the original input unchanged.
-        const original = ofNone();
+        const original = ofNone<number>();
         const r = await tap(async (_v: number) => { /* noop */ }, original);
         expect(r).toBe(original);
         expect(r.isNone).toBe(true);

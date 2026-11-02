@@ -70,7 +70,11 @@ describe('primitives split by policy', () => {
     });
 
     it('cond propagates a throwing predicate', () => {
-        expect(() => primitives.cond(() => { throw new Error('boom'); }, factories.ok(1))).toThrow('boom');
+        expect(() => primitives.cond(
+            () => { throw new Error('boom'); },
+            new Error('unused'),
+            1,
+        )).toThrow('boom');
     });
 
     it('reduce propagates a throwing reducer', () => {

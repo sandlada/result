@@ -1,3 +1,4 @@
+import type { IResultOfT } from '../../types/IResultOfT.js';
 import { describe, expect, it, vi } from 'vitest';
 import * as asyncOption from '../../async-option/index.js';
 import * as asyncResult from '../../async-result/index.js';
@@ -30,7 +31,7 @@ describe('observability / format', () => {
     it('survives a cyclic object', () => {
         const cyclic: Record<string, unknown> = { name: 'root' };
         cyclic.self = cyclic;
-        expect(() => observability.format(cyclic)).not.toThrow();
+        expect(() => observability.format(cyclic as unknown as IResultOfT<unknown, unknown>)).not.toThrow();
     });
 });
 
@@ -106,7 +107,7 @@ describe('reliability / retry', () => {
 
 describe('reliability / timeout', () => {
     it('resolves with an Err instead of hanging when the inner never settles', async () => {
-        const r = await reliability.timeout(20, { run: () => new Promise(() => { /* never */ }) }).run();
+        const r = await reliability.timeout(20, { run: (): Promise<IResultOfT<unknown, never>> => new Promise(() => { /* never */ }) }).run();
         expect(r.isFailure).toBe(true);
     });
 });

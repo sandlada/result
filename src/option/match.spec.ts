@@ -29,7 +29,7 @@ describe('match', () => {
     it('object form: calls none handler on None', () => {
         const result = match(
             { some: (v: number) => `got ${v}`, none: () => 'missing' },
-            ofNone(),
+            ofNone<number>(),
         );
         expect(result).toBe('missing');
     });
@@ -76,7 +76,7 @@ describe('match', () => {
         )).toBe('got 4');
         expect(match(
             { some: (v: number) => `got ${v}`, none: () => 'missing' },
-            ofNone(),
+            ofNone<number>(),
         )).toBe('missing');
     });
 
@@ -124,7 +124,7 @@ describe('match', () => {
         const result2 = match(
             (_v: number): 123 | 'error' => 123 as const,
             (): 123 | 'error' => 'error' as const,
-            ofNone(),
+            ofNone<number>(),
         );
         expect(result2).toBe('error');
     });

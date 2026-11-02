@@ -19,7 +19,7 @@ describe('unwrapOrAsync', () => {
     });
 
     it('curried: returns a function to apply later', async () => {
-        const fn = unwrapOrAsync<number, string>(0);
+        const fn = unwrapOrAsync(0);
         expect(await fn(asyncOk(11))).toBe(11);
         expect(await fn(asyncErr('boom'))).toBe(0);
     });

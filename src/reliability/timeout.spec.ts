@@ -66,7 +66,7 @@ describe('timeout (lazy)', () => {
         };
         const r = await timeout(50, ar).run();
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('rejected');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('rejected');
     });
 
     it('a late timer after the upstream rejected is a no-op', async () => {
@@ -77,7 +77,7 @@ describe('timeout (lazy)', () => {
         };
         const r = await timeout(50, ar).run();
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('quick-reject');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('quick-reject');
     });
 
     it('a late rejection after the timer fired is a no-op', async () => {

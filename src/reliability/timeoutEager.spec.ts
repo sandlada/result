@@ -1,8 +1,9 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { timeoutEager } from './index.js';
 
-const asyncOk = <T>(value: T, ms: number) =>
-    new Promise((resolve) => setTimeout(() => resolve({ isSuccess: true as const, isFailure: false as const, value }), ms));
+const asyncOk = <T>(value: T, ms: number): Promise<IResultOfT<T, never>> =>
+    new Promise<IResultOfT<T, never>>((resolve) => setTimeout(() => resolve({ isSuccess: true as const, isFailure: false as const, value }), ms));
 
 describe('timeoutEager', () => {
     it('returns Ok when fn resolves before window', async () => {
@@ -14,7 +15,7 @@ describe('timeoutEager', () => {
     it('returns Err on timeout', async () => {
         const r = await timeoutEager(10, () => asyncOk('ok', 80));
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect(r.error.kind).toBe('Timeout');
+        if (r.isFailure) expect((r.error as { kind: 'Timeout' }).kind).toBe('Timeout');
     });
 
     it('accepts a custom onTimeout factory', async () => {
@@ -51,7 +52,7 @@ describe('timeoutEager', () => {
 
         it('is NOT eager — fn is not invoked until .run() is awaited (contrary to name)', () => {
             vi.useFakeTimers();
-            const fn = vi.fn(() => Promise.resolve({
+            const fn = vi.fn((): Promise<IResultOfT<number, never>> => Promise.resolve({
                 isSuccess: true as const,
                 isFailure: false as const,
                 value: 42,
@@ -69,20 +70,20 @@ describe('timeoutEager', () => {
 
         it('returns Err(Timeout) when the inner promise never settles before the window', async () => {
             vi.useFakeTimers();
-            const fn = () => new Promise<never>(() => { /* never settles */ });
+            const fn = (): Promise<IResultOfT<never, never>> => new Promise(() => { /* never settles */ });
             const promise = timeoutEager(50, fn);
             await vi.advanceTimersByTimeAsync(50);
             const r = await promise;
             expect(r.isFailure).toBe(true);
             if (r.isFailure) {
-                expect(r.error.kind).toBe('Timeout');
-                expect(r.error.ms).toBe(50);
+                expect((r.error as { kind: 'Timeout'; ms: number }).kind).toBe('Timeout');
+                expect((r.error as { kind: 'Timeout'; ms: number }).ms).toBe(50);
             }
         });
 
         it('resolves with the inner Ok when it settles before the window', async () => {
             vi.useFakeTimers();
-            const fn = () => Promise.resolve({
+            const fn = (): Promise<IResultOfT<string, never>> => Promise.resolve({
                 isSuccess: true as const,
                 isFailure: false as const,
                 value: 'hi',
@@ -104,14 +105,14 @@ describe('timeoutEager', () => {
 
         it('passes the configured ms to a custom onTimeout factory', async () => {
             vi.useFakeTimers();
-            const fn = () => new Promise<never>(() => { /* never settles */ });
+            const fn = (): Promise<IResultOfT<never, never>> => new Promise(() => { /* never settles */ });
             const factory = vi.fn((ms: number) => ({ kind: 'Custom' as const, ms }));
             const promise = timeoutEager(50, fn, factory);
             await vi.advanceTimersByTimeAsync(50);
             const r = await promise;
             expect(factory).toHaveBeenCalledWith(50);
             expect(r.isFailure).toBe(true);
-            if (r.isFailure) expect(r.error.kind).toBe('Custom');
+            if (r.isFailure) expect((r.error as { kind: 'Custom' }).kind).toBe('Custom');
         });
     });
 

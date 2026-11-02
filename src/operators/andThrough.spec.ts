@@ -45,10 +45,9 @@ describe('andThrough', () => {
     });
 
     it('catches sync throw from fn and converts to Err', () => {
-        const result = andThrough<number, string, never, Error>(
-            (() => { throw new Error('fn-boom'); }) as (v: number) => IResultOfT<string, Error>,
-            ok(7),
-        );
+        const result = andThrough((_v: number) => {
+            throw new Error('fn-boom');
+        }, ok(7));
         expect(result.isFailure).toBe(true);
         if (result.isFailure) expect((result.error as Error).message).toBe('fn-boom');
     });

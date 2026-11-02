@@ -1,3 +1,4 @@
+import type { IOption } from '../types/Option.js';
 import { describe, it, expect, expectTypeOf } from 'vitest';
 import { ofSome, ofNone } from './index.js';
 import { all } from '../../src/option/index.js';

@@ -48,7 +48,7 @@ describe('unwrapOrElse', () => {
     });
 
     it('calls onErr exactly once on failure (Group C)', () => {
-        const fn = vi.fn((_e: Error) => 0);
+        const fn = vi.fn((_e: string) => 0);
         unwrapOrElse(fn, err<string>('e'));
         expect(fn).toHaveBeenCalledTimes(1);
     });
@@ -56,7 +56,7 @@ describe('unwrapOrElse', () => {
 
 describe('unwrapOrElse (FP operator)', () => {
     it('returns value on success (direct form)', () => {
-        const r: IResultOfT<number> = ok(7);
+        const r: IResultOfT<number, Error> = ok(7);
         const result = unwrapOrElse((_e: Error) => 99, r);
         expect(result).toBe(7);
     });
@@ -73,7 +73,7 @@ describe('unwrapOrElse (FP operator)', () => {
     it('fallback is not called on success (curried)', () => {
         const fn = vi.fn((_e: Error) => 0);
         const orZero = unwrapOrElse(fn);
-        const r: IResultOfT<number> = ok(5);
+        const r: IResultOfT<number, Error> = ok(5);
         expect(orZero(r)).toBe(5);
         expect(fn).not.toHaveBeenCalled();
     });

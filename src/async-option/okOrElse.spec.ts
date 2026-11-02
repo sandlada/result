@@ -56,7 +56,7 @@ describe('AsyncOption okOrElse', () => {
         // The error channel is typed `E | Error`, so every value the caller
         // can receive has to be an `Error` instance. The original thrown value
         // stays available through `cause`.
-        const r = await okOrElse<string>(() => { throw 'string-throw'; }, ofNone<number>()).run();
+        const r = await okOrElse<number, string>(() => { throw 'string-throw'; }, ofNone<number>()).run();
         expect(r.isSuccess).toBe(false);
         if (!r.isSuccess) {
             expect(r.error).toBeInstanceOf(Error);

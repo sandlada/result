@@ -34,7 +34,7 @@ describe('bind', () => {
         let called = false;
         const result = pipe(
             ofSome(5),
-            bind(() => ofNone()),
+            bind(() => ofNone<number>()),
             bind(() => {
                 called = true;
                 return ofSome(42);
@@ -67,7 +67,7 @@ describe('bind', () => {
         const fn2 = vi.fn((x: number) => ofSome(x));
         const result = pipe(
             ofSome(1),
-            bind(() => ofNone()),
+            bind(() => ofNone<number>()),
             bind(fn2),
         );
         expect(result.isSome).toBe(false);

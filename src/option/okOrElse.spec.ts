@@ -75,9 +75,11 @@ describe('Option — okOrElse', () => {
     });
 
     it('produces IResultOfT<T, E> - T from input, E from errorFn return (Group B)', () => {
-        const fn = okOrElse(() => 'default');
-        const r = fn(ofSome(42));
-        expectTypeOf(r).toEqualTypeOf<IResultOfT<number, string>>();
+        const fn = okOrElse<string>(() => 'default');
+        const success = fn(ofSome(42));
+        const failure = fn(ofNone<number>());
+        if (success.isSuccess) expectTypeOf(success.value).toEqualTypeOf<number>();
+        if (failure.isFailure) expectTypeOf(failure.error).toEqualTypeOf<string | Error>();
     });
 
     it('accepts the direct form okOrElse(errorFn, option)', () => {

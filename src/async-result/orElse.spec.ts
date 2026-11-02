@@ -103,7 +103,7 @@ describe('AsyncResult orElse', () => {
             );
             const result = await ar.run();
             expect(result.isFailure);
-            if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+            if (result.isFailure) expect((result.error as unknown as Error).message).toBe('errorFn-boom');
         });
     });
 });

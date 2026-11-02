@@ -1,3 +1,4 @@
+import type { AsyncOption } from '../types/AsyncOption.js';
 import { describe, it, expect } from 'vitest';
 import { ofSome, ofNone } from '../../src/option/index.js';
 import { fromOption } from '../../src/async-option/fromOption.js';
@@ -29,7 +30,7 @@ describe('AsyncOption flatten', () => {
 
     it('flattens None into None', async () => {
         // Here we simulate an AsyncOption<AsyncOption<number>> that resolves to None
-        const outer = fromOption(ofNone());
+        const outer = fromOption(ofNone()) as AsyncOption<AsyncOption<number>>;
 
         const flattened = flatten(outer);
         const result = await flattened.run();

@@ -13,7 +13,7 @@ describe('tapErrAsync', () => {
 
     it('does not call side-effect on success and forwards the result', async () => {
         let called = false;
-        const r = await tapErrAsync(() => { called = true; }, asyncOk<number, string>(42));
+        const r = await tapErrAsync(() => { called = true; }, asyncOk(42));
         expect(called).toBe(false);
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) expect(r.value).toBe(42);
@@ -25,7 +25,7 @@ describe('tapErrAsync', () => {
             asyncErr<string>('original'),
         );
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('side-effect failed');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('side-effect failed');
     });
 
     it('curried: returns a function that can be applied later', async () => {
@@ -38,7 +38,7 @@ describe('tapErrAsync', () => {
 
     it('does not invoke the callback on an Ok source', async () => {
         const fn = vi.fn((e: string) => { void e; });
-        const r = await tapErrAsync(fn, asyncOk<number, string>(5));
+        const r = await tapErrAsync(fn, asyncOk(5));
         expect(fn).not.toHaveBeenCalled();
         expect(r.isSuccess).toBe(true);
     });

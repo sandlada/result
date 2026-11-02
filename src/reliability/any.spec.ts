@@ -1,3 +1,5 @@
+import type { IResultOfT } from '../types/IResultOfT.js';
+import type { AsyncResult } from '../types/AsyncResult.js';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { any } from './index.js';
 import { ok, err } from '../factories/index.js';
@@ -45,7 +47,7 @@ describe('any', () => {
         // Per the AsyncResult contract, .run() should never reject, but the
         // implementation must defend against an upstream bug.
         const rejected = { run: () => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('boom')), 5)) };
-        const good = { run: () => new Promise<typeof ok<number, string>>((resolve) => setTimeout(() => resolve(ok(7)), 10)) };
+        const good = { run: () => new Promise<IResultOfT<number, never>>((resolve) => setTimeout(() => resolve(ok(7)), 10)) };
         const ar = any([rejected, good]);
         const promise = ar.run();
         // Drive the scheduled rejection (5ms) and resolution (10ms).
@@ -70,7 +72,7 @@ describe('any', () => {
             // being cast into the user's `E` union.
             const messages = r.error.map((e) => {
                 if (typeof e === 'object' && e !== null && 'kind' in e && e.kind === 'Rejected') {
-                    return (e.error as Error).message;
+                    return ((e as { kind: 'Rejected'; error: Error }).error).message;
                 }
                 return e as string;
             }).sort();
@@ -79,7 +81,9 @@ describe('any', () => {
     });
 
     it('tags rejection envelopes with kind=Rejected', async () => {
-        const rejected = { run: () => Promise.reject<string>('plain-string') };
+        const rejected: AsyncResult<never, never> = {
+            run: () => Promise.reject('plain-string') as Promise<IResultOfT<never, never>>,
+        };
         const ar = any([rejected]);
         const r = await ar.run();
         expect(r.isFailure).toBe(true);
@@ -89,7 +93,7 @@ describe('any', () => {
             expect(typeof e).toBe('object');
             if (typeof e === 'object' && e !== null && 'kind' in e) {
                 expect(e.kind).toBe('Rejected');
-                expect(e.error).toBe('plain-string');
+                expect((e as { kind: 'Rejected'; error: unknown }).error).toBe('plain-string');
             }
         }
     });
@@ -98,7 +102,7 @@ describe('any', () => {
         let slowInvoked = false;
         let fastInvoked = false;
         const fast = { run: () => { fastInvoked = true; return Promise.resolve(ok(1)); } };
-        const slow = { run: () => new Promise<typeof ok<number, string>>((resolve) => {
+        const slow = { run: () => new Promise<IResultOfT<number, string>>((resolve) => {
             setTimeout(() => { slowInvoked = true; resolve(err('slow-fail')); }, 5);
         }) };
         const ar = any([fast, slow]);

@@ -1,3 +1,5 @@
+import type { AsyncResult } from '../types/AsyncResult.js';
+import type { IResultOfT } from '../types/IResultOfT.js';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { allSettled } from './index.js';
 import { ok, err } from '../factories/index.js';
@@ -58,7 +60,9 @@ describe('allSettled', () => {
     });
 
     it('regression: rejection envelopes are tagged kind=Rejected', async () => {
-        const rejected = { run: () => Promise.reject<string>('plain-string') };
+        const rejected: AsyncResult<never, never> = {
+            run: () => Promise.reject('plain-string') as Promise<IResultOfT<never, never>>,
+        };
         const r = await allSettled([rejected]).run();
         expect(r.isSuccess).toBe(true);
         if (r.isSuccess) {

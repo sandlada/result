@@ -66,10 +66,12 @@ describe('tap', () => {
     });
 
     it('uses errorFn to customise throw payload (curried)', () => {
-        const result = tap(
+        type SideEffectErr = { kind: 'SideEffect'; payload: string };
+        const result = tap<number, SideEffectErr>(
             (_v: number) => { throw 'string-throw'; },
-            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }) as { kind: 'SideEffect'; payload: string },
-        )(ok(1));
+            ok(1),
+            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }),
+        );
         expect(result.isFailure).toBe(true);
         if (result.isFailure) {
             expect(result.error.kind).toBe('SideEffect');
@@ -78,10 +80,11 @@ describe('tap', () => {
     });
 
     it('uses errorFn to customise throw payload (direct)', () => {
-        const result = tap(
+        type SideEffectErr = { kind: 'SideEffect'; payload: string };
+        const result = tap<number, SideEffectErr>(
             (_v: number) => { throw 'string-throw'; },
             ok(1),
-            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }) as { kind: 'SideEffect'; payload: string },
+            (t: unknown) => ({ kind: 'SideEffect', payload: String(t) }),
         );
         expect(result.isFailure).toBe(true);
         if (result.isFailure) {

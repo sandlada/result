@@ -71,7 +71,7 @@ describe('mapOrAsync', () => {
         it('sync mapper throws → onErr sees the Error (not undefined)', async () => {
             const observed: unknown[] = [];
             const thrown = new Error('mapper-throw');
-            const handle = mapOrAsync<string, string>(
+            const handle = mapOrAsync<string, string, string>(
                 'fallback',
                 (x: string) => { throw thrown; },
                 (e: unknown) => { observed.push(e); },
@@ -87,7 +87,7 @@ describe('mapOrAsync', () => {
         it('async mapper rejects → onErr sees the rejection reason (not undefined)', async () => {
             const observed: unknown[] = [];
             const reason = new Error('async-reject');
-            const handle = mapOrAsync<string, string>(
+            const handle = mapOrAsync<string, string, string>(
                 'fallback',
                 async () => { throw reason; },
                 (e: unknown) => { observed.push(e); },
@@ -103,7 +103,7 @@ describe('mapOrAsync', () => {
             // with the carrier's error (not undefined). This is the failure-path
             // parity case (line 78 of mapOrAsync.ts).
             const observed: unknown[] = [];
-            const handle = mapOrAsync<number, string>(
+            const handle = mapOrAsync<number, string, string>(
                 'fallback',
                 (x: number) => `num:${x}`,
                 (e: unknown) => { observed.push(e); },
@@ -116,7 +116,7 @@ describe('mapOrAsync', () => {
 
         it('string rejection is preserved verbatim (not coerced to undefined)', async () => {
             const observed: unknown[] = [];
-            const handle = mapOrAsync<string, string>(
+            const handle = mapOrAsync<string, string, string>(
                 'fallback',
                 async () => { throw 'plain-string-reason'; },
                 (e: unknown) => { observed.push(e); },

@@ -125,7 +125,7 @@ describe('AsyncResult bimap', () => {
         );
         const result = await curried(fromResult(ok(42))).run();
         expect(result.isFailure);
-        if (result.isFailure) expect((result.error as Error).message).toBe('eFn-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('eFn-boom');
     });
 
     it('catches errorFn throw and surfaces as Err(thrown), direct form', async () => {
@@ -137,6 +137,6 @@ describe('AsyncResult bimap', () => {
         );
         const result = await ar.run();
         expect(result.isFailure);
-        if (result.isFailure) expect((result.error as Error).message).toBe('errorFn-boom');
+        if (result.isFailure) expect((result.error as unknown as Error).message).toBe('errorFn-boom');
     });
 });

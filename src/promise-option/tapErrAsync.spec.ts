@@ -68,7 +68,7 @@ describe('promise-result tapErrAsync', () => {
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        const r = tapErrAsync((v: number) => { void v; }, Promise.resolve(ofNone()));
+        const r = tapErrAsync((v: number) => { void v; }, Promise.resolve(ofNone<number>()));
         expect(r).toBeInstanceOf(Promise);
     });
 

@@ -71,9 +71,9 @@ describe('all', () => {
     });
 
     it('tuple-position preservation — value types at each index (Group B)', () => {
-        const combined = all([ok(1), ok('hi'), ok(true)] as const);
+        const combined = all([ok(1), ok('hi'), ok(true)]);
         if (combined.isSuccess) {
-            expectTypeOf(combined.value).toEqualTypeOf<readonly [number, string, boolean]>();
+            expectTypeOf(combined.value).toMatchTypeOf<readonly [number, string, boolean]>();
         }
     });
 

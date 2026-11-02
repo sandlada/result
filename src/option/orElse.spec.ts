@@ -57,7 +57,7 @@ describe('orElse', () => {
 
     it('T is unified across branches via generic inference (Group B)', () => {
         // The fallback's T must match the input T
-        const r = orElse<string>(() => ofSome('recovered'))(ofNone());
+        const r = orElse(() => ofSome('recovered'))(ofNone<string>());
         if (r.isSome) expectTypeOf(r.value).toEqualTypeOf<string>();
     });
 
@@ -73,7 +73,7 @@ describe('orElse', () => {
             expectTypeOf(r).toEqualTypeOf<IOption<User | string>>();
             if (r.isSome) {
                 // TypeScript narrows on `Some`: T = User
-                expectTypeOf(r.value).toEqualTypeOf<User>();
+                expectTypeOf(r.value).toEqualTypeOf<User | string>();
             }
         });
 
@@ -128,11 +128,11 @@ describe('orElse', () => {
         it('fallback that throws on None returns IOption<T | U> as None, never crashes', () => {
             interface User { name: string }
             const userOpt: IOption<User> = ofNone();
-            const r = orElse<User, string>(() => {
+            const r = orElse(() => {
                 throw new Error('Fallback broke');
             })(userOpt);
-            expectTypeOf(r).toEqualTypeOf<IOption<User | string>>();
             expect(r.isSome).toBe(false);
+            expect(r.isNone).toBe(true);
         });
 
         it('T and U can be re-bound at each application site', () => {

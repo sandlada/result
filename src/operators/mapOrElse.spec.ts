@@ -30,7 +30,7 @@ describe('mapOrElse', () => {
     });
 
     it('does NOT call fn on failure (Group C)', () => {
-        const onErr = vi.fn((_e: Error) => 0);
+        const onErr = vi.fn((_e: string) => 0);
         const fn = vi.fn((_v: number) => 0);
         mapOrElse(onErr, fn, err<string>('e'));
         expect(onErr).toHaveBeenCalledTimes(1);

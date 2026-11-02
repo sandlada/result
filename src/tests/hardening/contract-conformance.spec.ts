@@ -1,3 +1,4 @@
+import type { IResultOfT } from '../../types/IResultOfT.js';
 import { describe, expect, it, vi } from 'vitest';
 import * as asyncOption from '../../async-option/index.js';
 import * as asyncResult from '../../async-result/index.js';
@@ -37,14 +38,14 @@ describe('async-result / ap', () => {
     it('starts both carriers before either one finishes', async () => {
         const order: string[] = [];
         const slow = {
-            run: async (): Promise<ReturnType<typeof ok<number>>> => {
+            run: async (): Promise<IResultOfT<(a: number) => number, never>> => {
                 await new Promise((resolve) => { setTimeout(resolve, 50); });
                 order.push('slow-end');
-                return ok(1);
+                return ok((a: number) => a + 1);
             },
         };
         const fast = {
-            run: async (): Promise<ReturnType<typeof ok<number>>> => {
+            run: async (): Promise<IResultOfT<number, never>> => {
                 order.push('fast-start');
                 return ok(2);
             },
@@ -316,7 +317,7 @@ describe('async-option / zipWith', () => {
 
 describe('async-option / okOrElse', () => {
     it('wraps a non-Error throw from onNone in an Error', async () => {
-        const r = await asyncOption.okOrElse<string>(
+        const r = await asyncOption.okOrElse<number, string>(
             () => { throw 'plain-string'; },
             asyncOption.fromOption(option.ofNone<number>()),
         ).run();
@@ -378,55 +379,55 @@ describe('operators / errorFn', () => {
     it('map collapses a throwing errorFn into the error channel', () => {
         const r = operators.map(() => { throw new Error('x'); }, ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('tap collapses a throwing errorFn into the error channel', () => {
         const r = operators.tap(() => { throw new Error('x'); }, ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('tapErr collapses a throwing errorFn into the error channel', () => {
         const r = operators.tapErr(() => { throw new Error('x'); }, err('orig'), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('andTee collapses a throwing errorFn into the error channel', () => {
         const r = operators.andTee(() => { throw new Error('x'); }, ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('orTee collapses a throwing errorFn into the error channel', () => {
         const r = operators.orTee(() => { throw new Error('x'); }, err('orig'), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('andThrough collapses a throwing errorFn into the error channel', () => {
         const r = operators.andThrough(() => { throw new Error('x'); }, ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('bimap collapses a throwing errorFn into the error channel', () => {
         const r = operators.bimap(() => { throw new Error('x'); }, (e: string) => e, ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('orElse collapses a throwing errorFn into the error channel', () => {
         const r = operators.orElse(() => { throw new Error('x'); }, err('orig'), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 
     it('filterOrElse collapses a throwing errorFn into the error channel', () => {
         const r = operators.filterOrElse(() => { throw new Error('x'); }, () => 'orig', ok(1), boom);
         expect(r.isFailure).toBe(true);
-        if (r.isFailure) expect((r.error as Error).message).toBe('mapper-bug');
+        if (r.isFailure) expect((r.error as unknown as Error).message).toBe('mapper-bug');
     });
 });
 
@@ -478,7 +479,7 @@ describe('composition / fromSafeTryAsync', () => {
         let sideEffect = 'NOT-RUN';
         const runA = composition.fromSafeTryAsync(async function* () {
             await new Promise((resolve) => { setTimeout(resolve, 20); });
-            yield* composition.safeTryAsync(err('A-failure'));
+            yield* composition.safeTryAsync(Promise.resolve(err('A-failure')));
             sideEffect = 'RAN';
             return 1;
         }).run();

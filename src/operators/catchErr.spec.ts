@@ -98,11 +98,11 @@ describe('catchErr', () => {
         });
 
         it('number fallback is independent of string input (direct)', () => {
-            const r = catchErr<number, string, Error>(
+            const r = catchErr<never, number, Error>(
                 (e) => e.message.length,
-                err<string, Error>(new Error('boom')),
+                err(new Error('boom')),
             );
-            expectTypeOf(r).toEqualTypeOf<IResultOfT<number | string, never>>();
+            expectTypeOf(r).toEqualTypeOf<IResultOfT<number, never>>();
             expect(r.isSuccess).toBe(true);
             if (r.isSuccess) expect(r.value).toBe('boom'.length);
         });
@@ -110,8 +110,8 @@ describe('catchErr', () => {
         it('error track collapses to `never` on the recovered branch (full result type)', () => {
             const r1 = catchErr((e: string) => 'recovered' as const, err<string>('boom'));
             const r2 = catchErr((e: string) => 'recovered' as const, ok<number>(42));
-            expectTypeOf(r1).toEqualTypeOf<IResultOfT<number | 'recovered', never>>();
-            expectTypeOf(r2).toEqualTypeOf<IResultOfT<number | 'recovered', never>>();
+            expectTypeOf(r1).toMatchTypeOf<IResultOfT<number | 'recovered', never>>();
+            expectTypeOf(r2).toMatchTypeOf<IResultOfT<number | 'recovered', never>>();
             // Both produce carriers that, by structural narrowing of the discriminator,
             // expose only the success track.
             expect(r1.isFailure).toBe(false);

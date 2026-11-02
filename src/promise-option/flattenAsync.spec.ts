@@ -1,3 +1,4 @@
+import type { IOption } from '../types/Option.js';
 import { describe, it, expect } from 'vitest';
 import { flattenAsync } from './index.js';
 import { ofSome, ofNone } from '../option/index.js';
@@ -15,7 +16,7 @@ describe('flattenAsync', () => {
     });
 
     it('passes through outer None', async () => {
-        const r = await flattenAsync(Promise.resolve(ofNone()));
+        const r = await flattenAsync(Promise.resolve(ofNone<IOption<number>>()));
         expect(r.isNone).toBe(true);
     });
 
@@ -51,7 +52,7 @@ describe('flattenAsync', () => {
         // The flattening contract for outer None is pass-through: the None is
         // observed and a fresh None is returned. The value comparison is
         // observable as a None at runtime.
-        const original = ofNone();
+        const original = ofNone<IOption<number>>();
         const r = await flattenAsync(Promise.resolve(original));
         expect(r.isNone).toBe(true);
         if (r.isNone) {

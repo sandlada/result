@@ -48,7 +48,7 @@ describe('fromThrowable', () => {
             () => { throw new Error('fn-boom'); },
             () => { throw new Error('errorFn-boom'); },
         );
-        const r = safe(1);
+        const r = safe();
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as Error).message).toBe('errorFn-boom');
     });

@@ -20,8 +20,8 @@ describe('unwrapOr', () => {
     });
 
     it('function default uses direct path when result is supplied', () => {
-        expect(unwrapOr((n: number) => n + 10, ok(5))).toBe(5);
         const fallback = (n: number) => n + 10;
+        expect(unwrapOr(fallback, ok(5) as unknown as IResultOfT<(n: number) => number, string>)).toBe(5);
         expect(unwrapOr(fallback, err<string>('x'))).toBe(fallback);
     });
 
