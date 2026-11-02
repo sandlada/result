@@ -1,11 +1,11 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { asyncMatch } from './asyncMatch.js';
+import { match } from './match.js';
 import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-describe('asyncMatch types', () => {
+describe('match types', () => {
     it('curried form returns a function', () => {
-        const fn = asyncMatch<number, string, string>({
+        const fn = match<number, string, string>({
             ok: (x) => `got ${x}`,
             err: (e) => `err: ${e}`,
         });
@@ -13,7 +13,7 @@ describe('asyncMatch types', () => {
     });
 
     it('curried form when applied returns Promise<U>', () => {
-        const fn = asyncMatch<number, string, string>({
+        const fn = match<number, string, string>({
             ok: (x) => `got ${x}`,
             err: (e) => `err: ${e}`,
         });
@@ -27,13 +27,13 @@ describe('asyncMatch types', () => {
             ok: (x: number) => `got ${x}`,
             err: (e: string) => `err: ${e}`,
         };
-        const r = asyncMatch(handlers, ok<number>(42));
+        const r = match(handlers, ok<number>(42));
         const _check: Promise<string> = r;
         expectTypeOf(_check).toBeObject();
     });
 
     it('preserves T and E from input on direct form', () => {
-        const r = asyncMatch<number, string, number>(
+        const r = match<number, string, number>(
             { ok: (x) => x, err: (e) => 0 },
             err<string>('boom'),
         );

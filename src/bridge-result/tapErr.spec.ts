@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { asyncTapErr } from './index.js';
+import { tapErr } from './tapErr.js';
 import { ok, err } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-describe('asyncTapErr', () => {
+describe('tapErr', () => {
     it('calls side-effect on failure and returns original Result', async () => {
         let side = '';
         const mockFn = vi.fn().mockImplementation(async (e: string) => {
@@ -11,7 +11,7 @@ describe('asyncTapErr', () => {
         });
 
         const original = err<string>('oops');
-        const r = await asyncTapErr(mockFn, original);
+        const r = await tapErr(mockFn, original);
 
         expect(mockFn).toHaveBeenCalledOnce();
         expect(mockFn).toHaveBeenCalledWith('oops');
@@ -30,7 +30,7 @@ describe('asyncTapErr', () => {
         });
 
         const original = ok<number>(5) as IResultOfT<number, string>;
-        const r = await asyncTapErr(mockFn, original);
+        const r = await tapErr(mockFn, original);
 
         expect(mockFn).not.toHaveBeenCalled();
         expect(side).toBe('');
@@ -48,7 +48,7 @@ describe('asyncTapErr', () => {
         });
 
         const original = err<string>('oops');
-        const tapErrFn = asyncTapErr(mockFn);
+        const tapErrFn = tapErr(mockFn);
         const r = await tapErrFn(original);
 
         expect(mockFn).toHaveBeenCalledOnce();
@@ -64,7 +64,7 @@ describe('asyncTapErr', () => {
         });
 
         const original = err<string>('oops') as IResultOfT<string, Error>;
-        const r = await asyncTapErr(throwingFn, original);
+        const r = await tapErr(throwingFn, original);
 
         expect(throwingFn).toHaveBeenCalledOnce();
         expect(r.isSuccess).toBe(false);
@@ -80,7 +80,7 @@ describe('asyncTapErr', () => {
         });
 
         const original = err<string>('oops') as IResultOfT<string, Error>;
-        const r = await asyncTapErr(rejectingFn, original);
+        const r = await tapErr(rejectingFn, original);
 
         expect(rejectingFn).toHaveBeenCalledOnce();
         expect(r.isSuccess).toBe(false);
@@ -91,14 +91,14 @@ describe('asyncTapErr', () => {
 
     it('catches sync throw from callback', async () => {
         const fn = (() => { throw new Error('sync-boom'); }) as unknown as (e: string) => Promise<void>;
-        const r = await asyncTapErr(fn, err<string>('oops'));
+        const r = await tapErr(fn, err<string>('oops'));
         expect(r.isFailure).toBe(true);
         if (r.isFailure) expect((r.error as unknown as Error).message).toBe('sync-boom');
     });
 
     it('starts the async callback synchronously on construction (eager)', () => {
         let invokedSync = false;
-        const r = asyncTapErr(async (_e: string) => {
+        const r = tapErr(async (_e: string) => {
             invokedSync = true;
         }, err<string>('boom'));
         expect(invokedSync).toBe(true);
@@ -109,8 +109,8 @@ describe('asyncTapErr', () => {
         // tapErr is identity — the input Result must be returned verbatim.
         const onOk = ok<number>(42) as IResultOfT<number, string>;
         const onErr = err<string>('boom');
-        const rOk = await asyncTapErr(async (_e: string) => { /* noop */ }, onOk);
-        const rErr = await asyncTapErr(async (_e: string) => { /* noop */ }, onErr);
+        const rOk = await tapErr(async (_e: string) => { /* noop */ }, onOk);
+        const rErr = await tapErr(async (_e: string) => { /* noop */ }, onErr);
         expect(rOk).toBe(onOk);
         expect(rErr).toBe(onErr);
     });
@@ -120,7 +120,7 @@ describe('asyncTapErr', () => {
         const f = vi.fn(async (e: { code: number; msg: string }) => {
             captured = e;
         });
-        await asyncTapErr(f, err<{ code: number; msg: string }>({ code: 5, msg: 'tap' }));
+        await tapErr(f, err<{ code: number; msg: string }>({ code: 5, msg: 'tap' }));
         expect(captured).toEqual({ code: 5, msg: 'tap' });
     });
 });

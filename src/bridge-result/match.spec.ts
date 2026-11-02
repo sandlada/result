@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ok, err } from '../factories/index.js';
-import { asyncMatch } from './asyncMatch.js';
+import { match } from './match.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-describe('promise-result asyncMatch', () => {
+describe('promise-result match', () => {
     it('calls ok on Ok', async () => {
-        const v = await asyncMatch({
+        const v = await match({
             ok: (x: number) => `ok ${x}`,
             err: (e: string) => `err ${e}`,
         }, ok(42));
@@ -13,7 +13,7 @@ describe('promise-result asyncMatch', () => {
     });
 
     it('calls err on Err', async () => {
-        const v = await asyncMatch({
+        const v = await match({
             ok: (x: number) => `ok ${x}`,
             err: (e: string) => `err ${e}`,
         }, err('boom'));
@@ -21,7 +21,7 @@ describe('promise-result asyncMatch', () => {
     });
 
     it('supports async handlers', async () => {
-        const v = await asyncMatch({
+        const v = await match({
             ok: async (x: number) => `ok ${x}`,
             err: async (e: string) => `err ${e}`,
         }, ok(42));
@@ -29,7 +29,7 @@ describe('promise-result asyncMatch', () => {
     });
 
     it('is curried', async () => {
-        const matcher = asyncMatch({ ok: (x: number) => x, err: (e: string) => -1 });
+        const matcher = match({ ok: (x: number) => x, err: (e: string) => -1 });
         const v = await matcher(err('x'));
         expect(v).toBe(-1);
     });
@@ -37,7 +37,7 @@ describe('promise-result asyncMatch', () => {
     it('does not invoke the err handler on an Ok source', async () => {
         const onOk = vi.fn((x: number) => `ok ${x}`);
         const onErr = vi.fn((e: string) => `err ${e}`);
-        await asyncMatch({ ok: onOk, err: onErr }, ok(7));
+        await match({ ok: onOk, err: onErr }, ok(7));
         expect(onOk).toHaveBeenCalledOnce();
         expect(onErr).not.toHaveBeenCalled();
     });
@@ -45,7 +45,7 @@ describe('promise-result asyncMatch', () => {
     it('does not invoke the ok handler on an Err source', async () => {
         const onOk = vi.fn((x: number) => `ok ${x}`);
         const onErr = vi.fn((e: string) => `err ${e}`);
-        await asyncMatch({ ok: onOk, err: onErr }, err<string>('boom'));
+        await match({ ok: onOk, err: onErr }, err<string>('boom'));
         expect(onErr).toHaveBeenCalledOnce();
         expect(onOk).not.toHaveBeenCalled();
     });
@@ -55,14 +55,14 @@ describe('promise-result asyncMatch', () => {
         // sync throws into the chained Promise — handlers' sync throws
         // propagate as Promise rejections, NOT as caught errors.
         const boom = new Error('handler-boom');
-        await expect(asyncMatch({
+        await expect(match({
             ok: (_x: number) => { throw boom; },
             err: (e: string) => e,
         }, ok(1))).rejects.toBe(boom);
     });
 
     it('returns a Promise immediately on construction (eager)', () => {
-        const r = asyncMatch({
+        const r = match({
             ok: (x: number) => x,
             err: (e: string) => -1,
         }, ok(5));
@@ -76,7 +76,7 @@ describe('promise-result asyncMatch', () => {
             then(resolve: (value: unknown) => void): void { resolve('ADOPTED'); },
         };
         let captured: unknown;
-        await asyncMatch({
+        await match({
             ok: (v: unknown) => { captured = v; return 'ok'; },
             err: () => 'err',
         }, ok(thenable) as IResultOfT<unknown, unknown>);

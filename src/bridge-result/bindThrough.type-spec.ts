@@ -1,11 +1,11 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { asyncBindThrough } from './asyncBindThrough.js';
+import { bindThrough } from './bindThrough.js';
 import { ok } from '../factories/index.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 
-describe('asyncBindThrough types', () => {
+describe('bindThrough types', () => {
     it('curried form returns a function', () => {
-        const fn = asyncBindThrough((x: number) => Promise.resolve(ok(undefined)));
+        const fn = bindThrough((x: number) => Promise.resolve(ok(undefined)));
         expectTypeOf(fn).toBeFunction();
     });
 
@@ -18,7 +18,7 @@ describe('asyncBindThrough types', () => {
         // not `Promise<IResultOfT<A, string>>`. Callers who need the precise
         // error type must annotate. Pinned rather than "fixed" because repairing
         // inference would require reshaping the public signature.
-        const fn = asyncBindThrough((x: number) => Promise.resolve(ok(undefined)));
+        const fn = bindThrough((x: number) => Promise.resolve(ok(undefined)));
         const source: IResultOfT<number, string> = { isSuccess: true, isFailure: false, value: 21 };
         const r = fn(source);
         const _check: Promise<IResultOfT<number, unknown>> = r;
@@ -31,7 +31,7 @@ describe('asyncBindThrough types', () => {
     it('direct form returns Promise<IResultOfT<A, E | F>>', () => {
         const source: IResultOfT<number, unknown> = { isSuccess: true, isFailure: false, value: 21 };
         const fallback: IResultOfT<void, string> = { isSuccess: true, isFailure: false, value: undefined };
-        const r = asyncBindThrough(
+        const r = bindThrough(
             async (x: number) => fallback,
             source,
         );
@@ -42,7 +42,7 @@ describe('asyncBindThrough types', () => {
     it('leaves E uninferred on the direct form too (same gap, pinned)', () => {
         const source: IResultOfT<number, string> = { isSuccess: true, isFailure: false, value: 21 };
         const fallback: IResultOfT<void, string> = { isSuccess: true, isFailure: false, value: undefined };
-        const r = asyncBindThrough(
+        const r = bindThrough(
             async (x: number) => fallback,
             source,
         );
@@ -52,7 +52,7 @@ describe('asyncBindThrough types', () => {
         const _check: Promise<IResultOfT<number, unknown>> = r;
         expectTypeOf(_check).toBeObject();
         // Explicit type arguments recover the intended `E | F`.
-        const explicit = asyncBindThrough<number, void, string, string>(
+        const explicit = bindThrough<number, void, string, string>(
             async (x: number) => fallback,
             source,
         );
