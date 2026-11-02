@@ -342,12 +342,12 @@ export function err<E>(error: E): IResultOfTFailure<E> {
 
 **步骤**
 
-- [ ] **3.0** 按附录 B 列出生产文件里的分发形态，分成：`dualByArity`、`dualCarrierOrFn`、仅直传、其他。把清单写进台账。不按“105”这个旧数字排期。
-- [ ] **3.1** 做三个标本，各自一个提交，各自带现有 type-spec 的推断快照：
+- [x] **3.0** 按附录 B 列出生产文件里的分发形态，分成：`dualByArity`、`dualCarrierOrFn`、仅直传、其他。把清单写进台账。不按“105”这个旧数字排期。
+- [x] **3.1** 做三个标本，各自一个提交，各自带现有 type-spec 的推断快照：
   - `operators/map`（`dualCarrierOrFn`，含 `errorFn`）
   - `operators/bimap`（配置参数多于一个）
   - `operators/unwrapOr`（默认值可以是函数，必须走 `dualByArity`）
-- [ ] **3.2 停止条件。** 下面任一发生就停止推广，删除未达推断的 helper，台账写明 M3 降级为“禁止复制整段 `run`”：
+- [x] **3.2 停止条件。** 下面任一发生就停止推广，删除未达推断的 helper，台账写明 M3 降级为“禁止复制整段 `run`”：
   - `map(f)(ok(1))` 的值类型或错误类型变宽、变 `unknown`、或需要调用方补类型参数
   - `unwrapOr((n: number) => n, ok(1))` 被判成柯里化
   - `exactOptionalPropertyTypes` 下可选 `errorFn` 的调用从合法变非法
@@ -482,9 +482,9 @@ npm test
 | 门槛：工作区干净，基线重算，AGENTS 覆盖率句子 | `[x]` | 2a81b00 | tag `refactor/task1-baseline` |
 | 1 shape + ok/err | `[x]` | 654f43c | tag `refactor/task1-p1` |
 | 2 字面量，按目录 | `[x]` | 642fdb0 | tag `refactor/task1-p2` |
-| 3.0 分发清单 | `[ ]` | | |
-| 3.1 三个标本 | `[ ]` | | |
-| 3.2 停止或继续 | `[ ]` | | |
+| 3.0 分发清单 | `[x]` | | 见下方「Phase 3 分发清单」 |
+| 3.1 三个标本 | `[x]` | | `map` / `bimap` / `unwrapOr` + `internal/dual.ts` |
+| 3.2 停止或继续 | `[x]` | | 停止条件未触发，继续推广 |
 | 3.3–3.6 | `[ ]` | | |
 | 4 矩阵影子对照与冲突清单 | `[ ]` | | |
 | 5 改名与删再导出 | `[ ]` | | |
@@ -501,6 +501,37 @@ npm test
 | shape 字面量（除 `shape.ts`） | ~50 |
 | 生产代码对 `*/index.js` 的跨模块导入 | ~20 |
 | HEAD | 见 `refactor/task1-baseline` / `refactor/task1-p1` tag |
+
+### Phase 3 分发清单（3.0）
+
+生产代码中「缺参返回函数」的双形态导出，按 §3 R5 分类（不含 `*.spec.ts` / 测试树）。
+
+**`dualCarrierOrFn`（载体槽位与 `errorFn` 争用同一参数索引）**
+
+| 模块 | 文件 |
+| --- | --- |
+| operators | `map`, `bimap`, `tap`, `tapErr`, `orElse`, `andTee`, `orTee`, `andThrough` |
+| operators | `filterOrElse`（谓词 + 可选 `throwErrorFn`，靠参数个数区分直传/柯里化，推广时需单独槽位） |
+| async-result | `map`, `mapAsync`, `bind`, `tap`, `tapErr`, `orElse`, `bimap` |
+| promise-result | `map`, `asyncTap`, `asyncTapErr`, `asyncMatch`, `asyncOrElse`, `bimapAsync`, `bindThroughAsync`, `catchErrAsync`, `containsAsync`, `existsAsync`, `filterOrElseAsync`, `mapErrAsync`, `mapAsync`, `mapOrAsync`, `mapOrElseAsync`, `orElseAsync`, `tapAsync`, `tapErrAsync`, `unwrapOrAsync`, `unwrapOrElseAsync` |
+| promise-option | `bindAsyncOption`, `containsAsyncOption`, `existsAsyncOption`, `filterAsyncOption`, `mapAsyncOption`, `mapOrAsyncOption`, `mapOrElseAsyncOption`, `matchAsyncOption`, `orElseAsyncOption`, `tapAsyncOption`, `unwrapOrAsyncOption`, `unwrapOrElseAsyncOption` |
+
+**`dualByArity`（缺数据参即柯里化；默认值可以是函数）**
+
+| 模块 | 文件 |
+| --- | --- |
+| operators | `unwrapOr`, `unwrapOrElse`, `mapErr`, `mapOr`, `mapOrElse`, `bind`, `and`, `or`, `ap`, `contains`, `exists`, `choose`, `traverseArray`, `expect`, `expectErr`, `catchErr`, `orThrow` |
+| promise-result | `mapErr`, `unwrapOr`, `unwrapOrElse`, …（与 operators 镜像的 unwrap/mapErr 族） |
+| observability | `withPath`, `tapErrContext` |
+
+**其他（不套用两支 helper）**
+
+| 模块 | 文件 | 说明 |
+| --- | --- | --- |
+| operators | `match` | 处理器对象 vs 分参回调 |
+| async-result | （多数 lazy 包装） | 与 operators 同名时复用相同分支形态，推广顺序在 3.3 按模块提交 |
+
+**仅直传 / 无柯里化**： factories、combine 内核、reliability 调度、observability 格式化等（无「缺参返回函数」）。
 
 ---
 
