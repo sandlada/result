@@ -12,9 +12,21 @@ export function containsAsync<T>(
  *
  * @example
  * ```ts
- * import { containsAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * const r = await containsAsync(42, Promise.resolve(ofSome(42))); // true
+ * import { containsAsync, orElseAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = Promise.resolve(ofSome(42));
+ * const hasFortyTwo = await containsAsync(42, input);
+ * const backup = await orElseAsync(
+ *   () => Promise.resolve(ofSome(0)),
+ *   Promise.resolve(ofNone<number>()),
+ * );
+ * // hasFortyTwo === true
+ * // backup is Some(0); orElseAsync runs its fallback on None
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const missing = await containsAsync(42, empty);
+ * // missing === false; containsAsync short-circuits on None
  * ```
  */
 export function containsAsync<T>(

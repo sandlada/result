@@ -16,12 +16,23 @@ export function bindAsync<T, U>(
  *
  * @example
  * ```ts
- * import { bindAsync } from '@sandlada/result/promise-option';
+ * import { bindAsync, unwrapOrAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * await bindAsync(
- *   (x: number) => x > 0 ? Promise.resolve(ofSome(x * 2)) : Promise.resolve(ofNone()),
- *   Promise.resolve(ofSome(21)),
+ *
+ * const input = Promise.resolve(ofSome(21));
+ * const chained = bindAsync(
+ *   (x: number) => (x > 0 ? Promise.resolve(ofSome(x * 2)) : Promise.resolve(ofNone())),
+ *   input,
  * );
+ * const value = await unwrapOrAsync(0, chained);
+ * // value === 42
+ *
+ * const failed = Promise.resolve(ofNone<number>());
+ * const fallback = await unwrapOrAsync(
+ *   0,
+ *   bindAsync((x: number) => Promise.resolve(ofSome(x)), failed),
+ * );
+ * // fallback === 0; bindAsync short-circuits on None
  * ```
  */
 export function bindAsync<T, U>(

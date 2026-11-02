@@ -18,10 +18,17 @@ export function filterAsync<T>(
  *
  * @example
  * ```ts
- * import { filterAsync } from '@sandlada/result/promise-option';
+ * import { filterAsync, unwrapOrAsync } from '@sandlada/result/promise-option';
  * import { ofSome } from '@sandlada/result/option';
- * const r = await filterAsync(async (x: number) => x > 10, Promise.resolve(ofSome(21)));
- * // Some(21)
+ *
+ * const input = Promise.resolve(ofSome(21));
+ * const kept = filterAsync(async (x: number) => x > 10, input);
+ * const value = await unwrapOrAsync(0, kept);
+ * // value === 21
+ *
+ * const rejected = filterAsync(async (x: number) => x > 100, Promise.resolve(ofSome(21)));
+ * const fallback = await unwrapOrAsync(0, rejected);
+ * // fallback === 0 because filterAsync returned None
  * ```
  */
 export function filterAsync<T>(

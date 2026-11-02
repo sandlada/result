@@ -15,11 +15,15 @@ export function mapOrAsync<A, B>(
  *
  * @example
  * ```ts
- * import { mapOrAsync } from '@sandlada/result/promise-option';
+ * import { mapAsync, mapOrAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
  *
- * await mapOrAsync(-1, (x: number) => x * 2, Promise.resolve(ofSome(21)));  // 42
- * await mapOrAsync(-1, (x: number) => x * 2, Promise.resolve(ofNone()));    // -1
+ * const input = mapAsync((x: number) => x + 1, Promise.resolve(ofSome(20)));
+ * const total = await mapOrAsync(-1, (x: number) => x * 2, input);
+ * // total === 42
+ *
+ * const missing = await mapOrAsync(-1, (x: number) => x * 2, Promise.resolve(ofNone()));
+ * // missing === -1; mapOrAsync uses the default on None
  * ```
  */
 export function mapOrAsync<A, B>(

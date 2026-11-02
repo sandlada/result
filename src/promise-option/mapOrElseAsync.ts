@@ -15,11 +15,15 @@ export function mapOrElseAsync<A, B>(
  *
  * @example
  * ```ts
- * import { mapOrElseAsync } from '@sandlada/result/promise-option';
+ * import { mapAsync, mapOrElseAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
  *
- * await mapOrElseAsync(() => -1, (x: number) => x * 2, Promise.resolve(ofSome(21))); // 42
- * await mapOrElseAsync(() => -1, (x: number) => x * 2, Promise.resolve(ofNone()));    // -1
+ * const input = mapAsync((x: number) => x + 1, Promise.resolve(ofSome(20)));
+ * const total = await mapOrElseAsync(() => -1, (x: number) => x * 2, input);
+ * // total === 42
+ *
+ * const missing = await mapOrElseAsync(() => -1, (x: number) => x * 2, Promise.resolve(ofNone()));
+ * // missing === -1; mapOrElseAsync calls onNone when the carrier is None
  * ```
  */
 export function mapOrElseAsync<A, B>(

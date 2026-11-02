@@ -16,12 +16,22 @@ export function orElseAsync<T>(
  *
  * @example
  * ```ts
- * import { orElseAsync } from '@sandlada/result/promise-option';
+ * import { orElseAsync, unwrapOrAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * await orElseAsync(
- *   () => Promise.resolve(ofSome(0)),
- *   Promise.resolve(ofNone()),
+ *
+ * const recovered = orElseAsync(
+ *   () => Promise.resolve(ofSome(42)),
+ *   Promise.resolve(ofNone<number>()),
  * );
+ * const value = await unwrapOrAsync(0, recovered);
+ * // value === 42
+ *
+ * const kept = orElseAsync(
+ *   () => Promise.resolve(ofSome(99)),
+ *   Promise.resolve(ofSome(5)),
+ * );
+ * const same = await unwrapOrAsync(0, kept);
+ * // same === 5; orElseAsync leaves Some unchanged
  * ```
  */
 export function orElseAsync<T>(

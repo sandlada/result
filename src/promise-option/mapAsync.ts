@@ -17,9 +17,26 @@ export function mapAsync<T, U>(
  *
  * @example
  * ```ts
- * import { mapAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * await mapAsync((x: number) => x * 2, Promise.resolve(ofSome(21))); // Some(42)
+ * import { mapAsync, matchAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = Promise.resolve(ofSome(5));
+ * const mapped = mapAsync((x: number) => x * 2, input);
+ * const label = await matchAsync(
+ *   (n) => `value:${n}`,
+ *   () => 'nothing',
+ *   mapped,
+ * );
+ * // label === 'value:10'
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const skipped = mapAsync((x: number) => x * 2, empty);
+ * const absent = await matchAsync(
+ *   (n) => `value:${n}`,
+ *   () => 'nothing',
+ *   skipped,
+ * );
+ * // absent === 'nothing'; mapAsync passes None through
  * ```
  */
 export function mapAsync<T, U>(

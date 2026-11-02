@@ -17,11 +17,16 @@ export function unwrapOrElseAsync<T, D = T>(
  *
  * @example
  * ```ts
- * import { unwrapOrElseAsync } from '@sandlada/result/promise-option';
+ * import { mapAsync, unwrapOrElseAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
  *
- * await unwrapOrElseAsync(() => 0, Promise.resolve(ofSome(42))); // 42
- * await unwrapOrElseAsync(() => 0, Promise.resolve(ofNone()));    // 0
+ * const prepared = mapAsync((x: number) => x * 2, Promise.resolve(ofSome(21)));
+ * const value = await unwrapOrElseAsync(() => 0, prepared);
+ * // value === 42
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const fallback = await unwrapOrElseAsync(() => 0, empty);
+ * // fallback === 0; unwrapOrElseAsync runs onNone when the carrier is None
  * ```
  */
 export function unwrapOrElseAsync<T, D = T>(

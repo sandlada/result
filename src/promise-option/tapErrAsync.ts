@@ -46,14 +46,24 @@ export function tapErrAsync<T>(
  *
  * @example
  * ```ts
- * import { tapErrAsync } from '@sandlada/result/promise-option';
- * import { ofNone } from '@sandlada/result/option';
+ * import { tapErrAsync, matchAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  *
- * await tapErrAsync(
- *     (v: number) => console.log('value:', v),
- *     Promise.resolve(ofNone<number>()),
- *     () => console.warn('absent'),
+ * let note = '';
+ * const present = tapErrAsync(
+ *   (v: number) => { note = `some:${v}`; },
+ *   Promise.resolve(ofSome(7)),
  * );
+ * const label = await matchAsync((n) => String(n), () => 'none', present);
+ * // note === 'some:7' and label === '7'
+ *
+ * const absent = tapErrAsync(
+ *   (_v: number) => { note = 'some'; },
+ *   Promise.resolve(ofNone<number>()),
+ *   () => { note = 'none'; },
+ * );
+ * await matchAsync((n) => String(n), () => 'none', absent);
+ * // note === 'none'; fnNone runs on the None track
  * ```
  */
 export function tapErrAsync<T>(

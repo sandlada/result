@@ -14,13 +14,25 @@ export function matchAsync<T, U>(
  *
  * @example
  * ```ts
- * import { matchAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * await matchAsync(
- *   (v: number) => `some: ${v}`,
- *   () => `none`,
- *   Promise.resolve(ofSome(42)),
- * ); // "some: 42"
+ * import { mapAsync, matchAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = Promise.resolve(ofSome(42));
+ * const doubled = mapAsync((n) => n * 2, input);
+ * const label = await matchAsync(
+ *   (n) => `some: ${n}`,
+ *   () => 'none',
+ *   doubled,
+ * );
+ * // label === 'some: 84'
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const absent = await matchAsync(
+ *   (n) => `some: ${n}`,
+ *   () => 'none',
+ *   empty,
+ * );
+ * // absent === 'none'
  * ```
  */
 export function matchAsync<T, U>(

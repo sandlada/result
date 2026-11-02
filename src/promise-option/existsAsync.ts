@@ -17,10 +17,17 @@ export function existsAsync<T>(
  *
  * @example
  * ```ts
- * import { existsAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * const r = await existsAsync(async (x: number) => x > 10, Promise.resolve(ofSome(42)));
- * // true
+ * import { existsAsync, filterAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const input = Promise.resolve(ofSome(42));
+ * const ok = await existsAsync(async (n) => n > 10, input);
+ * const narrowed = await filterAsync(async (n) => n > 10, input);
+ * // ok === true; narrowed resolves to Some(42)
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const missing = await existsAsync(async (n) => n > 10, empty);
+ * // missing === false; existsAsync short-circuits on None
  * ```
  */
 export function existsAsync<T>(

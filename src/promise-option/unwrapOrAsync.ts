@@ -17,10 +17,16 @@ export function unwrapOrAsync<T, D = T>(
  *
  * @example
  * ```ts
- * import { unwrapOrAsync } from '@sandlada/result/promise-option';
+ * import { mapAsync, unwrapOrAsync } from '@sandlada/result/promise-option';
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * await unwrapOrAsync(0, Promise.resolve(ofSome(42))); // 42
- * await unwrapOrAsync(0, Promise.resolve(ofNone())); // 0
+ *
+ * const prepared = mapAsync((x: number) => x * 2, Promise.resolve(ofSome(21)));
+ * const value = await unwrapOrAsync(0, prepared);
+ * // value === 42
+ *
+ * const empty = Promise.resolve(ofNone<number>());
+ * const fallback = await unwrapOrAsync(0, empty);
+ * // fallback === 0
  * ```
  */
 export function unwrapOrAsync<T, D = T>(

@@ -8,10 +8,26 @@ import type { IOption } from '../types/Option.js';
  *
  * @example
  * ```ts
- * import { flattenAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * const r = await flattenAsync(Promise.resolve(ofSome(ofSome(42)))); // Some(42)
- * const r2 = await flattenAsync(Promise.resolve(ofSome(ofSome(ofSome(7))))); // Some(Some(7))
+ * import { flattenAsync, matchAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * const nested = Promise.resolve(ofSome(ofSome(42)));
+ * const flat = await flattenAsync(nested);
+ * const label = await matchAsync(
+ *   (n) => String(n),
+ *   () => 'empty',
+ *   Promise.resolve(flat),
+ * );
+ * // label === '42'
+ *
+ * const wrappedNone = Promise.resolve(ofSome(ofNone<number>()));
+ * const cleared = await flattenAsync(wrappedNone);
+ * const absent = await matchAsync(
+ *   (n) => String(n),
+ *   () => 'empty',
+ *   Promise.resolve(cleared),
+ * );
+ * // absent === 'empty'; flattenAsync peeled Some off None
  * ```
  */
 export function flattenAsync<T>(

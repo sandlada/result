@@ -16,9 +16,22 @@ export function tapAsync<T>(
  *
  * @example
  * ```ts
- * import { tapAsync } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/option';
- * await tapAsync((v: number) => console.log(v), Promise.resolve(ofSome(42)));
+ * import { tapAsync, matchAsync } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ *
+ * let seen = 0;
+ * const input = Promise.resolve(ofSome(42));
+ * const touched = tapAsync(async (v: number) => { seen = v; }, input);
+ * const label = await matchAsync(
+ *   (n) => String(n),
+ *   () => 'none',
+ *   touched,
+ * );
+ * // seen === 42 and label === '42'
+ *
+ * const empty = tapAsync(async () => { seen = -1; }, Promise.resolve(ofNone<number>()));
+ * await matchAsync((n) => String(n), () => 'none', empty);
+ * // seen stays 42; tapAsync passes None through without invoking the side effect
  * ```
  */
 export function tapAsync<T>(
