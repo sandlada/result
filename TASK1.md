@@ -433,7 +433,7 @@ export function foldResults(
 
 - [ ] **7.1** 对照 §9 逐条重跑，把命令输出摘要写进台账。
 - [ ] **7.2** 读 `site/README.md` 和 `site/scripts` 里 `version:new` 的参数。结果必须是：旧 API 文档仍在 `0.20260811`，新版本路径描述新 API。不要手改归档目录。
-- [ ] **7.3** 版本号换成发布当日的 `0.YYYYMMDD.0`。发布说明列出 §4 的三张表，并列出 Phase 4 里真正改了语义的导出。若 Phase 4 没有改语义，写“抛出语义未改”，并写明 `async-result/mapAsync` 与 `promise-result/mapAsync` 仍然不同。
+- [ ] **7.3** 版本号换成发布当日的 `Major.Minor.Patch-YYYYMMDD.<a|b|c…>`（例如 `0.0.6-20261102.a`）。发布说明列出 §4 的三张表，并列出 Phase 4 里真正改了语义的导出。若 Phase 4 没有改语义，写“抛出语义未改”，并写明 `async-result/mapAsync` 与 `promise-result/mapAsync` 仍然不同。
 - [x] **7.4** `AGENTS.md` 补上 R1–R5 的短版本，覆盖率句子与 `vitest.config.ts` 再对一次。
 
 Phase 7 不再次“同步所有 README”。README 在改导出的那个阶段已经改完。这里只修理验收失败项。
@@ -489,7 +489,7 @@ npm test
 | 4 矩阵影子对照与冲突清单 | `[x]` | | tag `refactor/task1-p4` |
 | 5 改名与删再导出 | `[x]` | 3232f47 (5.6), 78ea8f2 (5.7), 50d73c3 (5.8); prior 32c8a41 (5.4), 0e902c1 (5.5) | tag `refactor/task1-p5` |
 | 6 内核，或明确跳过 | `[x]` | — | skipped |
-| 7 版本与发布说明 | `[ ]` | | `0.20251102.0`; gates: typecheck/test:type/test/build OK; site verify OK; `typecheck:spec` 94 errors (pre-existing); `version:new` blocked on starlight-versions MDX |
+| 7 版本与发布说明 | `[ ]` | | npm `0.0.6-20261102.a`；站点归档 slug `0.20261102` / label `v0.0.6-20261102.a` |
 
 基线计数（开工时填写，不要沿用旧文的 277 / 50 / 105 / 20）：
 

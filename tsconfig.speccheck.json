@@ -1,6 +1,10 @@
 {
     "extends": "./tsconfig.json",
-    "compilerOptions": { "noEmit": true },
+    "compilerOptions": {
+        "noEmit": true,
+        "types": ["vitest/globals"],
+        "lib": ["ESNext", "DOM"]
+    },
     "include": ["./src/**/*"],
     "exclude": ["*/node_modules/**/*", "src/**/*.type-spec.ts", "src/**/*.bench.ts", "vitest.config.ts"]
 }

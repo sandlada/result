@@ -1,0 +1,108 @@
+{
+  "sidebar": [
+    {
+      "label": "Start Here",
+      "items": [
+        "getting-started"
+      ]
+    },
+    {
+      "label": "Reference",
+      "items": [
+        "behavior-modes",
+        "migration"
+      ]
+    },
+    {
+      "label": "Module specs",
+      "items": [
+        "specs/types",
+        "specs/factories",
+        "specs/operators",
+        "specs/option",
+        "specs/composition",
+        "specs/adapters",
+        "specs/combine",
+        "specs/bridge-result",
+        "specs/bridge-option",
+        "specs/promise-result",
+        "specs/promise-option",
+        "specs/async-result",
+        "specs/async-option",
+        "specs/reliability",
+        "specs/observability",
+        "specs/primitives"
+      ]
+    },
+    {
+      "label": "API Reference",
+      "items": [
+        {
+          "label": "types",
+          "link": "/api/types/"
+        },
+        {
+          "label": "factories",
+          "link": "/api/factories/"
+        },
+        {
+          "label": "operators",
+          "link": "/api/operators/"
+        },
+        {
+          "label": "option",
+          "link": "/api/option/"
+        },
+        {
+          "label": "composition",
+          "link": "/api/composition/"
+        },
+        {
+          "label": "adapters",
+          "link": "/api/adapters/"
+        },
+        {
+          "label": "combine",
+          "link": "/api/combine/"
+        },
+        {
+          "label": "bridge-result",
+          "link": "/api/bridge-result/"
+        },
+        {
+          "label": "bridge-option",
+          "link": "/api/bridge-option/"
+        },
+        {
+          "label": "promise-result",
+          "link": "/api/promise-result/"
+        },
+        {
+          "label": "promise-option",
+          "link": "/api/promise-option/"
+        },
+        {
+          "label": "async-result",
+          "link": "/api/async-result/"
+        },
+        {
+          "label": "async-option",
+          "link": "/api/async-option/"
+        },
+        {
+          "label": "reliability",
+          "link": "/api/reliability/"
+        },
+        {
+          "label": "observability",
+          "link": "/api/observability/"
+        },
+        {
+          "label": "primitives",
+          "link": "/api/primitives/"
+        }
+      ]
+    }
+  ],
+  "excluded": []
+}

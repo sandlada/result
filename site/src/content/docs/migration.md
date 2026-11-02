@@ -3,7 +3,7 @@ title: API migration (breaking release)
 description: Import path and export name changes when upgrading from the 0.20260811 API surface to the current package.
 ---
 
-This page lists **breaking renames and removals** introduced in the refactor that split sync→async **lift** operators into `bridge-result` / `bridge-option`, dropped redundant re-exports, and aligned `promise-option` naming. The archived docs under [`/0.20260811/`](/0.20260811/) still describe the old names; new code should use the tables below.
+This page lists **breaking renames and removals** introduced in the refactor that split sync→async **lift** operators into `bridge-result` / `bridge-option`, dropped redundant re-exports, and aligned `promise-option` naming. The archived **v0.20260811** docs (version selector on the site) still describe the old names; new code should use the tables below.
 
 Behavior (throw vs capture vs short-circuit) is unchanged unless noted in the release notes. Same export name on different subpaths can still differ in policy — for example `async-result/mapAsync` and `promise-result/mapAsync` are not interchangeable.
 

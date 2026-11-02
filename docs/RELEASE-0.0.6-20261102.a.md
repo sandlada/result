@@ -1,4 +1,4 @@
-# Release 0.20251102.0
+# Release 0.0.6-20261102.a
 
 Breaking release: new `bridge-result` / `bridge-option` subpaths, renamed exports, and removed aliases. See the [site migration page](https://result.sandlada.com/migration/) for import rewrites.
 
