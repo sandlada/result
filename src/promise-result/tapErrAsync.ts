@@ -13,9 +13,19 @@ export function tapErrAsync<A, E>(
  *
  * @example
  * ```ts
- * import { tapErrAsync } from '@sandlada/result/promise-result';
- * import { asyncErr } from '@sandlada/result/factories';
- * await tapErrAsync((e: string) => console.log('err:', e), asyncErr('boom'));
+ * import { tapErrAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * let logged = '';
+ * const input = asyncErr('boom');
+ * const afterTap = tapErrAsync((e: string) => { logged = e; }, input);
+ * await afterTap;
+ * const label = await matchAsync((v) => String(v), (e) => e, afterTap);
+ * // logged === 'boom' and label === 'boom'
+ *
+ * const healthy = asyncOk(1);
+ * const skipped = await tapErrAsync((e: string) => { logged = e; }, healthy);
+ * // skipped stays Ok(1); tapErrAsync ignores the success track
  * ```
  */
 export function tapErrAsync<A, E>(

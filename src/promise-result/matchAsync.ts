@@ -14,13 +14,25 @@ export function matchAsync<A, E, C>(
  *
  * @example
  * ```ts
- * import { matchAsync } from '@sandlada/result/promise-result';
- * import { asyncOk } from '@sandlada/result/factories';
- * await matchAsync(
+ * import { matchAsync, mapAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * const input = asyncOk(21);
+ * const pipeline = mapAsync((x: number) => x * 2, input);
+ * const okLabel = await matchAsync(
  *   (v: number) => `success: ${v}`,
  *   (e: string) => `failure: ${e}`,
- *   asyncOk(42),
- * ); // "success: 42"
+ *   pipeline,
+ * );
+ * // okLabel === 'success: 42'
+ *
+ * const failed = asyncErr('boom');
+ * const errLabel = await matchAsync(
+ *   (v: number) => `success: ${v}`,
+ *   (e: string) => `failure: ${e}`,
+ *   failed,
+ * );
+ * // errLabel === 'failure: boom'
  * ```
  */
 export function matchAsync<A, E, C>(

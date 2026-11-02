@@ -20,10 +20,17 @@ export function unwrapOrElseAsync<A, E, D = A>(
  *
  * @example
  * ```ts
- * import { unwrapOrElseAsync } from '@sandlada/result/promise-result';
+ * import { unwrapOrElseAsync, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await unwrapOrElseAsync((e: string) => 0, asyncOk(42));    // 42
- * await unwrapOrElseAsync((e: string) => 0, asyncErr('x'));  // 0
+ *
+ * const input = asyncOk(42);
+ * const value = await unwrapOrElseAsync((_e: string) => Promise.resolve(0), input);
+ * const doubled = await mapAsync((x: number) => x * 2, asyncOk(value));
+ * // value === 42 and doubled resolves to Ok(84)
+ *
+ * const failed = asyncErr('x');
+ * const computed = await unwrapOrElseAsync((e: string) => Promise.resolve(e.length), failed);
+ * // computed === 1; the async handler runs only when the carrier is Err
  * ```
  */
 export function unwrapOrElseAsync<A, E, D = A>(

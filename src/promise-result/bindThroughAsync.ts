@@ -17,12 +17,23 @@ export function bindThroughAsync<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bindThroughAsync } from '@sandlada/result/promise-result';
- * import { ok } from '@sandlada/result/factories';
- * const validate = bindThroughAsync(async (x: number) =>
- *   x > 0 ? ok(x) : Promise.reject(new Error('non-positive')),
+ * import { bindThroughAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { ok, err, asyncOk } from '@sandlada/result/factories';
+ *
+ * const input = Promise.resolve(ok(5));
+ * const validated = bindThroughAsync(
+ *   (x: number) => (x > 0 ? ok(x) : err('non-positive')),
+ *   input,
  * );
- * const r = await validate(Promise.resolve(ok(5))); // Ok(5)
+ * const okLabel = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, validated);
+ * // okLabel === 'ok:5'
+ *
+ * const bad = asyncOk(-1);
+ * const blocked = await bindThroughAsync(
+ *   (x: number) => (x > 0 ? ok(x) : err('non-positive')),
+ *   bad,
+ * );
+ * // blocked is Err('non-positive'); through-step failure replaces the success value
  * ```
  */
 export function bindThroughAsync<A, B, E, F>(

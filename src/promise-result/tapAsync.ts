@@ -13,9 +13,18 @@ export function tapAsync<A, E>(
  *
  * @example
  * ```ts
- * import { tapAsync } from '@sandlada/result/promise-result';
- * import { asyncOk } from '@sandlada/result/factories';
- * await tapAsync((v: string) => console.log('got:', v), asyncOk('hello'));
+ * import { tapAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * let seen = '';
+ * const input = asyncOk('hello');
+ * const afterTap = tapAsync((v: string) => { seen = v; }, input);
+ * await afterTap;
+ * const label = await matchAsync((s) => s, (e) => String(e), afterTap);
+ * // seen === 'hello' and label === 'hello'
+ *
+ * const broken = await tapAsync(() => { throw new Error('side'); }, asyncOk(1));
+ * // broken is Err(Error('side')); tapAsync captures handler throws into Err
  * ```
  */
 export function tapAsync<A, E>(

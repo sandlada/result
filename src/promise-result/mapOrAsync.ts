@@ -37,10 +37,17 @@ export function mapOrAsync<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOrAsync } from '@sandlada/result/promise-result';
+ * import { mapOrAsync, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await mapOrAsync(-1, (x: number) => x * 2, asyncOk(5)); // 10
- * await mapOrAsync(-1, (x: number) => x * 2, asyncErr('boom')); // -1
+ *
+ * const input = asyncOk(5);
+ * const mapped = await mapOrAsync(-1, (x: number) => x * 2, input);
+ * const again = await mapAsync((x: number) => x + 1, asyncOk(mapped));
+ * // mapped === 10 and again resolves to Ok(11)
+ *
+ * const failed = asyncErr('boom');
+ * const fallback = await mapOrAsync(-1, (x: number) => x * 2, failed);
+ * // fallback === -1; mapOrAsync returns defaultValue on Err without calling fn
  * ```
  */
 export function mapOrAsync<A, B, E>(

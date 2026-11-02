@@ -14,10 +14,17 @@ export function unwrapOrElse<A, E>(
  *
  * @example
  * ```ts
- * import { unwrapOrElse } from '@sandlada/result/promise-result';
+ * import { unwrapOrElse, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await unwrapOrElse((e: string) => 0, asyncOk(42));    // 42
- * await unwrapOrElse((e: string) => 0, asyncErr('x'));  // 0
+ *
+ * const input = asyncOk(42);
+ * const value = await unwrapOrElse((_e: string) => 0, input);
+ * const doubled = await mapAsync((x: number) => x * 2, asyncOk(value));
+ * // value === 42 and doubled resolves to Ok(84)
+ *
+ * const failed = asyncErr('x');
+ * const computed = await unwrapOrElse((e: string) => e.length, failed);
+ * // computed === 1; unwrapOrElse calls the handler only on Err
  * ```
  */
 export function unwrapOrElse<A, E>(

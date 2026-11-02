@@ -24,13 +24,25 @@ export function filterOrElseAsync<A, E>(
  *
  * @example
  * ```ts
- * import { filterOrElseAsync } from '@sandlada/result/promise-result';
+ * import { filterOrElseAsync, matchAsync } from '@sandlada/result/promise-result';
  * import { ok } from '@sandlada/result/factories';
- * const r = await filterOrElseAsync(
+ *
+ * const input = Promise.resolve(ok(5));
+ * const kept = filterOrElseAsync(
  *   (x: number) => x > 0,
  *   (x: number) => `${x} is not positive`,
- *   Promise.resolve(ok(5)),
- * ); // Ok(5)
+ *   input,
+ * );
+ * const okLabel = await matchAsync((n) => `ok:${n}`, (e) => e, kept);
+ * // okLabel === 'ok:5'
+ *
+ * const negative = Promise.resolve(ok(-3));
+ * const rejected = await filterOrElseAsync(
+ *   (x: number) => x > 0,
+ *   (x: number) => `${x} is not positive`,
+ *   negative,
+ * );
+ * // rejected is Err('-3 is not positive'); predicate failure becomes Err via errorFn
  * ```
  */
 export function filterOrElseAsync<A, E>(

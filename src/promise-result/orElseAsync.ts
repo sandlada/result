@@ -16,12 +16,17 @@ export function orElseAsync<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { orElseAsync } from '@sandlada/result/promise-result';
+ * import { orElseAsync, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await orElseAsync(
- *   (e: string) => asyncOk('default'),
- *   asyncErr('boom'),
- * );
+ *
+ * const input = asyncErr('boom');
+ * const recovered = orElseAsync((e: string) => asyncOk(`recovered:${e}`), input);
+ * const label = await matchAsync((v) => v, (e) => String(e), recovered);
+ * // label === 'recovered:boom'
+ *
+ * const healthy = asyncOk(42);
+ * const unchanged = await orElseAsync((e: string) => asyncOk(`recovered:${e}`), healthy);
+ * // unchanged stays Ok(42); orElseAsync skips recovery on success
  * ```
  */
 export function orElseAsync<A, E, B, F>(

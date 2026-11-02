@@ -16,10 +16,17 @@ export function mapOrElseAsync<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOrElseAsync } from '@sandlada/result/promise-result';
+ * import { mapOrElseAsync, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await mapOrElseAsync((e: string) => 0, (x: number) => x * 2, asyncOk(5)); // 10
- * await mapOrElseAsync((e: string) => -1, (x: number) => x * 2, asyncErr('boom')); // -1
+ *
+ * const input = asyncOk(5);
+ * const mapped = await mapOrElseAsync((e: string) => 0, (x: number) => x * 2, input);
+ * const again = await mapAsync((x: number) => x + 1, asyncOk(mapped));
+ * // mapped === 10 and again resolves to Ok(11)
+ *
+ * const failed = asyncErr('boom');
+ * const fromErr = await mapOrElseAsync((e: string) => -e.length, (x: number) => x * 2, failed);
+ * // fromErr === -4; onErr runs when the carrier is Err
  * ```
  */
 export function mapOrElseAsync<A, B, E>(

@@ -21,12 +21,23 @@ export function bindAsync<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bindAsync } from '@sandlada/result/promise-result';
+ * import { bindAsync, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await bindAsync(
- *   (x: number) => x > 0 ? asyncOk(x * 2) : asyncErr('too small'),
- *   asyncOk(21),
+ *
+ * const input = asyncOk(21);
+ * const chained = bindAsync(
+ *   (x: number) => (x > 0 ? asyncOk(x * 2) : asyncErr('too small')),
+ *   input,
  * );
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, chained);
+ * // label === 'ok:42'
+ *
+ * const rejected = asyncOk(-1);
+ * const tooSmall = await bindAsync(
+ *   (x: number) => (x > 0 ? asyncOk(x * 2) : asyncErr('too small')),
+ *   rejected,
+ * );
+ * // tooSmall is Err('too small'); bindAsync returns fn's Err without re-running the success path
  * ```
  */
 export function bindAsync<A, B, E, F>(

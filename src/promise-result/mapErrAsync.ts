@@ -13,9 +13,17 @@ export function mapErrAsync<A, E, F>(
  *
  * @example
  * ```ts
- * import { mapErrAsync } from '@sandlada/result/promise-result';
- * import { asyncErr } from '@sandlada/result/factories';
- * await mapErrAsync((e: string) => `[wrapped] ${e}`, asyncErr('boom'));
+ * import { mapErrAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * const input = asyncErr('boom');
+ * const wrapped = mapErrAsync(async (e: string) => `[wrapped] ${e}`, input);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => e, wrapped);
+ * // label === '[wrapped] boom'
+ *
+ * const healthy = asyncOk(1);
+ * const passthrough = await mapErrAsync(async (e: string) => e, healthy);
+ * // passthrough stays Ok(1); mapErrAsync leaves success values untouched
  * ```
  */
 export function mapErrAsync<A, E, F>(

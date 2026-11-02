@@ -6,11 +6,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { flatten } from '@sandlada/result/promise-result';
+ * import { flatten, matchAsync } from '@sandlada/result/promise-result';
  * import { ok, err } from '@sandlada/result/factories';
  *
- * await flatten(Promise.resolve(ok(ok(42)))); // Ok(42)
- * await flatten(Promise.resolve(ok(err('x')))); // Err('x')
+ * const nested = Promise.resolve(ok(ok(42)));
+ * const flat = flatten(nested);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, flat);
+ * // label === 'ok:42'
+ *
+ * const innerErr = Promise.resolve(ok(err('x')));
+ * const surfaced = await flatten(innerErr);
+ * // surfaced is Err('x'); flatten passes through an inner failure
  * ```
  */
 export function flatten<A, E>(

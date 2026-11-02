@@ -19,10 +19,17 @@ export function map<A, B, E>(
  *
  * @example
  * ```ts
- * import { map } from '@sandlada/result/promise-result';
+ * import { map, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await map((x: number) => x * 2, asyncOk(21)); // Ok(42)
- * await map((x: number) => x * 2, asyncErr('boom')); // Err('boom')
+ *
+ * const input = asyncOk(21);
+ * const doubled = map((x: number) => x * 2, input);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, doubled);
+ * // label === 'ok:42'
+ *
+ * const boom = asyncErr('boom');
+ * const passthrough = await map((x: number) => x * 2, boom);
+ * // passthrough stays Err('boom'); map short-circuits on failure
  * ```
  */
 export function map<A, B, E>(

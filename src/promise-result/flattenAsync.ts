@@ -8,10 +8,17 @@ import type { IResultOfT } from '../types/IResultOfT.js';
  *
  * @example
  * ```ts
- * import { flattenAsync } from '@sandlada/result/promise-result';
- * import { ok } from '@sandlada/result/factories';
- * const r = await flattenAsync(Promise.resolve(ok(ok(42)))); // Ok(42)
- * const r2 = await flattenAsync(Promise.resolve(ok(ok(ok(7))))); // Ok(ok(7))
+ * import { flattenAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const nested = Promise.resolve(ok(ok(42)));
+ * const flat = flattenAsync(nested);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, flat);
+ * // label === 'ok:42'
+ *
+ * const deeper = Promise.resolve(ok(ok(ok(7))));
+ * const oneLayer = await flattenAsync(deeper);
+ * // oneLayer is Ok(ok(7)); flattenAsync unwraps only one nesting level
  * ```
  */
 export function flattenAsync<A, E>(

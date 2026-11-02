@@ -16,13 +16,25 @@ export function bimapAsync<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { bimapAsync } from '@sandlada/result/promise-result';
- * import { ok } from '@sandlada/result/factories';
- * const r = await bimapAsync(
+ * import { bimapAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = Promise.resolve(ok(5));
+ * const mapped = bimapAsync(
  *   (x: number) => x.toString(),
- *   (e: number) => e * 2,
- *   Promise.resolve(ok(5)),
- * ); // Ok('5')
+ *   (e: string) => e.toUpperCase(),
+ *   input,
+ * );
+ * const okSide = await matchAsync((s) => s, (e) => e, mapped);
+ * // okSide === '5'
+ *
+ * const failed = Promise.resolve(err('boom'));
+ * const remapped = await bimapAsync(
+ *   (x: number) => x.toString(),
+ *   (e: string) => e.toUpperCase(),
+ *   failed,
+ * );
+ * // remapped is Err('BOOM'); bimapAsync transforms the error channel on failure
  * ```
  */
 export function bimapAsync<A, E, B, F>(

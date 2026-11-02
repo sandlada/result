@@ -18,10 +18,17 @@ export function existsAsync<A, E>(
  *
  * @example
  * ```ts
- * import { existsAsync } from '@sandlada/result/promise-result';
- * import { ok } from '@sandlada/result/factories';
- * const r = await existsAsync(async (x: number) => x > 10, Promise.resolve(ok(42)));
- * // true
+ * import { existsAsync, unwrapOr } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const input = Promise.resolve(ok(42));
+ * const hits = await existsAsync(async (x: number) => x > 10, input);
+ * const score = await unwrapOr(0, Promise.resolve(ok(hits ? 1 : 0)));
+ * // hits === true and score === 1
+ *
+ * const failed = Promise.resolve(err('skip'));
+ * const onErr = await existsAsync(async (x: number) => x > 10, failed);
+ * // onErr === false; existsAsync returns false when the carrier is Err
  * ```
  */
 export function existsAsync<A, E>(

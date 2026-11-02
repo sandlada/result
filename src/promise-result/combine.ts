@@ -10,10 +10,21 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { combine } from '@sandlada/result/promise-result';
+ * import { combine, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await combine([asyncOk(1), asyncOk(2)]); // Ok([1, 2])
- * await combine([asyncOk(1), asyncErr('x')]); // Err('x')
+ *
+ * const inputs = [asyncOk(1), asyncOk(2)] as const;
+ * const merged = combine([...inputs]);
+ * const okLabel = await matchAsync(
+ *   (vals: number[]) => vals.join(','),
+ *   (e) => `err:${String(e)}`,
+ *   merged,
+ * );
+ * // okLabel === '1,2'
+ *
+ * const partial = [asyncOk(1), asyncErr('x')] as const;
+ * const stopped = await combine([...partial]);
+ * // stopped is Err('x'); combine short-circuits on the first failure
  * ```
  */
 export function combine<A, E>(

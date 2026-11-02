@@ -11,10 +11,21 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { combineWithAllErrors } from '@sandlada/result/promise-result';
+ * import { combineWithAllErrors, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await combineWithAllErrors([asyncOk(1), asyncErr('a'), asyncErr('b')]); // Err(['a', 'b'])
- * await combineWithAllErrors([asyncOk(1), asyncOk(2)]); // Ok([1, 2])
+ *
+ * const mixed = [asyncOk(1), asyncErr('a'), asyncErr('b')] as const;
+ * const aggregated = combineWithAllErrors([...mixed]);
+ * const errLabel = await matchAsync(
+ *   (vals: number[]) => vals.join(','),
+ *   (errs: string[]) => errs.join('|'),
+ *   aggregated,
+ * );
+ * // errLabel === 'a|b'
+ *
+ * const clean = [asyncOk(1), asyncOk(2)] as const;
+ * const allOk = await combineWithAllErrors([...clean]);
+ * // allOk is Ok([1, 2]) when every input succeeds
  * ```
  */
 export function combineWithAllErrors<A, E>(

@@ -7,9 +7,17 @@ import { err } from '../factories/err.js';
  *
  * @example
  * ```ts
- * import { swapAsync } from '@sandlada/result/promise-result';
- * import { ok } from '@sandlada/result/factories';
- * const r = await swapAsync(Promise.resolve(ok(5))); // Err(5)
+ * import { swapAsync, matchAsync } from '@sandlada/result/promise-result';
+ * import { ok, err } from '@sandlada/result/factories';
+ *
+ * const wasOk = Promise.resolve(ok(5));
+ * const flipped = swapAsync(wasOk);
+ * const fromOk = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, flipped);
+ * // flipped is Err(5); fromOk === 'err:5'
+ *
+ * const wasErr = Promise.resolve(err('oops'));
+ * const restored = await swapAsync(wasErr);
+ * // restored is Ok('oops'); swapAsync moves errors into the success channel
  * ```
  */
 export function swapAsync<A, E>(

@@ -19,10 +19,17 @@ export function mapErr<T, E, F>(
  *
  * @example
  * ```ts
- * import { mapErr } from '@sandlada/result/promise-result';
+ * import { mapErr, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await mapErr((e: string) => e.toUpperCase(), asyncErr('boom')); // Err('BOOM')
- * await mapErr((e: string) => e.toUpperCase(), asyncOk(42)); // Ok(42)
+ *
+ * const input = asyncErr('boom');
+ * const wrapped = mapErr((e: string) => e.toUpperCase(), input);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => e, wrapped);
+ * // label === 'BOOM'
+ *
+ * const healthy = asyncOk(42);
+ * const passthrough = await mapErr((e: string) => e.toUpperCase(), healthy);
+ * // passthrough stays Ok(42); mapErr short-circuits on success
  * ```
  */
 export function mapErr<T, E, F>(

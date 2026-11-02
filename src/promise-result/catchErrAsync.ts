@@ -23,9 +23,18 @@ export function catchErrAsync<A, E>(
  *
  * @example
  * ```ts
- * import { catchErrAsync } from '@sandlada/result/promise-result';
- * import { asyncErr } from '@sandlada/result/factories';
- * await catchErrAsync(async (e: string) => 0, asyncErr('boom')); // Ok(0)
+ * import { catchErrAsync, unwrapOr } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ *
+ * const input = asyncErr('boom');
+ * const recovered = catchErrAsync((_e: string) => 0, input);
+ * const value = await unwrapOr(-1, recovered);
+ * // value === 0 after recovery
+ *
+ * const healthy = asyncOk(42);
+ * const untouched = catchErrAsync((_e: string) => 0, healthy);
+ * const kept = await unwrapOr(-1, untouched);
+ * // kept === 42; catchErrAsync only runs on Err
  * ```
  */
 export function catchErrAsync<A, E>(

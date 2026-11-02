@@ -22,11 +22,17 @@ export function unwrapOrAsync<A, E, D = A>(
  *
  * @example
  * ```ts
- * import { unwrapOrAsync } from '@sandlada/result/promise-result';
+ * import { unwrapOrAsync, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await unwrapOrAsync(0, asyncOk(42));                       // 42
- * await unwrapOrAsync(0, asyncErr('boom'));                  // 0
- * await unwrapOrAsync(Promise.resolve(0), asyncErr('boom')); // 0
+ *
+ * const input = asyncOk(42);
+ * const value = await unwrapOrAsync(0, input);
+ * const doubled = await mapAsync((x: number) => x * 2, asyncOk(value));
+ * // value === 42 and doubled resolves to Ok(84)
+ *
+ * const failed = asyncErr('boom');
+ * const fallback = await unwrapOrAsync(Promise.resolve(0), failed);
+ * // fallback === 0; async defaults are awaited before returning
  * ```
  */
 export function unwrapOrAsync<A, E, D = A>(

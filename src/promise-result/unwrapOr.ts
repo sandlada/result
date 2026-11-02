@@ -18,10 +18,17 @@ export function unwrapOr<A, E>(
  *
  * @example
  * ```ts
- * import { unwrapOr } from '@sandlada/result/promise-result';
+ * import { unwrapOr, mapAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await unwrapOr(0, asyncOk(42));  // 42
- * await unwrapOr(0, asyncErr('x')); // 0
+ *
+ * const input = asyncOk(42);
+ * const value = await unwrapOr(0, input);
+ * const doubled = await mapAsync((x: number) => x * 2, asyncOk(value));
+ * // value === 42 and doubled resolves to Ok(84)
+ *
+ * const failed = asyncErr('x');
+ * const fallback = await unwrapOr(0, failed);
+ * // fallback === 0; unwrapOr returns the default when the carrier is Err
  * ```
  */
 export function unwrapOr<A, E>(

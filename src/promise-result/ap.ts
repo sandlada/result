@@ -22,10 +22,18 @@ export function ap<A, B, E>(
  *
  * @example
  * ```ts
- * import { ap } from '@sandlada/result/promise-result';
+ * import { ap, matchAsync } from '@sandlada/result/promise-result';
  * import { asyncOk, asyncErr } from '@sandlada/result/factories';
- * await ap(asyncOk((x: number) => x * 2), asyncOk(21)); // Ok(42)
- * await ap(asyncOk((x: number) => x * 2), asyncErr('x')); // Err('x')
+ *
+ * const fnCarrier = asyncOk((x: number) => x * 2);
+ * const valueCarrier = asyncOk(21);
+ * const applied = ap(fnCarrier, valueCarrier);
+ * const label = await matchAsync((n) => `ok:${n}`, (e) => `err:${String(e)}`, applied);
+ * // label === 'ok:42'
+ *
+ * const brokenValue = asyncErr('x');
+ * const shortCircuited = await ap(fnCarrier, brokenValue);
+ * // shortCircuited is Err('x'); ap stops at the first failing operand
  * ```
  */
 export function ap<A, B, E>(
