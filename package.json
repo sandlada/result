@@ -87,7 +87,7 @@
         "build": "npm run clean && npm run build:types && npm run build:js && npm run verify:build",
         "build:types": "tsc --project tsconfig.build.json",
         "build:js": "rolldown --config",
-        "verify:build": "node scripts/verify-build.mjs && node scripts/verify-readme.mjs && node scripts/verify-examples.mjs",
+        "verify:build": "node scripts/verify-build.mjs && node scripts/verify-readme.mjs && node scripts/verify-examples.mjs && node scripts/verify-markers.mjs",
         "verify:readme": "node scripts/verify-readme.mjs",
         "verify:examples": "node scripts/verify-examples.mjs",
         "typecheck": "tsc --project tsconfig.json --noEmit",

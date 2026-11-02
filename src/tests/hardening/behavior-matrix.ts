@@ -214,8 +214,8 @@ const probeIdentity = (probe: Pick<ChannelProbe, 'module' | 'api' | 'scenario'>)
     `${probe.module}|${probe.api}|${probe.scenario}`;
 
 /**
- * Default throw-channel expectation for a probe scenario (TASK1 R3). Used for shadow
- * comparison only — does not change runtime behavior until Phase 4.2 resolves diffs.
+ * Default throw-channel expectation for a probe scenario. Used for shadow
+ * comparison only. It does not change runtime behavior.
  */
 export const defaultProbePolicy = (
     probe: Pick<ChannelProbe, 'module' | 'api' | 'scenario'>,
