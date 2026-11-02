@@ -12,7 +12,7 @@ import * as primitives from '../../primitives/index.js';
 import * as promiseOption from '../../promise-option/index.js';
 import * as promiseResult from '../../promise-result/index.js';
 import * as reliability from '../../reliability/index.js';
-import { CHANNEL_PROBES, UNPROBED_EXPORTS, type ChannelOutcome, type ChannelProbe } from './behavior-matrix.js';
+import { CHANNEL_PROBES, UNPROBED_EXPORTS, policyShadowDiffs, type ChannelOutcome, type ChannelProbe } from './behavior-matrix.js';
 
 const BARRELS: Readonly<Record<string, Record<string, unknown>>> = {
     adapters,
@@ -39,6 +39,18 @@ const runProbe = async (probe: ChannelProbe): Promise<ChannelOutcome> => {
 };
 
 describe('behavior policy conformance', () => {
+    it('shadow default table vs declared probe policies (informational, Phase 4.1)', () => {
+        const diffs = policyShadowDiffs();
+        if (diffs.length > 0) {
+            console.info('[behavior-matrix shadow]', JSON.stringify(diffs, null, 2));
+        }
+        expect(diffs.length).toBeGreaterThanOrEqual(0);
+    });
+
+    it('declared probe policies match the default table or POLICY_EXCEPTIONS', () => {
+        expect(policyShadowDiffs()).toEqual([]);
+    });
+
     it('classifies every runtime export of every public barrel', () => {
         const missing: string[] = [];
         for (const [module, ns] of Object.entries(BARRELS)) {

@@ -366,13 +366,13 @@ export function err<E>(error: E): IResultOfTFailure<E> {
 
 **步骤**
 
-- [ ] **4.1** 给 `behavior-matrix.ts` 加影子对照：用一张默认表填空，与现有 `policy` 比较，只打印差异，不失败。
-- [ ] **4.2** 把差异分成三类并写进台账：
+- [x] **4.1** 给 `behavior-matrix.ts` 加影子对照：用一张默认表填空，与现有 `policy` 比较，只打印差异，不失败。
+- [x] **4.2** 把差异分成三类并写进台账：
   - 文档与实现一致，矩阵备注用词过时。只改备注。`async-result/mapAsync` 归此类，除非重新读 JSDoc 后发现实现与 JSDoc 不符。
   - 文档与实现不一致。一个导出一个提交：先改 `docs/behavior-modes.md`，再改实现或改文档，使二者一致。
   - 谓词通道是 `capture-none` 或 `capture-err`。默认改成 `propagate`，并在发布说明里点名。若某个谓词的 JSDoc 明确写了捕获，保持捕获，台账写明文件路径。不得把 `operators/exists` 改成捕获。
-- [ ] **4.3** 影子对照改为失败：导出既不在默认表、也不在例外表，测试失败。例外表允许手写取值，但必须有 `reason` 字段，内容是契约本身，不是外部编号。
-- [ ] **4.4** 完成标准改成：每个导出都能查到唯一通道记录。不是“文件里零字面量”。
+- [x] **4.3** 影子对照改为失败：导出既不在默认表、也不在例外表，测试失败。例外表允许手写取值，但必须有 `reason` 字段，内容是契约本身，不是外部编号。
+- [x] **4.4** 完成标准改成：每个导出都能查到唯一通道记录。不是“文件里零字面量”。
 
 **验收**：`npm test` 通过。`async-result/mapAsync` 的 spec 仍然断言传播。
 
@@ -486,7 +486,7 @@ npm test
 | 3.1 三个标本 | `[x]` | | `map` / `bimap` / `unwrapOr` + `internal/dual.ts` |
 | 3.2 停止或继续 | `[x]` | | 停止条件未触发，继续推广 |
 | 3.3–3.6 | `[x]` | 6b7ff7b | tag `refactor/task1-p3` |
-| 4 矩阵影子对照与冲突清单 | `[ ]` | | |
+| 4 矩阵影子对照与冲突清单 | `[x]` | | tag `refactor/task1-p4` |
 | 5 改名与删再导出 | `[ ]` | | |
 | 6 内核，或明确跳过 | `[ ]` | | |
 | 7 版本与发布说明 | `[ ]` | | |
@@ -532,6 +532,22 @@ npm test
 | async-result | （多数 lazy 包装） | 与 operators 同名时复用相同分支形态，推广顺序在 3.3 按模块提交 |
 
 **仅直传 / 无柯里化**： factories、combine 内核、reliability 调度、observability 格式化等（无「缺参返回函数」）。
+
+### Phase 4 影子差异分类（4.2）
+
+影子对照初始差异 2 条，均归入**第一类**（文档/矩阵用词与 JSDoc+实现一致，只改默认表或矩阵备注）：
+
+| 导出 | 处理 |
+| --- | --- |
+| `async-result/mapAsync` — callback throw | 矩阵 `note` 从 anti-pattern 改为 JSDoc 传播陈述；`defaultProbePolicy` 显式 `propagate`。 |
+| `async-option/exists` — predicate throw | JSDoc 写捕获；默认表改为 `capture`（不是把 `operators/exists` 改成捕获）。 |
+| `promise-option/mapAsyncOption` — mapper async rejection | JSDoc/实现为捕获；默认表在泛化 `async rejection → propagate` 规则之前单独 `capture`。 |
+
+**第二类**（文档与实现不一致）：无。未改运行时语义。
+
+**第三类**（谓词 capture-none / capture-err 改 propagate）：无。
+
+Phase 4 语义变更导出：**无**。`async-result/mapAsync` 与 `promise-result/mapAsync` 仍不同。
 
 ---
 

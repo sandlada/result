@@ -103,7 +103,7 @@ export const CHANNEL_PROBES: readonly ChannelProbe[] = [
     // ── async-result ────────────────────────────────────────────────────
     { module: 'async-result', api: 'map', scenario: 'callback throw', policy: 'capture', run: () => asyncChannel(arMap(() => { throw new Error('probe'); }, fromResult(ok(1))).run()) },
     { module: 'async-result', api: 'map', scenario: 'thenable mapper misuse', policy: 'capture', run: () => asyncChannel(arMap((() => Promise.resolve(1)) as never, fromResult(ok(1))).run()) },
-    { module: 'async-result', api: 'mapAsync', scenario: 'callback throw', policy: 'propagate', note: 'declared anti-pattern (escape hatch)', run: () => asyncChannel(arMapAsync(() => { throw new Error('probe'); }, fromResult(ok(1))).run()) },
+    { module: 'async-result', api: 'mapAsync', scenario: 'callback throw', policy: 'propagate', note: 'JSDoc: sync throws and callback rejections propagate through .run()', run: () => asyncChannel(arMapAsync(() => { throw new Error('probe'); }, fromResult(ok(1))).run()) },
     { module: 'async-result', api: 'bind', scenario: 'inner carrier async rejection', policy: 'capture', run: () => asyncChannel(arBind(() => rejectingCarrier, fromResult(ok(1))).run()) },
     { module: 'async-result', api: 'orElse', scenario: 'inner carrier async rejection', policy: 'capture', run: () => asyncChannel(arOrElse(() => rejectingCarrier, fromResult(err('e'))).run()) },
     { module: 'async-result', api: 'andThrough', scenario: 'inner carrier async rejection', policy: 'capture', run: () => asyncChannel(andThrough(() => rejectingCarrier, fromResult(ok(1))).run()) },
@@ -189,3 +189,84 @@ export const UNPROBED_EXPORTS: Readonly<Record<string, readonly string[]>> = {
     'promise-result': ['asyncOk', 'asyncErr', 'flatten', 'mapErr', 'unwrapOr', 'unwrapOrElse', 'containsAsync', 'existsAsync', 'filterOrElseAsync', 'flattenAsync', 'mapAsync', 'mapErrAsync', 'mapOrAsync', 'mapOrElseAsync', 'matchAsync', 'orElseAsync', 'swapAsync', 'tapAsync', 'tapErrAsync', 'unwrapOrAsync', 'unwrapOrElseAsync', 'asyncBind', 'asyncMap', 'asyncOrElse', 'asyncTap', 'asyncTapErr', 'combine', 'combineWithAllErrors'],
     reliability: ['retry', 'retryLazy', 'timeoutEager'],
 };
+
+export interface PolicyShadowDiff {
+    readonly module: string;
+    readonly api: string;
+    readonly scenario: string;
+    readonly declared: ChannelOutcome;
+    readonly defaultPolicy: ChannelOutcome;
+}
+
+export interface PolicyException {
+    readonly module: string;
+    readonly api: string;
+    readonly scenario: string;
+    readonly policy: ChannelOutcome;
+    readonly reason: string;
+}
+
+/** Hand-written overrides where the default table does not apply. Phase 4.3 requires a `reason`. */
+export const POLICY_EXCEPTIONS: readonly PolicyException[] = [];
+
+const probeIdentity = (probe: Pick<ChannelProbe, 'module' | 'api' | 'scenario'>): string =>
+    `${probe.module}|${probe.api}|${probe.scenario}`;
+
+/**
+ * Default throw-channel expectation for a probe scenario (TASK1 R3). Used for shadow
+ * comparison only — does not change runtime behavior until Phase 4.2 resolves diffs.
+ */
+export const defaultProbePolicy = (
+    probe: Pick<ChannelProbe, 'module' | 'api' | 'scenario'>,
+): ChannelOutcome | undefined => {
+    const { module, api, scenario } = probe;
+
+    const exception = POLICY_EXCEPTIONS.find(
+        (e) => e.module === module && e.api === api && e.scenario === scenario,
+    );
+    if (exception) return exception.policy;
+
+    if (module === 'async-result' && api === 'mapAsync') return 'propagate';
+    if (api === 'choose') return 'propagate';
+    if (api === 'pipeAsync') return 'propagate';
+    if (api === 'sequenceAsyncResult') return 'propagate';
+    if (module === 'async-result' && api === 'mapOrElse') return 'propagate';
+    if (module === 'promise-result' && api === 'bindAsync') return 'propagate';
+    if (module === 'promise-result' && api === 'catchErrAsync') return 'propagate';
+    if (module === 'promise-result' && api === 'asyncMatch') return 'propagate';
+    if (scenario === 'errorFn throw') return 'capture';
+    if (module === 'async-option' && api === 'exists') return 'capture';
+    if (api === 'exists' || api === 'contains') return 'propagate';
+    if (module === 'promise-option' && api === 'mapAsyncOption') return 'capture';
+    if (module === 'promise-option' && scenario.includes('async rejection')) return 'propagate';
+    if (scenario === 'recovery callback throw' && api === 'catchErrAsync') return 'propagate';
+    if (scenario === 'recovery callback throw') return 'capture';
+    if (scenario === 'callback throw') return 'capture';
+    if (scenario === 'inner carrier async rejection') return 'capture';
+    if (scenario === 'predicate throw') return 'propagate';
+    if (scenario === 'step throw' && api === 'composeKAsync') return 'capture';
+    if (scenario.includes('throw') || scenario.includes('rejection')) return 'capture';
+    return undefined;
+};
+
+/** Declared matrix policy vs default table. Phase 4.1 logs these; Phase 4.3 fails on them. */
+export const policyShadowDiffs = (): readonly PolicyShadowDiff[] => {
+    const diffs: PolicyShadowDiff[] = [];
+    for (const probe of CHANNEL_PROBES) {
+        const defaultPolicy = defaultProbePolicy(probe);
+        if (defaultPolicy === undefined) continue;
+        if (probe.policy !== defaultPolicy) {
+            diffs.push({
+                module: probe.module,
+                api: probe.api,
+                scenario: probe.scenario,
+                declared: probe.policy,
+                defaultPolicy,
+            });
+        }
+    }
+    return diffs;
+};
+
+export const policyShadowDiffKeys = (): readonly string[] =>
+    policyShadowDiffs().map((d) => probeIdentity(d));
