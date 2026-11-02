@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function mapOrElse<A, B, E>(
     onErr: (e: E) => B,
@@ -24,6 +25,12 @@ export function mapOrElse<A, B, E>(
     fn: (a: A) => B,
     r?: IResultOfT<A, E>,
 ): B | ((r: IResultOfT<A, E>) => B) {
-    if(r === undefined) return (r: IResultOfT<A, E>): B => mapOrElse(onErr, fn, r);
+    return dualByArity(2, mapOrElseDirect as (...args: unknown[]) => unknown)(onErr, fn, r) as B | ((r: IResultOfT<A, E>) => B);
+}
+
+function mapOrElseDirect(...args: unknown[]): unknown {
+    const onErr = args[0] as (e: unknown) => unknown;
+    const fn = args[1] as (a: unknown) => unknown;
+    const r = args[2] as IResultOfT<unknown, unknown>;
     return r.isSuccess ? fn(r.value) : onErr(r.error);
 }

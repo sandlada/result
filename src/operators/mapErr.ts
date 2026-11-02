@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function mapErr<E, F>(f: (e: E) => F): <A>(r: IResultOfT<A, E>) => IResultOfT<A, F>;
 export function mapErr<A, E, F>(f: (e: E) => F, r: IResultOfT<A, E>): IResultOfT<A, F>;
@@ -21,7 +22,14 @@ export function mapErr<A, E, F>(f: (e: E) => F, r: IResultOfT<A, E>): IResultOfT
  * ```
  */
 export function mapErr<A, E, F>(f: (e: E) => F, r?: IResultOfT<A, E>): IResultOfT<A, F> | (<A>(r: IResultOfT<A, E>) => IResultOfT<A, F>) {
-    if(r === undefined) return <A>(r: IResultOfT<A, E>): IResultOfT<A, F> => mapErr(f, r);
-    if(r.isSuccess) return r as unknown as IResultOfT<A, F>;
+    return dualByArity(1, mapErrDirect as (...args: unknown[]) => unknown)(f, r) as
+        | IResultOfT<A, F>
+        | (<A>(r: IResultOfT<A, E>) => IResultOfT<A, F>);
+}
+
+function mapErrDirect(...args: unknown[]): unknown {
+    const f = args[0] as (e: unknown) => unknown;
+    const r = args[1] as IResultOfT<unknown, unknown>;
+    if (r.isSuccess) return r as unknown as IResultOfT<unknown, unknown>;
     return err(f(r.error));
 }

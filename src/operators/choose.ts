@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function choose<A, B, E>(
     fn: (a: A) => IResultOfT<B, E>,
@@ -28,10 +29,14 @@ export function choose<A, B, E>(
     fn: (a: A) => IResultOfT<B, E>,
     items?: readonly A[],
 ): B[] | ((items: readonly A[]) => B[]) {
-    if (items === undefined) return (items: readonly A[]): B[] => choose(fn, items);
+    return dualByArity(1, chooseDirect as (...args: unknown[]) => unknown)(fn, items) as B[] | ((items: readonly A[]) => B[]);
+}
 
+function chooseDirect(...args: unknown[]): unknown {
+    const fn = args[0] as (a: unknown) => IResultOfT<unknown, unknown>;
+    const items = args[1] as readonly unknown[];
     const len = items.length;
-    const result: B[] = [];
+    const result: unknown[] = [];
     for (let i = 0; i < len; i++) {
         const r = fn(items[i]!);
         if (r.isSuccess) {

@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 /**
  * Unwraps a result, throwing the error on failure.
@@ -45,7 +46,12 @@ export function orThrowWith<T, E>(
     errorFn: (error: E) => Error,
     r?: IResultOfT<T, E>,
 ): T | (<T2 extends T>(r2: IResultOfT<T2, E>) => T2) {
-    if(r === undefined) return <T2 extends T>(r2: IResultOfT<T2, E>): T2 => orThrowWith(errorFn, r2);
-    if(!r.isSuccess) throw errorFn(r.error);
+    return dualByArity(1, orThrowWithDirect as (...args: unknown[]) => unknown)(errorFn, r) as T | (<T2 extends T>(r2: IResultOfT<T2, E>) => T2);
+}
+
+function orThrowWithDirect(...args: unknown[]): unknown {
+    const errorFn = args[0] as (error: unknown) => Error;
+    const r = args[1] as IResultOfT<unknown, unknown>;
+    if (!r.isSuccess) throw errorFn(r.error);
     return r.value;
 }

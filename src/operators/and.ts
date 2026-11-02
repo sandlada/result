@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function and<B, F>(other: IResultOfT<B, F>): <A, E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>;
 export function and<A, E, B, F>(other: IResultOfT<B, F>, r: IResultOfT<A, E>): IResultOfT<B, E | F>;
@@ -16,7 +17,14 @@ export function and<A, E, B, F>(other: IResultOfT<B, F>, r: IResultOfT<A, E>): I
  * ```
  */
 export function and<A, E, B, F>(other: IResultOfT<B, F>, r?: IResultOfT<A, E>): IResultOfT<B, E | F> | ((r: IResultOfT<A, E>) => IResultOfT<B, E | F>) {
-    if(r === undefined) return (r: IResultOfT<A, E>): IResultOfT<B, E | F> => and(other, r);
-    if(!r.isSuccess) return r as unknown as IResultOfT<B, E | F>;
-    return other as unknown as IResultOfT<B, E | F>;
+    return dualByArity(1, andDirect as (...args: unknown[]) => unknown)(other, r) as
+        | IResultOfT<B, E | F>
+        | ((r: IResultOfT<A, E>) => IResultOfT<B, E | F>);
+}
+
+function andDirect(...args: unknown[]): unknown {
+    const other = args[0] as IResultOfT<unknown, unknown>;
+    const r = args[1] as IResultOfT<unknown, unknown>;
+    if (!r.isSuccess) return r as unknown as IResultOfT<unknown, unknown>;
+    return other as unknown as IResultOfT<unknown, unknown>;
 }

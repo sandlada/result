@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function bind<A, B, F>(
     f: (a: A) => IResultOfT<B, F>,
@@ -29,7 +30,14 @@ export function bind<A, B, E, F>(
     f: (a: A) => IResultOfT<B, F>,
     r?: IResultOfT<A, E>,
 ): IResultOfT<B, E | F> | (<E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>) {
-    if(r === undefined) return <E>(r: IResultOfT<A, E>): IResultOfT<B, E | F> => bind(f, r);
-    if(!r.isSuccess) return r as unknown as IResultOfT<B, E | F>;
-    return f(r.value) as unknown as IResultOfT<B, E | F>;
+    return dualByArity(1, bindDirect as (...args: unknown[]) => unknown)(f, r) as
+        | IResultOfT<B, E | F>
+        | (<E>(r: IResultOfT<A, E>) => IResultOfT<B, E | F>);
+}
+
+function bindDirect(...args: unknown[]): unknown {
+    const f = args[0] as (a: unknown) => IResultOfT<unknown, unknown>;
+    const r = args[1] as IResultOfT<unknown, unknown>;
+    if (!r.isSuccess) return r as unknown as IResultOfT<unknown, unknown>;
+    return f(r.value) as unknown as IResultOfT<unknown, unknown>;
 }

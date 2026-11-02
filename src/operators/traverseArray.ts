@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function traverseArray<A, B, E>(
     fn: (item: A, index: number) => IResultOfT<B, E>,
@@ -31,18 +32,24 @@ export function traverseArray<A, B, E>(
     fn: (item: A, index: number) => IResultOfT<B, E>,
     items?: readonly A[],
 ): IResultOfT<B[], E> | ((items: readonly A[]) => IResultOfT<B[], E>) {
-    if(items === undefined) return (items: readonly A[]): IResultOfT<B[], E> => traverseArray(fn, items);
-    const values: B[] = [];
-    for(let i = 0; i < items.length; i++) {
-        // items[i] is safe: loop guard ensures i < items.length
+    return dualByArity(1, traverseArrayDirect as (...args: unknown[]) => unknown)(fn, items) as
+        | IResultOfT<B[], E>
+        | ((items: readonly A[]) => IResultOfT<B[], E>);
+}
+
+function traverseArrayDirect(...args: unknown[]): unknown {
+    const fn = args[0] as (item: unknown, index: number) => IResultOfT<unknown, unknown>;
+    const items = args[1] as readonly unknown[];
+    const values: unknown[] = [];
+    for (let i = 0; i < items.length; i++) {
         const item = items[i]!;
-        let r: IResultOfT<B, E>;
+        let r: IResultOfT<unknown, unknown>;
         try {
             r = fn(item, i);
-        } catch(e: unknown) {
-            return err(e as unknown as E);
+        } catch (e: unknown) {
+            return err(e as unknown as unknown);
         }
-        if(!r.isSuccess) return r as unknown as IResultOfT<B[], E>;
+        if (!r.isSuccess) return r as unknown as IResultOfT<unknown[], unknown>;
         values.push(r.value);
     }
     return ok(values);

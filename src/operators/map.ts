@@ -2,7 +2,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
 import { err } from '../factories/err.js';
 import { applyErrorFn } from './errorMapper.js';
-import { dualCarrierOrFn } from '../internal/dual.js';
+import { dualCarrierOrFn, carrierOrFnDirect } from '../internal/dual.js';
 
 export function map<A, B>(
     f: (a: A) => B,
@@ -63,12 +63,8 @@ function mapDirect(
     second?: IResultOfT<unknown, unknown> | ((thrown: unknown) => unknown),
     third?: (thrown: unknown) => unknown,
 ): unknown {
-    const hasCarrier = third !== undefined || (second !== undefined && typeof second !== 'function');
-    if (hasCarrier) {
-        const r = (typeof second === 'function' ? third : second) as IResultOfT<unknown, unknown>;
-        const eFn = typeof second === 'function' ? second : third;
-        return mapApply(f, r, eFn);
-    }
-    const eFn = typeof second === 'function' ? second : undefined;
-    return <E2>(r: IResultOfT<unknown, E2>): IResultOfT<unknown, E2> => mapApply(f, r, eFn);
+    return carrierOrFnDirect(1, ({ config, carrier, errorFn }) => {
+        const fn = config[0] as (a: unknown) => unknown;
+        return mapApply(fn, carrier as IResultOfT<unknown, unknown>, errorFn as ((thrown: unknown) => unknown) | undefined);
+    }, f, second, third);
 }

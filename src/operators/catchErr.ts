@@ -1,5 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { ok } from '../factories/ok.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function catchErr<B, E>(
     onErr: (e: E) => B,
@@ -65,12 +66,14 @@ export function catchErr<A, B, E>(
     onErr: (e: E) => B,
     r?: IResultOfT<A, E>,
 ): IResultOfT<A | B, never> | (<A2>(r: IResultOfT<A2, E>) => IResultOfT<A2 | B, never>) {
-    if (r === undefined) {
-        return <A2>(rr: IResultOfT<A2, E>): IResultOfT<A2 | B, never> => {
-            if (rr.isSuccess) return rr as unknown as IResultOfT<A2 | B, never>;
-            return ok(onErr(rr.error));
-        };
-    }
-    if (r.isSuccess) return r as unknown as IResultOfT<A | B, never>;
+    return dualByArity(1, catchErrDirect as (...args: unknown[]) => unknown)(onErr, r) as
+        | IResultOfT<A | B, never>
+        | (<A2>(r: IResultOfT<A2, E>) => IResultOfT<A2 | B, never>);
+}
+
+function catchErrDirect(...args: unknown[]): unknown {
+    const onErr = args[0] as (e: unknown) => unknown;
+    const r = args[1] as IResultOfT<unknown, unknown>;
+    if (r.isSuccess) return r as unknown as IResultOfT<unknown, never>;
     return ok(onErr(r.error));
 }

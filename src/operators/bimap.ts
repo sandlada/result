@@ -2,7 +2,7 @@ import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { applyErrorFn } from './errorMapper.js';
 import { ok } from '../factories/ok.js';
-import { dualCarrierOrFn } from '../internal/dual.js';
+import { dualCarrierOrFn, carrierOrFnDirect } from '../internal/dual.js';
 
 // Curried — `<A2, E2>` are deferred to the application site so a wider
 // input type still typechecks. Mirrors the design of `map` / `mapErr`.
@@ -67,18 +67,18 @@ function bimapApply<A, E, C, F>(
     }
 }
 
-function bimapDirect<A, E, C, F>(
-    onOk: (a: A) => C,
-    onErr: (e: E) => F,
-    third?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
-    fourth?: (thrown: unknown) => F,
-): IResultOfT<C, F> | ((r: IResultOfT<A, E>) => IResultOfT<C, F>) {
-    const hasCarrier = fourth !== undefined || (third !== undefined && typeof third !== 'function');
-    if (hasCarrier) {
-        const r = (typeof third === 'function' ? fourth : third) as IResultOfT<A, E>;
-        const eFn = typeof third === 'function' ? third : fourth;
-        return bimapApply(onOk, onErr, r, eFn);
-    }
-    const eFn = typeof third === 'function' ? third : undefined;
-    return <A2 extends A, E2 extends E>(r: IResultOfT<A2, E2>): IResultOfT<C, F> => bimapApply(onOk, onErr, r, eFn);
+function bimapDirect(
+    onOk: (a: unknown) => unknown,
+    onErr: (e: unknown) => unknown,
+    third?: IResultOfT<unknown, unknown> | ((thrown: unknown) => unknown),
+    fourth?: (thrown: unknown) => unknown,
+): unknown {
+    return carrierOrFnDirect(2, ({ config, carrier, errorFn }) => {
+        return bimapApply(
+            config[0] as (a: unknown) => unknown,
+            config[1] as (e: unknown) => unknown,
+            carrier as IResultOfT<unknown, unknown>,
+            errorFn as ((thrown: unknown) => unknown) | undefined,
+        );
+    }, onOk, onErr, third, fourth);
 }

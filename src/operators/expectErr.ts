@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function expectErr<A, E>(msg: string): <E2 extends E>(r: IResultOfT<A, E2>) => E2;
 export function expectErr<A, E>(msg: string, r: IResultOfT<A, E>): E;
@@ -28,13 +29,17 @@ export function expectErr<A, E>(
     r?: IResultOfT<A, E>,
     throwingFn?: (info: { message: string; value: A }) => Error,
 ): E | (<E2 extends E>(r2: IResultOfT<A, E2>) => E2) {
+    return dualByArity(1, expectErrDirect as (...args: unknown[]) => unknown)(msg, r, throwingFn) as
+        | E
+        | (<E2 extends E>(r2: IResultOfT<A, E2>) => E2);
+}
+
+function expectErrDirect(...args: unknown[]): unknown {
+    const msg = args[0] as string;
+    const r = args[1] as IResultOfT<unknown, unknown> | undefined;
+    const throwingFn = args[2] as ((info: { message: string; value: unknown }) => Error) | undefined;
     if (r === undefined) {
-        return <E2 extends E>(r2: IResultOfT<A, E2>): E2 => {
-            if (r2.isSuccess) {
-                throw new TypeError(msg);
-            }
-            return r2.error;
-        };
+        return (r2: IResultOfT<unknown, unknown>): unknown => expectErrDirect(msg, r2, throwingFn);
     }
     if (r.isSuccess) {
         if (throwingFn) {

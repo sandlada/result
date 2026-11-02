@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { ok } from '../factories/ok.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function ap<A, B, E, F>(
     fnResult: IResultOfT<(a: A) => B, E>,
@@ -37,12 +38,19 @@ export function ap<A, B, E, F>(
     fnResult: IResultOfT<(a: A) => B, E>,
     result?: IResultOfT<A, F>,
 ): IResultOfT<B, E | F> | ((result: IResultOfT<A, F>) => IResultOfT<B, E | F>) {
-    if (result === undefined) return (result: IResultOfT<A, F>): IResultOfT<B, E | F> => ap(fnResult, result);
-    if (!fnResult.isSuccess) return fnResult as unknown as IResultOfT<B, E | F>;
-    if (!result.isSuccess) return result as unknown as IResultOfT<B, E | F>;
+    return dualByArity(1, apDirect as (...args: unknown[]) => unknown)(fnResult, result) as
+        | IResultOfT<B, E | F>
+        | ((result: IResultOfT<A, F>) => IResultOfT<B, E | F>);
+}
+
+function apDirect(...args: unknown[]): unknown {
+    const fnResult = args[0] as IResultOfT<(a: unknown) => unknown, unknown>;
+    const result = args[1] as IResultOfT<unknown, unknown>;
+    if (!fnResult.isSuccess) return fnResult as unknown as IResultOfT<unknown, unknown>;
+    if (!result.isSuccess) return result as unknown as IResultOfT<unknown, unknown>;
     try {
         return ok(fnResult.value(result.value));
     } catch (e: unknown) {
-        return err(e as unknown as E | F);
+        return err(e as unknown as unknown);
     }
 }

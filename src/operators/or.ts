@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 // Curried — E is deferred to the application site so it doesn't widen to
 // unknown from the surrounding context.
@@ -32,7 +33,14 @@ export function or<A, E, F>(other: IResultOfT<A, F>, r: IResultOfT<A, E>): IResu
  * ```
  */
 export function or<A, F>(other: IResultOfT<A, F>, r?: IResultOfT<A, unknown>): IResultOfT<A, unknown> | ((r: IResultOfT<A, unknown>) => IResultOfT<A, unknown>) {
-    if (r === undefined) return (r2: IResultOfT<A, unknown>): IResultOfT<A, unknown> => or(other, r2) as IResultOfT<A, unknown>;
+    return dualByArity(1, orDirect as (...args: unknown[]) => unknown)(other, r) as
+        | IResultOfT<A, unknown>
+        | ((r: IResultOfT<A, unknown>) => IResultOfT<A, unknown>);
+}
+
+function orDirect(...args: unknown[]): unknown {
+    const other = args[0] as IResultOfT<unknown, unknown>;
+    const r = args[1] as IResultOfT<unknown, unknown>;
     if (r.isSuccess) return r;
     return other;
 }

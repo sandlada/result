@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { dualByArity } from '../internal/dual.js';
 
 export function mapOr<A, B, E>(
     defaultValue: B,
@@ -25,6 +26,12 @@ export function mapOr<A, B, E>(
     fn: (a: A) => B,
     r?: IResultOfT<A, E>,
 ): B | ((r: IResultOfT<A, E>) => B) {
-    if(r === undefined) return (r: IResultOfT<A, E>): B => mapOr(defaultValue, fn, r);
+    return dualByArity(2, mapOrDirect as (...args: unknown[]) => unknown)(defaultValue, fn, r) as B | ((r: IResultOfT<A, E>) => B);
+}
+
+function mapOrDirect(...args: unknown[]): unknown {
+    const defaultValue = args[0];
+    const fn = args[1] as (a: unknown) => unknown;
+    const r = args[2] as IResultOfT<unknown, unknown>;
     return r.isSuccess ? fn(r.value) : defaultValue;
 }

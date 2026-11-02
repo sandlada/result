@@ -1,6 +1,7 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { err } from '../factories/err.js';
 import { applyErrorFn } from './errorMapper.js';
+import { dualCarrierOrFn, carrierOrFnDirect } from '../internal/dual.js';
 
 export function andTee<A, B, F>(
     fn: (a: A) => IResultOfT<B, F>,
@@ -67,21 +68,16 @@ export function andTee<A, E, B, F>(
     rOrErrorFn?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
     errorFn?: (thrown: unknown) => E,
 ): IResultOfT<A, E> | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<A, E2>) {
-    if (rOrErrorFn === undefined || typeof rOrErrorFn === 'function') {
-        const eFn = typeof rOrErrorFn === 'function' ? rOrErrorFn : undefined;
-        return <E2>(r: IResultOfT<A, E2>): IResultOfT<A, E2> => {
-            if (r.isSuccess) {
-                try {
-                    fn(r.value);
-                } catch (thrown: unknown) {
-                    const innerError = applyErrorFn(eFn, thrown) as unknown as E2;
-                    return err(innerError) as unknown as IResultOfT<A, E2>;
-                }
-            }
-            return r;
-        };
-    }
-    const r = rOrErrorFn;
+    return dualCarrierOrFn(1, andTeeDirect as (...args: unknown[]) => unknown)(fn, rOrErrorFn, errorFn) as
+        | IResultOfT<A, E>
+        | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<A, E2>);
+}
+
+function andTeeApply<A, E>(
+    fn: (a: A) => IResultOfT<unknown, unknown>,
+    r: IResultOfT<A, E>,
+    errorFn?: (thrown: unknown) => unknown,
+): IResultOfT<A, E> {
     if (r.isSuccess) {
         try {
             fn(r.value);
@@ -91,4 +87,18 @@ export function andTee<A, E, B, F>(
         }
     }
     return r;
+}
+
+function andTeeDirect(
+    fn: (a: unknown) => IResultOfT<unknown, unknown>,
+    second?: IResultOfT<unknown, unknown> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => unknown,
+): unknown {
+    return carrierOrFnDirect(1, ({ config, carrier, errorFn }) =>
+        andTeeApply(
+            config[0] as (a: unknown) => IResultOfT<unknown, unknown>,
+            carrier as IResultOfT<unknown, unknown>,
+            errorFn as ((thrown: unknown) => unknown) | undefined,
+        ),
+    fn, second, third);
 }
