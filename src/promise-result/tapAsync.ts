@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
 
 export function tapAsync<A>(
     fn: (a: A) => void | Promise<void>,
@@ -26,7 +27,7 @@ export function tapAsync<A, E>(
             try {
                 await fn(inner.value);
             } catch(e: unknown) {
-                return { isSuccess: false as const, isFailure: true as const, error: e as unknown as E } as unknown as IResultOfT<A, E>;
+                return err<A, E>(e as unknown as E);
             }
         }
         return inner;

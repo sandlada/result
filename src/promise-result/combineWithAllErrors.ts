@@ -1,4 +1,6 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { err } from '../factories/err.js';
+import { ok } from '../factories/ok.js';
 
 /**
  * Combines `Promise<IResultOfT>` accumulating **all** errors
@@ -25,8 +27,8 @@ export function combineWithAllErrors<A, E>(
             else errors.push(r.error);
         }
         if (errors.length > 0) {
-            return { isSuccess: false as const, isFailure: true as const, error: errors } as unknown as IResultOfT<A[], E[]>;
+            return err<A[], E[]>(errors);
         }
-        return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<A[], E[]>;
+        return ok<A[], E[]>(values);
     });
 }

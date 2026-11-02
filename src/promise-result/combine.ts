@@ -1,4 +1,5 @@
 import type { IResultOfT } from '../types/IResultOfT.js';
+import { ok } from '../factories/ok.js';
 
 /**
  * Combines an array of `Promise<IResultOfT>` into a single
@@ -23,6 +24,6 @@ export function combine<A, E>(
             if (!r.isSuccess) return r as unknown as IResultOfT<A[], E>;
             values.push(r.value);
         }
-        return { isSuccess: true as const, isFailure: false as const, value: values } as unknown as IResultOfT<A[], E>;
+        return ok<A[], E>(values);
     });
 }
