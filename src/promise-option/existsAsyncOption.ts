@@ -17,7 +17,8 @@ export function existsAsyncOption<T>(
  *
  * @example
  * ```ts
- * import { existsAsyncOption, ofSome } from '@sandlada/result/promise-option';
+ * import { existsAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const r = await existsAsyncOption(async (x: number) => x > 10, Promise.resolve(ofSome(42)));
  * // true
  * ```

@@ -16,7 +16,8 @@ export function mapOrElseAsync<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { mapOrElseAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await mapOrElseAsync((e: string) => 0, (x: number) => x * 2, asyncOk(5)); // 10
  * await mapOrElseAsync((e: string) => -1, (x: number) => x * 2, asyncErr('boom')); // -1
  * ```

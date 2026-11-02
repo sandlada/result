@@ -17,7 +17,7 @@ export function orElseAsyncOption<T>(
  * @example
  * ```ts
  * import { orElseAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * await orElseAsyncOption(
  *   () => Promise.resolve(ofSome(0)),
  *   Promise.resolve(ofNone()),

@@ -14,7 +14,8 @@ export function matchAsync<A, E, C>(
  *
  * @example
  * ```ts
- * import { matchAsync, asyncOk } from '@sandlada/result/promise-result';
+ * import { matchAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk } from '@sandlada/result/factories';
  * await matchAsync(
  *   (v: number) => `success: ${v}`,
  *   (e: string) => `failure: ${e}`,

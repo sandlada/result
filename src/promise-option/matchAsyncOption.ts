@@ -15,7 +15,7 @@ export function matchAsyncOption<T, U>(
  * @example
  * ```ts
  * import { matchAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * await matchAsyncOption(
  *   (v: number) => `some: ${v}`,
  *   () => `none`,

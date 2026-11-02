@@ -17,7 +17,7 @@ export function bindAsyncOption<T, U>(
  * @example
  * ```ts
  * import { bindAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * await bindAsyncOption(
  *   (x: number) => x > 0 ? Promise.resolve(ofSome(x * 2)) : Promise.resolve(ofNone()),
  *   Promise.resolve(ofSome(21)),

@@ -13,7 +13,8 @@ export function mapErrAsync<A, E, F>(
  *
  * @example
  * ```ts
- * import { mapErrAsync, asyncErr } from '@sandlada/result/promise-result';
+ * import { mapErrAsync } from '@sandlada/result/promise-result';
+ * import { asyncErr } from '@sandlada/result/factories';
  * await mapErrAsync((e: string) => `[wrapped] ${e}`, asyncErr('boom'));
  * ```
  */

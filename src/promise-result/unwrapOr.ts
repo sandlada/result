@@ -18,7 +18,8 @@ export function unwrapOr<A, E>(
  *
  * @example
  * ```ts
- * import { unwrapOr, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { unwrapOr } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await unwrapOr(0, asyncOk(42));  // 42
  * await unwrapOr(0, asyncErr('x')); // 0
  * ```

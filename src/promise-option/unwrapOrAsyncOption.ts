@@ -18,7 +18,7 @@ export function unwrapOrAsyncOption<T, D = T>(
  * @example
  * ```ts
  * import { unwrapOrAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * await unwrapOrAsyncOption(0, Promise.resolve(ofSome(42))); // 42
  * await unwrapOrAsyncOption(0, Promise.resolve(ofNone())); // 0
  * ```

@@ -19,7 +19,8 @@ export function mapErr<T, E, F>(
  *
  * @example
  * ```ts
- * import { mapErr, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { mapErr } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await mapErr((e: string) => e.toUpperCase(), asyncErr('boom')); // Err('BOOM')
  * await mapErr((e: string) => e.toUpperCase(), asyncOk(42)); // Ok(42)
  * ```

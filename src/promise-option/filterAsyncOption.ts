@@ -18,7 +18,8 @@ export function filterAsyncOption<T>(
  *
  * @example
  * ```ts
- * import { filterAsyncOption, ofSome } from '@sandlada/result/promise-option';
+ * import { filterAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const r = await filterAsyncOption(async (x: number) => x > 10, Promise.resolve(ofSome(21)));
  * // Some(21)
  * ```

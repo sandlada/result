@@ -391,7 +391,7 @@ export function err<E>(error: E): IResultOfTFailure<E> {
 - [x] **5.1** 新增 `bridge-result`，搬 §4.1 前七行。旧文件改为从新模块转出，测试先改导入，保证中间提交可编译。
 - [x] **5.2** 新增 `bridge-option`，搬 §4.1 后五行。同样先转出。
 - [x] **5.3** 按 §4.4 接两个模块的 README、exports、AGENTS、行为文档、矩阵、`site.mjs`。
-- [ ] **5.4** 从 `promise-result` 与 `promise-option` 删除已经搬走的导出和 §4.3 的再导出。
+- [x] **5.4** 从 `promise-result` 与 `promise-option` 删除已经搬走的导出和 §4.3 的再导出。
 - [ ] **5.5** `git mv` 完成 §4.2 的去后缀。先改名，再改引用。
 - [ ] **5.6** 删除 `adapters/liftMap` 三件套，更新 `adapters` README 和 barrel。
 - [ ] **5.7** 写迁移页 `site/src/content/docs/` 下的一篇文章，内容就是 §4.1、§4.2、§4.3。不要改 `0.20260811` 目录。
@@ -487,7 +487,7 @@ npm test
 | 3.2 停止或继续 | `[x]` | | 停止条件未触发，继续推广 |
 | 3.3–3.6 | `[x]` | 6b7ff7b | tag `refactor/task1-p3` |
 | 4 矩阵影子对照与冲突清单 | `[x]` | | tag `refactor/task1-p4` |
-| 5 改名与删再导出 | `[ ]` | eb1c5dc (5.1), e9fdf69 (5.2), f192dfd (5.3) | |
+| 5 改名与删再导出 | `[ ]` | eb1c5dc (5.1), e9fdf69 (5.2), f192dfd (5.3) | 5.4 pending |
 | 6 内核，或明确跳过 | `[ ]` | | |
 | 7 版本与发布说明 | `[ ]` | | |
 

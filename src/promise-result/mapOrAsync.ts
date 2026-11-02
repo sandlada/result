@@ -37,7 +37,8 @@ export function mapOrAsync<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapOrAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { mapOrAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await mapOrAsync(-1, (x: number) => x * 2, asyncOk(5)); // 10
  * await mapOrAsync(-1, (x: number) => x * 2, asyncErr('boom')); // -1
  * ```

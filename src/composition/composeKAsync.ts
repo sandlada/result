@@ -62,7 +62,7 @@ export function composeKAsync<A, B, C, D, F, G, H, E>(
  * @example
  * ```ts
  * import { composeKAsync } from '@sandlada/result/composition';
- * import { asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * const p = composeKAsync(
  *   (x: number) => asyncOk(x * 2),
  *   (x: number) => x > 50 ? asyncOk(x) : asyncErr('too small'),

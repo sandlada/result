@@ -16,7 +16,7 @@ export function mapOrAsyncOption<A, B>(
  * @example
  * ```ts
  * import { mapOrAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome, ofNone } from '@sandlada/result/promise-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  *
  * await mapOrAsyncOption(-1, (x: number) => x * 2, Promise.resolve(ofSome(21)));  // 42
  * await mapOrAsyncOption(-1, (x: number) => x * 2, Promise.resolve(ofNone()));    // -1

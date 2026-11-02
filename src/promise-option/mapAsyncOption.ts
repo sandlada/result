@@ -18,7 +18,7 @@ export function mapAsyncOption<T, U>(
  * @example
  * ```ts
  * import { mapAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * await mapAsyncOption((x: number) => x * 2, Promise.resolve(ofSome(21))); // Some(42)
  * ```
  */

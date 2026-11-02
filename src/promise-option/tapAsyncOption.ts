@@ -17,7 +17,7 @@ export function tapAsyncOption<T>(
  * @example
  * ```ts
  * import { tapAsyncOption } from '@sandlada/result/promise-option';
- * import { ofSome } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * await tapAsyncOption((v: number) => console.log(v), Promise.resolve(ofSome(42)));
  * ```
  */

@@ -14,7 +14,8 @@ export function mapAsync<A, B, E>(
  *
  * @example
  * ```ts
- * import { mapAsync, asyncOk } from '@sandlada/result/promise-result';
+ * import { mapAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk } from '@sandlada/result/factories';
  * await mapAsync((x: number) => x * 2, asyncOk(21)); // Ok(42)
  * ```
  */

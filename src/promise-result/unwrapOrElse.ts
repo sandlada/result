@@ -14,7 +14,8 @@ export function unwrapOrElse<A, E>(
  *
  * @example
  * ```ts
- * import { unwrapOrElse, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { unwrapOrElse } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await unwrapOrElse((e: string) => 0, asyncOk(42));    // 42
  * await unwrapOrElse((e: string) => 0, asyncErr('x'));  // 0
  * ```

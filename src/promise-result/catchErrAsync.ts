@@ -23,7 +23,8 @@ export function catchErrAsync<A, E>(
  *
  * @example
  * ```ts
- * import { catchErrAsync, asyncErr } from '@sandlada/result/promise-result';
+ * import { catchErrAsync } from '@sandlada/result/promise-result';
+ * import { asyncErr } from '@sandlada/result/factories';
  * await catchErrAsync(async (e: string) => 0, asyncErr('boom')); // Ok(0)
  * ```
  */

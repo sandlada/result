@@ -12,7 +12,8 @@ export function containsAsyncOption<T>(
  *
  * @example
  * ```ts
- * import { containsAsyncOption, ofSome } from '@sandlada/result/promise-option';
+ * import { containsAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const r = await containsAsyncOption(42, Promise.resolve(ofSome(42))); // true
  * ```
  */

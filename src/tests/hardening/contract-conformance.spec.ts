@@ -7,6 +7,8 @@ import * as observability from '../../observability/index.js';
 import * as operators from '../../operators/index.js';
 import * as option from '../../option/index.js';
 import * as primitives from '../../primitives/index.js';
+import * as bridgeOption from '../../bridge-option/index.js';
+import * as bridgeResult from '../../bridge-result/index.js';
 import * as promiseOption from '../../promise-option/index.js';
 import * as promiseResult from '../../promise-result/index.js';
 import * as reliability from '../../reliability/index.js';
@@ -64,33 +66,33 @@ describe('promise-result / ap', () => {
     });
 });
 
-describe('promise-result / async payload carriers', () => {
+describe('bridge-result / async payload carriers', () => {
     const thenable = { then(resolve: (value: string) => void): void { resolve('ADOPTED'); } };
 
-    it('hands a thenable payload to asyncOrElse unchanged', async () => {
+    it('hands a thenable payload to orElse unchanged', async () => {
         let seen: unknown;
-        await promiseResult.asyncOrElse(async (e) => { seen = e; return ok(1); }, err(thenable));
+        await bridgeResult.orElse(async (e) => { seen = e; return ok(1); }, err(thenable));
         expect(seen).toBe(thenable);
     });
 
-    it('hands a thenable payload to asyncBind unchanged', async () => {
+    it('hands a thenable payload to bind unchanged', async () => {
         let seen: unknown;
-        await promiseResult.asyncBind(async (v) => { seen = v; return ok(1); }, ok(thenable));
+        await bridgeResult.bind(async (v) => { seen = v; return ok(1); }, ok(thenable));
         expect(seen).toBe(thenable);
     });
 
-    it('hands a thenable payload to asyncMatch unchanged', async () => {
+    it('hands a thenable payload to match unchanged', async () => {
         let seen: unknown;
-        await promiseResult.asyncMatch({ ok: (v) => { seen = v; return 1; }, err: () => 0 }, ok(thenable));
+        await bridgeResult.match({ ok: (v) => { seen = v; return 1; }, err: () => 0 }, ok(thenable));
         expect(seen).toBe(thenable);
     });
 });
 
-describe('promise-option / asyncMatchOption', () => {
+describe('bridge-option / match', () => {
     it('hands a thenable payload to the some handler unchanged', async () => {
         const thenable = { then(resolve: (value: string) => void): void { resolve('ADOPTED'); } };
         let seen: unknown;
-        await promiseOption.asyncMatchOption({
+        await bridgeOption.match({
             some: (v) => { seen = v; return 'some'; },
             none: () => 'none',
         }, option.ofSome(thenable as never));
@@ -326,27 +328,27 @@ describe('async-option / okOrElse', () => {
     });
 });
 
-describe('promise-option / lift family', () => {
-    it('asyncMapOption converts a synchronous mapper into None instead of throwing', async () => {
-        const r = await promiseOption.asyncMapOption(((x: number) => x * 2) as never, option.ofSome(21));
+describe('bridge-option / lift family', () => {
+    it('map converts a synchronous mapper into None instead of throwing', async () => {
+        const r = await bridgeOption.map(((x: number) => x * 2) as never, option.ofSome(21));
         expect(r.isNone).toBe(true);
     });
 
-    it('asyncTapOption converts a synchronous callback into None instead of throwing', async () => {
-        const r = await promiseOption.asyncTapOption((() => undefined) as never, option.ofSome(21));
+    it('tap converts a synchronous callback into None instead of throwing', async () => {
+        const r = await bridgeOption.tap((() => undefined) as never, option.ofSome(21));
         expect(r.isNone).toBe(true);
     });
 
-    it('asyncBindOption returns a Promise even when the callback returns a plain Option', async () => {
-        const pending = promiseOption.asyncBindOption(((x: number) => option.ofSome(x * 2)) as never, option.ofSome(21));
+    it('bind returns a Promise even when the callback returns a plain Option', async () => {
+        const pending = bridgeOption.bind(((x: number) => option.ofSome(x * 2)) as never, option.ofSome(21));
         expect(pending).toBeInstanceOf(Promise);
         const r = await pending;
         expect(r.isSome).toBe(true);
         if (r.isSome) expect(r.value).toBe(42);
     });
 
-    it('asyncOrElseOption returns a Promise even when the callback returns a plain Option', async () => {
-        const pending = promiseOption.asyncOrElseOption((() => option.ofSome(0)) as never, option.ofNone());
+    it('orElse returns a Promise even when the callback returns a plain Option', async () => {
+        const pending = bridgeOption.orElse((() => option.ofSome(0)) as never, option.ofNone());
         expect(pending).toBeInstanceOf(Promise);
         const r = await pending;
         expect(r.isSome).toBe(true);

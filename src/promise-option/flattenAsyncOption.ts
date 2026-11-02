@@ -8,7 +8,8 @@ import type { IOption } from '../types/Option.js';
  *
  * @example
  * ```ts
- * import { flattenAsyncOption, ofSome } from '@sandlada/result/promise-option';
+ * import { flattenAsyncOption } from '@sandlada/result/promise-option';
+ * import { ofSome } from '@sandlada/result/option';
  * const r = await flattenAsyncOption(Promise.resolve(ofSome(ofSome(42)))); // Some(42)
  * const r2 = await flattenAsyncOption(Promise.resolve(ofSome(ofSome(ofSome(7))))); // Some(Some(7))
  * ```

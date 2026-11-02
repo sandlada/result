@@ -22,7 +22,8 @@ export function unwrapOrAsync<A, E, D = A>(
  *
  * @example
  * ```ts
- * import { unwrapOrAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { unwrapOrAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await unwrapOrAsync(0, asyncOk(42));                       // 42
  * await unwrapOrAsync(0, asyncErr('boom'));                  // 0
  * await unwrapOrAsync(Promise.resolve(0), asyncErr('boom')); // 0

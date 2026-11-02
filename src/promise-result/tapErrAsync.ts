@@ -13,7 +13,8 @@ export function tapErrAsync<A, E>(
  *
  * @example
  * ```ts
- * import { tapErrAsync, asyncErr } from '@sandlada/result/promise-result';
+ * import { tapErrAsync } from '@sandlada/result/promise-result';
+ * import { asyncErr } from '@sandlada/result/factories';
  * await tapErrAsync((e: string) => console.log('err:', e), asyncErr('boom'));
  * ```
  */

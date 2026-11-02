@@ -22,7 +22,8 @@ export function ap<A, B, E>(
  *
  * @example
  * ```ts
- * import { ap, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { ap } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await ap(asyncOk((x: number) => x * 2), asyncOk(21)); // Ok(42)
  * await ap(asyncOk((x: number) => x * 2), asyncErr('x')); // Err('x')
  * ```

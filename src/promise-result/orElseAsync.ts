@@ -16,7 +16,8 @@ export function orElseAsync<A, E, B, F>(
  *
  * @example
  * ```ts
- * import { orElseAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { orElseAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await orElseAsync(
  *   (e: string) => asyncOk('default'),
  *   asyncErr('boom'),

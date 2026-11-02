@@ -6,16 +6,9 @@
 
 - Operates on: `Promise<IResultOfT<T, E>>`; callbacks may be synchronous or asynchronous depending on the operator.
 - Execution model: **eager** — the chain starts on the call and the returned Promise is already in flight.
-- Not here: lazy thunks (`async-result`), Result construction (`factories`), synchronous operators (`operators`).
+- Not here: lazy thunks (`async-result`), sync-to-async lift (`bridge-result`), Result construction (`factories`), synchronous operators (`operators`).
 
 ## API
-
-### Constructors (re-exported from `factories`)
-
-| Export | Description | Source |
-| --- | --- | --- |
-| `asyncOk` | Pre-resolved success Promise. | [../factories/asyncOk.ts](../factories/asyncOk.ts) |
-| `asyncErr` | Pre-resolved failure Promise. | [../factories/asyncErr.ts](../factories/asyncErr.ts) |
 
 ### Synchronous-callback operators
 
@@ -40,13 +33,6 @@
 | `containsAsync` / `existsAsync` / `filterOrElseAsync` | Async predicate queries. | [containsAsync.ts](./containsAsync.ts), [existsAsync.ts](./existsAsync.ts), [filterOrElseAsync.ts](./filterOrElseAsync.ts) |
 | `catchErrAsync` | Recovery that lifts `onErr(error)` into `Ok`. | [catchErrAsync.ts](./catchErrAsync.ts) |
 
-### Lift sync `IResultOfT` → async
-
-| Export | Description | Source |
-| --- | --- | --- |
-| `asyncMap` / `asyncBind` / `asyncBindThrough` | **Deprecated re-exports** — use `@sandlada/result/bridge-result`. | [../bridge-result/README.md](../bridge-result/README.md) |
-| `asyncMatch` / `asyncOrElse` / `asyncTap` / `asyncTapErr` | Same bridge; re-exported here until Phase 5 removal. | [../bridge-result/README.md](../bridge-result/README.md) |
-
 ### Applicative and combination
 
 | Export | Description | Source |
@@ -62,7 +48,7 @@
 - This layer has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family, whose async rejections travel on the outer rejection channel.
 - `unwrapOrAsync` / `unwrapOrElseAsync` resolve to the bare value (`Promise<A>`), not to a Result.
 - `combine` / `combineWithAllErrors` start every input Promise immediately; short-circuiting affects only which result is selected.
-- Naming: a `*Async` suffix marks an async callback on `Promise<IResultOfT>`; an `async*` prefix marks the lift family that consumes a synchronous `IResultOfT`.
+- Naming: a `*Async` suffix marks an async callback on `Promise<IResultOfT>`. Sync `IResultOfT` → `Promise<IResultOfT>` lifts live in [`bridge-result`](../bridge-result/README.md).
 
 ## Design notes
 
@@ -70,6 +56,7 @@
 
 ## Related
 
+- [`bridge-result`](../bridge-result/README.md) — lift sync `IResultOfT` into `Promise<IResultOfT>`.
 - [`async-result`](../async-result/README.md) — the lazy thunk counterpart.
 - [`promise-option`](../promise-option/README.md) — the same shape for `Promise<IOption>`.
 - [`composition`](../composition/README.md) — `pipeAsync` for mixed Promise chains.

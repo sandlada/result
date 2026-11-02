@@ -20,7 +20,8 @@ export function unwrapOrElseAsync<A, E, D = A>(
  *
  * @example
  * ```ts
- * import { unwrapOrElseAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { unwrapOrElseAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await unwrapOrElseAsync((e: string) => 0, asyncOk(42));    // 42
  * await unwrapOrElseAsync((e: string) => 0, asyncErr('x'));  // 0
  * ```

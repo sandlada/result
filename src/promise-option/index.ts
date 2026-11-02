@@ -2,18 +2,10 @@
  * Async operators on `Promise<IOption<T>>` — barrel export.
  *
  * Mirrors the structure of `promise-result/` but for the Option type.
- * Callbacks may be sync or async; predicates use catch+convert policy.
+ * For lifting sync `IOption` into `Promise<IOption>`, see `../bridge-option/index.js`.
  *
  * @packageDocumentation
  */
-
-// Convenience factories (pre-resolved Promise<IResultOfT>)
-export { asyncOk } from '../factories/asyncOk.js';
-export { asyncErr } from '../factories/asyncErr.js';
-
-// Sync `IOption` constructors
-export { ofSome } from '../option/ofSome.js';
-export { ofNone } from '../option/ofNone.js';
 
 // Result-flavored: operate on `Promise<IOption<T>>` with sync-or-async fn
 export { bindAsyncOption } from './bindAsyncOption.js';
@@ -30,10 +22,3 @@ export { tapAsyncOption } from './tapAsyncOption.js';
 export { tapErrAsyncOption } from './tapErrAsyncOption.js';
 export { unwrapOrAsyncOption } from './unwrapOrAsyncOption.js';
 export { unwrapOrElseAsyncOption } from './unwrapOrElseAsyncOption.js';
-
-// Lift: operate on sync `IOption<T>` with async fn
-export { asyncBindOption } from './asyncBindOption.js';
-export { asyncMapOption } from './asyncMapOption.js';
-export { asyncMatchOption } from './asyncMatchOption.js';
-export { asyncOrElseOption } from './asyncOrElseOption.js';
-export { asyncTapOption } from './asyncTapOption.js';

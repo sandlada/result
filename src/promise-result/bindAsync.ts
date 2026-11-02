@@ -21,7 +21,8 @@ export function bindAsync<A, B, E, F>(
  *
  * @example
  * ```ts
- * import { bindAsync, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { bindAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await bindAsync(
  *   (x: number) => x > 0 ? asyncOk(x * 2) : asyncErr('too small'),
  *   asyncOk(21),

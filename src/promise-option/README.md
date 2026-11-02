@@ -6,16 +6,9 @@
 
 - Operates on: `Promise<IOption<T>>`; callbacks may be synchronous or asynchronous depending on the operator.
 - Execution model: **eager** — the chain starts on the call and the returned Promise is already in flight.
-- Not here: sync Option operators (`option`), lazy thunks (`async-option`), Result variants (`promise-result`).
+- Not here: sync Option operators (`option`), sync-to-async lift (`bridge-option`), lazy thunks (`async-option`), Result variants (`promise-result`).
 
 ## API
-
-### Constructors (re-exported)
-
-| Export | Description | Source |
-| --- | --- | --- |
-| `asyncOk` / `asyncErr` | Pre-resolved Result Promises from `factories`. | [../factories/asyncOk.ts](../factories/asyncOk.ts), [../factories/asyncErr.ts](../factories/asyncErr.ts) |
-| `ofSome` / `ofNone` | Sync Option constructors from `option`. | [../option/ofSome.ts](../option/ofSome.ts), [../option/ofNone.ts](../option/ofNone.ts) |
 
 ### Operators on `Promise<IOption>`
 
@@ -31,23 +24,13 @@
 | `containsAsyncOption` / `existsAsyncOption` / `filterAsyncOption` | Async predicate queries. | [containsAsyncOption.ts](./containsAsyncOption.ts), [existsAsyncOption.ts](./existsAsyncOption.ts), [filterAsyncOption.ts](./filterAsyncOption.ts) |
 | `flattenAsyncOption` | Flattens `Promise<IOption<IOption<T>>>`. | [flattenAsyncOption.ts](./flattenAsyncOption.ts) |
 
-### Lift sync `IOption` → async
-
-| Export | Description | Source |
-| --- | --- | --- |
-| `asyncMapOption` | Async map on a sync `IOption`. | [asyncMapOption.ts](./asyncMapOption.ts) |
-| `asyncBindOption` | Async chain on a sync `IOption`. | [asyncBindOption.ts](./asyncBindOption.ts) |
-| `asyncOrElseOption` | Async fallback on a sync `IOption`. | [asyncOrElseOption.ts](./asyncOrElseOption.ts) |
-| `asyncMatchOption` | Async terminal match on a sync `IOption`. | [asyncMatchOption.ts](./asyncMatchOption.ts) |
-| `asyncTapOption` | Async side effect on a sync `IOption`. | [asyncTapOption.ts](./asyncTapOption.ts) |
-
 ## Contract notes
 
 - A rejection of the outer `Promise` itself always stays a rejection; it is never converted into `None`.
-- Callback policy: operators on `Promise<IOption>` collapse a throwing callback or an async rejection into `None` / `false` / the default value; `matchAsyncOption`, `mapOrElseAsyncOption` and `unwrapOrElseAsyncOption` propagate instead. The lifting family (`asyncMapOption`, `asyncBindOption`, `asyncTapOption`, `asyncOrElseOption`) turns a synchronous throw into `None` but lets a rejected Promise propagate. See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
+- Callback policy: operators on `Promise<IOption>` collapse a throwing callback or an async rejection into `None` / `false` / the default value; `matchAsyncOption`, `mapOrElseAsyncOption` and `unwrapOrElseAsyncOption` propagate instead. Sync `IOption` lifts are documented under [`bridge-option`](../bridge-option/README.md). See [behavior-modes.md §4.6](../../docs/behavior-modes.md#46-eager-async-srcpromise-result-srcpromise-option).
 - This layer has no `unwrap` / `expect` / `orThrow`; extraction goes through the `unwrapOr*` family.
 - There are no combination APIs here; combine Options with the sync [`option/all`](../option/all.ts) before lifting when needed.
-- Naming: the `AsyncOption` suffix marks operators that consume a `Promise<IOption>`; the `async*Option` prefix marks the lift family that consumes a synchronous `IOption`.
+- Naming: the `*AsyncOption` suffix marks operators on `Promise<IOption>`. Sync lifts use [`bridge-option`](../bridge-option/README.md).
 
 ## Design notes
 

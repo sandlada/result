@@ -36,11 +36,12 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * @example
  * ```ts
  * import { pipeAsync } from '@sandlada/result/composition';
- * import { asyncOk, mapAsync, bindAsync, matchAsync, asyncErr } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
+ * import { mapAsync, bindAsync, matchAsync } from '@sandlada/result/promise-result';
  * await pipeAsync(
  *   asyncOk(42),
- *   mapAsync(x => x * 2),
- *   bindAsync(x => x > 50 ? asyncOk(x) : asyncErr('too small')),
+ *   mapAsync((x: number) => x * 2),
+ *   bindAsync((x: number) => x > 50 ? asyncOk(x) : asyncErr('too small')),
  *   matchAsync(v => `OK: ${v}`, e => `Error: ${e}`),
  * );
  * ```

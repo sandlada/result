@@ -11,7 +11,8 @@ import { ok } from '../factories/ok.js';
  *
  * @example
  * ```ts
- * import { combineWithAllErrors, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { combineWithAllErrors } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await combineWithAllErrors([asyncOk(1), asyncErr('a'), asyncErr('b')]); // Err(['a', 'b'])
  * await combineWithAllErrors([asyncOk(1), asyncOk(2)]); // Ok([1, 2])
  * ```

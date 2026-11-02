@@ -4,13 +4,10 @@
  * Re-exports all asynchronous operators for working with `Promise<IResultOfT<T, E>>` values.
  *
  * For `Promise<IOption<T>>` operators, see `../promise-option/index.js` (subpath `./promise-option`).
+ * For lifting sync `IResultOfT` into `Promise<IResultOfT>`, see `../bridge-result/index.js`.
  *
  * @packageDocumentation
  */
-
-// Convenience factories (pre-resolved Promise<IResultOfT>)
-export { asyncOk } from '../factories/asyncOk.js';
-export { asyncErr } from '../factories/asyncErr.js';
 
 // Sync operators (operate on `Promise<IResultOfT>`, sync fn)
 export { flatten } from './flatten.js';
@@ -39,15 +36,6 @@ export { tapErrAsync } from './tapErrAsync.js';
 export { unwrapOrAsync } from './unwrapOrAsync.js';
 export { unwrapOrElseAsync } from './unwrapOrElseAsync.js';
 export { catchErrAsync } from './catchErrAsync.js';
-
-// Lift operators (operate on sync `IResultOfT`, async fn)
-export { asyncBind } from './asyncBind.js';
-export { asyncBindThrough } from './asyncBindThrough.js';
-export { asyncMap } from './asyncMap.js';
-export { asyncMatch } from './asyncMatch.js';
-export { asyncOrElse } from './asyncOrElse.js';
-export { asyncTap } from './asyncTap.js';
-export { asyncTapErr } from './asyncTapErr.js';
 
 // Combinators
 export { ap } from './ap.js';

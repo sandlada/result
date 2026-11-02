@@ -19,7 +19,8 @@ export function map<A, B, E>(
  *
  * @example
  * ```ts
- * import { map, asyncOk, asyncErr } from '@sandlada/result/promise-result';
+ * import { map } from '@sandlada/result/promise-result';
+ * import { asyncOk, asyncErr } from '@sandlada/result/factories';
  * await map((x: number) => x * 2, asyncOk(21)); // Ok(42)
  * await map((x: number) => x * 2, asyncErr('boom')); // Err('boom')
  * ```

@@ -13,7 +13,8 @@ export function tapAsync<A, E>(
  *
  * @example
  * ```ts
- * import { tapAsync, asyncOk } from '@sandlada/result/promise-result';
+ * import { tapAsync } from '@sandlada/result/promise-result';
+ * import { asyncOk } from '@sandlada/result/factories';
  * await tapAsync((v: string) => console.log('got:', v), asyncOk('hello'));
  * ```
  */
