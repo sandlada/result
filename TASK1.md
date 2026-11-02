@@ -485,7 +485,7 @@ npm test
 | 3.0 分发清单 | `[x]` | | 见下方「Phase 3 分发清单」 |
 | 3.1 三个标本 | `[x]` | | `map` / `bimap` / `unwrapOr` + `internal/dual.ts` |
 | 3.2 停止或继续 | `[x]` | | 停止条件未触发，继续推广 |
-| 3.3–3.6 | `[ ]` | | operators module dual rollout done; async-result / imports / errorFn pending |
+| 3.3–3.6 | `[ ]` | 41c22cb | operators done (`refactor/task1-p3-operators`); 3.4–3.6 pending |
 | 4 矩阵影子对照与冲突清单 | `[ ]` | | |
 | 5 改名与删再导出 | `[ ]` | | |
 | 6 内核，或明确跳过 | `[ ]` | | |
