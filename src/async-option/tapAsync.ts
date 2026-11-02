@@ -18,11 +18,22 @@ export function tapAsync<T>(
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * import { fromOption, tapAsync } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, match, tapAsync } from '@sandlada/result/async-option';
  *
- * const ao = tapAsync(async (v: number) => { console.log('saving', v); }, fromOption(ofSome(42)));
- * await ao.run(); // returns Some(42) after the async side effect
+ * let saved = false;
+ * const input = fromOption(ofSome(42));
+ * const tapped = tapAsync(async (v: number) => { saved = v === 42; }, input);
+ * const kept = await tapped.run();
+ * // kept is Some(42) and saved === true
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const skipped = tapAsync(async () => { saved = true; }, empty);
+ * const absent = await match(
+ *   { some: () => 'some', none: () => 'none' },
+ *   skipped,
+ * );
+ * // absent === 'none'; tapAsync skips the side effect on None
  * ```
  */
 export function tapAsync<T>(

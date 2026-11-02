@@ -7,10 +7,21 @@ import { runCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, isNone } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, isNone, match } from '@sandlada/result/async-option';
  *
- * await isNone(ofSome(42)); // false
- * await isNone(ofNone<number>()); // true
+ * const input = fromOption(ofSome(42));
+ * const no = await isNone(input);
+ * // no === false
+ * const label = await match(
+ *   { some: () => 'some', none: () => 'none' },
+ *   input,
+ * );
+ * // label === 'some'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const yes = await isNone(empty);
+ * // yes === true
  * ```
  */
 export function isNone<T>(ao: AsyncOption<T>): Promise<boolean> {

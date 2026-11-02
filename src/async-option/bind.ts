@@ -17,11 +17,24 @@ export function bind<T, U>(
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * import { fromOption, bind } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { bind, fromOption, match } from '@sandlada/result/async-option';
  *
- * const ao = bind((x: number) => fromOption(ofSome(x * 2)), fromOption(ofSome(21)));
- * const result = await ao.run(); // Some(42)
+ * const input = fromOption(ofSome(21));
+ * const chained = bind((x: number) => fromOption(ofSome(x * 2)), input);
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   chained,
+ * );
+ * // label === 'value:42'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const skipped = bind((x: number) => fromOption(ofSome(x * 2)), empty);
+ * const absent = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   skipped,
+ * );
+ * // absent === 'missing'; bind short-circuits on None
  * ```
  */
 export function bind<T, U>(

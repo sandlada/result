@@ -13,13 +13,22 @@ export function match<T, U>(
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
  * import { fromOption, match } from '@sandlada/result/async-option';
  *
- * const value = await match(
+ * const input = fromOption(ofSome(42));
+ * const label = await match(
  *   { some: (v: number) => `success: ${v}`, none: () => 'failure' },
- *   fromOption(ofSome(42))
- * ); // "success: 42"
+ *   input,
+ * );
+ * // label === 'success: 42'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const absent = await match(
+ *   { some: (v: number) => `success: ${v}`, none: () => 'failure' },
+ *   empty,
+ * );
+ * // absent === 'failure'
  * ```
  */
 export function match<T, U>(

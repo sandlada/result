@@ -17,13 +17,37 @@ import { ofSome as syncOfSome } from '../option/ofSome.js';
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/async-option';
- * import { fromResult } from '@sandlada/result/async-result';
+ * import { ofNone, ofSome, transpose } from '@sandlada/result/async-option';
+ * import { fromResult, match } from '@sandlada/result/async-result';
  * import { ok } from '@sandlada/result/factories';
- * import { transpose } from '@sandlada/result/async-option';
+ * import type { AsyncResult } from '@sandlada/result/types';
  *
- * const r = await transpose(ofSome(fromResult(ok(42)))).run();
- * // r.isSuccess === true; r.value is an AsyncOption resolving to Some(42)
+ * const input = ofSome(fromResult(ok(42)));
+ * const ar = transpose(input);
+ * const label = await match(
+ *   {
+ *     ok: async (nested) => {
+ *       const opt = await nested.run();
+ *       return opt.isSome ? `some:${opt.value}` : 'none';
+ *     },
+ *     err: (e: string) => `err:${e}`,
+ *   },
+ *   ar,
+ * );
+ * // label === 'some:42'
+ *
+ * const empty = ofNone<AsyncResult<number, string>>();
+ * const whenNone = await match(
+ *   {
+ *     ok: async (nested) => {
+ *       const opt = await nested.run();
+ *       return opt.isSome ? 'some' : 'none';
+ *     },
+ *     err: (e: string) => `err:${e}`,
+ *   },
+ *   transpose(empty),
+ * );
+ * // whenNone === 'none'; outer None becomes Ok carrying a None AsyncOption
  * ```
  */
 export function transpose<T, E>(

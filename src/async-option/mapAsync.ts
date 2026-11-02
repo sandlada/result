@@ -16,11 +16,24 @@ export function mapAsync<T, U>(
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * import { fromOption, mapAsync } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, mapAsync, match } from '@sandlada/result/async-option';
  *
- * const ao = mapAsync(async (x: number) => x * 2, fromOption(ofSome(21)));
- * const result = await ao.run(); // Some(42)
+ * const input = fromOption(ofSome(21));
+ * const mapped = mapAsync(async (x: number) => x * 2, input);
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   mapped,
+ * );
+ * // label === 'value:42'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const skipped = mapAsync(async (x: number) => x * 2, empty);
+ * const absent = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   skipped,
+ * );
+ * // absent === 'missing'; mapAsync passes None through
  * ```
  */
 export function mapAsync<T, U>(

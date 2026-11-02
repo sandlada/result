@@ -15,18 +15,20 @@ import { isAsyncCarrier } from '../types/asyncCarrier.js';
  * @example
  * ```ts
  * import { ofSome, ofNone } from '@sandlada/result/option';
- * import { fromOption, orElse } from '@sandlada/result/async-option';
+ * import { fromOption, match, orElse } from '@sandlada/result/async-option';
  *
- * const ao = orElse(() => fromOption(ofSome(0)), fromOption(ofNone()));
- * const result = await ao.run(); // Some(0)
- *
- * // Cross-type recovery - input `AsyncOption<User>`, fallback `AsyncOption<string>`,
- * // result `AsyncOption<User | string>`.
- * type User = { readonly id: string };
- * const recovered = orElse(
- *     () => fromOption(ofSome('anonymous' as string)),
- *     fromOption(ofNone<User>()),
+ * const empty = fromOption(ofNone<number>());
+ * const recovered = orElse(() => fromOption(ofSome(0)), empty);
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   recovered,
  * );
+ * // label === 'value:0'
+ *
+ * const present = fromOption(ofSome(5));
+ * const kept = orElse(() => fromOption(ofSome(0)), present);
+ * const same = await kept.run();
+ * // same is Some(5); orElse keeps the original Some
  * ```
  *
  */

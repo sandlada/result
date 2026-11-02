@@ -8,10 +8,15 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/async-option';
+ * import { map, match, ofSome } from '@sandlada/result/async-option';
  *
- * const ao = ofSome(42);
- * const opt = await ao.run(); // Some(42)
+ * const input = 21;
+ * const ao = map((x: number) => x * 2, ofSome(input));
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   ao,
+ * );
+ * // label === 'value:42'
  * ```
  */
 export function ofSome<T>(value: T): AsyncOption<T> {

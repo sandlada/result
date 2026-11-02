@@ -20,10 +20,31 @@ export function filter<T>(
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * import { fromOption, filter } from '@sandlada/result/async-option';
- * const ao = filter((x: number) => x > 10, fromOption(ofSome(21)));
- * const result = await ao.run(); // Some(21)
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { filter, fromOption, match } from '@sandlada/result/async-option';
+ *
+ * const input = fromOption(ofSome(21));
+ * const kept = filter((x: number) => x > 10, input);
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   kept,
+ * );
+ * // label === 'value:21'
+ *
+ * const narrow = filter((x: number) => x > 100, input);
+ * const rejected = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   narrow,
+ * );
+ * // rejected === 'missing'; filter drops failing predicates to None
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const skipped = filter((x: number) => x > 10, empty);
+ * const absent = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   skipped,
+ * );
+ * // absent === 'missing'; filter passes None through
  * ```
  */
 export function filter<T>(

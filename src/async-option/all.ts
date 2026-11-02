@@ -31,17 +31,18 @@ export function all<T>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, all } from '@sandlada/result/async-option';
- * import type { AsyncOption } from '@sandlada/result';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { all, fromOption } from '@sandlada/result/async-option';
  *
- * // Heterogeneous tuple — per-position types preserved.
- * const a = await all([ofSome(1), ofSome('hi')]).run(); // Some([1, 'hi'])
+ * const left = fromOption(ofSome(1));
+ * const right = fromOption(ofSome(2));
+ * const combined = all([left, right]);
+ * const pair = await combined.run();
+ * // pair is Some([1, 2])
  *
- * // Homogeneous array — runtime-sized.
- * const arr: AsyncOption<number>[] = [ofSome(1), ofSome(2)];
- * const b = await all(arr).run(); // Some([1, 2])
- *
- * const c = await all([ofSome(1), ofNone<number>()]).run(); // None
+ * const broken = all([fromOption(ofSome(1)), fromOption(ofNone<number>())]);
+ * const none = await broken.run();
+ * // none is None; all short-circuits when any input is None
  * ```
  */
 export function all(aos: readonly AsyncOption<unknown>[]): AsyncOption<unknown> {

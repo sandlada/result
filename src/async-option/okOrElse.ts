@@ -25,11 +25,25 @@ export function okOrElse<T, E>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone } from '@sandlada/result/async-option';
- * import { okOrElse } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, okOrElse } from '@sandlada/result/async-option';
+ * import { match } from '@sandlada/result/async-result';
  *
- * const r1 = await okOrElse(() => 'missing', ofSome(42)).run(); // Ok(42)
- * const r2 = await okOrElse(() => 'missing', ofNone<number>()).run(); // Err('missing')
+ * const input = fromOption(ofSome(42));
+ * const ar = okOrElse(() => 'missing', input);
+ * const okLabel = await match(
+ *   { ok: (v: number) => `ok:${v}`, err: (e: string | Error) => `err:${String(e)}` },
+ *   ar,
+ * );
+ * // okLabel === 'ok:42'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const failed = okOrElse(() => 'missing', empty);
+ * const errLabel = await match(
+ *   { ok: (v: number) => `ok:${v}`, err: (e: string | Error) => `err:${String(e)}` },
+ *   failed,
+ * );
+ * // errLabel === 'err:missing'
  * ```
  */
 export function okOrElse<T, E>(

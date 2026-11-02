@@ -12,10 +12,16 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ofNone } from '@sandlada/result/async-option';
+ * import { ofSome } from '@sandlada/result/option';
+ * import { fromOption, match, ofNone, orElse } from '@sandlada/result/async-option';
  *
- * const ao = ofNone<number>();
- * const opt = await ao.run(); // None
+ * const input = ofNone<number>();
+ * const recovered = orElse(() => fromOption(ofSome(0)), input);
+ * const label = await match(
+ *   { some: (n) => `value:${n}`, none: () => 'missing' },
+ *   recovered,
+ * );
+ * // label === 'value:0'; orElse supplies Some when input is None
  * ```
  */
 export function ofNone<T = unknown>(): AsyncOption<T> {

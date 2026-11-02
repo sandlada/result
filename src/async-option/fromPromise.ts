@@ -14,9 +14,22 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { fromPromise } from '@sandlada/result/async-option';
- * const ao = fromPromise(() => fetch('/api/data').then(r => r.json()));
- * const result = await ao.run();
+ * import { fromPromise, match } from '@sandlada/result/async-option';
+ *
+ * const input = () => Promise.resolve(99);
+ * const ao = fromPromise(input);
+ * const label = await match(
+ *   { some: (n) => `got:${n}`, none: () => 'missing' },
+ *   ao,
+ * );
+ * // label === 'got:99'
+ *
+ * const rejected = fromPromise(() => Promise.reject(new Error('fail')));
+ * const absent = await match(
+ *   { some: () => 'ok', none: () => 'missing' },
+ *   rejected,
+ * );
+ * // absent === 'missing'; fromPromise turns rejections into None
  * ```
  */
 export function fromPromise<T>(

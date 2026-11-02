@@ -45,18 +45,28 @@ export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(
  *
  * @example
  * ```ts
- * import { zipWith, ofSome, ofNone } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, match, zipWith } from '@sandlada/result/async-option';
  *
- * // Arity 2
- * const r1 = await zipWith((a: number, b: number) => a + b, ofSome(1), ofSome(2)).run();
- * // Some(3)
+ * const left = fromOption(ofSome(1));
+ * const right = fromOption(ofSome(2));
+ * const summed = zipWith((a: number, b: number) => a + b, left, right);
+ * const label = await match(
+ *   { some: (n) => `sum:${n}`, none: () => 'missing' },
+ *   summed,
+ * );
+ * // label === 'sum:3'
  *
- * // Arity 5
- * const r2 = await zipWith(
- *     (a: number, b: number, c: number, d: number, e: number) => a + b + c + d + e,
- *     ofSome(1), ofSome(2), ofSome(3), ofSome(4), ofSome(5),
- * ).run();
- * // Some(15)
+ * const broken = zipWith(
+ *   (a: number, b: number) => a + b,
+ *   left,
+ *   fromOption(ofNone<number>()),
+ * );
+ * const absent = await match(
+ *   { some: (n) => `sum:${n}`, none: () => 'missing' },
+ *   broken,
+ * );
+ * // absent === 'missing'; zipWith short-circuits when any input is None
  * ```
  */
 export function zipWith<T extends readonly [unknown, unknown, ...unknown[]], R>(

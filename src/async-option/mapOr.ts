@@ -17,10 +17,16 @@ export function mapOr<T, U>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, mapOr } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, mapOr } from '@sandlada/result/async-option';
  *
- * const v1 = await mapOr(-1, (x: number) => x * 2, ofSome(21)); // 42
- * const v2 = await mapOr(-1, (x: number) => x * 2, ofNone<number>()); // -1
+ * const input = fromOption(ofSome(21));
+ * const mapped = await mapOr(-1, (x: number) => x * 2, input);
+ * // mapped === 42
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const fallback = await mapOr(-1, (x: number) => x * 2, empty);
+ * // fallback === -1; mapOr uses the default on None
  * ```
  */
 export function mapOr<T, U>(

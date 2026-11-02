@@ -7,10 +7,16 @@ import { runCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, unwrap } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, isNone, unwrap } from '@sandlada/result/async-option';
  *
- * const v = await unwrap(ofSome(42)); // 42
- * await unwrap(ofNone()); // throws Error
+ * const input = fromOption(ofSome(42));
+ * const value = await unwrap(input);
+ * // value === 42
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const missing = await isNone(empty);
+ * // missing === true; unwrap(empty) would throw on None
  * ```
  */
 export function unwrap<T>(ao: AsyncOption<T>): Promise<T> {

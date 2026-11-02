@@ -14,10 +14,16 @@ export function unwrapOrElse<T>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, unwrapOrElse } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, unwrapOrElse } from '@sandlada/result/async-option';
  *
- * const v1 = await unwrapOrElse(() => 0, ofSome(42)); // 42
- * const v2 = await unwrapOrElse(() => 0, ofNone<number>()); // 0
+ * const input = fromOption(ofSome(42));
+ * const value = await unwrapOrElse(() => 0, input);
+ * // value === 42
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const fallback = await unwrapOrElse(() => 0, empty);
+ * // fallback === 0; unwrapOrElse runs onNone when input is None
  * ```
  */
 export function unwrapOrElse<T>(

@@ -13,11 +13,13 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { from } from '@sandlada/result/async-option';
  * import { ofSome } from '@sandlada/result/option';
+ * import { from, map } from '@sandlada/result/async-option';
  *
- * const ao = from(() => Promise.resolve(ofSome(42)));
- * const result = await ao.run(); // Some(42)
+ * const input = () => Promise.resolve(ofSome(21));
+ * const ao = map((x: number) => x * 2, from(input));
+ * const result = await ao.run();
+ * // result is Some(42); from defers the thunk until run()
  * ```
  */
 export function from<T>(

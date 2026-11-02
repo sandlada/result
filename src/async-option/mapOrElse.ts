@@ -16,10 +16,16 @@ export function mapOrElse<T, U>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone, mapOrElse } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, mapOrElse } from '@sandlada/result/async-option';
  *
- * const v1 = await mapOrElse(() => -1, (x: number) => x * 2, ofSome(21)); // 42
- * const v2 = await mapOrElse(() => -1, (x: number) => x * 2, ofNone<number>()); // -1
+ * const input = fromOption(ofSome(21));
+ * const mapped = await mapOrElse(() => -1, (x: number) => x * 2, input);
+ * // mapped === 42
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const fallback = await mapOrElse(() => -1, (x: number) => x * 2, empty);
+ * // fallback === -1; mapOrElse runs onNone when input is None
  * ```
  */
 export function mapOrElse<T, U>(

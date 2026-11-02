@@ -16,8 +16,13 @@ export function unwrapOr<T>(
  * import { ofSome, ofNone } from '@sandlada/result/option';
  * import { fromOption, unwrapOr } from '@sandlada/result/async-option';
  *
- * const v1 = await unwrapOr(0, fromOption(ofSome(42))); // 42
- * const v2 = await unwrapOr(0, fromOption(ofNone())); // 0
+ * const input = fromOption(ofSome(42));
+ * const value = await unwrapOr(0, input);
+ * // value === 42
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const fallback = await unwrapOr(0, empty);
+ * // fallback === 0; unwrapOr returns the default on None
  * ```
  */
 export function unwrapOr<T>(

@@ -17,11 +17,25 @@ export function okOr<T, E>(
  *
  * @example
  * ```ts
- * import { ofSome, ofNone } from '@sandlada/result/async-option';
- * import { okOr } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, okOr } from '@sandlada/result/async-option';
+ * import { match } from '@sandlada/result/async-result';
  *
- * const r1 = await okOr('missing', ofSome(42)).run(); // Ok(42)
- * const r2 = await okOr('missing', ofNone<number>()).run(); // Err('missing')
+ * const input = fromOption(ofSome(42));
+ * const ar = okOr('missing', input);
+ * const okLabel = await match(
+ *   { ok: (v: number) => `ok:${v}`, err: (e: string) => `err:${e}` },
+ *   ar,
+ * );
+ * // okLabel === 'ok:42'
+ *
+ * const empty = fromOption(ofNone<number>());
+ * const failed = okOr('missing', empty);
+ * const errLabel = await match(
+ *   { ok: (v: number) => `ok:${v}`, err: (e: string) => `err:${e}` },
+ *   failed,
+ * );
+ * // errLabel === 'err:missing'
  * ```
  */
 export function okOr<T, E>(

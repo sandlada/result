@@ -7,11 +7,23 @@ import { markAsyncCarrier } from '../types/asyncCarrier.js';
  *
  * @example
  * ```ts
- * import { ofSome } from '@sandlada/result/option';
- * import { fromOption } from '@sandlada/result/async-option';
+ * import { ofSome, ofNone } from '@sandlada/result/option';
+ * import { fromOption, match } from '@sandlada/result/async-option';
  *
- * const ao = fromOption(ofSome(42));
- * const result = await ao.run(); // Some(42)
+ * const input = ofSome(42);
+ * const ao = fromOption(input);
+ * const label = await match(
+ *   { some: (n) => `some:${n}`, none: () => 'none' },
+ *   ao,
+ * );
+ * // label === 'some:42'
+ *
+ * const missing = fromOption(ofNone<number>());
+ * const absent = await match(
+ *   { some: (n) => `some:${n}`, none: () => 'none' },
+ *   missing,
+ * );
+ * // absent === 'none'
  * ```
  */
 export function fromOption<T>(
