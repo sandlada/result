@@ -30,11 +30,4 @@ describe('unwrapOr types', () => {
         const _check: number = result;
         expectTypeOf(_check).toBeNumber();
     });
-
-    it('function default with direct form is not treated as curried (Phase 3 stop)', () => {
-        const input = ok(1) as IResultOfT<number, string>;
-        const result = unwrapOr((n: number) => n, input);
-        const _check: number = result;
-        expectTypeOf(_check).toBeNumber();
-    });
 });

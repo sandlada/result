@@ -58,17 +58,17 @@ function mapApply<A, B, E>(
     }
 }
 
-function mapDirect<A, B, E>(
-    f: (a: A) => B,
-    second?: IResultOfT<A, E> | ((thrown: unknown) => unknown),
-    third?: (thrown: unknown) => E,
-): IResultOfT<B, E> | (<E2>(r: IResultOfT<A, E2>) => IResultOfT<B, E2>) {
+function mapDirect(
+    f: (a: unknown) => unknown,
+    second?: IResultOfT<unknown, unknown> | ((thrown: unknown) => unknown),
+    third?: (thrown: unknown) => unknown,
+): unknown {
     const hasCarrier = third !== undefined || (second !== undefined && typeof second !== 'function');
     if (hasCarrier) {
-        const r = (typeof second === 'function' ? third : second) as IResultOfT<A, E>;
+        const r = (typeof second === 'function' ? third : second) as IResultOfT<unknown, unknown>;
         const eFn = typeof second === 'function' ? second : third;
         return mapApply(f, r, eFn);
     }
     const eFn = typeof second === 'function' ? second : undefined;
-    return <E2>(r: IResultOfT<A, E2>): IResultOfT<B, E2> => mapApply(f, r, eFn);
+    return <E2>(r: IResultOfT<unknown, E2>): IResultOfT<unknown, E2> => mapApply(f, r, eFn);
 }

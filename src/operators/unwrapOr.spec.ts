@@ -19,6 +19,11 @@ describe('unwrapOr', () => {
         expect(unwrapOr(0, err('bad'))).toBe(0);
     });
 
+    it('function default uses direct path when result is supplied', () => {
+        expect(unwrapOr((n: number) => n + 10, ok(5))).toBe(5);
+        expect(unwrapOr((n: number) => n + 10, err<string>('x'))).toBe(15);
+    });
+
     it('default value is returned as-is on failure (Group B)', () => {
         const sentinel = 'fallback' as const;
         expect(unwrapOr(sentinel, err<string>('e'))).toBe('fallback');
