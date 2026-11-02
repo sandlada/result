@@ -2,6 +2,7 @@ import type { AsyncResult } from '../types/AsyncResult.js';
 import type { IResultOfT } from '../types/IResultOfT.js';
 import { isResultLike } from '../types/resultShape.js';
 import { clampTimerDelay } from './timerDelay.js';
+import { err } from '../factories/err.js';
 
 /**
  * Default shape of the error produced by {@link timeout} when no factory is given.
@@ -68,13 +69,13 @@ export function timeout<T, E, TOE = TimeoutError>(
                 if (settled) return;
                 settled = true;
                 try {
-                    resolve({ isSuccess: false as const, isFailure: true as const, error: onTimeout(effectiveMs) });
+                    resolve(err<T, E | TOE>(onTimeout(effectiveMs)));
                 } catch (thrown: unknown) {
                     // If `onTimeout(ms)` throws synchronously, we still
                     // must resolve the outer Promise — otherwise the
                     // awaiter hangs forever and the throw becomes an
                     // unhandled global exception.
-                    resolve({ isSuccess: false as const, isFailure: true as const, error: thrown as unknown as TOE });
+                    resolve(err<T, E | TOE>(thrown as unknown as TOE));
                 }
             }, effectiveMs);
             let innerRun: Promise<IResultOfT<T, E>>;
@@ -98,16 +99,16 @@ export function timeout<T, E, TOE = TimeoutError>(
                         // Result. The outer promise still has to settle with a
                         // Result, so the malformed value is reported as the
                         // failure instead of leaking through as a raw value.
-                        resolve({ isSuccess: false as const, isFailure: true as const, error: r as unknown as E } as unknown as IResultOfT<T, E | TOE>);
+                        resolve(err<T, E | TOE>(r as unknown as E));
                         return;
                     }
                     resolve(r as unknown as IResultOfT<T, E | TOE>);
                 },
-                (err: unknown) => {
+                (errVal: unknown) => {
                     if (settled) return;
                     settled = true;
                     clearTimeout(timer);
-                    resolve({ isSuccess: false as const, isFailure: true as const, error: err as unknown as E } as unknown as IResultOfT<T, E | TOE>);
+                    resolve(err<T, E | TOE>(errVal as unknown as E));
                 },
             );
         }),

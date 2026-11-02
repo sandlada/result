@@ -120,11 +120,7 @@ export function race<T, E, EE = EmptyInputsError>(
                         }
                     }
                     // Every run rejected — no domain error exists to prefer.
-                    resolve({
-                        isSuccess: false as const,
-                        isFailure: true as const,
-                        error: rejectionsByArrival[0] as E,
-                    });
+                    resolve(err<T, E>(rejectionsByArrival[0] as E));
                 };
 
                 runs.forEach((run, idx) => {
